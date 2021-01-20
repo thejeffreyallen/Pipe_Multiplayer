@@ -8,12 +8,14 @@ using UnityEngine.Networking;
 
 namespace FrostyP_PIPE_MultiPlayer
 {
-   public class Player : NetworkBehaviour
+    public class Player : NetworkBehaviour
     {
 
-        
+
         GameObject otherbike;
         GameObject obj;
+
+        // syncvars are kept on the server, using proper commands (customattributes like [command], [clientrpc] ) etc can be edited by a client or a server but always get pushed to ALL clients. not sure if i want this
         [SyncVar] public Vector3 Otherbikepos;
         [SyncVar] public Quaternion Otherbikerot;
 
@@ -21,18 +23,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
         public override void OnStartLocalPlayer()
         {
-            
-           // bmxs_player_comps = UnityEngine.GameObject.Find("BMXS Player Components");
-          //  vehicleman = bmxs_player_comps.GetComponent<VehicleManager>();
-           // playeraccess = bmxs_player_comps.GetComponent<PlayersAccessor>();
-            //GetComponent<Material>().color = color;
-           // Vector3 buffer = new Vector3(17, 40, -13);
-           // transform.position = buffer;
-            //transform.localScale = new Vector3(1, 1, 1);
-            //transform.parent = Camera.current.transform;
 
-           // GameObject BMXobj = UnityEngine.Component.FindObjectOfType<VehicleSkeleton>().gameObject;
-            
 
         }
 
@@ -40,46 +31,33 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-      void Start()
+        void Start()
         {
             obj = UnityEngine.GameObject.Find("BMX");
-            Otherbikepos = obj.transform.position;
-            Otherbikerot = obj.transform.rotation;
+
 
 
 
             if (!isLocalPlayer)
             {
-                
+                /// if your not the local player you must be representing one on another machine, so locally instantiate a bike on this machine to represent your player
                 otherbike = UnityEngine.GameObject.Find("BMX");
-
-                
                 otherbike.name = "player2";
-
-                
-
-
                 otherbike = GameObject.Instantiate(otherbike) as GameObject;
 
-                //GameObject[] components = otherbike.GetComponentsInChildren<GameObject>(true);
-                //foreach (GameObject comp in components)
-                //{
-                //    if (comp.name.Equals("SessionMarker") || comp.name.Equals("TargetingCamera") || comp.name.Equals("SettingsData") || comp.name.Equals("CameraTarget") || comp.name.Equals("UTILITY"))
-                //    {
-                //        Destroy(comp);
-
-                //    }
-                //}
 
 
-                otherbike.transform.position = Otherbikepos;
-                otherbike.transform.rotation = Otherbikerot;
-                
+
+             
+
+
+
+
 
                 // debug all bikes found
                 float num = 1;
                 GameObject[] objects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
-                foreach(GameObject gameobj in objects)
+                foreach (GameObject gameobj in objects)
                 {
                     if (gameobj.name.Contains("player2"))
                     {
@@ -87,10 +65,10 @@ namespace FrostyP_PIPE_MultiPlayer
                         num++;
                     }
                 }
-                
+
             }
 
-            
+
         }
 
 
@@ -103,70 +81,68 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-        
+
         void Update()
         {
 
 
             if (isLocalPlayer)
             {
-                CmdSaveThisPlayerData();
 
+                //if local, move this empty playerprefab with obj, which is local mans bike
                 transform.position = obj.transform.position;
 
             }
 
-            
-            
+
+
             if (!isLocalPlayer)
             {
-               
-                UpdateOtherPlayer();
+                // if not local, move the other bike youve made to transform of this empty playerprefab, which is autosyncing is trans while its tracing an object back on local machine, messy
+                otherbike.transform.position = transform.position;
             }
-           
 
-            
+
+
 
 
 
 
         }
 
-        [Command]
-        void CmdSaveThisPlayerData()
-        {
-            
+
+        /*
+
+          INFO ---- Custom attributes
+
+         [Command] = Put above a method to allow a client to call it, but have the server run it. method name must start with Cmd
+         [ClientRpc] = Makes method invoke on the client after being called by server - start with Rpc
+         [Client] = Only able to run on a client
+         [TargetRpc] = Command but for one specified client.  - start with Rpc
+         [Server] = only able to run n a server
 
 
-                Otherbikepos = obj.transform.position;
-                Otherbikerot = obj.transform.rotation;
-            
+          e.g
+
+
+         void Callfunctiononclient()
+           { 
+           CmdDostuffonserverforme();
+           }
+
+        [command]
+        void CmdDostuffonserverforme(){
+
         }
 
 
 
-
-      
-        void UpdateOtherPlayer()
-        {
-            if (Otherbikepos != null)
-            {
-                otherbike.transform.position = Otherbikepos;
-            }
-            if (Otherbikerot != null)
-            {
-            otherbike.transform.rotation = Otherbikerot;
-
-            }
-
-
-
-           
-        }
-        
-
-
-
-
+        */
     }
+
+
+
+
+
+
 }

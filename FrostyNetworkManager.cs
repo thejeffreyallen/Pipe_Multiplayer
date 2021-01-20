@@ -33,7 +33,7 @@ namespace FrostyP_PIPE_MultiPlayer
             ManagerObject = new GameObject();
            netmanager = ManagerObject.AddComponent<NetworkManager_Class>();
            
-            // add auto Hud for now and turn auto create off so custom manager can override
+            // add auto Hud for now and turn auto create off so custom manager can override if it wants
            hud = ManagerObject.AddComponent<NetworkManagerHUD>();
             netmanager.autoCreatePlayer = false;
 
@@ -43,14 +43,15 @@ namespace FrostyP_PIPE_MultiPlayer
 
             NetworkTransform prefabtranform = prefab.GetComponent<NetworkTransform>();
             prefabtranform.sendInterval = 0.05f;
+            //says sendRate in Unity, send Interval here, opposites
+
 
 
             netmanager.networkAddress = "192.168.16.203";
             netmanager.playerPrefab = prefab;
-            //netmanager.playerSpawnMethod = PlayerSpawnMethod.RoundRobin;
-            //NetworkStartPosition pos1 = new NetworkStartPosition();
-            //pos1.transform.position = Camera.current.transform.position;
-
+            //netmanager.playerSpawnMethod = PlayerSpawnMethod.RoundRobin;   two modes, choose form list of positons at rando, or use them in order
+            
+           
 
 
             
@@ -64,15 +65,7 @@ namespace FrostyP_PIPE_MultiPlayer
         void Update()
         {
            
-          
-               // foundplayers = GameObject.FindGameObjectsWithTag("Player");
-            
-            
-
-            
-
-
-
+         
 
         }
 

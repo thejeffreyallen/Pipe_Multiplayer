@@ -28,6 +28,16 @@ namespace FrostyP_PIPE_MultiPlayer
             NetworkServer.SetClientReady(conn);
             Debug.Log("Client is set to the ready state (ready to receive state updates): " + conn);
         }
+
+
+
+
+
+
+
+
+
+
         public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
         {
            
@@ -36,11 +46,26 @@ namespace FrostyP_PIPE_MultiPlayer
            
             
             
-         
+         // this is what actually spawns the prefab and links to a connection and controller id, i think controller id is just gonna be 0=isplayer or -1=notlocal
 
             NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
             Debug.Log("Client has requested to get his player added to the game");
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         public override void OnServerRemovePlayer(NetworkConnection conn, PlayerController player)
         {
@@ -73,14 +98,26 @@ namespace FrostyP_PIPE_MultiPlayer
             Debug.Log("Host has stopped");
         }
 
+
+
         // Client callbacks
         public override void OnClientConnect(NetworkConnection conn)
         {
             base.OnClientConnect(conn);
             Debug.Log("Connected successfully to server, now to set up other stuff for the client...");
-            
+
+            // on client connect, delete exisitng offline rider and instantiate new Playerprefab, which is the same but autonetworked?
+            //Destroy(UnityEngine.GameObject.Find("BMXS player components"));
+
+            // potentially enter a lobby at this point? only OnServerAddConnection left to process
+
+
+            // think this limits to one player per client as it always offers controller 0, no big deal
             ClientScene.AddPlayer(conn,0);
-        }
+         }
+
+
+
 
         public override void OnClientDisconnect(NetworkConnection conn)
         {
