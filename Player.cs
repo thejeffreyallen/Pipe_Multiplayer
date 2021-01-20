@@ -91,6 +91,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
                 //if local, move this empty playerprefab with obj, which is local mans bike
                 transform.position = obj.transform.position;
+                transform.rotation = obj.transform.rotation;
 
             }
 
@@ -100,6 +101,7 @@ namespace FrostyP_PIPE_MultiPlayer
             {
                 // if not local, move the other bike youve made to transform of this empty playerprefab, which is autosyncing is trans while its tracing an object back on local machine, messy
                 otherbike.transform.position = transform.position;
+                otherbike.transform.rotation = transform.rotation;
             }
 
 
