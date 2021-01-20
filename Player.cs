@@ -41,9 +41,9 @@ namespace FrostyP_PIPE_MultiPlayer
             if (!isLocalPlayer)
             {
                 /// if your not the local player you must be representing one on another machine, so locally instantiate a bike on this machine to represent your player
-                otherbike = UnityEngine.GameObject.Find("BMX");
-                otherbike.name = "player2";
-                otherbike = GameObject.Instantiate(otherbike) as GameObject;
+                
+                //otherbike.name = "player2";
+                otherbike = GameObject.Instantiate(GameObject.Find("BMX")) as GameObject;
 
 
 
