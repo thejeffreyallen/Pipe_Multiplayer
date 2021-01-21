@@ -11,18 +11,71 @@ namespace FrostyP_PIPE_MultiPlayer
         GameObject ManagerObject;
         NetworkManager_Class netmanager;
         NetworkManagerHUD hud;
-        NetworkIdentity[] ids;
-        GameObject[] foundplayers;
+      
 
-        GameObject prefab;
+        GameObject player;
         AssetBundle bundle;
+
+        NetworkTransformChild BarsChild;
+
+
+
+
+
+
+
+
 
         void Start()
         {
-           // get playerPrefab
-            bundle = AssetBundle.LoadFromFile(Application.dataPath + "/Networkunpack");
-            prefab = bundle.LoadAsset("Player") as GameObject;
-            prefab.AddComponent<Player>();
+            // from working version i had
+            // get playerPrefab
+             bundle = AssetBundle.LoadFromFile(Application.dataPath + "/Networkunpack");
+             player = bundle.LoadAsset("Player") as GameObject;
+             player.AddComponent<Player>();
+
+           BarsChild = player.GetComponent<NetworkTransformChild>();
+
+
+
+
+            // for all registered NetworkChildren, go through BMXS_Player_comps and choose the transforms needed, then assign a NetworkChild from above
+            // if i name the networkChild the same as part it needs to find, i could do a simple compare to match all?
+           // NetworkTransformChild BmxAnch_Child = player.AddComponent<NetworkTransformChild>();
+            
+          
+            
+            /*
+            GameObject[] gameobjs_BMXS_P = player.GetComponentsInChildren<GameObject>();
+            foreach(GameObject obj in gameobjs_BMXS_P)
+            {
+                if (obj.name.Contains("BMXAnchor"))
+                {
+                    BmxAnch_Child.target = obj.transform;
+                    BmxAnch_Child.sendInterval = 0.05f;
+                }
+            }
+
+            */
+
+
+
+
+
+
+
+
+
+            // register children to this master object, must be pointed to transform in children, seperate sync rate for eachz
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38,17 +91,13 @@ namespace FrostyP_PIPE_MultiPlayer
             netmanager.autoCreatePlayer = false;
 
 
-            NetworkIdentity id = prefab.GetComponent<NetworkIdentity>();
-            id.localPlayerAuthority = true;
-
-            NetworkTransform prefabtranform = prefab.GetComponent<NetworkTransform>();
-            prefabtranform.sendInterval = 0.05f;
-            //says sendRate in Unity, send Interval here, opposites
+;
+            
 
 
 
-            netmanager.networkAddress = "192.168.16.203";
-            netmanager.playerPrefab = prefab;
+            netmanager.networkAddress = "192.168.1.140";
+            netmanager.playerPrefab = player;
             //netmanager.playerSpawnMethod = PlayerSpawnMethod.RoundRobin;   two modes, choose form list of positons at rando, or use them in order
             
            
@@ -88,16 +137,22 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-            if(UnityEngine.GameObject.Find("BMXAnchor") != null)
+            if(UnityEngine.GameObject.Find("BarsNetObject") != null)
             {
-             GameObject bike = UnityEngine.GameObject.Find("BMXAnchor");
-                GUILayout.Label(bike.transform.position.ToString() + "<<<<< bikes pos" + "  " + bike.transform.rotation.ToString() + " Bikes rot");
+             GameObject barsnet = UnityEngine.GameObject.Find("BarsNetObject");
+                
+
+                GUILayout.Label("Found bars transform =" + barsnet.name + barsnet.transform.position.ToString() + "<<<<< bars pos" + "  " + barsnet.transform.rotation.ToString() + " bars rot");
             }
 
 
 
-            /// confirm these syncvars are working somehow
 
+            GUILayout.Label(BarsChild.target.name.ToString());
+
+
+            /// confirm these syncvars are working somehow
+            /*
             if(UnityEngine.Component.FindObjectsOfType<Player>() != null)
             {
                 foreach(Player comp in UnityEngine.Component.FindObjectsOfType<Player>())
@@ -106,7 +161,7 @@ namespace FrostyP_PIPE_MultiPlayer
                 }
 
             }
-
+            */
             
 
 

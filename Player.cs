@@ -12,8 +12,12 @@ namespace FrostyP_PIPE_MultiPlayer
     {
 
 
-        GameObject otherbike;
-        GameObject obj;
+        GameObject otherbikemain;
+        GameObject Bikemain;
+        GameObject Barsoflocal;
+        GameObject barsNet;
+        GameObject otherbike_Bars;
+        NetworkInstanceId localnetid;
 
         // syncvars are kept on the server, using proper commands (customattributes like [command], [clientrpc] ) etc can be edited by a client or a server but always get pushed to ALL clients. not sure if i want this
         [SyncVar] public Vector3 Otherbikepos;
@@ -23,17 +27,38 @@ namespace FrostyP_PIPE_MultiPlayer
 
         public override void OnStartLocalPlayer()
         {
-
-
+            localnetid = netId;
+               
+           
         }
 
 
 
-
+        
 
         void Start()
         {
-            obj = UnityEngine.GameObject.Find("BMX");
+            
+            
+
+            Bikemain = UnityEngine.GameObject.Find("BMX");
+            barsNet = UnityEngine.GameObject.Find("BarsNetObject");
+            Barsoflocal = UnityEngine.GameObject.Find("BMX:Bars_Joint");
+
+            if (barsNet == null)
+            {
+                Debug.Log("Cant find bars net");
+            }
+
+            if (otherbike_Bars == null)
+            {
+                Debug.Log("Cant find otherbike bars");
+            }
+
+            if (Barsoflocal == null)
+            {
+                Debug.Log("Cant find my bike bars");
+            }
 
 
 
@@ -43,12 +68,33 @@ namespace FrostyP_PIPE_MultiPlayer
                 /// if your not the local player you must be representing one on another machine, so locally instantiate a bike on this machine to represent your player
                 
                 //otherbike.name = "player2";
-                otherbike = GameObject.Instantiate(GameObject.Find("BMX")) as GameObject;
+                otherbikemain = GameObject.Instantiate(GameObject.Find("BMX")) as GameObject;
+                
+
+                UnityEngine.Transform[] objectsinotherbike = otherbikemain.GetComponentsInChildren<Transform>();
+                if(objectsinotherbike == null)
+                {
+                    Debug.Log("Cant find objects in other bike");
+                }
+
+
+                foreach(Transform ob in objectsinotherbike)
+                {
+                    Debug.Log(" Found transform in other bike called  " + ob.name.ToString());
+                    if (ob.name.Contains("BMX:Bars_Joint"))
+                    {
+                        otherbike_Bars = ob.gameObject;
+                        Debug.Log("Found other bikes bars joint");
+                    }
+                   
+                }
+                if(otherbike_Bars == null)
+                {
+                    Debug.Log("Cant find otherbike bars");
+                }
 
 
 
-
-             
 
 
 
@@ -59,7 +105,7 @@ namespace FrostyP_PIPE_MultiPlayer
                 GameObject[] objects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
                 foreach (GameObject gameobj in objects)
                 {
-                    if (gameobj.name.Contains("player2"))
+                    if (gameobj.name.Contains("BMXS Player"))
                     {
                         Debug.Log(gameobj.name.ToString() + "Found a bmx" + num.ToString());
                         num++;
@@ -71,7 +117,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
         }
 
-
+        
 
 
 
@@ -86,22 +132,22 @@ namespace FrostyP_PIPE_MultiPlayer
         {
 
 
-            if (isLocalPlayer)
+            if (isLocalPlayer && hasAuthority)
             {
-
-                //if local, move this empty playerprefab with obj, which is local mans bike
-                transform.position = obj.transform.position;
-                transform.rotation = obj.transform.rotation;
+                transform.position = Bikemain.transform.position;
+                transform.rotation = Bikemain.transform.rotation;
+                barsNet.transform.rotation = Barsoflocal.transform.rotation;
 
             }
 
 
 
-            if (!isLocalPlayer)
+            if (!isLocalPlayer && !hasAuthority)
             {
-                // if not local, move the other bike youve made to transform of this empty playerprefab, which is autosyncing is trans while its tracing an object back on local machine, messy
-                otherbike.transform.position = transform.position;
-                otherbike.transform.rotation = transform.rotation;
+                
+                otherbikemain.transform.position = transform.position;
+                otherbikemain.transform.rotation = transform.rotation;
+                otherbike_Bars.transform.localRotation = barsNet.transform.localRotation;
             }
 
 
