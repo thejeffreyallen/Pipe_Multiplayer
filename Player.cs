@@ -10,114 +10,238 @@ namespace FrostyP_PIPE_MultiPlayer
 {
     public class Player : NetworkBehaviour
     {
+        public int Playerno;
 
 
-        GameObject otherbikemain;
-        GameObject Bikemain;
-        GameObject Barsoflocal;
-        GameObject barsNet;
-        GameObject otherbike_Bars;
+       
+        GameObject Bikemain_Parent;
+
+        Transform Bike;
+        Transform BikeNet;
+
+        Transform Barsoflocal;
+        Transform barsNet;
+
+        Transform CrankLocal;
+        Transform CrankNet;
+
+        Transform FrameLocal;
+        Transform FrameNet;
+
+        Transform FrontWheelLocal;
+        Transform FrontwheelNet;
+
+        Transform BackWheelLocal;
+        Transform BackWheelNet;
+
+        Transform pedalLlocal;
+        Transform pedalLNet;
+
+        Transform pedalRlocal;
+        Transform pedalRNet;
+
+        // rider
+
+        Transform Daryienmain;
+        Transform Upperlegleft;
+        Transform upperlegright;
+        Transform midlegleft;
+        Transform midlegright;
+        Transform footleft;
+        Transform footright;
+        Transform spine1;
+        Transform spine2;
+        Transform spine3;
+        Transform leftshoulder;
+        Transform rightshoulder;
+        Transform leftarm;
+        Transform rightarm;
+        Transform leftforearm;
+        Transform rightforearm;
+        Transform lefthand;
+        Transform righthand;
+        Transform leftfingers;
+        Transform rightfingers;
+        Transform Hips;
+
+        Transform DaryienMainNet;
+        Transform UpperlegleftNET;
+        Transform upperlegrightNET;
+        Transform midlegleftNET;
+        Transform midlegrightNET;
+        Transform footleftNET;
+        Transform footrightNET;
+        Transform spine1NET;
+        Transform spine2NET;
+        Transform spine3NET;
+        Transform leftshoulderNET;
+        Transform rightshoulderNET;
+        Transform leftarmNET;
+        Transform rightarmNET;
+        Transform leftforearmNET;
+        Transform rightforearmNET;
+        Transform lefthandNET;
+        Transform righthandNET;
+        Transform leftfingersNET;
+        Transform rightfingersNET;
+        Transform HipsNET;
+
+
+
+
         NetworkInstanceId localnetid;
 
-        // syncvars are kept on the server, using proper commands (customattributes like [command], [clientrpc] ) etc can be edited by a client or a server but always get pushed to ALL clients. not sure if i want this
-        [SyncVar] public Vector3 Otherbikepos;
-        [SyncVar] public Quaternion Otherbikerot;
+       
 
 
 
         public override void OnStartLocalPlayer()
         {
-            localnetid = netId;
-               
+         localnetid = GetComponent<NetworkIdentity>().netId;
+
            
+            
+            Bikemain_Parent = UnityEngine.GameObject.Find("BMX");
+            Bike = UnityEngine.GameObject.Find("BMX:Bike_Joint").transform;
+            BikeNet = this.gameObject.transform.GetChild(5);
+
+            Barsoflocal = UnityEngine.GameObject.Find("BMX:Bars_Joint").transform;
+            barsNet = this.gameObject.transform.GetChild(0);
+
+            CrankLocal = UnityEngine.GameObject.Find("BMX:DriveTrain_Joint").transform;
+            CrankNet = this.gameObject.transform.GetChild(1);
+
+            FrameLocal = UnityEngine.GameObject.Find("BMX:Frame_Joint").transform;
+            FrameNet = this.gameObject.transform.GetChild(2);
+
+            FrontWheelLocal = UnityEngine.GameObject.Find("BMX:Wheel").transform;
+            FrontwheelNet = this.gameObject.transform.GetChild(3);
+
+            BackWheelLocal = UnityEngine.GameObject.Find("BMX:Wheel 1").transform;
+            BackWheelNet = this.gameObject.transform.GetChild(4);
+
+            pedalLlocal = UnityEngine.GameObject.Find("BMX:LeftPedal_Joint").transform;
+            pedalLNet = this.gameObject.transform.GetChild(27);
+
+            pedalRlocal = UnityEngine.GameObject.Find("BMX:RightPedal_Joint").transform;
+            pedalRNet = this.gameObject.transform.GetChild(28);
+
+
+
+
+            Daryienmain = UnityEngine.GameObject.Find("Daryien").transform;
+            DaryienMainNet = this.gameObject.transform.GetChild(6);
+
+            Upperlegleft = UnityEngine.GameObject.Find("mixamorig:LeftUpLeg").transform;
+            UpperlegleftNET = this.gameObject.transform.GetChild(7);
+
+            upperlegright = UnityEngine.GameObject.Find("mixamorig:RightUpLeg").transform;
+            upperlegrightNET = this.gameObject.transform.GetChild(8);
+
+            midlegleft = UnityEngine.GameObject.Find("mixamorig:LeftLeg").transform;
+            midlegleftNET = this.gameObject.transform.GetChild(9);
+
+            midlegright = UnityEngine.GameObject.Find("mixamorig:RightLeg").transform;
+            midlegrightNET = this.gameObject.transform.GetChild(10);
+
+            footleft = UnityEngine.GameObject.Find("mixamorig:LeftFoot").transform;
+            footleftNET = this.gameObject.transform.GetChild(11);
+
+            footright = UnityEngine.GameObject.Find("mixamorig:RightFoot").transform;
+            footrightNET = this.gameObject.transform.GetChild(12);
+
+
+
+           spine1 = UnityEngine.GameObject.Find("mixamorig:Spine").transform;
+            spine1NET = this.gameObject.transform.GetChild(13);
+
+            spine2 = UnityEngine.GameObject.Find("mixamorig:Spine1").transform;
+            spine2NET = this.gameObject.transform.GetChild(14);
+
+            spine3 = UnityEngine.GameObject.Find("mixamorig:Spine2").transform;
+            spine3NET = this.gameObject.transform.GetChild(15);
+
+            leftshoulder = UnityEngine.GameObject.Find("mixamorig:LeftShoulder").transform;
+            leftshoulderNET = this.gameObject.transform.GetChild(16);
+
+            rightshoulder = UnityEngine.GameObject.Find("mixamorig:RightShoulder").transform;
+            rightshoulderNET = this.gameObject.transform.GetChild(17);
+
+            leftarm = UnityEngine.GameObject.Find("mixamorig:LeftArm").transform;
+            leftarmNET = this.gameObject.transform.GetChild(18);
+
+            rightarm = UnityEngine.GameObject.Find("mixamorig:RightArm").transform;
+            rightarmNET = this.gameObject.transform.GetChild(19);
+
+            leftforearm = UnityEngine.GameObject.Find("mixamorig:LeftForeArm").transform;
+            leftforearmNET = this.gameObject.transform.GetChild(20);
+
+            rightforearm = UnityEngine.GameObject.Find("mixamorig:RightForeArm").transform;
+            rightforearmNET = this.gameObject.transform.GetChild(21);
+
+            lefthand = UnityEngine.GameObject.Find("mixamorig:LeftHand").transform;
+            lefthandNET = this.gameObject.transform.GetChild(22);
+
+            righthand = UnityEngine.GameObject.Find("mixamorig:RightHand").transform;
+            righthandNET = this.gameObject.transform.GetChild(23);
+
+            leftfingers = UnityEngine.GameObject.Find("mixamorig:LeftHandIndex1").transform;
+            leftfingersNET = this.gameObject.transform.GetChild(24);
+
+            rightfingers = UnityEngine.GameObject.Find("mixamorig:RightHandIndex1").transform;
+            rightfingersNET = this.gameObject.transform.GetChild(25);
+
+            Hips = UnityEngine.GameObject.Find("mixamorig:Hips").transform;
+            HipsNET = this.gameObject.transform.GetChild(26);
+
+
         }
 
 
 
-        
 
+
+
+
+
+
+        
         void Start()
         {
-            
-            
-
-            Bikemain = UnityEngine.GameObject.Find("BMX");
-            barsNet = UnityEngine.GameObject.Find("BarsNetObject");
-            Barsoflocal = UnityEngine.GameObject.Find("BMX:Bars_Joint");
-
-            if (barsNet == null)
-            {
-                Debug.Log("Cant find bars net");
-            }
-
-            if (otherbike_Bars == null)
-            {
-                Debug.Log("Cant find otherbike bars");
-            }
-
-            if (Barsoflocal == null)
-            {
-                Debug.Log("Cant find my bike bars");
-            }
 
 
-
-
+            // if your not local and this object doesnt already have a remoteplayer script, add one then disable networkbehaviour, but keep autosynced transforms of the player prefab your attached to and identity, remoteplayer is a monobehaviour(local) and just takes from its gameobjects hierarchy of transforms
             if (!isLocalPlayer)
             {
-                /// if your not the local player you must be representing one on another machine, so locally instantiate a bike on this machine to represent your player
-                
-                //otherbike.name = "player2";
-                otherbikemain = GameObject.Instantiate(GameObject.Find("BMX")) as GameObject;
-                
 
-                UnityEngine.Transform[] objectsinotherbike = otherbikemain.GetComponentsInChildren<Transform>();
-                if(objectsinotherbike == null)
+                if (!this.gameObject.GetComponent<RemotePlayer>())
                 {
-                    Debug.Log("Cant find objects in other bike");
-                }
 
 
-                foreach(Transform ob in objectsinotherbike)
-                {
-                    Debug.Log(" Found transform in other bike called  " + ob.name.ToString());
-                    if (ob.name.Contains("BMX:Bars_Joint"))
-                    {
-                        otherbike_Bars = ob.gameObject;
-                        Debug.Log("Found other bikes bars joint");
-                    }
                    
-                }
-                if(otherbike_Bars == null)
-                {
-                    Debug.Log("Cant find otherbike bars");
-                }
-
-
-
-
-
-
-
-
-                // debug all bikes found
-                float num = 1;
-                GameObject[] objects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
-                foreach (GameObject gameobj in objects)
-                {
-                    if (gameobj.name.Contains("BMXS Player"))
+                    this.gameObject.AddComponent<RemotePlayer>();
+                  
+                    if (this.gameObject.GetComponent<RemotePlayer>())
                     {
-                        Debug.Log(gameobj.name.ToString() + "Found a bmx" + num.ToString());
-                        num++;
+                        this.enabled = false;
+
                     }
+
+                    if (this.gameObject.GetComponent<Player>().enabled == false)
+                    {
+                        Debug.Log("turned off player component of no local player");
+                    }
+
+
                 }
+
 
             }
 
 
         }
 
-        
+
 
 
 
@@ -130,25 +254,174 @@ namespace FrostyP_PIPE_MultiPlayer
 
         void Update()
         {
-
-
-            if (isLocalPlayer && hasAuthority)
+            if (Barsoflocal == null)
             {
-                transform.position = Bikemain.transform.position;
-                transform.rotation = Bikemain.transform.rotation;
-                barsNet.transform.rotation = Barsoflocal.transform.rotation;
+                Debug.Log("Cant find my bike bars");
+            }
 
+            if (barsNet == null)
+            {
+                Debug.Log("Cant find bars net");
             }
 
 
 
-            if (!isLocalPlayer && !hasAuthority)
+
+
+            if (CrankLocal == null)
+            {
+                Debug.Log("Cant find my crank");
+            }
+            if (CrankNet == null)
+            {
+                Debug.Log("Cant find my crankNet");
+            }
+
+
+
+
+
+            if (FrameLocal == null)
+            {
+                Debug.Log("Cant find my Frame");
+            }
+            if (FrameNet == null)
+            {
+                Debug.Log("Cant find my FrameNet");
+            }
+
+
+
+
+
+
+            if (FrontWheelLocal == null)
+            {
+                Debug.Log("Cant find my frontwheel");
+            }
+
+            if (FrontwheelNet == null)
+            {
+                Debug.Log("Cant find my frontwheelnet");
+            }
+
+
+
+
+
+
+            if (BackWheelNet == null)
+            {
+                Debug.Log("Cant find my backwheelnet");
+            }
+
+            if (BackWheelLocal == null)
+            {
+                Debug.Log("Cant find my backwheel");
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+            if (isLocalPlayer)
             {
                 
-                otherbikemain.transform.position = transform.position;
-                otherbikemain.transform.rotation = transform.rotation;
-                otherbike_Bars.transform.localRotation = barsNet.transform.localRotation;
+                transform.position = Bikemain_Parent.transform.position;
+                transform.rotation = Bikemain_Parent.transform.rotation;
+                BikeNet.localRotation = Bike.localRotation;
+                BikeNet.localPosition = Bike.localPosition;
+
+                barsNet.localRotation = Barsoflocal.localRotation;
+
+                CrankNet.localRotation = CrankLocal.localRotation;
+
+                FrameNet.localRotation = FrameLocal.localRotation;
+                FrameNet.localPosition = FrameLocal.localPosition;
+
+                FrontwheelNet.localRotation = FrontWheelLocal.localRotation;
+                BackWheelNet.localRotation = BackWheelLocal.localRotation;
+
+                pedalLNet.localRotation = pedalLlocal.localRotation;
+                pedalRNet.localRotation = pedalRlocal.localRotation;
+
+
+
+
+
+
+
+
+
+                DaryienMainNet.position = Daryienmain.position;
+                DaryienMainNet.rotation = Daryienmain.rotation;
+
+                upperlegrightNET.localRotation = upperlegright.localRotation;
+                upperlegrightNET.localPosition = upperlegright.localPosition;
+                UpperlegleftNET.localRotation = Upperlegleft.localRotation;
+                UpperlegleftNET.localPosition = Upperlegleft.localPosition;
+                midlegleftNET.localRotation = midlegleft.localRotation;
+                midlegleftNET.localPosition = midlegleft.localPosition;
+                midlegrightNET.localRotation = midlegright.localRotation;
+                midlegrightNET.localPosition = midlegright.localPosition;
+                footleftNET.localRotation = footleft.localRotation;
+                footleftNET.localPosition = footleft.localPosition;
+                footrightNET.localPosition = footright.localPosition;
+                footrightNET.localRotation = footright.localRotation;
+
+                spine1NET.localRotation = spine1.localRotation;
+                spine1NET.localPosition = spine1.localPosition;
+
+                spine2NET.localPosition = spine2.localPosition;
+                spine2NET.localRotation = spine2.localRotation;
+
+                spine3NET.localPosition = spine3.localPosition;
+                spine3NET.localRotation = spine3.localRotation;
+
+                leftshoulderNET.localRotation = leftshoulder.localRotation;
+                leftshoulderNET.localPosition = leftshoulder.localPosition;
+
+                rightshoulderNET.localRotation = rightshoulder.localRotation;
+                rightshoulderNET.localPosition = rightshoulder.localPosition;
+
+                leftarmNET.localRotation = leftarm.localRotation;
+                leftarmNET.localPosition = leftarm.localPosition;
+                rightarmNET.localRotation = rightarm.localRotation;
+                rightarmNET.localPosition = rightarm.localPosition;
+
+                leftforearmNET.localPosition = leftforearm.localPosition;
+                leftforearmNET.localRotation = leftforearm.localRotation;
+
+                rightforearmNET.localPosition = rightforearm.localPosition;
+                rightforearmNET.localRotation = rightforearm.localRotation;
+
+                lefthandNET.localRotation = lefthand.localRotation;
+                lefthandNET.localPosition = lefthand.localPosition;
+
+                righthandNET.localPosition = righthand.localPosition;
+                righthandNET.localRotation = righthand.localRotation;
+
+                leftfingersNET.localRotation = leftfingers.localRotation;
+                leftfingersNET.localPosition = leftfingers.localPosition;
+
+                rightfingersNET.localPosition = rightfingers.localPosition;
+                rightfingersNET.localRotation = rightfingers.localRotation;
+
+                HipsNET.localRotation = Hips.localRotation;
+                HipsNET.localPosition = Hips.localPosition;
             }
+
+
+
+           
 
 
 
@@ -157,6 +430,10 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
         }
+
+
+
+        
 
 
         /*
@@ -186,9 +463,14 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
         */
-    }
+
+    }       
 
 
+
+    
+
+    
 
 
 

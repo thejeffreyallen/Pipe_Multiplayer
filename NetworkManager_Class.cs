@@ -8,6 +8,9 @@ namespace FrostyP_PIPE_MultiPlayer
 {
     public class NetworkManager_Class : NetworkManager
     {
+
+
+
         // Server callbacks
         public override void OnServerConnect(NetworkConnection conn)
         {
@@ -40,8 +43,10 @@ namespace FrostyP_PIPE_MultiPlayer
 
         public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
         {
+        
             var player = (GameObject)GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
+            
 
             /*
              PlayerInfo[] foundplayerinfo = UnityEngine.GameObject.FindObjectsOfType<PlayerInfo>();
@@ -53,10 +58,12 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
             // this is what actually spawns the prefab and links to a connection and controller id, i think controller id is just gonna be 0=isplayer or -1=notlocal
-
+           
+              
 
             NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
             Debug.Log("Client has requested to get his player added to the game");
+           
 
 
         }

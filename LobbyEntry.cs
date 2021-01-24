@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace FrostyP_PIPE_MultiPlayer
 {
-    class Addwhenlevelstarts : MonoBehaviour
+    class LobbyEntry : MonoBehaviour
     {
 
         GameObject networkobj;

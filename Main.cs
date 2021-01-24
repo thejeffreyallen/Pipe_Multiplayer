@@ -36,9 +36,9 @@ namespace FrostyP_PIPE_MultiPlayer
             harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
             modobj = new GameObject("Multiplayer_insert_object");
-            modobj.AddComponent<Addwhenlevelstarts>();
-            modobj.AddComponent<Consolelog>();
-            Addwhenlevelstarts.DontDestroyOnLoad(modobj);
+            modobj.AddComponent<LobbyEntry>();
+           // modobj.AddComponent<Consolelog>();
+            LobbyEntry.DontDestroyOnLoad(modobj);
             
 
 

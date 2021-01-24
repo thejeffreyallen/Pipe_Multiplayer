@@ -62,6 +62,10 @@
     <Reference Include="UnityEngine.AccessibilityModule">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.AccessibilityModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
@@ -114,13 +118,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Addwhenlevelstarts.cs" />
+    <Compile Include="LobbyEntry.cs" />
     <Compile Include="Consolelog.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="FrostyNetworkManager.cs" />
     <Compile Include="NetworkManager_Class.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemotePlayer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

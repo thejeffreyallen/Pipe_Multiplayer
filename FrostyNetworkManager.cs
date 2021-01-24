@@ -16,7 +16,12 @@ namespace FrostyP_PIPE_MultiPlayer
         GameObject player;
         AssetBundle bundle;
 
+        NetworkTransformChild BikeChild;
         NetworkTransformChild BarsChild;
+        NetworkTransformChild FrameChild;
+        NetworkTransformChild CrankChild;
+        NetworkTransformChild FWheelChild;
+        NetworkTransformChild BWheelChild;
 
 
 
@@ -28,35 +33,21 @@ namespace FrostyP_PIPE_MultiPlayer
 
         void Start()
         {
-            // from working version i had
+           
             // get playerPrefab
-             bundle = AssetBundle.LoadFromFile(Application.dataPath + "/Networkunpack");
+             bundle = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyMultiPlayerAssets");
              player = bundle.LoadAsset("Player") as GameObject;
              player.AddComponent<Player>();
 
-           BarsChild = player.GetComponent<NetworkTransformChild>();
-
-
-
-
-            // for all registered NetworkChildren, go through BMXS_Player_comps and choose the transforms needed, then assign a NetworkChild from above
-            // if i name the networkChild the same as part it needs to find, i could do a simple compare to match all?
-           // NetworkTransformChild BmxAnch_Child = player.AddComponent<NetworkTransformChild>();
-            
-          
-            
-            /*
-            GameObject[] gameobjs_BMXS_P = player.GetComponentsInChildren<GameObject>();
-            foreach(GameObject obj in gameobjs_BMXS_P)
+            NetworkTransformChild[] arrayofchildren = player.GetComponents<NetworkTransformChild>();
+            foreach(NetworkTransformChild child in arrayofchildren)
             {
-                if (obj.name.Contains("BMXAnchor"))
-                {
-                    BmxAnch_Child.target = obj.transform;
-                    BmxAnch_Child.sendInterval = 0.05f;
-                }
+                child.sendInterval = 0.006f;
+                
             }
 
-            */
+
+           
 
 
 
@@ -65,8 +56,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-
-            // register children to this master object, must be pointed to transform in children, seperate sync rate for eachz
+           
 
 
 
@@ -125,43 +115,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
         void OnGUI()
         {
-            GUI.skin.label.normal.textColor = Color.black;
-            GUI.skin.label.fontSize = 16;
-
-            GUILayout.Space(200);
-
-
-
-                GUILayout.Label( "    " + netmanager.numPlayers.ToString() + " Players live on my Server      " + "        " + UnityEngine.Object.FindObjectsOfType<NetworkIdentity>().Length.ToString() + "  network identities found" + "   ");
-            
-
-
-
-            if(UnityEngine.GameObject.Find("BarsNetObject") != null)
-            {
-             GameObject barsnet = UnityEngine.GameObject.Find("BarsNetObject");
-                
-
-                GUILayout.Label("Found bars transform =" + barsnet.name + barsnet.transform.position.ToString() + "<<<<< bars pos" + "  " + barsnet.transform.rotation.ToString() + " bars rot");
-            }
-
-
-
-
-            GUILayout.Label(BarsChild.target.name.ToString());
-
-
-            /// confirm these syncvars are working somehow
-            /*
-            if(UnityEngine.Component.FindObjectsOfType<Player>() != null)
-            {
-                foreach(Player comp in UnityEngine.Component.FindObjectsOfType<Player>())
-                {
-                    GUILayout.Label(" Other bike pos" + comp.Otherbikepos.ToString() + " Other bike rot " + comp.Otherbikerot.ToString());
-                }
-
-            }
-            */
+           
             
 
 
