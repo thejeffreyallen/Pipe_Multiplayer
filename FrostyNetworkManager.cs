@@ -16,12 +16,7 @@ namespace FrostyP_PIPE_MultiPlayer
         GameObject player;
         AssetBundle bundle;
 
-        NetworkTransformChild BikeChild;
-        NetworkTransformChild BarsChild;
-        NetworkTransformChild FrameChild;
-        NetworkTransformChild CrankChild;
-        NetworkTransformChild FWheelChild;
-        NetworkTransformChild BWheelChild;
+        
 
 
 
@@ -38,11 +33,13 @@ namespace FrostyP_PIPE_MultiPlayer
              bundle = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyMultiPlayerAssets");
              player = bundle.LoadAsset("Player") as GameObject;
              player.AddComponent<Player>();
+            player.GetComponent<NetworkTransform>().sendInterval = 0.003f;
+
 
             NetworkTransformChild[] arrayofchildren = player.GetComponents<NetworkTransformChild>();
             foreach(NetworkTransformChild child in arrayofchildren)
             {
-                child.sendInterval = 0.006f;
+                child.sendInterval = 0.003f;
                 
             }
 
