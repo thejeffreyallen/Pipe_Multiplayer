@@ -63,6 +63,8 @@ namespace FrostyP_PIPE_MultiPlayer
         Transform leftfingers;
         Transform rightfingers;
         Transform Hips;
+        Transform Neck;
+        Transform Head;
 
         Transform DaryienMainNet;
         Transform UpperlegleftNET;
@@ -85,6 +87,8 @@ namespace FrostyP_PIPE_MultiPlayer
         Transform leftfingersNET;
         Transform rightfingersNET;
         Transform HipsNET;
+        Transform NeckNET;
+        Transform HeadNET;
 
 
 
@@ -193,6 +197,12 @@ namespace FrostyP_PIPE_MultiPlayer
 
             Hips = UnityEngine.GameObject.Find("mixamorig:Hips").transform;
             HipsNET = this.gameObject.transform.GetChild(26);
+
+            Neck = UnityEngine.GameObject.Find("mixamorig:Neck").transform;
+            NeckNET = this.gameObject.transform.GetChild(29);
+
+            Head = UnityEngine.GameObject.Find("mixamorig:Head").transform;
+            HeadNET = this.gameObject.transform.GetChild(30);
 
 
         }
@@ -337,21 +347,22 @@ namespace FrostyP_PIPE_MultiPlayer
                 
                 transform.position = Bikemain_Parent.transform.position;
                 transform.rotation = Bikemain_Parent.transform.rotation;
-                BikeNet.localRotation = Bike.localRotation;
+                BikeNet.localEulerAngles = Bike.localEulerAngles;
                 BikeNet.localPosition = Bike.localPosition;
 
-                barsNet.localRotation = Barsoflocal.localRotation;
+                barsNet.localEulerAngles = Barsoflocal.localEulerAngles;
+                barsNet.localPosition = Barsoflocal.localPosition;
 
-                CrankNet.localRotation = CrankLocal.localRotation;
+                CrankNet.localEulerAngles = CrankLocal.localEulerAngles;
 
-                FrameNet.localRotation = FrameLocal.localRotation;
+                FrameNet.localEulerAngles = FrameLocal.localEulerAngles;
                 FrameNet.localPosition = FrameLocal.localPosition;
 
-                FrontwheelNet.localRotation = FrontWheelLocal.localRotation;
+                FrontwheelNet.localEulerAngles = FrontWheelLocal.localEulerAngles;
                 BackWheelNet.localRotation = BackWheelLocal.localRotation;
 
-                pedalLNet.localRotation = pedalLlocal.localRotation;
-                pedalRNet.localRotation = pedalRlocal.localRotation;
+                pedalLNet.localEulerAngles = pedalLlocal.localEulerAngles;
+                pedalRNet.localEulerAngles = pedalRlocal.localEulerAngles;
 
 
 
@@ -417,6 +428,12 @@ namespace FrostyP_PIPE_MultiPlayer
 
                 HipsNET.localRotation = Hips.localRotation;
                 HipsNET.localPosition = Hips.localPosition;
+
+                NeckNET.localPosition = Neck.localPosition;
+                NeckNET.localRotation = Neck.localRotation;
+
+                HeadNET.localPosition = Head.localPosition;
+                HeadNET.localRotation = Head.localRotation;
             }
 
 

@@ -10,10 +10,13 @@ namespace FrostyP_PIPE_MultiPlayer
     
    public class RemotePlayer : MonoBehaviour
     {
+        NetworkIdentity netid;
 
         bool foundBike = false;
         bool foundPlayer = false;
         bool Foundboth = false;
+
+        Rigidbody rbofbike;
        
         GameObject remotebikeAnchor;
         Transform bikeMain;
@@ -61,6 +64,8 @@ namespace FrostyP_PIPE_MultiPlayer
         Transform leftfingers;
         Transform rightfingers;
         Transform Hips;
+        Transform Neck;
+        Transform Head;
 
 
 
@@ -85,17 +90,42 @@ namespace FrostyP_PIPE_MultiPlayer
         Transform Syncleftfingers;
         Transform Syncrightfingers;
         Transform SyncHips;
+        Transform SyncNeck;
+        Transform SyncHead;
 
 
 
         void Start()
         {
+            netid = this.gameObject.GetComponent<NetworkIdentity>();
+
             // instatiate a bike and man and rename, send over string name of "Online prefab"? if found, instantiate that particular man and bike
          remotebikeAnchor = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
           RiderMain = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien"));
 
-            remotebikeAnchor.gameObject.name = "Bike 2";
-            RiderMain.gameObject.name = "Daryien 2";
+            remotebikeAnchor.gameObject.name = "Bike " + netid.netId.Value.ToString();
+            RiderMain.gameObject.name = "Daryien " + netid.netId.Value.ToString();
+
+
+
+            rbofbike = remotebikeAnchor.AddComponent<Rigidbody>();
+            rbofbike.isKinematic = true;
+
+            BoxCollider colliderbike = remotebikeAnchor.AddComponent<BoxCollider>();
+            colliderbike.size = new Vector3(1, 1, 1);
+            remotebikeAnchor.layer = 25;
+
+           //rbofbike.MovePosition(remotebikeAnchor.transform.position);
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -134,13 +164,15 @@ namespace FrostyP_PIPE_MultiPlayer
             Syncleftfingers = SyncingbikeAnchor.GetChild(24);
             Syncrightfingers = SyncingbikeAnchor.GetChild(25);
             SyncHips = SyncingbikeAnchor.GetChild(26);
+            SyncNeck = SyncingbikeAnchor.GetChild(29);
+            SyncHead = SyncingbikeAnchor.GetChild(30);
 
 
 
 
 
 
-
+            /*
             Component[] compstoremove = remotebikeAnchor.GetComponentsInChildren<Component>();
             
             foreach(Component component in compstoremove)
@@ -150,7 +182,7 @@ namespace FrostyP_PIPE_MultiPlayer
                     Destroy(component);
                 }
             }
-
+            */
         }
 
 
@@ -173,9 +205,9 @@ namespace FrostyP_PIPE_MultiPlayer
             {
 
                 // if new bike exisits, assign all transforms
-                if (UnityEngine.GameObject.Find("Bike 2"))
+                if (UnityEngine.GameObject.Find("Bike " + netid.netId.Value.ToString()))
                 {
-                    remotebikeAnchor = UnityEngine.GameObject.Find("Bike 2");
+                    remotebikeAnchor = UnityEngine.GameObject.Find("Bike " + netid.netId.Value.ToString());
                     bikeMain = remotebikeAnchor.transform.FindDeepChild("BMX:Bike_Joint");
 
                     BarsofmyBike = remotebikeAnchor.transform.FindDeepChild("BMX:Bars_Joint");
@@ -197,8 +229,8 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-                // if new daryien exists, assign all transforms of him to sync transforms
-                if (UnityEngine.GameObject.Find("Daryien 2"))
+                // if new daryien exists, get references to all transforms
+                if (UnityEngine.GameObject.Find("Daryien " + netid.netId.Value.ToString()))
                 {
 
                     RiderMain.GetComponent<Animation>().enabled = false;
@@ -233,6 +265,8 @@ namespace FrostyP_PIPE_MultiPlayer
                     leftfingers = RiderMain.transform.FindDeepChild("mixamorig:LeftHandIndex1");
                     rightfingers = RiderMain.transform.FindDeepChild("mixamorig:RightHandIndex1");
                     Hips = RiderMain.transform.FindDeepChild("mixamorig:Hips");
+                    Neck = RiderMain.transform.FindDeepChild("mixamorig:Neck");
+                    Head = RiderMain.transform.FindDeepChild("mixamorig:Head");
 
 
 
@@ -283,6 +317,7 @@ namespace FrostyP_PIPE_MultiPlayer
             bikeMain.localRotation = SyncBikeMain.localRotation;
 
             BarsofmyBike.localRotation = SyncingbikeBars.localRotation;
+            BarsofmyBike.localPosition = SyncingbikeBars.localPosition;
 
             Crankofmybike.localRotation = SyncBikeCrank.localRotation;
 
@@ -360,6 +395,12 @@ namespace FrostyP_PIPE_MultiPlayer
 
             Hips.localPosition = SyncHips.localPosition;
             Hips.localRotation = SyncHips.localRotation;
+
+            Neck.localRotation = SyncNeck.localRotation;
+            Neck.localPosition = SyncNeck.localPosition;
+
+            Head.localPosition = SyncHead.localPosition;
+            Head.localRotation = SyncHead.localRotation;
 
 
 

@@ -85,7 +85,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
             netmanager.networkAddress = "192.168.1.140";
             netmanager.playerPrefab = player;
-            //netmanager.playerSpawnMethod = PlayerSpawnMethod.RoundRobin;   two modes, choose form list of positons at rando, or use them in order
+            //netmanager.playerSpawnMethod = PlayerSpawnMethod.RoundRobin;   two modes, choose form list of positons at random, or use them in order
             
            
 

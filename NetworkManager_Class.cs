@@ -59,7 +59,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
             // this is what actually spawns the prefab and links to a connection and controller id, i think controller id is just gonna be 0=isplayer or -1=notlocal
            
-              
+             
 
             NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
             Debug.Log("Client has requested to get his player added to the game");
