@@ -20,7 +20,9 @@ namespace FrostyP_PIPE_MultiPlayer
         bool Foundboth = false;
 
         Rigidbody rbofbike;
-       
+        Mesh Wheel_mesh;
+        GameObject Cylinder_Wheel_mesh_source;
+        BoxCollider Frame_collider;
 
 
 
@@ -116,28 +118,21 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
             //-------------------------------------------------------- Collisions ----------------------------------------------------------------------------------------------
-           // mesh_Frame = remotebikeAnchor.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshFilter>().mesh;
-           // BoxCollider frame_Collider = Frameofmybike.gameObject.AddComponent<BoxCollider>();
-          //  frame_Collider.convex = true;
-           // frame_Collider.sharedMesh = mesh_Frame;
-
-            /*
-            mesh_fWheel = remotebikeAnchor.transform.FindDeepChild("Tire Mesh").gameObject.GetComponent<MeshFilter>().mesh;
-            MeshCollider Fwheel_Collider = Frontwheelofmybike.gameObject.AddComponent<MeshCollider>();
-            Fwheel_Collider.convex = true;
-            Fwheel_Collider.sharedMesh = mesh_fWheel;
+            // mesh_Frame = remotebikeAnchor.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshFilter>().mesh;
+            // BoxCollider frame_Collider = Frameofmybike.gameObject.AddComponent<BoxCollider>();
+            //  frame_Collider.convex = true;
+            // frame_Collider.sharedMesh = mesh_Frame;
 
 
-            mesh_BWheel = mesh_fWheel;
-            MeshCollider Bwheel_Collider = Backwheelofmybike.gameObject.AddComponent<MeshCollider>();
-            Bwheel_Collider.convex = true;
-            Bwheel_Collider.sharedMesh = mesh_BWheel;
+           Cylinder_Wheel_mesh_source = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Wheel_mesh = Cylinder_Wheel_mesh_source.GetComponent<MeshFilter>().mesh;
 
-            */
+            Frame_collider = remotebikeAnchor.AddComponent<BoxCollider>();
+            Frame_collider.size = new Vector3(0.2f, 0.3f, 0.5f);
+            Frame_collider.center = new Vector3(0, 0.2f, 0);
 
-            BoxCollider coll = remotebikeAnchor.AddComponent<BoxCollider>();
-            coll.size = new Vector3(0.2f, 0.3f, 0.5f);
-            coll.center = new Vector3(0, 0.3f, 0);
+
+            // add rigidbody last to avoid warning from rigidbody with no colliders attached
             rbofbike = remotebikeAnchor.AddComponent<Rigidbody>();
             rbofbike.isKinematic = true;
             // physics interactable layer for MG
@@ -219,6 +214,17 @@ namespace FrostyP_PIPE_MultiPlayer
 
         void Update()
         {
+
+
+
+            if(Wheel_mesh == null)
+            {
+                Wheel_mesh = Cylinder_Wheel_mesh_source.GetComponent<MeshFilter>().mesh;
+            }
+           
+
+
+
             if (!foundBike)
             {
                 // if new bike exisits, assign all transforms
@@ -284,7 +290,81 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-            // remote version of rider being given transform data
+           
+
+
+
+            SyncMyRiderwithPrefabTransforms();
+
+
+
+
+
+
+
+
+
+            if (!BarsofmyBike)
+            {
+                Debug.Log("No bars of my bike found");
+            }
+            if (!SyncingbikeBars)
+            {
+                Debug.Log("No syncingbikebars found");
+            }
+            if (!SyncingbikeAnchor)
+            {
+                Debug.Log("No syncingbikeMain found");
+            }
+            if (!SyncBikeCrank)
+            {
+                Debug.Log("No syncingbikecrank found");
+            }
+            if (!SyncBikeFrame)
+            {
+                Debug.Log("No syncingbikeframe found");
+            }
+            if (!SyncBikeFrontwheel)
+            {
+                Debug.Log("No syncingbikefrontwheel found");
+            }
+            if (!SyncBikeBackwheel)
+            {
+                Debug.Log("No syncingbikebackwheel found");
+            }
+            if (!Frameofmybike)
+            {
+                Debug.Log("No frame of mine found");
+            }
+            if (!Crankofmybike)
+            {
+                Debug.Log("No Crank of mine found");
+            }
+            if (!Frontwheelofmybike)
+            {
+                Debug.Log("No front wheel of mine found");
+            }
+            if (!Backwheelofmybike)
+            {
+                Debug.Log("No back wheel of mine found");
+            }
+
+
+
+
+
+
+        }
+
+
+
+
+
+        /// <summary>
+        /// Update all transforms of my rider and bike (the rider and bike this script instatiated once it turned on, the player prefabs script added this script once it made it to any machine that isnt the local player) to the transforms of this prefab were connected to, which is being synced by our actual players rider on their machine
+        /// </summary>
+        void SyncMyRiderwithPrefabTransforms()
+        { // remote version of rider being given transform data
             remotebikeAnchor.transform.position = SyncingbikeAnchor.position;
             remotebikeAnchor.transform.rotation = SyncingbikeAnchor.rotation;
             bikeMain.localPosition = SyncBikeMain.localPosition;
@@ -367,68 +447,8 @@ namespace FrostyP_PIPE_MultiPlayer
             Head.localPosition = SyncHead.localPosition;
             Head.localRotation = SyncHead.localRotation;
 
-
-
-
-
-
-
-
-
-
-
-
-            if (!BarsofmyBike)
-            {
-                Debug.Log("No bars of my bike found");
-            }
-            if (!SyncingbikeBars)
-            {
-                Debug.Log("No syncingbikebars found");
-            }
-            if (!SyncingbikeAnchor)
-            {
-                Debug.Log("No syncingbikeMain found");
-            }
-            if (!SyncBikeCrank)
-            {
-                Debug.Log("No syncingbikecrank found");
-            }
-            if (!SyncBikeFrame)
-            {
-                Debug.Log("No syncingbikeframe found");
-            }
-            if (!SyncBikeFrontwheel)
-            {
-                Debug.Log("No syncingbikefrontwheel found");
-            }
-            if (!SyncBikeBackwheel)
-            {
-                Debug.Log("No syncingbikebackwheel found");
-            }
-            if (!Frameofmybike)
-            {
-                Debug.Log("No frame of mine found");
-            }
-            if (!Crankofmybike)
-            {
-                Debug.Log("No Crank of mine found");
-            }
-            if (!Frontwheelofmybike)
-            {
-                Debug.Log("No front wheel of mine found");
-            }
-            if (!Backwheelofmybike)
-            {
-                Debug.Log("No back wheel of mine found");
-            }
-
-
-
-
-
-
         }
+
 
 
 
