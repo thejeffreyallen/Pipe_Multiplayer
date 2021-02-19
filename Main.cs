@@ -37,7 +37,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
             modobj = new GameObject("Multiplayer_insert_object");
             modobj.AddComponent<LobbyEntry>();
-           // modobj.AddComponent<Consolelog>();
+          //  modobj.AddComponent<Consolelog>();
             LobbyEntry.DontDestroyOnLoad(modobj);
             
 

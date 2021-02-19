@@ -11,7 +11,11 @@ namespace FrostyP_PIPE_MultiPlayer
     public class Player : NetworkBehaviour
     {
         public int Playerno;
+        string myusername = "username here";
+        string messagetosend;
 
+        
+       
 
        
         GameObject Bikemain_Parent;
@@ -99,12 +103,16 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
+
+
+
         public override void OnStartLocalPlayer()
         {
          localnetid = GetComponent<NetworkIdentity>().netId;
-
+          
            
-            
+
+
             Bikemain_Parent = UnityEngine.GameObject.Find("BMX");
             Bike = UnityEngine.GameObject.Find("BMX:Bike_Joint").transform;
             BikeNet = this.gameObject.transform.GetChild(5);
@@ -156,7 +164,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-           spine1 = UnityEngine.GameObject.Find("mixamorig:Spine").transform;
+            spine1 = UnityEngine.GameObject.Find("mixamorig:Spine").transform;
             spine1NET = this.gameObject.transform.GetChild(13);
 
             spine2 = UnityEngine.GameObject.Find("mixamorig:Spine1").transform;
@@ -204,7 +212,6 @@ namespace FrostyP_PIPE_MultiPlayer
             Head = UnityEngine.GameObject.Find("mixamorig:Head").transform;
             HeadNET = this.gameObject.transform.GetChild(30);
 
-
         }
 
 
@@ -218,8 +225,6 @@ namespace FrostyP_PIPE_MultiPlayer
         
         void Start()
         {
-
-
             // if your not local and this object doesnt already have a remoteplayer script, add one then disable networkbehaviour, but keep autosynced transforms of the player prefab your attached to and identity, remoteplayer is a monobehaviour(local) and just takes from its gameobjects hierarchy of transforms
             if (!isLocalPlayer)
             {
@@ -244,11 +249,9 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
                 }
-
+               
 
             }
-
-
         }
 
 
@@ -438,8 +441,8 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-           
 
+          
 
 
 
@@ -449,8 +452,169 @@ namespace FrostyP_PIPE_MultiPlayer
         }
 
 
+        
+        void OnGUI()
+        {
+
+            if (isLocalPlayer)
+            {
+                
+
+                GUILayout.Label("Connected as " + myusername);
+                myusername = GUILayout.TextField(myusername);
+                GUILayout.Space(20);
+                messagetosend = GUILayout.TextArea(messagetosend);
+                if (GUILayout.Button("Send"))
+                {
+                   
+                }
+
+
+               
+              
+
+
+            }
+
+            /*
+            if(isLocalPlayer && isServer)
+            {
+                FrostyNetworkManager man = UnityEngine.Component.FindObjectOfType<FrostyNetworkManager>();
+                RpcSendtoall(man.Master_message_list);
+
+            }
+            */
+
+        }
 
         
+
+
+        void FindBikeAndRider()
+        {
+
+
+            Bikemain_Parent = UnityEngine.GameObject.Find("BMX");
+            Bike = UnityEngine.GameObject.Find("BMX:Bike_Joint").transform;
+            BikeNet = this.gameObject.transform.GetChild(5);
+
+            Barsoflocal = UnityEngine.GameObject.Find("BMX:Bars_Joint").transform;
+            barsNet = this.gameObject.transform.GetChild(0);
+
+            CrankLocal = UnityEngine.GameObject.Find("BMX:DriveTrain_Joint").transform;
+            CrankNet = this.gameObject.transform.GetChild(1);
+
+            FrameLocal = UnityEngine.GameObject.Find("BMX:Frame_Joint").transform;
+            FrameNet = this.gameObject.transform.GetChild(2);
+
+            FrontWheelLocal = UnityEngine.GameObject.Find("BMX:Wheel").transform;
+            FrontwheelNet = this.gameObject.transform.GetChild(3);
+
+            BackWheelLocal = UnityEngine.GameObject.Find("BMX:Wheel 1").transform;
+            BackWheelNet = this.gameObject.transform.GetChild(4);
+
+            pedalLlocal = UnityEngine.GameObject.Find("BMX:LeftPedal_Joint").transform;
+            pedalLNet = this.gameObject.transform.GetChild(27);
+
+            pedalRlocal = UnityEngine.GameObject.Find("BMX:RightPedal_Joint").transform;
+            pedalRNet = this.gameObject.transform.GetChild(28);
+
+
+
+
+            Daryienmain = UnityEngine.GameObject.Find("Daryien").transform;
+            DaryienMainNet = this.gameObject.transform.GetChild(6);
+
+            Upperlegleft = UnityEngine.GameObject.Find("mixamorig:LeftUpLeg").transform;
+            UpperlegleftNET = this.gameObject.transform.GetChild(7);
+
+            upperlegright = UnityEngine.GameObject.Find("mixamorig:RightUpLeg").transform;
+            upperlegrightNET = this.gameObject.transform.GetChild(8);
+
+            midlegleft = UnityEngine.GameObject.Find("mixamorig:LeftLeg").transform;
+            midlegleftNET = this.gameObject.transform.GetChild(9);
+
+            midlegright = UnityEngine.GameObject.Find("mixamorig:RightLeg").transform;
+            midlegrightNET = this.gameObject.transform.GetChild(10);
+
+            footleft = UnityEngine.GameObject.Find("mixamorig:LeftFoot").transform;
+            footleftNET = this.gameObject.transform.GetChild(11);
+
+            footright = UnityEngine.GameObject.Find("mixamorig:RightFoot").transform;
+            footrightNET = this.gameObject.transform.GetChild(12);
+
+
+
+            spine1 = UnityEngine.GameObject.Find("mixamorig:Spine").transform;
+            spine1NET = this.gameObject.transform.GetChild(13);
+
+            spine2 = UnityEngine.GameObject.Find("mixamorig:Spine1").transform;
+            spine2NET = this.gameObject.transform.GetChild(14);
+
+            spine3 = UnityEngine.GameObject.Find("mixamorig:Spine2").transform;
+            spine3NET = this.gameObject.transform.GetChild(15);
+
+            leftshoulder = UnityEngine.GameObject.Find("mixamorig:LeftShoulder").transform;
+            leftshoulderNET = this.gameObject.transform.GetChild(16);
+
+            rightshoulder = UnityEngine.GameObject.Find("mixamorig:RightShoulder").transform;
+            rightshoulderNET = this.gameObject.transform.GetChild(17);
+
+            leftarm = UnityEngine.GameObject.Find("mixamorig:LeftArm").transform;
+            leftarmNET = this.gameObject.transform.GetChild(18);
+
+            rightarm = UnityEngine.GameObject.Find("mixamorig:RightArm").transform;
+            rightarmNET = this.gameObject.transform.GetChild(19);
+
+            leftforearm = UnityEngine.GameObject.Find("mixamorig:LeftForeArm").transform;
+            leftforearmNET = this.gameObject.transform.GetChild(20);
+
+            rightforearm = UnityEngine.GameObject.Find("mixamorig:RightForeArm").transform;
+            rightforearmNET = this.gameObject.transform.GetChild(21);
+
+            lefthand = UnityEngine.GameObject.Find("mixamorig:LeftHand").transform;
+            lefthandNET = this.gameObject.transform.GetChild(22);
+
+            righthand = UnityEngine.GameObject.Find("mixamorig:RightHand").transform;
+            righthandNET = this.gameObject.transform.GetChild(23);
+
+            leftfingers = UnityEngine.GameObject.Find("mixamorig:LeftHandIndex1").transform;
+            leftfingersNET = this.gameObject.transform.GetChild(24);
+
+            rightfingers = UnityEngine.GameObject.Find("mixamorig:RightHandIndex1").transform;
+            rightfingersNET = this.gameObject.transform.GetChild(25);
+
+            Hips = UnityEngine.GameObject.Find("mixamorig:Hips").transform;
+            HipsNET = this.gameObject.transform.GetChild(26);
+
+            Neck = UnityEngine.GameObject.Find("mixamorig:Neck").transform;
+            NeckNET = this.gameObject.transform.GetChild(29);
+
+            Head = UnityEngine.GameObject.Find("mixamorig:Head").transform;
+            HeadNET = this.gameObject.transform.GetChild(30);
+
+
+        }
+
+
+
+        /// <summary>
+        /// Add my message to server versions message list
+        /// </summary>
+        /// <param name="message to send"></param>
+        [Command]
+        void CmdSendMessage(string mess)
+        {
+           FrostyNetworkManager man = UnityEngine.Component.FindObjectOfType<FrostyNetworkManager>();
+            man.Master_message_list.Add(mess);
+           
+            
+        }
+
+
+       
+
+
 
 
         /*

@@ -5,11 +5,14 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
+
 namespace FrostyP_PIPE_MultiPlayer
 {
-    
-   public class RemotePlayer : MonoBehaviour
+
+    public class RemotePlayer : MonoBehaviour
     {
+
         NetworkIdentity netid;
 
         bool foundBike = false;
@@ -18,6 +21,10 @@ namespace FrostyP_PIPE_MultiPlayer
 
         Rigidbody rbofbike;
        
+
+
+
+
         GameObject remotebikeAnchor;
         Transform bikeMain;
 
@@ -100,37 +107,48 @@ namespace FrostyP_PIPE_MultiPlayer
             netid = this.gameObject.GetComponent<NetworkIdentity>();
 
             // instatiate a bike and man and rename, send over string name of "Online prefab"? if found, instantiate that particular man and bike
-         remotebikeAnchor = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
-          RiderMain = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien"));
+            remotebikeAnchor = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
+            RiderMain = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien"));
 
             remotebikeAnchor.gameObject.name = "Bike " + netid.netId.Value.ToString();
             RiderMain.gameObject.name = "Daryien " + netid.netId.Value.ToString();
 
 
 
+            //-------------------------------------------------------- Collisions ----------------------------------------------------------------------------------------------
+           // mesh_Frame = remotebikeAnchor.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshFilter>().mesh;
+           // BoxCollider frame_Collider = Frameofmybike.gameObject.AddComponent<BoxCollider>();
+          //  frame_Collider.convex = true;
+           // frame_Collider.sharedMesh = mesh_Frame;
+
+            /*
+            mesh_fWheel = remotebikeAnchor.transform.FindDeepChild("Tire Mesh").gameObject.GetComponent<MeshFilter>().mesh;
+            MeshCollider Fwheel_Collider = Frontwheelofmybike.gameObject.AddComponent<MeshCollider>();
+            Fwheel_Collider.convex = true;
+            Fwheel_Collider.sharedMesh = mesh_fWheel;
+
+
+            mesh_BWheel = mesh_fWheel;
+            MeshCollider Bwheel_Collider = Backwheelofmybike.gameObject.AddComponent<MeshCollider>();
+            Bwheel_Collider.convex = true;
+            Bwheel_Collider.sharedMesh = mesh_BWheel;
+
+            */
+
+            BoxCollider coll = remotebikeAnchor.AddComponent<BoxCollider>();
+            coll.size = new Vector3(0.2f, 0.3f, 0.5f);
+            coll.center = new Vector3(0, 0.3f, 0);
             rbofbike = remotebikeAnchor.AddComponent<Rigidbody>();
             rbofbike.isKinematic = true;
-
-            BoxCollider colliderbike = remotebikeAnchor.AddComponent<BoxCollider>();
-            colliderbike.size = new Vector3(1, 1, 1);
+            // physics interactable layer for MG
             remotebikeAnchor.layer = 25;
-
-           //rbofbike.MovePosition(remotebikeAnchor.transform.position);
-
+            // -----------------------------------------------------  collisions end --------------------------------------------------------------------------------------------------------------
 
 
 
 
 
-
-
-
-
-
-
-
-
-
+            // get network synced prefab and reference every transform child to its assigned part
             SyncingbikeAnchor = this.gameObject.transform;
             SyncBikeMain = SyncingbikeAnchor.GetChild(5);
 
@@ -188,7 +206,7 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-   
+
 
 
 
@@ -203,7 +221,6 @@ namespace FrostyP_PIPE_MultiPlayer
         {
             if (!foundBike)
             {
-
                 // if new bike exisits, assign all transforms
                 if (UnityEngine.GameObject.Find("Bike " + netid.netId.Value.ToString()))
                 {
@@ -229,82 +246,39 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
 
-                // if new daryien exists, get references to all transforms
-                if (UnityEngine.GameObject.Find("Daryien " + netid.netId.Value.ToString()))
-                {
+            // if new daryien exists, get references to all transforms
+            if (UnityEngine.GameObject.Find("Daryien " + netid.netId.Value.ToString()))
+            {
 
-                    RiderMain.GetComponent<Animation>().enabled = false;
-                    RiderMain.GetComponent<SkeletonReferenceValue>().enabled = false;
-                    RiderMain.GetComponent<BMXLimbTargetAdjust>().enabled = false;
-
-
+                RiderMain.GetComponent<Animation>().enabled = false;
+                RiderMain.GetComponent<SkeletonReferenceValue>().enabled = false;
+                RiderMain.GetComponent<BMXLimbTargetAdjust>().enabled = false;
 
 
+                Upperlegleft = RiderMain.transform.FindDeepChild("mixamorig:LeftUpLeg");
+                upperlegright = RiderMain.transform.FindDeepChild("mixamorig:RightUpLeg");
+                midlegleft = RiderMain.transform.FindDeepChild("mixamorig:LeftLeg");
+                midlegright = RiderMain.transform.FindDeepChild("mixamorig:RightLeg");
+                footleft = RiderMain.transform.FindDeepChild("mixamorig:LeftFoot");
+                footright = RiderMain.transform.FindDeepChild("mixamorig:RightFoot");
+                spine1 = RiderMain.transform.FindDeepChild("mixamorig:Spine");
+                spine2 = RiderMain.transform.FindDeepChild("mixamorig:Spine1");
+                spine3 = RiderMain.transform.FindDeepChild("mixamorig:Spine2");
+                leftshoulder = RiderMain.transform.FindDeepChild("mixamorig:LeftShoulder");
+                rightshoulder = RiderMain.transform.FindDeepChild("mixamorig:RightShoulder");
+                leftarm = RiderMain.transform.FindDeepChild("mixamorig:LeftArm");
+                rightarm = RiderMain.transform.FindDeepChild("mixamorig:RightArm");
+                leftforearm = RiderMain.transform.FindDeepChild("mixamorig:LeftForeArm");
+                rightforearm = RiderMain.transform.FindDeepChild("mixamorig:RightForeArm");
+                lefthand = RiderMain.transform.FindDeepChild("mixamorig:LeftHand");
+                righthand = RiderMain.transform.FindDeepChild("mixamorig:RightHand");
+                leftfingers = RiderMain.transform.FindDeepChild("mixamorig:LeftHandIndex1");
+                rightfingers = RiderMain.transform.FindDeepChild("mixamorig:RightHandIndex1");
+                Hips = RiderMain.transform.FindDeepChild("mixamorig:Hips");
+                Neck = RiderMain.transform.FindDeepChild("mixamorig:Neck");
+                Head = RiderMain.transform.FindDeepChild("mixamorig:Head");
 
-
-
-
-
-                    Upperlegleft = RiderMain.transform.FindDeepChild("mixamorig:LeftUpLeg");
-                    upperlegright = RiderMain.transform.FindDeepChild("mixamorig:RightUpLeg");
-                    midlegleft = RiderMain.transform.FindDeepChild("mixamorig:LeftLeg");
-                    midlegright = RiderMain.transform.FindDeepChild("mixamorig:RightLeg");
-                    footleft = RiderMain.transform.FindDeepChild("mixamorig:LeftFoot");
-                    footright = RiderMain.transform.FindDeepChild("mixamorig:RightFoot");
-                    spine1 = RiderMain.transform.FindDeepChild("mixamorig:Spine");
-                    spine2 = RiderMain.transform.FindDeepChild("mixamorig:Spine1");
-                    spine3 = RiderMain.transform.FindDeepChild("mixamorig:Spine2");
-                    leftshoulder = RiderMain.transform.FindDeepChild("mixamorig:LeftShoulder");
-                    rightshoulder = RiderMain.transform.FindDeepChild("mixamorig:RightShoulder");
-                    leftarm = RiderMain.transform.FindDeepChild("mixamorig:LeftArm");
-                    rightarm = RiderMain.transform.FindDeepChild("mixamorig:RightArm");
-                    leftforearm = RiderMain.transform.FindDeepChild("mixamorig:LeftForeArm");
-                    rightforearm = RiderMain.transform.FindDeepChild("mixamorig:RightForeArm");
-                    lefthand = RiderMain.transform.FindDeepChild("mixamorig:LeftHand");
-                    righthand = RiderMain.transform.FindDeepChild("mixamorig:RightHand");
-                    leftfingers = RiderMain.transform.FindDeepChild("mixamorig:LeftHandIndex1");
-                    rightfingers = RiderMain.transform.FindDeepChild("mixamorig:RightHandIndex1");
-                    Hips = RiderMain.transform.FindDeepChild("mixamorig:Hips");
-                    Neck = RiderMain.transform.FindDeepChild("mixamorig:Neck");
-                    Head = RiderMain.transform.FindDeepChild("mixamorig:Head");
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-                }
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-           
+            }
 
 
 
@@ -335,63 +309,54 @@ namespace FrostyP_PIPE_MultiPlayer
             // remote version of rider being given synced transform data
             RiderMain.transform.position = SyncRiderMain.position;
             RiderMain.transform.rotation = SyncRiderMain.rotation;
+
             Upperlegleft.localRotation = SyncUpperlegleft.localRotation;
             Upperlegleft.localPosition = SyncUpperlegleft.localPosition;
-
             upperlegright.localRotation = Syncupperlegright.localRotation;
             upperlegright.localPosition = Syncupperlegright.localPosition;
 
             midlegleft.localRotation = Syncmidlegleft.localRotation;
             midlegleft.localPosition = Syncmidlegleft.localPosition;
-
             midlegright.localRotation = Syncmidlegright.localRotation;
             midlegright.localPosition = Syncmidlegright.localPosition;
 
             footleft.localRotation = Syncfootleft.localRotation;
             footleft.localPosition = Syncfootleft.localPosition;
-
             footright.localRotation = Syncfootright.localRotation;
             footright.localPosition = Syncfootright.localPosition;
 
             spine1.localRotation = Syncspine1.localRotation;
             spine1.localPosition = Syncspine1.localPosition;
-
             spine2.localRotation = Syncspine2.localRotation;
             spine2.localPosition = Syncspine2.localPosition;
-
             spine3.localRotation = Syncspine3.localRotation;
             spine3.localPosition = Syncspine3.localPosition;
 
             leftshoulder.localRotation = Syncleftshoulder.localRotation;
             leftshoulder.localPosition = Syncleftshoulder.localPosition;
-
             rightshoulder.localRotation = Syncrightshoulder.localRotation;
             rightshoulder.localPosition = Syncrightshoulder.localPosition;
 
             leftarm.localRotation = Syncleftarm.localRotation;
             leftarm.localPosition = Syncleftarm.localPosition;
-
             rightarm.localRotation = Syncrightarm.localRotation;
             rightarm.localPosition = Syncrightarm.localPosition;
 
-
             leftforearm.localRotation = Syncleftforearm.localRotation;
             leftforearm.localPosition = Syncleftforearm.localPosition;
-
             rightforearm.localRotation = Syncrightforearm.localRotation;
             rightforearm.localPosition = Syncrightforearm.localPosition;
 
             lefthand.localRotation = Synclefthand.localRotation;
             lefthand.localPosition = Synclefthand.localPosition;
-
             righthand.localRotation = Syncrighthand.localRotation;
             righthand.localPosition = Syncrighthand.localPosition;
 
             leftfingers.localRotation = Syncleftfingers.localRotation;
             leftfingers.localPosition = Syncleftfingers.localPosition;
-
             rightfingers.localRotation = Syncrightfingers.localRotation;
             rightfingers.localPosition = Syncrightfingers.localPosition;
+
 
             Hips.localPosition = SyncHips.localPosition;
             Hips.localRotation = SyncHips.localRotation;
@@ -417,8 +382,6 @@ namespace FrostyP_PIPE_MultiPlayer
             {
                 Debug.Log("No bars of my bike found");
             }
-
-
             if (!SyncingbikeBars)
             {
                 Debug.Log("No syncingbikebars found");
@@ -466,21 +429,6 @@ namespace FrostyP_PIPE_MultiPlayer
 
 
         }
-
-
-
-
-
-        void OnGUI()
-        {
-           
-
-        
-         
-           
-
-        }
-
 
 
 
