@@ -1,0 +1,9 @@
+{
+  "Id": "Frosty_Online_GameSide",
+  "DisplayName": "Frosty_Online_GameSide",
+  "Author": "Frosty P",
+  "Version": "1.0",
+  "ManagerVersion": "0.12.3",
+  "AssemblyName": "Frosty_Online_GameSide.dll",
+  "EntryMethod": "Frosty_Online_GameSide.Main.Load"
+}

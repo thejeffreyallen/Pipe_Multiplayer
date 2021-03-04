@@ -1,0 +1,9 @@
+E:\FrostyP Mods project folder\Frosty Pipe Server App\obj\Debug\Frosty Pipe Server App.csprojAssemblyReference.cache
+E:\FrostyP Mods project folder\Frosty Pipe Server App\obj\Debug\Frosty Pipe Server App.csproj.CoreCompileInputs.cache
+E:\FrostyP Mods project folder\Frosty Pipe Server App\bin\Debug\Frosty Pipe Server App.exe
+E:\FrostyP Mods project folder\Frosty Pipe Server App\bin\Debug\Frosty Pipe Server App.pdb
+E:\FrostyP Mods project folder\Frosty Pipe Server App\obj\Debug\Frosty Pipe Server App.exe
+E:\FrostyP Mods project folder\Frosty Pipe Server App\obj\Debug\Frosty Pipe Server App.pdb
+E:\FrostyP Mods project folder\Frosty Pipe Server App\bin\Debug\Frosty Pipe Server App.exe.config
+E:\FrostyP Mods project folder\Frosty Pipe Server App\bin\Debug\System.Numerics.Vectors.dll
+E:\FrostyP Mods project folder\Frosty Pipe Server App\obj\Debug\Frosty Pipe Server App.csproj.CopyComplete
