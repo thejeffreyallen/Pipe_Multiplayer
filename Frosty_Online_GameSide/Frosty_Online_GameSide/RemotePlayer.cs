@@ -18,6 +18,7 @@ namespace Frosty_Online_GameSide
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
+        public float LerpSpeed = 5;
         
         public RemotePlayerAudio Audio;
 
@@ -310,22 +311,22 @@ namespace Frosty_Online_GameSide
           //  simply update to latest stored pos and rot
 
             // rider
-            Riders_Transforms[0].position = Riders_positions[0];
+            Riders_Transforms[0].position = Vector3.Lerp(Riders_Transforms[0].position, Riders_positions[0], LerpSpeed);
             Riders_Transforms[0].eulerAngles = Riders_rotations[0];
 
             for (int i = 1; i < 23; i++)
             {
-                Riders_Transforms[i].localPosition = Riders_positions[i];
+                Riders_Transforms[i].localPosition = Vector3.Lerp(Riders_Transforms[i].localPosition, Riders_positions[i], LerpSpeed);
                 Riders_Transforms[i].localEulerAngles = Riders_rotations[i];
 
             }
 
             // Bmx
-            Riders_Transforms[23].position = Riders_positions[23];
+            Riders_Transforms[23].position = Vector3.Lerp(Riders_Transforms[23].position, Riders_positions[23], LerpSpeed);
             Riders_Transforms[23].eulerAngles = Riders_rotations[23];
             for (int i = 24; i < 32; i++)
             {
-                Riders_Transforms[i].localPosition = Riders_positions[i];
+                Riders_Transforms[i].localPosition = Vector3.Lerp(Riders_Transforms[i].localPosition, Riders_positions[i], LerpSpeed);
                 Riders_Transforms[i].localEulerAngles = Riders_rotations[i];
             }
 
