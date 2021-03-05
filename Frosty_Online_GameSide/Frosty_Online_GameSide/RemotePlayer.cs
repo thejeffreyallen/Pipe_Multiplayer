@@ -18,7 +18,7 @@ namespace Frosty_Online_GameSide
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public BikeLoadOut _bikeloadout;
+        
         public RemotePlayerAudio Audio;
 
         private GameObject[] wheelcolliders;
@@ -53,7 +53,7 @@ namespace Frosty_Online_GameSide
            RiderModel.name = "Model " + id;
            BMX = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
             BMX.name = "BMX " + id;
-
+            Destroy(BMX.GetComponentInChildren<BikeLoadOut>().gameObject);
 
             // remove or disable components
             if(RiderModel.GetComponent<Animation>())
@@ -71,7 +71,13 @@ namespace Frosty_Online_GameSide
                
             }
             // remove any triggers?
-
+            foreach(Transform t in RiderModel.GetComponentsInChildren<Transform>())
+            {
+                if (t.name.Contains("Trigger"))
+                {
+                    Destroy(t.gameObject);
+                }
+            }
 
             
             
@@ -227,13 +233,13 @@ namespace Frosty_Online_GameSide
                 Riders_Transforms[30] = BMX.transform.FindDeepChild("BMX:LeftPedal_Joint");
                 Riders_Transforms[31] = BMX.transform.FindDeepChild("BMX:RightPedal_Joint");
 
-               
 
 
 
 
-               _bikeloadout = BMX.GetComponentInChildren<BikeLoadOut>();
-                
+
+
+
 
                 // Collision setup
                 /*
@@ -265,10 +271,10 @@ namespace Frosty_Online_GameSide
                 }
                 BMX_RB.isKinematic = true;
                 */
-                
 
 
 
+                Ingame_UI.instance.lastmsgfromServer = $"{username} is riding";
                 MasterActive = true;
 
                 Debug.Log("All Remote Rider Parts Assigned");
@@ -320,9 +326,7 @@ namespace Frosty_Online_GameSide
 
         private void OnGUI()
         {
-            GUILayout.Space(50);
-            GUILayout.Label($"{username} is riding");
-            GUILayout.Label(_bikeloadout.currentPreset.ToString());
+           
            
         }
 
