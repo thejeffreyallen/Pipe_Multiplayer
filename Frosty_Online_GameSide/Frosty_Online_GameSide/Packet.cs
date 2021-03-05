@@ -14,11 +14,7 @@ namespace Frosty_Online_GameSide
         SetupPlayer,
         playerDisconnected,
         RiderInfo,
-        playerHealth,
-        playerRespawned,
-        createItemSpawner,
-        itemSpawned,
-        itemPickedUp,
+      
        
     }
 
@@ -29,7 +25,7 @@ namespace Frosty_Online_GameSide
         TransformUpdate,
         SetupPlayer,
         RiderInfo,
-        playerThrowItem,
+       
     }
 
     public class Packet : IDisposable

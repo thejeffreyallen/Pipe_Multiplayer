@@ -96,6 +96,7 @@
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="LocalPlayer.cs" />
     <Compile Include="RemotePlayer.cs" />
+    <Compile Include="RemotePlayerAudio.cs" />
     <Compile Include="ThreadManager.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

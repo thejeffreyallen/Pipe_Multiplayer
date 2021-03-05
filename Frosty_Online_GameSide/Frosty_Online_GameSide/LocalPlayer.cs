@@ -89,7 +89,7 @@ namespace Frosty_Online_GameSide
             ClientSend.SendMyTransforms(Riders_Transforms.Length, riderPositions,riderRotations);
         }
 
-        // called by GUI on connect, so leaving and changing rider will fire this again. For net, simply updates public string to current model name for impending server request and realigns bones to new rig
+        // called by GUI on connect, so leaving and changing rider will fire this again. For net, if component count is less than 70 theres no extra mixamorig attached so make ridermodel name Daryien, if more, rename Ridermodelname to new character, grab new character reference and realign Rider_Transforms to the new bones
         public void RiderTracking()
         {
             if(Rider_Root.transform.parent.gameObject.GetComponentsInChildren<Transform>().Length < 70)
@@ -149,7 +149,7 @@ namespace Frosty_Online_GameSide
 
 
 
-        // initialises to default Daryien, rider tracking(above) overrules if model is not daryien
+        // Grabs all of Daryiens Bones on Start, and the bikes, stores in Rider_Transforms[] for sending
         public bool InitialiseLocalRider()
         {
             Rider_Root = UnityEngine.GameObject.Find("Daryien");

@@ -19,11 +19,14 @@ namespace Frosty_Online_GameSide
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
         public BikeLoadOut _bikeloadout;
+        public RemotePlayerAudio Audio;
 
         private GameObject[] wheelcolliders;
 
 
         private bool SetupSuccess;
+
+
 
         // Call initiation once on start, inititation to reoccur until resolved
         private void Start()
@@ -36,11 +39,13 @@ namespace Frosty_Online_GameSide
 
         public void Initialize()
         {
-            // player has just been added to server, when this pc got the message to create the prefab and attach this class, it assigned the netid of this player, username, currentmodelname and inital pos and rot
+            // this player has just been added to server, when this pc got the message to create the prefab and attach this class, it assigned the netid of this player, username, currentmodelname and inital pos and rot
             Debug.Log($"Remote Rider { id } Initialising.....");
 
-            // Which rider model to use
-           // AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/session_player");
+
+
+            // Add Audio Component, audio component will receive data from master player
+            Audio = gameObject.AddComponent<RemotePlayerAudio>();
             
 
             // decifer the rider and bmx specifics needed especially for daryien and bike colours
@@ -65,7 +70,7 @@ namespace Frosty_Online_GameSide
             RiderModel.GetComponent<SkeletonReferenceValue>().enabled = false;
                
             }
-
+            // remove any triggers?
 
 
             
@@ -76,7 +81,7 @@ namespace Frosty_Online_GameSide
             Riders_rotations = new Vector3[32];
 
             
-           // Once models instatiated, run findriderparts to locate and assign all ridertransforms to models and children joints of models,
+           // Once models instatiated, run findriderparts to locate and assign all ridertransforms to models and children joints of models, sets masteractive on success
             SetupSuccess = RiderSetup();
 
 
@@ -88,13 +93,13 @@ namespace Frosty_Online_GameSide
        
         private void FixedUpdate()
         {
-             
-
+            // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
             {
                 UpdateAllRiderParts();
             }
 
+            // loops ridersetup until it succeeds and marks masteractive as true
             if (!MasterActive)
             {
                 RiderSetup();
@@ -102,7 +107,10 @@ namespace Frosty_Online_GameSide
 
         }
 
-        
+
+
+
+        // decides whether to get daryien and start the texture process, or grab a custom model, Gives back gameobject to Initialise for instantiation
         private GameObject DecideRider(string modelname)
         {
             GameObject Rider;
@@ -117,13 +125,9 @@ namespace Frosty_Online_GameSide
                 Rider = LoadRiderFromAssets();
                 return Rider;
             }
-           
-
-
-            
         }
 
-
+        // Called by DecideRider if Currentmodelname is Daryien, will then ask for more info from server about textures
         private GameObject DaryienSetup()
         {
             GameObject daz = UnityEngine.GameObject.Find("Daryien");
@@ -136,10 +140,7 @@ namespace Frosty_Online_GameSide
             return daz;
         }
 
-
-
-
-
+        // Called by DecideRider if Currentmodelname isnt Daryien
         private GameObject LoadRiderFromAssets()
         {
             GameObject loadedrider;
@@ -178,6 +179,12 @@ namespace Frosty_Online_GameSide
         }
 
 
+
+
+        /// <summary>
+        /// Couple Ridertransforms array with transforms of ridermodel and bike, setup colliders, Rigidbodies, grab BikeLoadout script of bike, then set MasterActive to True
+        /// </summary>
+        /// <returns></returns>
         private bool RiderSetup()
         {
 
@@ -278,6 +285,9 @@ namespace Frosty_Online_GameSide
         }
 
 
+        /// <summary>
+        /// Called by FixedUpdate if MasterActive is true, Updates transforms to latest received by my Master player
+        /// </summary>
         public void UpdateAllRiderParts()
         {
           //  simply update to latest stored pos and rot
@@ -307,10 +317,12 @@ namespace Frosty_Online_GameSide
 
        
 
+
         private void OnGUI()
         {
             GUILayout.Space(50);
             GUILayout.Label($"{username} is riding");
+            GUILayout.Label(_bikeloadout.currentPreset.ToString());
            
         }
 

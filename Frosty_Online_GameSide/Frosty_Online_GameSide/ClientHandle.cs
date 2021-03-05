@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Frosty_Online_GameSide
 {
 
-
+    // all functions here are called by an incoming packet whose "OP code" matched that of a dictionary key setup in Client.Initilaise, also see Packet.cs for setup of OP codes
     public class ClientHandle : MonoBehaviour
     {
 
@@ -111,23 +111,6 @@ namespace Frosty_Online_GameSide
 
         
 
-        public static void ItemSpawned(Packet _packet)
-        {
-            int _spawnerId = _packet.ReadInt();
-
-            GameManager.itemSpawners[_spawnerId].ItemSpawned();
-        }
-
-        public static void ItemPickedUp(Packet _packet)
-        {
-            int _spawnerId = _packet.ReadInt();
-            int _byPlayer = _packet.ReadInt();
-
-            GameManager.itemSpawners[_spawnerId].ItemPickedUp();
-            
-        }
-
-        
 
   
     }

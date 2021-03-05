@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Frosty_Online_GameSide
 {
-    
+    // the top two functions are used by all the other once they have created a packet, packet is constructed with the int OPcode at the beginning, the server has a handle function attached to this particular int which reads the packet just as the function in here wrote it
     public class ClientSend : MonoBehaviour
     {
         /// <summary>Sends a packet to the server via TCP.</summary>
@@ -84,15 +84,7 @@ namespace Frosty_Online_GameSide
 
 
 
-        public static void PlayerThrowItem(Vector3 _facing)
-        {
-            using (Packet _packet = new Packet((int)ClientPackets.playerThrowItem))
-            {
-                _packet.Write(_facing);
-
-                SendTCPData(_packet);
-            }
-        }
+       
         #endregion
     }
 }

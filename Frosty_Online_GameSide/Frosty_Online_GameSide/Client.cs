@@ -305,8 +305,6 @@ namespace Frosty_Online_GameSide
             { (int)ServerPackets.playerDisconnected, ClientHandle.PlayerDisconnected },
             
             
-            { (int)ServerPackets.itemSpawned, ClientHandle.ItemSpawned },
-            { (int)ServerPackets.itemPickedUp, ClientHandle.ItemPickedUp },
             
         };
             Debug.Log("Initialized packets.");

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace Frosty_Online_GameSide
 {
-
+    // this class simply processes the packets, Had to remove the keyword "lock" which would actually lock it to 1 thread? no error so far
     public class ThreadManager : MonoBehaviour
     {
         private static readonly List<UnityAction> executeOnMainThread = new List<UnityAction>();

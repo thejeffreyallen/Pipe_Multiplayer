@@ -16,9 +16,19 @@ namespace Frosty_Pipe_Server
 
         static void Main(string[] args)
         {
-
+            
             Console.Title = "PIPE Server";
-            Server.Start(50, 7777);
+            Console.WriteLine("Enter Listening Port");
+            int port = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter Max Players");
+            int maxPlayers = int.Parse(Console.ReadLine());
+
+            Console.WriteLine($"Port: {port} with max players: {maxPlayers}");
+            Console.WriteLine("Any Key to Start");
+            Console.Read();
+
+            
+            Server.Start(50, port);
             isrunning = true;
 
             Thread MainThread = new Thread(new ThreadStart(Mainthread));
