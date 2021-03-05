@@ -97,7 +97,7 @@ namespace Frosty_Online_GameSide
         }
 
        
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
