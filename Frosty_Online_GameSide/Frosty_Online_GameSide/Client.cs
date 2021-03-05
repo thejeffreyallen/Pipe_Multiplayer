@@ -321,7 +321,7 @@ namespace Frosty_Online_GameSide
                 Debug.Log("Disconnected from server.");
             }
                 Ingame_UI.instance.Connected = false;
-                Ingame_UI.instance.Hosting = false;
+                
         }
     }
 }

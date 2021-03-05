@@ -22,6 +22,7 @@ namespace Frosty_Pipe_Server
             int port = int.Parse(Console.ReadLine());
             Console.WriteLine("Enter Max Players");
             int maxPlayers = int.Parse(Console.ReadLine());
+            
 
             Console.WriteLine($"Port: {port} with max players: {maxPlayers}");
             Console.WriteLine("Any Key to Start");

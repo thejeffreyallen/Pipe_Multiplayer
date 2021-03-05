@@ -241,36 +241,47 @@ namespace Frosty_Online_GameSide
 
 
 
-                // Collision setup
-                /*
+                // Collision setup, Add Rigidbodies last as they require colliders.
+                // All remote rider rigidboides are kinematic so they should plow down any local rider they touch, but the remote rider is being updated by its local counterpart, and on that machine its them that has the live rigidbody and they too have hit a kinematic remote rider. 
+                // Result: if your still and your RB is asleep your a brick wall, if your moving, both riders take impact.
+                
                 if(wheelcolliders == null)
                 {
                     wheelcolliders = new GameObject[2];
-                    wheelcolliders[0] = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cylinder));
-                    wheelcolliders[1] = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cylinder));
                 }
-                wheelcolliders[0].transform.position = Riders_Transforms[28].position;
-                wheelcolliders[0].transform.parent = Riders_Transforms[28];
-                    wheelcolliders[0].transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
-               // wheelcolliders[0].GetComponent<MeshCollider>().convex = true;
-                wheelcolliders[1].transform.position = Riders_Transforms[29].position;
-                wheelcolliders[1].transform.parent = Riders_Transforms[29];
-                    wheelcolliders[1].transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
-                    //  wheelcolliders[1].GetComponent<MeshCollider>().convex = true;
+                wheelcolliders[0] = GameObject.Instantiate(GameManager.instance.wheelcolliderobj);
+                    wheelcolliders[1] = GameObject.Instantiate(GameManager.instance.wheelcolliderobj);
 
 
-                if(Rider_RB.GetComponent<Rigidbody>() == null)
+                //back wheel
+                wheelcolliders[0].transform.position = Riders_Transforms[29].position;
+                wheelcolliders[0].transform.parent = Riders_Transforms[29];
+                    //wheelcolliders[0].transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
+              
+
+
+                // front wheel
+                wheelcolliders[1].transform.position = Riders_Transforms[28].position;
+                wheelcolliders[1].transform.parent = Riders_Transforms[28];
+                   // wheelcolliders[1].transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
+               
+                
+
+               // RiderModel.AddComponent<CapsuleCollider>();
+              //  BMX.AddComponent<BoxCollider>();
+
+                if(RiderModel.GetComponent<Rigidbody>() == null)
                 {
                 Rider_RB = RiderModel.AddComponent<Rigidbody>();
                 }
                 Rider_RB.isKinematic = true;
 
-                if(BMX_RB.GetComponent<Rigidbody>() == null)
+                if(BMX.GetComponent<Rigidbody>() == null)
                 {
                 BMX_RB = BMX.AddComponent<Rigidbody>();
                 }
                 BMX_RB.isKinematic = true;
-                */
+                
 
 
 
@@ -324,11 +335,6 @@ namespace Frosty_Online_GameSide
        
 
 
-        private void OnGUI()
-        {
-           
-           
-        }
 
        
     }

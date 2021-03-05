@@ -11,7 +11,6 @@ namespace Frosty_Online_GameSide
         public string Username = "Username...";
         
         public bool Connected;
-        public bool Hosting;
         public string desiredport = "7777";
         
         public string lastmsgfromServer = "Waiting for Server..";
@@ -37,7 +36,7 @@ namespace Frosty_Online_GameSide
         private void Start()
         {
             _localplayer = gameObject.GetComponent<LocalPlayer>();
-               // _localplayer.InitialiseLocalRider();
+               
         }
 
 
@@ -69,17 +68,13 @@ namespace Frosty_Online_GameSide
 
         void OnGUI()
         {
-            if(!Hosting && !Connected)
+            if(!Connected)
             {
                 HomeScreen();
             }
 
-            if (Hosting && !Connected)
-            {
-               HostsGUI();
-            }
 
-            if (!Hosting && Connected)
+            if (Connected)
             {
                 ClientsGUI();
             }
@@ -108,20 +103,15 @@ namespace Frosty_Online_GameSide
         }
 
 
-        void HostsGUI()
-        {
-            if (GUILayout.Button("Disconnect"))
-            {
-                Disconnect();
-            }
-        }
+       
 
         void ClientsGUI()
         {
-            GUILayout.Label(lastmsgfromServer);
-
-           // GUILayout.Label(UnityEngine.Component.FindObjectsOfType<RemotePlayer>().Length.ToString() + " Players Out");
-
+            GUILayout.Label("Online");
+            GUILayout.Label("Server: " + lastmsgfromServer);
+           
+            // GUILayout.Label(UnityEngine.Component.FindObjectsOfType<RemotePlayer>().Length.ToString() + " Players Out");
+            GUILayout.Space(10);
             if (GUILayout.Button("Disconnect"))
             {
                 Disconnect();

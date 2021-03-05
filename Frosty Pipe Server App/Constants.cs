@@ -7,7 +7,7 @@ namespace Frosty_Pipe_Server
 {
     class Constants
     {
-        public const int TicksPerSec = 30;
+        public const int TicksPerSec = 50;
         public const int MSPerTick = 1000 / TicksPerSec;
     }
 }
