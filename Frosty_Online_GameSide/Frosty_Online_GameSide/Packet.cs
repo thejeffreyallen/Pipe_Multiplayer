@@ -13,7 +13,8 @@ namespace Frosty_Online_GameSide
         TransformUpdateOfRemotePlayer,
         SetupPlayer,
         playerDisconnected,
-        RiderInfo,
+        RequestforDaryientexnames,
+        RequestingTextures,
       
        
     }
@@ -23,8 +24,8 @@ namespace Frosty_Online_GameSide
     {
         welcomeReceived = 1,
         TransformUpdate,
-        SetupPlayer,
-        RiderInfo,
+        SendDaryienTexNames,
+        SendTexture,
        
     }
 

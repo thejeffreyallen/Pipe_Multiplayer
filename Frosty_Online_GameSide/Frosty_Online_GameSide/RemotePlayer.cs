@@ -18,7 +18,7 @@ namespace Frosty_Online_GameSide
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public float LerpSpeed = 5;
+        public float LerpSpeed = 0.4f;
         
         public RemotePlayerAudio Audio;
 
@@ -71,7 +71,7 @@ namespace Frosty_Online_GameSide
             RiderModel.GetComponent<SkeletonReferenceValue>().enabled = false;
                
             }
-            // remove any triggers?
+            // remove any triggers, Ontrigger events will cause local player to bail
             foreach(Transform t in RiderModel.GetComponentsInChildren<Transform>())
             {
                 if (t.name.Contains("Trigger"))
@@ -98,7 +98,7 @@ namespace Frosty_Online_GameSide
         }
 
        
-        private void LateUpdate()
+        private void FixedUpdate()
         {
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
@@ -138,11 +138,17 @@ namespace Frosty_Online_GameSide
         private GameObject DaryienSetup()
         {
             GameObject daz = UnityEngine.GameObject.Find("Daryien");
+
+            // make sure meshes are active, pipeworks PI keeps daryien but turns off all his meshes, then tracks new models to daryiens bones
             Transform[] children = daz.GetComponentsInChildren<Transform>(true);
             foreach(Transform t in children)
             {
                 t.gameObject.SetActive(true);
             }
+
+           
+
+
 
             return daz;
         }
@@ -257,19 +263,13 @@ namespace Frosty_Online_GameSide
                 //back wheel
                 wheelcolliders[0].transform.position = Riders_Transforms[29].position;
                 wheelcolliders[0].transform.parent = Riders_Transforms[29];
-                    //wheelcolliders[0].transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
-              
-
+               
 
                 // front wheel
                 wheelcolliders[1].transform.position = Riders_Transforms[28].position;
                 wheelcolliders[1].transform.parent = Riders_Transforms[28];
-                   // wheelcolliders[1].transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
+                  
                
-                
-
-               // RiderModel.AddComponent<CapsuleCollider>();
-              //  BMX.AddComponent<BoxCollider>();
 
                 if(RiderModel.GetComponent<Rigidbody>() == null)
                 {
@@ -285,6 +285,7 @@ namespace Frosty_Online_GameSide
                 
 
 
+                // complete, send message that i have arrived and set masteractive true so i start to update myself
 
                 Ingame_UI.instance.lastmsgfromServer = $"{username} is riding";
                 MasterActive = true;
@@ -308,7 +309,9 @@ namespace Frosty_Online_GameSide
         /// </summary>
         public void UpdateAllRiderParts()
         {
-          //  simply update to latest stored pos and rot
+            
+
+          //  Lerp all Positions to newest stored values rotations are just set
 
             // rider
             Riders_Transforms[0].position = Vector3.Lerp(Riders_Transforms[0].position, Riders_positions[0], LerpSpeed);

@@ -303,6 +303,8 @@ namespace Frosty_Online_GameSide
             { (int)ServerPackets.TransformUpdateOfRemotePlayer, ClientHandle.PlayerPositionReceive },
             { (int)ServerPackets.SetupPlayer, ClientHandle.SetupPlayerReceive },
             { (int)ServerPackets.playerDisconnected, ClientHandle.PlayerDisconnected },
+            { (int)ServerPackets.RequestforDaryientexnames, ClientHandle.RequestforDaryienTexNamesReceive },
+            { (int)ServerPackets.RequestingTextures, ClientHandle.RequestForTextures },
             
             
             

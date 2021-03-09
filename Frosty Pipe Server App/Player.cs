@@ -10,18 +10,21 @@ namespace Frosty_Pipe_Server
         public bool active;
         public int id;
         public string username;
+        public Vector3 SpawnPosition;
 
+        // Character model
         public string CurrentRiderModel;
       
-
+        // Movement
         public Vector3[] RiderPositions;
         public Vector3[] RiderRotations;
 
-        public Vector3 SpawnPosition;
+        // null unless Daryien is selected
+        public List<string> NamesofDaryiensTextures;
+        // if the server detects it doesnt have these it will request them from client and save locally
+        
 
-
-
-        public string Bike_Frame_colour;
+       
 
 
         public Player(int _id, string _username, Vector3 _spawnPosition, string Ridermodel)

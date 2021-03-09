@@ -84,16 +84,27 @@ namespace Frosty_Online_GameSide
 
         void HomeScreen()
         {
-
+            // setup stuff before connecting
            Username = GUILayout.TextField(Username);
             GUILayout.Space(10);
             Client.instance.ip = GUILayout.TextField(Client.instance.ip);
             desiredport = GUILayout.TextField(desiredport);
             Client.instance.port = int.Parse(desiredport);
             GUILayout.Space(5);
+
+
+            // when connect
             if (GUILayout.Button("Connect To Host"))
             {
-                _localplayer.RiderTracking();
+                // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
+               GameManager.instance._localplayer.RiderTrackingSetup();
+
+                // if model is daryien, do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
+                if(GameManager.instance._localplayer.RiderModelname == "Daryien")
+                {
+                    _localplayer.GrabTextures();
+                }
+
                 ConnectToServer();
                 Connected = true;
 

@@ -61,12 +61,26 @@ namespace Frosty_Pipe_Server
 
         }
 
-
-
-        public static void RiderInfoReceive(int _fromclient, Packet _packet)
+        public static void ReceiveDaryienTexNames(int _fromclient, Packet _packet)
         {
+            // receives names and stores in clients player
 
+            int stringCount = _packet.ReadInt();
+            Server.clients[_fromclient].player.NamesofDaryiensTextures = new List<string>();
+
+            for (int i = 0; i < stringCount; i++)
+            {
+                string name = _packet.ReadString();
+                Server.clients[_fromclient].player.NamesofDaryiensTextures.Add(name);
+                Console.WriteLine($"Received {name} texture name from {_fromclient} ");
+
+            }
+            // now checks the server has them
+                Console.WriteLine("Checking I have them now..");
+            Server.CheckForTextureFiles(Server.clients[_fromclient].player.NamesofDaryiensTextures, _fromclient);
         }
+
+      
 
 
 

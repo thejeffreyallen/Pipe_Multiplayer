@@ -29,7 +29,7 @@ namespace Frosty_Online_GameSide
 
 
         #region Packets
-        /// <summary>Lets the server know that the welcome message was received.</summary>
+       
         public static void WelcomeReceived()
         {
             using (Packet _packet = new Packet((int)ClientPackets.welcomeReceived))
@@ -43,9 +43,7 @@ namespace Frosty_Online_GameSide
             }
         }
 
-        /// <summary>
-        ///Packets my positions and rotations and sends to SendUDPData as Vector3 arrays</summary>
-        /// <param name="_inputs"></param>
+    
         public static void SendMyTransforms(int TransformCount ,Vector3[] positions, Vector3[] rotations)
         {
             using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
@@ -72,13 +70,30 @@ namespace Frosty_Online_GameSide
         }
 
 
-        public static void SendRiderInfo()
+       public static void SendDaryienTexNames()
         {
+            using(Packet _packet = new Packet((int)ClientPackets.SendDaryienTexNames))
+            {
+                // write amount of names in list
+                _packet.Write(GameManager.instance._localplayer.NamesOfDaryiensTextures.Count);
+               
+                // write each name
+                foreach(string s in GameManager.instance._localplayer.NamesOfDaryiensTextures)
+                {
+                    _packet.Write(s);
+                }
 
+                SendTCPData(_packet);
+            }
         }
 
 
-
+        public static void SendTexture(List<Texture2D> texs)
+        {
+          byte[] bytes = ByteMaker.Image(texs[1]);
+            Ingame_UI.instance.lastmsgfromServer = $"Sending {bytes.Length} bytes";
+            // Texture needs to be read/write enabled
+        }
 
 
 

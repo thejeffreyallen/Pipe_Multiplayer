@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -91,9 +92,7 @@ namespace Frosty_Pipe_Server
 
 
         #region Packets
-        /// <summary>Sends a welcome message to the given client.</summary>
-        /// <param name="_toClient">The client to send the packet to.</param>
-        /// <param name="_msg">The message to send.</param>
+      
         public static void Welcome(int _toClient, string _msg)
         {
             using (Packet _packet = new Packet((int)ServerPackets.welcome))
@@ -106,9 +105,18 @@ namespace Frosty_Pipe_Server
         }
 
         
-        /// <summary>Tells a client to spawn a player.</summary>
-        /// <param name="_toClient">The client that should spawn the player.</param>
-        /// <param name="_player">The player to spawn.</param>
+
+
+
+
+
+
+
+      /// <summary>
+      /// Fires once enough info has been obtained about player, sends command to players to instantiate new player
+      /// </summary>
+      /// <param name="_toClient"></param>
+      /// <param name="_player"></param>
         public static void SetupPlayer(int _toClient, Player _player)
         {
             using (Packet _packet = new Packet((int)ServerPackets.SetupPlayer))
@@ -122,6 +130,56 @@ namespace Frosty_Pipe_Server
                 SendTCPData(_toClient, _packet);
             }
         }
+
+
+
+
+
+
+
+        /// <summary>
+        /// Fires if a client connects with ridermodelname daryien,
+        /// </summary>
+        /// <param name="_toclient"></param>
+        public static void RequestTextureNamesForDaryien(int _toclient)
+        {
+            using (Packet _packet = new Packet((int)ServerPackets.RequestTexnamesforDaryien))
+            {
+                // doesnt need data just triggers the request
+
+                SendTCPData(_toclient, _packet);
+            }
+
+        }
+
+
+
+
+
+        /// <summary>
+        /// Fires if a client started as daryien with textures the server doesnt have, sends list of unfound texture names to the client
+        /// </summary>
+        /// <param name="_toclient"></param>
+        /// <param name="unfoundlist"></param>
+        public static void RequestTextures(int _toclient, List<string> unfoundlist)
+        {
+            using(Packet _packet = new Packet((int)ServerPackets.RequestTextures))
+            {
+                _packet.Write(unfoundlist.Count);
+
+                foreach(string s in unfoundlist)
+                {
+                    _packet.Write(s);
+                }
+                SendTCPData(_toclient, _packet);
+            }
+
+        }
+
+
+
+
+
 
 
 
@@ -154,6 +212,12 @@ namespace Frosty_Pipe_Server
 
 
         }
+
+
+
+
+
+
 
 
 

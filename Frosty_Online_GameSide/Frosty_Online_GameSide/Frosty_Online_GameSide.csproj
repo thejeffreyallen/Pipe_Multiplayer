@@ -86,12 +86,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ByteMaker.cs" />
     <Compile Include="ClientHandle.cs" />
     <Compile Include="ClientSend.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="Ingame_UI.cs" />
-    <Compile Include="ItemSpawner.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="LocalPlayer.cs" />

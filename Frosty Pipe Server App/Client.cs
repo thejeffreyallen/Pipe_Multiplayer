@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -6,10 +8,17 @@ using System.Net.Sockets;
 using System.Numerics;
 
 
+
+
 namespace Frosty_Pipe_Server
 {
+
     class Client
     {
+       
+        
+        
+
         public static int dataBufferSize = 4096;
 
         public int id;
@@ -19,6 +28,7 @@ namespace Frosty_Pipe_Server
 
         public Client(int _clientId)
         {
+            
             id = _clientId;
             tcp = new TCP(id);
             udp = new UDP(id);
@@ -212,14 +222,24 @@ namespace Frosty_Pipe_Server
         }
 
 
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
         
-        /// <summary>Sends the new player to all active players.</summary>
-        /// <param name="_playerName">The username of the new player.</param>
+        
         public void SetupPlayer(string _playerName,string ridermodelname)
         {
+           
+
+
+            // create new player on server with this id, username and ridermodelname
             player = new Player(id, _playerName, new Vector3(0, 5, 0), ridermodelname);
 
             Console.WriteLine($" {_playerName } is ID: {id}, riding as {ridermodelname} ");
+
             // Any Client with an active player should receive a SetupPlayer packet and begin to construct this new rider
             foreach(Client c in Server.clients.Values)
             {
@@ -250,8 +270,20 @@ namespace Frosty_Pipe_Server
 
                 }
             }
+
+            
+            if(ridermodelname == "Daryien")
+            {
+                ServerSend.RequestTextureNamesForDaryien(id);
+            }
+
+
+
         }
         
+
+
+
 
 
         /// <summary>Disconnects the client and stops all network traffic.</summary>

@@ -12,6 +12,8 @@ namespace Frosty_Pipe_Server
         TransformInfo,
         SetupPlayer,
         DisconnectTellAll,
+        RequestTexnamesforDaryien,
+        RequestTextures,
     }
 
     /// <summary>Sent from client to server.</summary>
@@ -19,6 +21,7 @@ namespace Frosty_Pipe_Server
     {
         welcomeReceived = 1,
         TransformInfo,
+        ReceiveDaryienTexNames,
     }
 
     public class Packet : IDisposable

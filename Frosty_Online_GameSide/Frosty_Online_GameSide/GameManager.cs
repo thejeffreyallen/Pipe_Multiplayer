@@ -10,13 +10,13 @@ namespace Frosty_Online_GameSide
     {
         ConsoleLog log;
 
-
         public static GameManager instance;
 
         public static Dictionary<int,RemotePlayer> players = new Dictionary<int, RemotePlayer>();
-        public static Dictionary<int, ItemSpawner> itemSpawners = new Dictionary<int, ItemSpawner>();
+       
+        // My Local Player
+        public LocalPlayer _localplayer;
 
-        
                // inserted empty object, gets around nulling out, one for each player, static in scene relaying data
        GameObject Prefab;
       public GameObject wheelcolliderobj;
@@ -40,7 +40,9 @@ namespace Frosty_Online_GameSide
                 Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
                 wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
                 Prefab.AddComponent<RemotePlayer>();
-           
+
+
+            _localplayer = gameObject.GetComponent<LocalPlayer>();
 
             if (instance == null)
             {

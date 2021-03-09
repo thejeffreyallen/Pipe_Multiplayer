@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Collections;
+using System.IO;
 
 namespace Frosty_Pipe_Server
 {
     class Server
     {
+        // Directories for Servers Stored Data
+        public static string Rootdir = Assembly.GetExecutingAssembly().Location.Replace(".exe","") + "/Game Data/";
+        public static string TexturesDir = Rootdir + "Textures/";
+
         public static int MaxPlayers { get; private set; }
         public static int Port { get; private set; }
         public static Dictionary<int, Client> clients = new Dictionary<int, Client>();
@@ -130,9 +137,51 @@ namespace Frosty_Pipe_Server
             {
                 { (int)ClientPackets.welcomeReceived, ServerHandle.WelcomeReceived },
                 { (int)ClientPackets.TransformInfo, ServerHandle.TransformsReceive },
+                { (int)ClientPackets.ReceiveDaryienTexNames, ServerHandle.ReceiveDaryienTexNames }
                 
             };
             Console.WriteLine("Initialized packets.");
         }
+
+
+        // called by a severhandle when receiving names of files, gives list of clients file names and client id
+        public static void CheckForTextureFiles(List<string> listoffilenames,int _fromclient) 
+        {
+            DirectoryInfo info = new DirectoryInfo(TexturesDir);
+            FileInfo[] files = info.GetFiles();
+            List<string> Unfound = new List<string>();
+
+            foreach(string s in listoffilenames)
+            {
+             bool found = false;
+                foreach(FileInfo file in files)
+                {
+                    if(file.Name == s)
+                    {
+                        found = true;
+                        Console.WriteLine($"Matched {s} to {file.Name}");
+                    }
+                }
+                if (!found)
+                {
+                    // server doesnt have it, request it
+                    Unfound.Add(s);
+                    Console.WriteLine(s + "Added to unfound list");
+                }
+
+            }
+            // if any unfound, send list of required textures back to the client
+            if(Unfound.Count > 0)
+            {
+                ServerSend.RequestTextures(_fromclient, Unfound);
+
+            }
+            else
+            {
+                Console.WriteLine("Got All Textures");
+            }
+
+        }
+
     }
 }

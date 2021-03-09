@@ -5,6 +5,8 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Reflection;
+using System.IO;
 
 
 
@@ -12,12 +14,30 @@ namespace Frosty_Pipe_Server
 {
     class Program
     {
+
+
+
         private static bool isrunning = false;
 
         static void Main(string[] args)
         {
+
+
             
+
+            // Check directories exist on startup, if not create
+            DirectoryInfo texinfo = new DirectoryInfo(Server.TexturesDir);
+            DirectoryInfo info = new DirectoryInfo(Server.Rootdir);
+            if (!info.Exists)
+            {
+                info.Create();
+                texinfo.Create();
+            }
+           
+
             Console.Title = "PIPE Server";
+            Console.ForegroundColor = ConsoleColor.Green;
+          
             Console.WriteLine("Enter Listening Port");
             int port = int.Parse(Console.ReadLine());
             Console.WriteLine("Enter Max Players");
@@ -29,7 +49,7 @@ namespace Frosty_Pipe_Server
             Console.Read();
 
             
-            Server.Start(50, port);
+            Server.Start(maxPlayers, port);
             isrunning = true;
 
             Thread MainThread = new Thread(new ThreadStart(Mainthread));

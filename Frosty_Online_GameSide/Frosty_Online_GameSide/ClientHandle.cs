@@ -40,6 +40,34 @@ namespace Frosty_Online_GameSide
         }
 
 
+        public static void RequestforDaryienTexNamesReceive(Packet _packet)
+        {
+            // no need to read packet, the opcode is enough to know the server wants names
+
+            ClientSend.SendDaryienTexNames();
+        }
+
+
+        public static void RequestForTextures(Packet _packet)
+        {
+           
+            List<string> names = new List<string>();
+
+            int amountmissing = _packet.ReadInt();
+            for (int i = 0; i < amountmissing; i++)
+            {
+                string n = _packet.ReadString();
+                names.Add(n);
+            }
+            Ingame_UI.instance.lastmsgfromServer = $"Server is Requesting {amountmissing} Textures";
+            // let player choose whether to upload or send message to just set to default texture?
+
+            GameManager.instance._localplayer.SendTexturesToServer(names);
+            
+
+        }
+
+
         public static void PlayerPositionReceive(Packet _packet)
         {
             int FromId = _packet.ReadInt();
