@@ -34,6 +34,8 @@ namespace PIPE_Valve_Console_Client
             HarmonyInstance harmonyInstance = HarmonyInstance.Create(modEntry.Info.Id);
             harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
+
+            // checks for files and copies from the this mod's folder if needed
             string directory = Directory.GetCurrentDirectory();
             if (!File.Exists(directory + "\\GameNetworkingSockets.dll"))
             {

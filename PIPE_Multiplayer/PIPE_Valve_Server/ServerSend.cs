@@ -127,7 +127,7 @@ namespace PIPE_Valve_Online_Server
 
 
 
-                SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.NoDelay);
 
 
 

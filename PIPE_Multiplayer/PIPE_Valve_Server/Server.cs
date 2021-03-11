@@ -125,7 +125,7 @@ namespace PIPE_Valve_Online_Server
 		Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 20;
+			const int maxMessages = 250;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif

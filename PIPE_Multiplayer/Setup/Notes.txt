@@ -4,7 +4,7 @@ Game Side:
 1) GameNetworkingsocksets.dll, Libprotofbuf.dll and libcrypto.dll must be found in PIPE folder next to .exe (all 32bit to match PIPE, modmanagers Load function checks this 
 is true and copies files from Mod folder if not found)
 
-2) GameNetworkingSockets is written in C++ not C#, vc redistributable 32bit is required (if you dont have visual studio? i didnt need it but laptop player 2 tester did)
+2) GameNetworkingSockets is written in C++ not C#, vc redistributable 2015-2019 32bit is required (if you dont have visual studio? i didnt need it but laptop player 2 tester did)
 
 
 Server side:
