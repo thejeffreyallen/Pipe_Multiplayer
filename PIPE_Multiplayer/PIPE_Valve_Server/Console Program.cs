@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.IO;
 
 
 
@@ -22,7 +23,17 @@ namespace PIPE_Valve_Online_Server
         static void Main(string[] args)
         {
 
-			Console.WriteLine("PIPE ONLINE SERVER V1.0.0");
+            // Check directories exist on startup, if not create
+            DirectoryInfo texinfo = new DirectoryInfo(Server.TexturesDir);
+            DirectoryInfo info = new DirectoryInfo(Server.Rootdir);
+            if (!info.Exists)
+            {
+                info.Create();
+                texinfo.Create();
+            }
+
+
+            Console.WriteLine("PIPE ONLINE SERVER V1.0.0");
 			Console.WriteLine("Please enter Max player count (1 - ~");
 			int Maxplayers = int.Parse(Console.ReadLine());
 
@@ -57,6 +68,8 @@ namespace PIPE_Valve_Online_Server
 
         while (isrunning)
         {
+
+
 
             while (_nextloop < DateTime.Now)
             {

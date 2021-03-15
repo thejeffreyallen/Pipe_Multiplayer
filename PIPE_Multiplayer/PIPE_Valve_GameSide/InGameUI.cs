@@ -53,6 +53,7 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public void ConnectToServer()
         {
+           
             GameNetworking.instance.ConnectToServer();
 
         }
@@ -114,11 +115,9 @@ namespace PIPE_Valve_Console_Client
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 GameManager.instance._localplayer.RiderTrackingSetup();
 
-                // if model is daryien, do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
-                if (GameManager.instance._localplayer.RiderModelname == "Daryien")
-                {
+                // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
                     _localplayer.GrabTextures();
-                }
+                
 
                 ConnectToServer();
                 Connected = true;

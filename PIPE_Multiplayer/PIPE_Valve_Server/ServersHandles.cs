@@ -25,7 +25,7 @@ namespace PIPE_Valve_Online_Server
             Player p = new Player(_from, Ridermodel, name);
             Server.Players.Add(_from, p);
 
-
+            ServerSend.RequestTexturenames(_from);
 
             // send this player info to everyone online
             foreach (Player c in Server.Players.Values)
@@ -120,8 +120,23 @@ namespace PIPE_Valve_Online_Server
         /// </summary>
         /// <param name="_from"></param>
         /// <param name="_pack"></param>
-        public static void TexturenamesReceive(uint _from, Packet _pack)
+        public static void TexturenamesReceive(uint _fromclient, Packet _packet)
         {
+            // receives names and stores in clients player
+
+            int stringCount = _packet.ReadInt();
+            Server.Players[_fromclient].RidersTexturenames = new List<string>();
+
+            for (int i = 0; i < stringCount; i++)
+            {
+                string name = _packet.ReadString();
+                Server.Players[_fromclient].RidersTexturenames.Add(name);
+                Console.WriteLine($"Received {name} texture name from {_fromclient} ");
+
+            }
+            // now checks the server has them
+            Console.WriteLine("Checking I have them now..");
+            Server.CheckForTextureFiles(Server.Players[_fromclient].RidersTexturenames, _fromclient);
 
         }
 
@@ -139,6 +154,52 @@ namespace PIPE_Valve_Online_Server
         }
 
         
+
+        /// <summary>
+        /// Receive Audio state update from player and stores in Player on server, all players call ServerSend at tick rate
+        /// </summary>
+        /// <param name="_from"></param>
+        /// <param name="_packet"></param>
+        public static void ReceiveAudioUpdate(uint _from, Packet _packet)
+        {
+            // receives and takes the receiving PacketId off the start of the array
+            byte[] oldbytes = _packet.ToArray();
+
+            byte[] newbytes = new byte[_packet.ToArray().Length - 4];
+            int count = 0;
+            for (int i = 4; count < newbytes.Length; i++)
+            {
+
+                newbytes[count] = oldbytes[i];
+                count++;
+            }
+
+
+            int amount = _packet.ReadInt();
+            for (int i = 0; i < amount; i++)
+            {
+                string name = _packet.ReadString();
+                int state = _packet.ReadInt();
+                float vol = _packet.ReadFloat();
+                float pitch = _packet.ReadFloat();
+                float Velo = _packet.ReadFloat();
+            Console.WriteLine($"Audio Packet from {_from}: {_packet.ToArray().Length}: riser {name} in state {state}");
+            }
+
+
+            // avoids the possiblilty of referencing player[_from] when it doesnt exist
+           foreach(Player p in Server.Players.Values)
+            {
+                if(p.clientID == _from)
+                {
+                  p.LastAudioUpdate = newbytes;
+
+                }
+            }
+
+
+          
+        }
 
 
 

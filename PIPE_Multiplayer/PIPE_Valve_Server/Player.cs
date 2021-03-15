@@ -16,9 +16,23 @@ namespace PIPE_Valve_Online_Server
         public string Username;
         public uint clientID;
         public string Ridermodel;
+        public string MapName;
+
+        public List<string> RidersTexturenames;
 
         public Vector3[] RiderPositions;
         public Vector3[] RiderRotations;
+
+
+        // audio
+        public byte[] LastAudioUpdate;
+
+
+
+
+
+
+
 
 
         /// <summary>
@@ -54,9 +68,14 @@ namespace PIPE_Valve_Online_Server
         {
             if (RiderPositions != null && RiderRotations != null)
             {
-
                 SendTransformInfoToAll();
             }
+
+            if(LastAudioUpdate != null && LastAudioUpdate.Length > 0)
+            {
+                ServerSend.SendAudioToAllPlayers(clientID, LastAudioUpdate);
+            }
+
         }
 
         public void SendTransformInfoToAll()

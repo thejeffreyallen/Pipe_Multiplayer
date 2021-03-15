@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Valve.Sockets;
 using System.Threading;
 using System.Net;
+using System.IO;
+using System.Reflection;
 
 namespace PIPE_Valve_Online_Server
 {
@@ -18,18 +20,42 @@ namespace PIPE_Valve_Online_Server
     {
 		static bool isRunning = true;
 		public static int MaxPlayers;
+		/// <summary>
+		/// Internal Callbacks etc with info about connection
+		/// </summary>
 		public static NetworkingUtils utils;
+		/// <summary>
+		/// Actual Socket that sends and receives
+		/// </summary>
 		public static NetworkingSockets server;
+        // connected clients
 		private static uint pollGroup;
 
+		// Directories for Servers Stored Data
+		public static string Rootdir = Assembly.GetExecutingAssembly().Location.Replace(".exe", "") + "/Game Data/";
+		public static string TexturesDir = Rootdir + "Textures/";
 
-		// links functions in ServerHandles to Ints in ClientPackets
+
+		/// <summary>
+		/// A PacketHandler is any fuction that takes in a uint and a Packet
+		/// </summary>
+		/// <param name="_fromClient"></param>
+		/// <param name="_packet"></param>
 		public delegate void PacketHandler(uint _fromClient, Packet _packet);
+		/// <summary>
+		/// PacketHandlers linked with an Int key, incoming messages fire PacketHandlers[packetcode] which is a function that takes in uint(from connection) and Packet(received bytes)
+		/// </summary>
 		public static Dictionary<int, PacketHandler> packetHandlers;
 
-
+		/// <summary>
+		/// Live players on server
+		/// </summary>
 		public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
+		/// <summary>
+		/// dictionary of currently being ridden Maps and amount of players in each map
+		/// </summary>
+		public static Dictionary<string,int> MapsBeingRidden = new Dictionary<string,int>();
 
 
 
@@ -44,6 +70,7 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.ReceiveTexture, ServersHandles.TextureReceive },
 				{ (int)ClientPackets.ReceiveTexturenames, ServersHandles.TexturenamesReceive},
 				{ (int)ClientPackets.TransformUpdate, ServersHandles.TransformReceive},
+				{ (int)ClientPackets.ReceiveAudioUpdate,ServersHandles.ReceiveAudioUpdate},
 
 			};
 
@@ -110,7 +137,7 @@ namespace PIPE_Valve_Online_Server
 			utils.SetStatusCallback(status);
 
 			Address address = new Address();
-			//string Ip = IPAddress.Any.ToString();
+			
 			address.SetAddress("::0", 7777);
 
 			uint listenSocket = server.CreateListenSocket(ref address);
@@ -125,7 +152,7 @@ namespace PIPE_Valve_Online_Server
 		Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 250;
+			const int maxMessages = 200;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif
@@ -138,7 +165,7 @@ namespace PIPE_Valve_Online_Server
 #else
 
 
-				// process Incoming Data on seperate thread, updated at tickrate
+				// process Incoming Data by reading int from byte[] and sending to function that corresponds to the int
 					ThreadManager.ExecuteOnMainThread(() =>
 					{
 				server.RunCallbacks();
@@ -154,10 +181,11 @@ namespace PIPE_Valve_Online_Server
 							byte[] bytes = new byte[netMessage.length];
 							netMessage.CopyTo(bytes);
 
-								// build packet using byte[] then send to function[code]
+								// build packet using byte[] then send to function[code], code is read and movepos of _packet is moved forward, so the function that receives this doesnt have to re-read the code from start
 							using (Packet _packet = new Packet(bytes))
 							{
-								int code = _packet.ReadInt();
+									int code = _packet.ReadInt();
+
 								uint from = netMessage.connection;
 
 								packetHandlers[code](from, _packet);
@@ -179,6 +207,7 @@ namespace PIPE_Valve_Online_Server
 			}
 
 			server.DestroyPollGroup(pollGroup);
+			Library.Deinitialize();
 
 		}
 
@@ -212,6 +241,60 @@ namespace PIPE_Valve_Online_Server
 		}
 
 
+		public static void CheckForTextureFiles(List<string> listoffilenames, uint _fromclient)
+        {
+			DirectoryInfo info = new DirectoryInfo(TexturesDir);
+			FileInfo[] files = info.GetFiles();
+			List<string> Unfound = new List<string>();
 
-    }
+			foreach (string s in listoffilenames)
+			{
+				bool found = false;
+				foreach (FileInfo file in files)
+				{
+					if (file.Name == s)
+					{
+						found = true;
+						Console.WriteLine($"Matched {s} to {file.Name}");
+					}
+				}
+				if (!found)
+				{
+					// server doesnt have it, request it
+					Unfound.Add(s);
+					Console.WriteLine(s + "Added to unfound list");
+				}
+
+			}
+			// if any unfound, send list of required textures back to the client
+			if (Unfound.Count > 0)
+			{
+				ServerSend.RequestTextures(_fromclient, Unfound);
+
+			}
+			else
+			{
+				Console.WriteLine("Got All Textures");
+			}
+
+		}
+
+
+		private static void BanAPlayer(uint Playersconnection, string username)
+        {
+			foreach(Player p in Players.Values)
+            {
+				if(p.clientID == Playersconnection)
+                {
+					// send message to disconnect client
+					// grab ip,
+					
+
+
+					server.CloseConnection(Playersconnection);
+                }
+            }
+        }
+
+	}
 }

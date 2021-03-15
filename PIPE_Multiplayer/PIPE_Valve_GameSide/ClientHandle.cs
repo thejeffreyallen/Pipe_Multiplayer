@@ -42,7 +42,7 @@ namespace PIPE_Valve_Console_Client
         public static void RequestforDaryienTexNamesReceive(Packet _packet)
         {
             // no need to read packet, the opcode is enough to know the server wants names
-
+            InGameUI.instance.Messages.Add("Server Requesting Textures");
             ClientSend.SendDaryienTexNames();
         }
 
@@ -65,6 +65,14 @@ namespace PIPE_Valve_Console_Client
 
 
         }
+
+
+
+        public static void ReceiveTexture(Packet _packet)
+        {
+
+        }
+
 
 
         public static void PlayerPositionReceive(Packet _packet)
@@ -102,6 +110,7 @@ namespace PIPE_Valve_Console_Client
                             player.Riders_rotations[i] = Rotations[i];
 
                         }
+                        //player.timeatlasttranformupdate = Time.time;
                         // Debug.Log("Position received:" + Positions[0].ToString());
                     }
 
@@ -121,6 +130,53 @@ namespace PIPE_Valve_Console_Client
         }
 
 
+        public static void ReceiveAudioForaPlayer(Packet _packet)
+        {
+            try
+            {
+                uint _from = (uint)_packet.ReadLong();
+               
+                
+                int count = _packet.ReadInt();
+
+                for (int i = 0; i < count; i++)
+                {
+                    string nameofriser = _packet.ReadString();
+                    int playstate = _packet.ReadInt();
+                    float volume = _packet.ReadFloat();
+                    float pitch = _packet.ReadFloat();
+                    float Velocity = _packet.ReadFloat();
+
+                    AudioStateUpdate update = new AudioStateUpdate(volume, pitch, playstate, nameofriser, Velocity);
+                    foreach(RemotePlayer player in GameManager.Players.Values)
+                    {
+                        if(player.id == _from)
+                        {
+                    GameManager.Players[_from].Audio.IncomingStateUpdates.Add(update);
+
+                        }
+                    }
+
+                }
+            }
+            catch (UnityException x)
+            {
+                Debug.LogError(x);
+            }
+
+
+
+
+
+            
+
+
+
+
+        }
+
+
+
 
 
         public static void PlayerDisconnected(Packet _packet)
@@ -128,11 +184,17 @@ namespace PIPE_Valve_Console_Client
             uint _id = (uint)_packet.ReadLong();
 
             // delete rider, bike and then self and remove id from manager
+            foreach(RemotePlayer player in GameManager.Players.Values)
+            {
+                if(player.id == _id)
+                {
             Destroy(GameManager.Players[_id].RiderModel);
             Destroy(GameManager.Players[_id].BMX);
-            Destroy(GameManager.Players[_id].gameObject);
-            GameManager.Players.Remove(_id);
             InGameUI.instance.Messages.Add($"{GameManager.Players[_id].username} Left");
+                }
+            }
+            GameManager.Players.Remove(_id);
+            Destroy(GameManager.Players[_id].gameObject);
         }
         
     }

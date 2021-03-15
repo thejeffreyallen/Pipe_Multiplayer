@@ -80,7 +80,7 @@ namespace PIPE_Valve_Console_Client
 
            
             modobj = new GameObject("Fnet");
-            modobj.AddComponent<ConsoleLog>().enabled = false;
+            modobj.AddComponent<ConsoleLog>();
             modobj.AddComponent<GameManager>();
             modobj.AddComponent<GameNetworking>();
             modobj.AddComponent<ThreadManager>();

@@ -6,8 +6,55 @@ namespace PIPE_Valve_Console_Client
 {
     public class ClientSend : MonoBehaviour
     {
-       
-        
+
+        // These top three functions are used by the send functions, give connection number, bytes and specify a send mode from Valve.sockets.sendflags.
+        private static void SendtoOne(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
+        {
+           GameNetworking.instance.client.SendMessageToConnection(toclient, bytes, sendflag);
+        }
+        private static void SendToAll(byte[] bytes, Valve.Sockets.SendFlags sendflag)
+        {
+            foreach (RemotePlayer client in GameManager.Players.Values)
+            {
+
+                GameNetworking.instance.client.SendMessageToConnection(client.id, bytes, sendflag);
+            }
+        }
+        private static void SendToAll(uint Exceptthis, byte[] bytes, Valve.Sockets.SendFlags sendflag)
+        {
+            foreach (RemotePlayer client in GameManager.Players.Values)
+            {
+                if (client.id != Exceptthis)
+                {
+
+                    GameNetworking.instance.client.SendMessageToConnection(client.id, bytes, sendflag);
+                }
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         #region Packets
 
@@ -53,31 +100,54 @@ namespace PIPE_Valve_Console_Client
 
         public static void SendDaryienTexNames()
         {
-            using (Packet _packet = new Packet((int)ClientPackets.SendDaryienTexNames))
+            using (Packet _packet = new Packet((int)ClientPackets.SendTextureNames))
             {
                 // write amount of names in list
-                _packet.Write(GameManager.instance._localplayer.NamesOfDaryiensTextures.Count);
+                _packet.Write(GameManager.instance._localplayer.RidersTexturenames.Count);
 
                 // write each name
-                foreach (string s in GameManager.instance._localplayer.NamesOfDaryiensTextures)
+                foreach (string s in GameManager.instance._localplayer.RidersTexturenames)
                 {
                     _packet.Write(s);
                 }
-
+                SendtoOne(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 
             }
         }
 
 
-        public static void SendTexture(List<Texture2D> texs)
+        public static void SendTextures(List<Texture2D> texs)
         {
-            byte[] bytes = ByteMaker.Image(texs[1]);
+            foreach(Texture2D tex in texs)
+            {
+            byte[] bytes = ByteMaker.Image(tex);
+
+            }
             
             // Texture needs to be read/write enabled
         }
 
 
+        public static void SendAudioUpdate(List<AudioStateUpdate> updates)
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
+            {
+                _packet.Write(updates.Count);
+            foreach(AudioStateUpdate update in updates)
+            {
+                    _packet.Write(update.nameofriser);
+                    _packet.Write(update.playstate);
+                    _packet.Write(update.Volume);
+                    _packet.Write(update.pitch);
+                    _packet.Write(update.Velocity);
+            }
 
+                SendtoOne(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+
+
+        }
 
 
 

@@ -6,7 +6,7 @@ namespace PIPE_Valve_Console_Client
     public class LocalPlayer : MonoBehaviour
     {
         private bool initsuccess;
-
+        public bool ServerActive=false;
         // GameObject roots: Rider_Root is always Daryien, ridermodel can be daryien or the custom rider model, in that case, Daryien is still there hes just invisible and ridermodel is using him
         public GameObject Rider_Root;
         public GameObject Bmx_Root;
@@ -20,21 +20,24 @@ namespace PIPE_Valve_Console_Client
         public string RiderModelname;
 
         // null unless InGameUI.Connect sees that you are Daryien, then GrabTextures is called.
-        public List<string> NamesOfDaryiensTextures;
-        public List<Texture2D> DaryiensTextures;
+        public List<string> RidersTexturenames;
+        public List<Texture2D> RidersTextures;
 
+
+        LocalPlayerAudio Audio;
 
 
 
         private void Start()
         {
 
-
             Riders_Transforms = new Transform[32];
             riderPositions = new Vector3[32];
             riderRotations = new Vector3[32];
             initsuccess = InitialiseLocalRider();
 
+            Audio = gameObject.AddComponent<LocalPlayerAudio>();
+            Audio.Riderroot = Rider_Root;
         }
 
 
@@ -44,6 +47,7 @@ namespace PIPE_Valve_Console_Client
         public bool InitialiseLocalRider()
         {
             Rider_Root = UnityEngine.GameObject.Find("Daryien");
+            ridermodel = Rider_Root;
             Bmx_Root = UnityEngine.GameObject.Find("BMX");
 
             Riders_Transforms[0] = Rider_Root.transform;
@@ -199,18 +203,24 @@ namespace PIPE_Valve_Console_Client
         // Called By Gui on connect if RiderTrackingSetup set name to Daryien
         public void GrabTextures()
         {
-            NamesOfDaryiensTextures = new List<string>();
-            DaryiensTextures = new List<Texture2D>();
+            RidersTexturenames = new List<string>();
+            RidersTextures = new List<Texture2D>();
 
-            SkinnedMeshRenderer[] r = Rider_Root.GetComponentsInChildren<SkinnedMeshRenderer>();
+            SkinnedMeshRenderer[] r = ridermodel.GetComponentsInChildren<SkinnedMeshRenderer>();
 
             // add all main textures and names to lists
             foreach (SkinnedMeshRenderer s in r)
             {
                 foreach (Material m in s.materials)
                 {
-                    NamesOfDaryiensTextures.Add(m.mainTexture.name);
-                    DaryiensTextures.Add((Texture2D)m.mainTexture);
+                    if(m.mainTexture != null)
+                    {
+                        Texture2D t = m.mainTexture as Texture2D;
+                    RidersTexturenames.Add(t.name.ToString());
+                    RidersTextures.Add(t);
+                       // InGameUI.instance.Messages.Add(t.name + "Grabbed");
+
+                    }
                 }
             }
 
@@ -224,11 +234,11 @@ namespace PIPE_Valve_Console_Client
 
             List<Texture2D> matchedtexs = new List<Texture2D>();
             // match with requested list and add to new list of textures, so clientsend gets them all and sends when ready
-            foreach (Texture2D t in DaryiensTextures)
+            foreach (Texture2D t in RidersTextures)
             {
                 foreach (string n in names)
                 {
-                    // if matched, send
+                    // if matched, add to list of textures
                     if (t.name == n)
                     {
                         matchedtexs.Add(t);
@@ -237,7 +247,7 @@ namespace PIPE_Valve_Console_Client
 
 
             }
-           // ClientSend.SendTexture(matchedtexs);
+            ClientSend.SendTextures(matchedtexs);
 
 
 

@@ -76,6 +76,47 @@ namespace PIPE_Valve_Online_Server
 
 
 
+        /// <summary>
+        /// Request a list of texture names from rider and bike to check server has them
+        /// </summary>
+        /// <param name="ClientId"></param>
+        public static void RequestTexturenames(uint ClientId)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.RequestTexNames))
+            {
+                // giving packetcode is enough to trigger clienthandle
+
+                SendtoOne(ClientId, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Request a list of textures by name
+        /// </summary>
+        /// <param name="Clientid"></param>
+        /// <param name="names"></param>
+        public static void RequestTextures(uint Clientid, List<string> names)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.requestTextures))
+            {
+                _packet.Write(names.Count);
+
+                foreach (string s in names)
+                {
+                    _packet.Write(s);
+                }
+                SendtoOne(Clientid, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+        }
+
+
+
+
+
 
         /// <summary>
         /// Fires once enough info has been obtained about player, sends command to a player to instantiate new player
@@ -152,6 +193,26 @@ namespace PIPE_Valve_Online_Server
                 SendToAll(ClientThatDisconnected, _packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
             }
         }
+
+
+
+
+
+        public static void SendAudioToAllPlayers(uint _fromplayer, byte[] lastupdate)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.SendAudioUpdate))
+            {
+                _packet.Write(_fromplayer);
+                _packet.Write(lastupdate);
+           SendToAll(_fromplayer,_packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
+            }
+            
+        }
+
+
+
+
+
 
 
         #endregion

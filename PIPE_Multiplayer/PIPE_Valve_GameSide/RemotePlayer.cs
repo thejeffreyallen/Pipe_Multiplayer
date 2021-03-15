@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace PIPE_Valve_Console_Client
 {
+    /// <summary>
+    /// Master Script for a Remote Player, when gamemanager spawns a new playerprefab, it has a remoteplayer attached with info populated by info from server
+    /// </summary>
     public class RemotePlayer : MonoBehaviour
     {
         public bool MasterActive = false;
@@ -18,11 +21,11 @@ namespace PIPE_Valve_Console_Client
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public float LerpSpeed = 0.4f;
-
+        public float LerpSpeed = 1f;
+        public float timeatlasttranformupdate;
 
         private GameObject[] wheelcolliders;
-
+        public RemotePlayerAudio Audio;
 
         private bool SetupSuccess;
 
@@ -44,8 +47,6 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            // Add Audio Component, audio component will receive data from master player
-          
 
 
             // decifer the rider and bmx specifics needed especially for daryien and bike colours
@@ -80,6 +81,9 @@ namespace PIPE_Valve_Console_Client
             }
 
 
+            // Add Audio Component, audio component will receive data from master player
+            Audio = gameObject.AddComponent<RemotePlayerAudio>();
+            Audio.Rider = RiderModel;
 
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
             Riders_Transforms = new Transform[32];
@@ -109,6 +113,19 @@ namespace PIPE_Valve_Console_Client
             if (!MasterActive)
             {
                 RiderSetup();
+            }
+
+            if(Audio.Rider == null)
+            {
+                try
+                {
+                Audio.Rider = RiderModel;
+                }
+                catch(UnityException c)
+                {
+                    Debug.Log("Audio Rider!!");
+                    Debug.Log(c);
+                }
             }
 
         }
@@ -308,7 +325,7 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public void UpdateAllRiderParts()
         {
-
+            
 
             //  Lerp all Positions to newest stored values rotations are just set
 

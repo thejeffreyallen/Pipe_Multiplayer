@@ -15,9 +15,12 @@ namespace PIPE_Valve_Online_Server
     {
         Welcome = 1,
         SetupAPlayer,
+        RequestTexNames,
+        requestTextures,
         SendTransformUpdate,
         SendTexturetoPlayer,
         DisconnectedPlayer,
+        SendAudioUpdate,
 
 
 
@@ -31,9 +34,10 @@ namespace PIPE_Valve_Online_Server
         WelcomeReceived = 1,
         ClientsRiderInfo,
         TransformUpdate,
-        SendDaryienTexNames,
         ReceiveTexturenames,
         ReceiveTexture,
+        ReceiveAudioUpdate = 7,
+
     }
 
 

@@ -13,10 +13,13 @@ namespace PIPE_Valve_Console_Client
     public enum ServerPacket : byte
     {
         Welcome = 1,
-        SetupAPlayer,
-        ReceiveTransformUpdate,
-        SendTexturetoPlayer,
-        DisconnectedPlayer,
+        SetupAPlayer = 2,
+        RequestTexNames = 3,
+        requestTextures = 4,
+        ReceiveTransformUpdate = 5,
+        ReceiveTextureforPlayer = 6,
+        DisconnectedPlayer = 7,
+        ReceiveAudioForPlayer = 8,
 
 
 
@@ -30,9 +33,10 @@ namespace PIPE_Valve_Console_Client
         WelcomeReceived = 1,
         ClientsRiderInfo,
         TransformUpdate,
-        SendDaryienTexNames,
+        SendTextureNames,
         ReceiveTexturenames,
         ReceiveTexture,
+        SendAudioUpdate,
     }
 
 

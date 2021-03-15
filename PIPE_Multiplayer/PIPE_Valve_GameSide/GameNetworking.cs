@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,9 +16,12 @@ namespace PIPE_Valve_Console_Client
 		public static GameNetworking instance;
 		public bool running = false;
 
-		Thread MainThread;
+		// Encrypted key to share
+		public string Key = "";
+		
 
-		public string ip;
+		// ip to connect to, default local
+		public string ip = "127.0.0.1";
 		public int port;
 
 		public NetworkingUtils utils;
@@ -49,7 +53,7 @@ namespace PIPE_Valve_Console_Client
 			}
 
 
-
+			
 
 
 			Debug.Log("Initialising..");
@@ -60,7 +64,11 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.Welcome,ClientHandle.Welcome },
 				{ (int)ServerPacket.ReceiveTransformUpdate,ClientHandle.PlayerPositionReceive },
 				{ (int)ServerPacket.SetupAPlayer,ClientHandle.SetupPlayerReceive},
-
+				{ (int)ServerPacket.RequestTexNames,ClientHandle.RequestforDaryienTexNamesReceive},
+				{ (int)ServerPacket.requestTextures,ClientHandle.RequestForTextures},
+				{ (int)ServerPacket.ReceiveTextureforPlayer,ClientHandle.ReceiveTexture},
+				{ (int)ServerPacket.DisconnectedPlayer,ClientHandle.PlayerDisconnected},
+				{ (int)ServerPacket.ReceiveAudioForPlayer,ClientHandle.ReceiveAudioForaPlayer}
 
 
 			};
@@ -175,7 +183,7 @@ namespace PIPE_Valve_Console_Client
 		Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 250;
+			const int maxMessages = 200;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif

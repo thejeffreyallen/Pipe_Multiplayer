@@ -122,11 +122,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\GITHUB\\Pipe_Multiplayer\\Frosty Pipe Server App\\Frosty Pipe Server App.csproj",
+      "projectUniqueName": "E:\\GITHUB\\Pipe_Multiplayer\\Archived Version (manual TCP and UDP template)\\Frosty Pipe Server App\\Frosty Pipe Server App.csproj",
       "projectName": "Frosty Pipe Server App",
-      "projectPath": "E:\\GITHUB\\Pipe_Multiplayer\\Frosty Pipe Server App\\Frosty Pipe Server App.csproj",
+      "projectPath": "E:\\GITHUB\\Pipe_Multiplayer\\Archived Version (manual TCP and UDP template)\\Frosty Pipe Server App\\Frosty Pipe Server App.csproj",
       "packagesPath": "C:\\Users\\tom\\.nuget\\packages\\",
-      "outputPath": "E:\\GITHUB\\Pipe_Multiplayer\\Frosty Pipe Server App\\obj\\",
+      "outputPath": "E:\\GITHUB\\Pipe_Multiplayer\\Archived Version (manual TCP and UDP template)\\Frosty Pipe Server App\\obj\\",
       "projectStyle": "PackageReference",
       "skipContentFileWrite": true,
       "configFilePaths": [

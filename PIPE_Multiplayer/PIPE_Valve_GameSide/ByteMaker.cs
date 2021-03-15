@@ -16,8 +16,9 @@ namespace PIPE_Valve_Console_Client
         /// <returns></returns>
         public static byte[] Image(Texture2D texturetomakebytes)
         {
+            
             byte[] bytes = texturetomakebytes.GetRawTextureData();
-
+            //InGameUI.instance.Messages.Add(bytes.Length.ToString() + " bytes in " + texturetomakebytes.name);
 
 
             return bytes;

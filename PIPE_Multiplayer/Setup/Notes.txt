@@ -8,4 +8,23 @@ is true and copies files from Mod folder if not found)
 
 
 Server side:
-1)GameNetworkingsocksets.dll, Libprotofbuf.dll and libcrypto.dll and Valve.dll must be found in folder with servers .exe
+1)GameNetworkingsocksets.dll, Libprotofbuf.dll and libcrypto.dll and Valve.dll must be found in folder with servers .exe (64bit versions for server app)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Players:
+
+1) Custom characters have their gameobject name uploaded to server and relayed to players, players use this name to search their CustomPlayers folder. As a result character filenames in Custom Players
+ must match their character gameobject name inside, Known file issues:
+
+Session_Player change to Sessionguy,
+Marty_Mcfly change to marty mcfly,
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ Other Requirements:
+
+AssemblyC.dll alteration for Audio; most elegent solution ive found is to flip the EventInstance variable in FMODRiserByVel from private to public, this way i can use the FMOD intended method of polling
+these stored EventInstance's to learn simple info about each sound. This also means i dont have send any audio or complex data, just the name of the sound, playstate(int),volume float, pitch float, velocity float.
