@@ -27,6 +27,9 @@ Players:
 Session_Player change to Sessionguy,
 Marty_Mcfly change to marty mcfly,
 
+see "Setup/Custom Players with filenames matching Gameobject/" for prechanged filenames
+
+
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

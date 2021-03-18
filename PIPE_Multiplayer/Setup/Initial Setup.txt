@@ -1,0 +1,29 @@
+
+
+For Game:
+
+step 1) Copy PipeMultiplayer folder to your Mods folder in PIPE Game folder.
+
+step 2) Copy Appropriate AssemblyC for your game and overwrite existing in Managed folder in your PIPE_data (see Setup/For game/PIPE_data/Managed for AssemblyC's)
+
+step 3) Copy Setup/For game/PIPE_data/ FrostyMultplayerAssets into your PIPE_Data folder
+
+step 4) Ensure VC_Redist_X86 has been installed, provided in folder but also available from Microsoft.
+
+step 5) See notes for custom player model support
+
+
+
+For Hosting:
+
+Step 1) Provide Port forward for your PC, instructions vary on router model.
+
+Step 2) Boot Server App
+
+Step 3) Input Max players count and press enter
+
+Step 4) Enter port to listen (match port setup in Port forwarding) and press Enter
+
+Step 5) Enter to Begin listening
+
+Step 6) Provide clients with port and External IP
