@@ -6,22 +6,24 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.IO;
-
+using System.Windows.Forms;
 
 
 namespace PIPE_Valve_Online_Server
 {
-	/// <summary>
-	/// Servers Console
-	/// </summary>
+    
+    /// <summary>
+    /// Servers Console
+    /// </summary>
     class Program
     {
 
         private static bool isrunning = false;
 
-
+        [STAThread]
         static void Main(string[] args)
         {
+
 
             // Check directories exist on startup, if not create
             DirectoryInfo texinfo = new DirectoryInfo(Server.TexturesDir);
@@ -49,6 +51,8 @@ namespace PIPE_Valve_Online_Server
 
 			Server.Run(port,Maxplayers);
 
+            Application.EnableVisualStyles();
+            Application.Run(new Form());
 
 
 			
