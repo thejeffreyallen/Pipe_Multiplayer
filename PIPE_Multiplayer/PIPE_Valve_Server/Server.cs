@@ -9,6 +9,7 @@ using System.Threading;
 using System.Net;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace PIPE_Valve_Online_Server
 {
@@ -18,6 +19,15 @@ namespace PIPE_Valve_Online_Server
     /// </summary>
     class Server
     {
+        #region Variables_Held_Here
+
+		/// <summary>
+		/// to be used for encryption/decryption mostly for authentication
+		/// </summary>
+        private Aes aes;
+		/// <summary>
+		/// Switch For 
+		/// </summary>
 		static bool isRunning = true;
 		public static int MaxPlayers;
 		/// <summary>
@@ -57,10 +67,18 @@ namespace PIPE_Valve_Online_Server
 		/// </summary>
 		public static Dictionary<string,int> MapsBeingRidden = new Dictionary<string,int>();
 
+        #endregion
 
 
-		// creates any data needed at startup
-		public static void Initialise()
+
+
+
+
+
+
+
+        // creates any data needed at startup
+        public static void Initialise()
         {
 
 			packetHandlers = new Dictionary<int, PacketHandler>()
@@ -102,9 +120,9 @@ namespace PIPE_Valve_Online_Server
 
 			pollGroup = server.CreatePollGroup();
 			
+			// what happens on connection state change
 			StatusCallback status = (ref StatusInfo info) =>
 			{
-
 
 				switch (info.connectionInfo.state)
 				{
@@ -113,11 +131,13 @@ namespace PIPE_Valve_Online_Server
 						break;
 
 					case ConnectionState.Connecting:
+						// test inital connection info for bans etc
 						ConnectionRequest(info);
 						break;
 
 					case ConnectionState.Connected:
 						Console.WriteLine("Client connected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
+						// inital message
 						ServerSend.Welcome(info.connection);
 
 						break;
@@ -138,7 +158,7 @@ namespace PIPE_Valve_Online_Server
 
 			Address address = new Address();
 			
-			address.SetAddress("::0", 7777);
+			address.SetAddress("::0",(ushort)port);
 
 			uint listenSocket = server.CreateListenSocket(ref address);
 
@@ -157,6 +177,7 @@ namespace PIPE_Valve_Online_Server
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif
 
+			// Server Loop
 			while (isRunning)
 			{
 
@@ -166,13 +187,14 @@ namespace PIPE_Valve_Online_Server
 
 
 				// process Incoming Data by reading int from byte[] and sending to function that corresponds to the int
-					ThreadManager.ExecuteOnMainThread(() =>
-					{
+					
 				server.RunCallbacks();
 				int netMessagesCount = server.ReceiveMessagesOnPollGroup(pollGroup, netMessages, maxMessages);
-
+					
+				// if theres messages, add them to secondary thread for processing at tick rate
 				if (netMessagesCount > 0)
 				{
+					
 						for (int i = 0; i < netMessagesCount; i++)
 						{
 							ref NetworkingMessage netMessage = ref netMessages[i];
@@ -181,7 +203,8 @@ namespace PIPE_Valve_Online_Server
 							byte[] bytes = new byte[netMessage.length];
 							netMessage.CopyTo(bytes);
 
-								// build packet using byte[] then send to function[code], code is read and movepos of _packet is moved forward, so the function that receives this doesnt have to re-read the code from start
+								// build packet using byte[] then send to function[code], code is read and movepos of _packet
+								// is moved forward, so the function that receives this doesnt have to re-read the code from start
 							using (Packet _packet = new Packet(bytes))
 							{
 									int code = _packet.ReadInt();
@@ -198,14 +221,21 @@ namespace PIPE_Valve_Online_Server
 
 							netMessage.Destroy();
 						}
+
+					
+
+					
 				}
-					});
+					
+					
 					
 #endif
 				Thread.Sleep(Constants.MSPerTick);
 				
 			}
 
+
+			// shutdown
 			server.DestroyPollGroup(pollGroup);
 			Library.Deinitialize();
 
@@ -231,13 +261,22 @@ namespace PIPE_Valve_Online_Server
                 {
 					if (ip == info.connectionInfo.address.GetIP())
                     {
+						server.CloseConnection(info.connection);
+						
+						Console.WriteLine("Player refused connection due to Ban");
 						return;
                     }
                 }
+
 			server.AcceptConnection(info.connection);
 			server.SetConnectionPollGroup(pollGroup, info.connection);
 
             }
+            else
+            {
+				server.CloseConnection(info.connection);
+				Console.WriteLine("Player refused connection due to MaxPlayer cap");
+			}
 		}
 
 
@@ -279,8 +318,8 @@ namespace PIPE_Valve_Online_Server
 
 		}
 
-
-		private static void BanAPlayer(uint Playersconnection, string username)
+        #region Functions_Fired_By_Servers_GUI
+        private static void BanAPlayer(uint Playersconnection, string username)
         {
 			foreach(Player p in Players.Values)
             {
@@ -296,5 +335,18 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-	}
+		private static void RemoveBan(string username, string Ipaddress)
+        {
+
+        }
+
+		private static void ChangeUsername(string old, string _new)
+        {
+
+        }
+
+
+
+        #endregion
+    }
 }

@@ -4,26 +4,23 @@ using UnityEngine;
 using UnityModManagerNet;
 using System.Reflection;
 using System.IO;
+using System;
+using System.Threading;
+using UnityEngine.SceneManagement;
 
 namespace PIPE_Valve_Console_Client
 {
 
 
 
-    internal static class Main
+    static class Main
     {
 
+       public static GameNetworking Network;
 
 
-        static GameObject modobj;
+        static GameObject FNetOBJ;
         public static string modId;
-
-
-
-
-
-
-
 
         static bool Load(UnityModManager.ModEntry modEntry)
         {
@@ -75,27 +72,39 @@ namespace PIPE_Valve_Console_Client
             }
 
 
+            
+            
+            FNetOBJ = new GameObject("Fnet");
+            FNetOBJ.AddComponent<ConsoleLog>().enabled = false;
+            FNetOBJ.AddComponent<GameManager>();
+            FNetOBJ.AddComponent<InGameUI>().enabled = false;
+            FNetOBJ.AddComponent<LocalPlayer>().enabled = false;
+            FNetOBJ.AddComponent<SendToUnityThread>();
+            UnityEngine.Object.DontDestroyOnLoad(FNetOBJ);
 
-
+            Network = new GameNetworking();
+            Network.Start();
 
            
-            modobj = new GameObject("Fnet");
-            modobj.AddComponent<ConsoleLog>();
-            modobj.AddComponent<GameManager>();
-            modobj.AddComponent<GameNetworking>();
-            modobj.AddComponent<ThreadManager>();
-            modobj.AddComponent<InGameUI>();
-            modobj.AddComponent<LocalPlayer>();
 
-
-
-
-
+           
 
 
 
             return true;
         }
+
+
+       
+       
+
+
+
+
+
+
+
+
     }
 }  
 

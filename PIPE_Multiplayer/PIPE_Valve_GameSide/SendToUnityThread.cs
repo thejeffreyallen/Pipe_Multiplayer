@@ -4,13 +4,36 @@ using UnityEngine.Events;
 
 namespace PIPE_Valve_Console_Client
 {
-    public class ThreadManager : MonoBehaviour
+
+    /// <summary>
+    /// Runs any commands left by the Server Thread at fixed update
+    /// </summary>
+    public class SendToUnityThread : MonoBehaviour
     {
+        public SendToUnityThread instance;
+
         private static readonly List<UnityAction> executeOnMainThread = new List<UnityAction>();
         private static readonly List<UnityAction> executeCopiedOnMainThread = new List<UnityAction>();
         private static bool actionToExecuteOnMainThread = false;
 
 
+        private void Start()
+        {
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else if (instance != this)
+            {
+                Debug.Log("Instance already exists, destroying object!");
+                Destroy(this);
+            }
+        }
+
+
+        /// <summary>
+        /// this will run any actions copied from servers thread on Unity's thread
+        /// </summary>
         private void FixedUpdate()
         {
             UpdateMain();
@@ -23,7 +46,10 @@ namespace PIPE_Valve_Console_Client
         {
             if (_action == null)
             {
+
+
                 Debug.Log("No action to execute on main thread!");
+            
                 return;
             }
 

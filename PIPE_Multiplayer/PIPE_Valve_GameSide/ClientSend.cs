@@ -56,73 +56,88 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        #region Packets
+        #region Sendable_ messages
 
         public static void WelcomeReceived()
         {
-            using (Packet _packet = new Packet((int)ClientPackets.WelcomeReceived))
-            {
-                
-                _packet.Write(InGameUI.instance.Username);
-                _packet.Write(InGameUI.instance._localplayer.RiderModelname);
+            
+                using (Packet _packet = new Packet((int)ClientPackets.WelcomeReceived))
+                {
+
+                    _packet.Write(InGameUI.instance.Username);
+                    _packet.Write(InGameUI.instance._localplayer.RiderModelname);
 
 
-                GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-            }
+                    GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                GameManager.instance._localplayer.ServerActive = true;
+                }
+
+           
+            
         }
 
 
         public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations)
         {
-            using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
-            {
+            
 
-                _packet.Write(TransformCount);
-
-
-
-                for (int i = 0; i < TransformCount; i++)
+                using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
                 {
 
-                    _packet.Write(positions[i]);
+                    _packet.Write(TransformCount);
+
+
+
+                    for (int i = 0; i < TransformCount; i++)
+                    {
+
+                        _packet.Write(positions[i]);
+                    }
+
+                    for (int i = 0; i < TransformCount; i++)
+                    {
+                        _packet.Write(rotations[i]);
+
+                    }
+
+                    GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.NoDelay);
                 }
-
-                for (int i = 0; i < TransformCount; i++)
-                {
-                    _packet.Write(rotations[i]);
-
-                }
-
-                GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray());
-            }
+            
+            
         }
 
 
         public static void SendDaryienTexNames()
         {
-            using (Packet _packet = new Packet((int)ClientPackets.SendTextureNames))
+            SendToServerThread.ExecuteOnMainThread(() =>
             {
-                // write amount of names in list
-                _packet.Write(GameManager.instance._localplayer.RidersTexturenames.Count);
 
-                // write each name
-                foreach (string s in GameManager.instance._localplayer.RidersTexturenames)
+                using (Packet _packet = new Packet((int)ClientPackets.SendTextureNames))
                 {
-                    _packet.Write(s);
+                    // write amount of names in list
+                    _packet.Write(GameManager.instance._localplayer.RidersTexturenames.Count);
+
+                    // write each name
+                    foreach (string s in GameManager.instance._localplayer.RidersTexturenames)
+                    {
+                        _packet.Write(s);
+                    }
+                    SendtoOne(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+
                 }
-                SendtoOne(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                
-            }
+            });
         }
 
 
         public static void SendTextures(List<Texture2D> texs)
         {
-            foreach(Texture2D tex in texs)
-            {
-            byte[] bytes = ByteMaker.Image(tex);
+           
+                foreach (Texture2D tex in texs)
+                {
+                    byte[] bytes = ByteMaker.Image(tex);
 
-            }
+                }
+          
             
             // Texture needs to be read/write enabled
         }
@@ -130,20 +145,23 @@ namespace PIPE_Valve_Console_Client
 
         public static void SendAudioUpdate(List<AudioStateUpdate> updates)
         {
-            using(Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
-            {
-                _packet.Write(updates.Count);
-            foreach(AudioStateUpdate update in updates)
-            {
-                    _packet.Write(update.nameofriser);
-                    _packet.Write(update.playstate);
-                    _packet.Write(update.Volume);
-                    _packet.Write(update.pitch);
-                    _packet.Write(update.Velocity);
-            }
+            
+                using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
+                {
+                    _packet.Write(updates.Count);
+                    foreach (AudioStateUpdate update in updates)
+                    {
+                        _packet.Write(update.nameofriser);
+                        _packet.Write(update.playstate);
+                        _packet.Write(update.Volume);
+                        _packet.Write(update.pitch);
+                        _packet.Write(update.Velocity);
+                    }
+                    SendtoOne(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
 
-                SendtoOne(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-            }
+                }
+           
+               
 
 
 

@@ -8,6 +8,7 @@ namespace PIPE_Valve_Console_Client
 
         public static void Welcome(Packet _packet)
         {
+            
             string _msg = _packet.ReadString();
 
 
@@ -20,11 +21,15 @@ namespace PIPE_Valve_Console_Client
            
             ClientSend.WelcomeReceived();
 
+            
+
            
         }
         
         public static void SetupPlayerReceive(Packet _packet)
         {
+
+           
             uint playerid =(uint)_packet.ReadLong();
             string playerusername = _packet.ReadString();
 
@@ -33,39 +38,44 @@ namespace PIPE_Valve_Console_Client
             Vector3 RiderRotation = _packet.ReadVector3();
             string CurrentModel = _packet.ReadString();
 
-            InGameUI.instance.Messages.Add($"Setting up {playerusername} as {CurrentModel}");
-            Debug.Log($"Setting up Player model: {CurrentModel} for: {playerusername}");
+            InGameUI.instance.Messages.Add($"{playerusername} is here riding as {CurrentModel}");
             GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel, Riderposition, RiderRotation);
+
+           
+
         }
 
 
         public static void RequestforDaryienTexNamesReceive(Packet _packet)
         {
+           
             // no need to read packet, the opcode is enough to know the server wants names
-            InGameUI.instance.Messages.Add("Server Requesting Textures");
-            ClientSend.SendDaryienTexNames();
+           // InGameUI.instance.Messages.Add("Server Requesting Textures");
+          //  ClientSend.SendDaryienTexNames();
+
+           
         }
 
 
         public static void RequestForTextures(Packet _packet)
         {
+            /*
+                List<string> names = new List<string>();
 
-            List<string> names = new List<string>();
+                int amountmissing = _packet.ReadInt();
+                for (int i = 0; i < amountmissing; i++)
+                {
+                    string n = _packet.ReadString();
+                    names.Add(n);
+                }
+            */
+                // let player choose whether to upload or send message to just set to default texture?
 
-            int amountmissing = _packet.ReadInt();
-            for (int i = 0; i < amountmissing; i++)
-            {
-                string n = _packet.ReadString();
-                names.Add(n);
-            }
-           
-            // let player choose whether to upload or send message to just set to default texture?
+                //GameManager.instance._localplayer.SendTexturesToServer(names);
 
-            GameManager.instance._localplayer.SendTexturesToServer(names);
-
+            
 
         }
-
 
 
         public static void ReceiveTexture(Packet _packet)
@@ -74,9 +84,10 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
         public static void PlayerPositionReceive(Packet _packet)
         {
+
+           
             uint FromId = (uint)_packet.ReadLong();
             int count = _packet.ReadInt();
 
@@ -114,87 +125,96 @@ namespace PIPE_Valve_Console_Client
                         // Debug.Log("Position received:" + Positions[0].ToString());
                     }
 
-                else
-                {
-                    Debug.Log($"Position received for unready player {FromId}");
+                    else
+                    {
+                        Debug.Log($"Position received for unready player {FromId}");
+                    }
                 }
-                }
-
             }
 
+           
 
 
 
 
-            // Debug.Log("Player to Update: " + FromId + ": Player to updates Transform count: " + count);
+           
         }
 
 
         public static void ReceiveAudioForaPlayer(Packet _packet)
         {
-            try
-            {
-                uint _from = (uint)_packet.ReadLong();
-               
-                
-                int count = _packet.ReadInt();
+           
 
-                for (int i = 0; i < count; i++)
+                try
                 {
-                    string nameofriser = _packet.ReadString();
-                    int playstate = _packet.ReadInt();
-                    float volume = _packet.ReadFloat();
-                    float pitch = _packet.ReadFloat();
-                    float Velocity = _packet.ReadFloat();
+                    uint _from = (uint)_packet.ReadLong();
 
-                    AudioStateUpdate update = new AudioStateUpdate(volume, pitch, playstate, nameofriser, Velocity);
-                    foreach(RemotePlayer player in GameManager.Players.Values)
+
+                    int count = _packet.ReadInt();
+
+                    for (int i = 0; i < count; i++)
                     {
-                        if(player.id == _from)
+                        string nameofriser = _packet.ReadString();
+                        int playstate = _packet.ReadInt();
+                        float volume = _packet.ReadFloat();
+                        float pitch = _packet.ReadFloat();
+                        float Velocity = _packet.ReadFloat();
+
+                        AudioStateUpdate update = new AudioStateUpdate(volume, pitch, playstate, nameofriser, Velocity);
+                        foreach (RemotePlayer player in GameManager.Players.Values)
                         {
-                    GameManager.Players[_from].Audio.IncomingStateUpdates.Add(update);
+                            if (player.id == _from)
+                            {
+                                GameManager.Players[_from].Audio.IncomingStateUpdates.Add(update);
 
+                            }
                         }
+
                     }
-
                 }
-            }
-            catch (UnityException x)
-            {
-                Debug.LogError(x);
-            }
+                catch (UnityException x)
+                {
+                    Debug.LogError(x);
+                }
 
 
 
 
-
+            
             
 
 
 
 
         }
-
-
-
-
+          
 
         public static void PlayerDisconnected(Packet _packet)
         {
-            uint _id = (uint)_packet.ReadLong();
+            
 
-            // delete rider, bike and then self and remove id from manager
-            foreach(RemotePlayer player in GameManager.Players.Values)
-            {
-                if(player.id == _id)
+                uint _id = (uint)_packet.ReadLong();
+
+                // delete rider, bike and then self and remove id from manager
+                foreach (RemotePlayer player in GameManager.Players.Values)
                 {
-            Destroy(GameManager.Players[_id].RiderModel);
-            Destroy(GameManager.Players[_id].BMX);
-            InGameUI.instance.Messages.Add($"{GameManager.Players[_id].username} Left");
+                    if (player.id == _id)
+                    {
+                        Destroy(GameManager.Players[_id].RiderModel);
+                        Destroy(GameManager.Players[_id].BMX);
+                        InGameUI.instance.Messages.Add($"{GameManager.Players[_id].username} Left");
+                    }
                 }
-            }
-            GameManager.Players.Remove(_id);
-            Destroy(GameManager.Players[_id].gameObject);
+                GameManager.Players.Remove(_id);
+                Destroy(GameManager.Players[_id].gameObject);
+
+        }
+
+
+        public static void IncomingTextMessage(Packet _packet)
+        {
+            // handle player and server messages differently
+
         }
         
     }

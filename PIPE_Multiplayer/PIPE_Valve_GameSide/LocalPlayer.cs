@@ -88,15 +88,17 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
+        /// <summary>
+        /// Any info to send to server and when
+        /// </summary>
         private void FixedUpdate()
         {
 
             if (InGameUI.instance.Connected)
             {
-                if (Riders_Transforms != null && Rider_Root != null && initsuccess)
+                if (Riders_Transforms != null && Rider_Root != null && initsuccess && ServerActive)
                 {
-                    PackTransformsandSend();
+                   PackTransformsandSend();
 
                 }
 

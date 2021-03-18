@@ -43,8 +43,8 @@ namespace PIPE_Valve_Online_Server
 			Console.WriteLine($"Boot with maxplayers: {Maxplayers} and port: {port}");
 			Console.ReadLine();
 
-            Thread MainThread = new Thread(new ThreadStart(Mainthread));
-        MainThread.Start();
+            Thread _ProcessThread = new Thread(new ThreadStart(ProcessThread));
+        _ProcessThread.Start();
             isrunning = true;
 
 			Server.Run(port,Maxplayers);
@@ -61,7 +61,7 @@ namespace PIPE_Valve_Online_Server
 
         
 
-    private static void Mainthread()
+    private static void ProcessThread()
     {
         Console.WriteLine($"Main Thread running at {Constants.TicksPerSec} ticks per second");
         DateTime _nextloop = DateTime.Now;

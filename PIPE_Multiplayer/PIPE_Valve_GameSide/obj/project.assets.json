@@ -1,0 +1,58 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.0": {},
+    ".NETFramework,Version=v4.0/win": {},
+    ".NETFramework,Version=v4.0/win-x64": {},
+    ".NETFramework,Version=v4.0/win-x86": {}
+  },
+  "libraries": {},
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.0": []
+  },
+  "packageFolders": {
+    "C:\\Users\\tom\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj",
+      "projectName": "PIPE_Valve_Console_Client",
+      "projectPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj",
+      "packagesPath": "C:\\Users\\tom\\.nuget\\packages\\",
+      "outputPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\obj\\",
+      "projectStyle": "PackageReference",
+      "skipContentFileWrite": true,
+      "configFilePaths": [
+        "C:\\Users\\tom\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net40"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net40": {
+          "projectReferences": {}
+        }
+      }
+    },
+    "frameworks": {
+      "net40": {}
+    },
+    "runtimes": {
+      "win": {
+        "#import": []
+      },
+      "win-x64": {
+        "#import": []
+      },
+      "win-x86": {
+        "#import": []
+      }
+    }
+  }
+}

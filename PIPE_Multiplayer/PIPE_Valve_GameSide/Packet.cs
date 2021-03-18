@@ -20,6 +20,7 @@ namespace PIPE_Valve_Console_Client
         ReceiveTextureforPlayer = 6,
         DisconnectedPlayer = 7,
         ReceiveAudioForPlayer = 8,
+        IncomingTextMessage,
 
 
 
@@ -37,6 +38,7 @@ namespace PIPE_Valve_Console_Client
         ReceiveTexturenames,
         ReceiveTexture,
         SendAudioUpdate,
+        SendTextMessage,
     }
 
 

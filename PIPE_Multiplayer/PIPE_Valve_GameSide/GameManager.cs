@@ -54,24 +54,27 @@ namespace PIPE_Valve_Console_Client
 
         public void SpawnOnMyGame(uint _id, string _username, string currentmodel, Vector3 _position, Vector3 _rotation)
         {
+           
+                try
+                {
+                    GameObject New = GameObject.Instantiate(Prefab);
+                    RemotePlayer r = New.GetComponent<RemotePlayer>();
+                    New.name = _username + _id.ToString();
+                    r.CurrentModelName = currentmodel;
+                    r.id = _id;
+                    r.username = _username;
 
-            try
-            {
-                GameObject New = GameObject.Instantiate(Prefab);
-                RemotePlayer r = New.GetComponent<RemotePlayer>();
-                New.name = _username + _id.ToString();
-                r.CurrentModelName = currentmodel;
-                r.id = _id;
-                r.username = _username;
-
-                Players.Add(_id, r);
+                    Players.Add(_id, r);
 
 
-            }
-            catch (UnityException c)
-            {
-                Debug.Log("SpawnonmyGame error : " + c);
-            }
+                }
+                catch (UnityException c)
+                {
+                    Debug.Log("SpawnonmyGame error : " + c);
+                }
+
+           
+
 
 
 
@@ -93,10 +96,16 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        // Update is called once per frame
+        
         void Update()
         {
-
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                GetComponent<LocalPlayer>().enabled = true;
+                GetComponent<InGameUI>().enabled = true;
+                InGameUI.instance.OfflineMenu = true;
+                 
+            }
         }
     }
 }

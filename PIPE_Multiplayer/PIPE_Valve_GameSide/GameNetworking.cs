@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,38 +8,58 @@ using System.Threading;
 using System.Net;
 using UnityEngine;
 
+
 namespace PIPE_Valve_Console_Client
 {
-    class GameNetworking : MonoBehaviour
+    class GameNetworking
     {
+		// this class accessable anywhere
 		public static GameNetworking instance;
-		public bool running = false;
+		public bool ServerLoopIsRunning = false;
 
 		// Encrypted key to share
 		public string Key = "";
-		
+
+		/// <summary>
+		/// Server is looping in NetworkThreadLoop
+		/// </summary>
+	   public Thread ServerThread;
+
 
 		// ip to connect to, default local
 		public string ip = "127.0.0.1";
 		public int port;
 
+		/// <summary>
+		/// Contains callbacks that happen on state change and other stuff
+		/// </summary>
 		public NetworkingUtils utils;
+		/// <summary>
+		/// The Socket itself used to send and receive through ValveSockets
+		/// </summary>
 		public NetworkingSockets client;
-		ConnectionState ConnState;
-		
-		//connection number for server, only ever one connection for client
-		public uint connection = 0;
 
+		/// <summary>
+		/// connection number of server, only ever one connection for client, client.sendmessage(connection,any byte[], reference a flag)
+		/// </summary>
+		public uint connection = 0;
+		/// <summary>
+		/// callbacks from connection
+		/// </summary>
 		StatusCallback status;
 
-		// links functions in ServerHandles to Ints in ClientPackets, connection is read on a loop, if message exists an int (i) is read from the byte[], then the byte array is sent to serverhandle function[i]
-		// a function that takes in a packet
+		/// <summary>
+		/// Any function that takes a packet as an argument (ClientHandles)
+		/// </summary>
+		/// <param name="_packet"></param>
 		public delegate void PacketHandler(Packet _packet);
-		// a function with its setup int key
+		/// <summary>
+		/// On receive message, fire packethandler corresponding to the int read from start of message
+		/// </summary>
 		public static Dictionary<int, PacketHandler> packetHandlers;
 
 
-		void Start()
+		public void Start()
         {
 			if (instance == null)
 			{
@@ -49,16 +68,16 @@ namespace PIPE_Valve_Console_Client
 			else if (instance != this)
 			{
 				Debug.Log("Instance already exists, destroying object!");
-				Destroy(this);
+				
 			}
 
 
 			
 
 
-			Debug.Log("Initialising..");
+			Debug.Log("Initialising GameNetworking..");
 
-			// list of functions linked to incoming int codes
+			// list of functions linking to incoming int codes
 			packetHandlers = new Dictionary<int, PacketHandler>()
 			{
 				{ (int)ServerPacket.Welcome,ClientHandle.Welcome },
@@ -68,85 +87,17 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.requestTextures,ClientHandle.RequestForTextures},
 				{ (int)ServerPacket.ReceiveTextureforPlayer,ClientHandle.ReceiveTexture},
 				{ (int)ServerPacket.DisconnectedPlayer,ClientHandle.PlayerDisconnected},
-				{ (int)ServerPacket.ReceiveAudioForPlayer,ClientHandle.ReceiveAudioForaPlayer}
+				{ (int)ServerPacket.ReceiveAudioForPlayer,ClientHandle.ReceiveAudioForaPlayer},
+				{ (int)ServerPacket.IncomingTextMessage, ClientHandle.IncomingTextMessage},
 
 
 			};
 
 
-
-
-
 			
+			Debug.Log("GameNetworking Startup Complete");
 
-			
-
-			Library.Initialize();
-			Debug.Log("Setup Complete");
-
-			
-			
         }
-
-
-
-		 public void ConnectToServer()
-        {
-
-			utils = new NetworkingUtils();
-			client = new NetworkingSockets();
-
-
-			utils.SetStatusCallback(status);
-
-			Address address = new Address();
-			address.SetAddress(ip,(ushort)port);
-			connection = client.Connect(ref address);
-			client.RunCallbacks();
-			
-			
-			running = true;
-			//MainThread = new Thread(Run);
-			//MainThread.IsBackground = true;
-			//MainThread.Start();
-
-
-
-		}
-
-		
-
-
-		
-		
-		void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-				
-				
-				
-			}
-
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-				GetComponent<ConsoleLog>().enabled = !GetComponent<ConsoleLog>().enabled;
-
-			}
-           
-			
-        }
-
-
-		void FixedUpdate()
-        {
-            if (running)
-            {
-			Run();
-
-            }
-		}
-
 
 
 		
@@ -155,8 +106,9 @@ namespace PIPE_Valve_Console_Client
 		/// <summary>
 		/// Receiving System loop for network
 		/// </summary>
-		private void Run()
+		public void Run()
         {
+			
 
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
@@ -165,13 +117,19 @@ namespace PIPE_Valve_Console_Client
 						break;
 
 					case ConnectionState.Connected:
-						Debug.Log("Client connected to server - ID: " + connection);
+						SendToUnityThread.ExecuteOnMainThread(() =>
+						{
+							Debug.Log("connected to server - ID: " + connection);
+						});
 						break;
 
 					case ConnectionState.ClosedByPeer:
 					case ConnectionState.ProblemDetectedLocally:
 						client.CloseConnection(connection);
-						Debug.Log("Client disconnected from server");
+						SendToUnityThread.ExecuteOnMainThread(() =>
+						{
+							Debug.Log("Disconeected from Server - ID: " + connection);
+						});
 						break;
 				}
 			};
@@ -194,12 +152,17 @@ namespace PIPE_Valve_Console_Client
 #else
 
 			
-
+			    // Listen on the Server thread
 				int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
 
+
+			    // if theres messages, send Back to Unity Thread for processing, neccessary for anything that uses Untiy API even debug.log for some reason, maybe because its outside assemblyC
 				if (netMessagesCount > 0)
 				{
-					for (int i = 0; i < netMessagesCount; i++)
+				SendToUnityThread.ExecuteOnMainThread(() =>
+				{
+
+				for (int i = 0; i < netMessagesCount; i++)
 					{
 						ref NetworkingMessage netMessage = ref netMessages[i];
 
@@ -207,20 +170,26 @@ namespace PIPE_Valve_Console_Client
 						byte[] bytes = new byte[netMessage.length];
 						netMessage.CopyTo(bytes);
 
-						
-							using (Packet _packet = new Packet(bytes))
-							{
-								int _packetId = _packet.ReadInt();
-								packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
-							}
-						
+					
+						using (Packet _packet = new Packet(bytes))
+						{
+							int _packetId = _packet.ReadInt();
+							
+								GameNetworking.packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
+						}
 
+					
 
 
 						//Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 
 						netMessage.Destroy();
 					}
+				
+				});
+
+				
+
 				}
 
 			
@@ -235,19 +204,110 @@ namespace PIPE_Valve_Console_Client
 		}
 
 
+		 public void ConnectMaster()
+        {
+			Library.Initialize();
+			utils = new NetworkingUtils();
+			client = new NetworkingSockets();
+
+
+			utils.SetStatusCallback(status);
+
+			Address address = new Address();
+			address.SetAddress(ip,(ushort)port);
+			connection = client.Connect(ref address);
+			//client.RunCallbacks();
+			
+			ServerLoopIsRunning = true;
+			if(ServerThread == null)
+            {
+			ServerThread = new Thread(NetWorkThreadLoop)
+			{
+				IsBackground = true
+			};
+			ServerThread.Start();
+            }
+            else
+            {
+                if (ServerThread.IsAlive)
+                {
+					ServerLoopIsRunning = false;
+                }
+				ServerThread.Abort();
+				ServerThread = null;
+				ServerThread = new Thread(NetWorkThreadLoop)
+				{
+					IsBackground = true
+				};
+				ServerThread.Start();
+
+			}
+			
+			
+		}
 
 
 		public void DisconnectMaster()
         {
-			running = false;
+			ServerLoopIsRunning = false;
 			client.CloseConnection(connection);
-			//Library.Deinitialize();
-			//MainThread = null;
+			Library.Deinitialize();
 			utils = null;
 			client = null;
 			status = null;
+			ServerThread = null;
 			
         }
 
-    }
+
+		/// <summary>
+		/// This function is running on the ProcessThread, This is unable to use any Unity API, therfore to transfer commands use processthreadmanager, Fixedupdate will come along and run them. 
+		/// </summary>
+		public void NetWorkThreadLoop()
+		{
+			// Tell main thread ive started
+			SendToUnityThread.ExecuteOnMainThread(() =>
+			{
+				InGameUI.instance.Messages.Add("SERVER Thread Started up");
+			});
+
+			DateTime _nextloop = DateTime.Now;
+
+			// while running, update at tick rate
+			while (ServerLoopIsRunning)
+			{
+
+
+
+				while (_nextloop < DateTime.Now)
+				{
+					// this is the fixedupdate of server thread
+					ServerUpdate.Update();
+
+					_nextloop = _nextloop.AddMilliseconds(Constants.MSPerTick);
+
+					if (_nextloop > DateTime.Now)
+					{
+						Thread.Sleep(_nextloop - DateTime.Now);
+					}
+				}
+
+
+
+
+			}
+
+
+
+
+
+
+			SendToUnityThread.ExecuteOnMainThread(() =>
+			{
+				InGameUI.instance.Messages.Add("SERVER Thread Ending");
+			});
+		}
+
+
+	}
 }

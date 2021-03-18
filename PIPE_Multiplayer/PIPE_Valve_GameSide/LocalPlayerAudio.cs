@@ -64,28 +64,8 @@ namespace PIPE_Valve_Console_Client
         // Update is called once per frame
         void FixedUpdate()
         {
-            // test code for audio
-            if (Input.GetKeyDown(KeyCode.B))
-            {
-                FMOD.Studio.ParameterInstance param;
-              FMOD.Studio.EventInstance instance = FMODUnity.RuntimeManager.CreateInstance("event:/Grind/rail_slide_single");
-                instance.set3DAttributes(FMODUnity.RuntimeUtils.To3DAttributes(gameObject));
-                instance.getParameter("Velocity", out param);
-                param.setValue(1);
 
-                instance.setVolume(10);
-               instance.setPitch(1);
-               
-                
-               instance.start();
-                UnityEngine.Debug.Log("What?!");
-                //instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-
-            }
-
-
-           
-
+            
             if (InGameUI.instance.Connected && FindRisers != null)
             {
                 for (int i = 0; i < FindRisers.Length; i++)
@@ -141,6 +121,7 @@ namespace PIPE_Valve_Console_Client
             }
             
 
+            
         }
 
 
@@ -194,14 +175,6 @@ namespace PIPE_Valve_Console_Client
             AudioStateUpdate update = new AudioStateUpdate(finalvol,finalpitch, state, soundname,_Vel);
             statesUpdate.Add(update);
 
-        }
-
-
-
-
-        void OnGUI()
-        {
-           
         }
 
 

@@ -226,8 +226,8 @@ E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityE
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WebModule.xml
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WindModule.xml
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.XRModule.xml
-E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csprojAssemblyReference.cache
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CoreCompileInputs.cache
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csprojAssemblyReference.cache
