@@ -51,8 +51,8 @@ namespace PIPE_Valve_Online_Server
 
 			Server.Run(port,Maxplayers);
 
-            Application.EnableVisualStyles();
-            Application.Run(new Form());
+           // Application.EnableVisualStyles();
+          //  Application.Run(new Form());
 
 
 			
