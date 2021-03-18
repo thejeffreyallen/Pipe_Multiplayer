@@ -29,7 +29,7 @@ namespace PIPE_Valve_Console_Client
 
         public int messagetimer;
         public List<string> Messages = new List<string>();
-
+        public string Messagetosend = "Send a message to all..."; 
         
 
 
@@ -186,8 +186,17 @@ namespace PIPE_Valve_Console_Client
 
         void ClientsOnlineMenu()
         {
-            
+            Messagetosend = GUILayout.TextField(Messagetosend.ToString());
+           if( GUILayout.Button("Send"))
+            {
+                if(Messagetosend != null)
+                {
+                ClientSend.SendTextMessage(Messagetosend.ToString());
 
+                }
+            }
+            GUILayout.Space(20);
+            GUILayout.Label("Messages:");
             foreach(string mess in Messages)
             {
                 GUILayout.Label(mess.ToString());

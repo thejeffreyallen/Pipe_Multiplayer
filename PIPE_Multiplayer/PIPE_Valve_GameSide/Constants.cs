@@ -9,6 +9,6 @@ namespace PIPE_Valve_Console_Client
     {
         public const int TicksPerSec = 60;
         public const int MSPerTick = 1000 / TicksPerSec;
-       
+        public const int MessageWaittodestroy = 500;
     }
 }

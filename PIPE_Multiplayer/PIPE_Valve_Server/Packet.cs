@@ -21,7 +21,7 @@ namespace PIPE_Valve_Online_Server
         SendTexturetoPlayer,
         DisconnectedPlayer,
         SendAudioUpdate,
-
+        SendTextToAll,
 
 
     }
@@ -37,6 +37,7 @@ namespace PIPE_Valve_Online_Server
         ReceiveTexturenames,
         ReceiveTexture,
         ReceiveAudioUpdate = 7,
+        ReceiveTextMessage,
 
     }
 

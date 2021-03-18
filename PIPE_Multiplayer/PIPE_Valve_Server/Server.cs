@@ -89,6 +89,7 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.ReceiveTexturenames, ServersHandles.TexturenamesReceive},
 				{ (int)ClientPackets.TransformUpdate, ServersHandles.TransformReceive},
 				{ (int)ClientPackets.ReceiveAudioUpdate,ServersHandles.ReceiveAudioUpdate},
+				{ (int)ClientPackets.ReceiveTextMessage,ServersHandles.ReceiveTextMessage},
 
 			};
 

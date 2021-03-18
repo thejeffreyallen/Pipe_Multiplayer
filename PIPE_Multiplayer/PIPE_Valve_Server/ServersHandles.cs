@@ -204,6 +204,14 @@ namespace PIPE_Valve_Online_Server
 
 
 
+        public static void ReceiveTextMessage(uint _from, Packet _packet)
+        {
+            string _mess = _packet.ReadString();
+           
+            ServerSend.SendTextMessageToAll(_from, _mess);
+            
+        }
+
 
 
 

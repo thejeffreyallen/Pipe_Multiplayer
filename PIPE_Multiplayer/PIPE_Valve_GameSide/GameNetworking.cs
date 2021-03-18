@@ -204,6 +204,9 @@ namespace PIPE_Valve_Console_Client
 		}
 
 
+		/// <summary>
+		/// Master connect, takes care of everything except GUI's setup, GUI's connect does setup then calls this
+		/// </summary>
 		 public void ConnectMaster()
         {
 			Library.Initialize();
@@ -246,7 +249,9 @@ namespace PIPE_Valve_Console_Client
 			
 		}
 
-
+		/// <summary>
+		/// Master disconnect, closes down all networking
+		/// </summary>
 		public void DisconnectMaster()
         {
 			ServerLoopIsRunning = false;

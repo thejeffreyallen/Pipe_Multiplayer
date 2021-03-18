@@ -213,7 +213,23 @@ namespace PIPE_Valve_Online_Server
 
 
 
+        public static void SendTextMessageToAll(uint _fromplayer, string _message)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.SendTextToAll))
+            {
+                _packet.Write(_fromplayer);
+                _packet.Write(_message);
 
+                SendToAll(_fromplayer, _packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+
+        public static void SendTextMessageToOne(uint _toplayer, string _message)
+        {
+
+
+        }
 
         #endregion
 

@@ -213,7 +213,10 @@ namespace PIPE_Valve_Console_Client
 
         public static void IncomingTextMessage(Packet _packet)
         {
-            // handle player and server messages differently
+            uint _from = (uint)_packet.ReadLong();
+            string _message = _packet.ReadString();
+
+            InGameUI.instance.Messages.Add($"{GameManager.Players[_from].username}: {_message}");
 
         }
         

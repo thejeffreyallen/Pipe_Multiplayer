@@ -23,7 +23,7 @@ namespace PIPE_Valve_Console_Client
             if(InGameUI.instance.Messages.Count > 0)
             {
             InGameUI.instance.messagetimer++;
-            if(InGameUI.instance.messagetimer >= 150)
+            if(InGameUI.instance.messagetimer >= Constants.MessageWaittodestroy)
             {
                
                 InGameUI.instance.Messages.RemoveAt(0);
