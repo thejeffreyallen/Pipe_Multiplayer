@@ -193,10 +193,15 @@ namespace PIPE_Valve_Online_Server
                 {
                    // Console.WriteLine("Received audio");
                   p.LastAudioUpdate = newbytes;
-                 // ServerSend.SendAudioToAllPlayers(_from,newbytes);
+                    p.newAudioReceived = true;
+                    ThreadManager.ExecuteOnMainThread(() =>
+                    {
+                    ServerSend.SendAudioToAllPlayers(_from,newbytes);
+                    });
 
                 }
             }
+
 
 
 

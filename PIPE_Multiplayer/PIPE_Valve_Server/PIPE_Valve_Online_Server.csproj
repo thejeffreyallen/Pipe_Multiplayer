@@ -38,7 +38,7 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Hideoutbmx%283%29.ico</ApplicationIcon>
+    <ApplicationIcon>pipeservericon_pJC_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -75,7 +75,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Hideoutbmx%283%29.ico" />
+    <Content Include="pipeservericon_pJC_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

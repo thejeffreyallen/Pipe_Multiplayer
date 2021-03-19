@@ -15,7 +15,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage(_msg, 4, 0));
+            InGameUI.instance.NewMessage(Constants.ServerMessage, new TextMessage(_msg, 4, 0));
 
 
             Debug.Log($"Message from server: {_msg}");
@@ -205,7 +205,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         Destroy(GameManager.Players[_id].RiderModel);
                         Destroy(GameManager.Players[_id].BMX);
-                    InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage(player.username + " Left the game", 4, 0));
+                    InGameUI.instance.NewMessage(Constants.ServerMessage, new TextMessage(player.username + " Left the game", 4, 0));
                 }
                 }
                 GameManager.Players.Remove(_id);

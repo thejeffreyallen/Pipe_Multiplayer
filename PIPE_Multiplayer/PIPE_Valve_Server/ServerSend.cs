@@ -204,7 +204,7 @@ namespace PIPE_Valve_Online_Server
             {
                 _packet.Write(_from);
                 _packet.Write(lastupdate);
-           SendToAll(_packet.ToArray(),Valve.Sockets.SendFlags.NoDelay);
+           SendToAll(_packet.ToArray(),Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Reliable);
             }
             
         }
