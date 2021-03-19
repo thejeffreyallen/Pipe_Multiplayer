@@ -138,6 +138,7 @@
     <Compile Include="RemotePlayerAudio.cs" />
     <Compile Include="SendToUnityThread.cs" />
     <Compile Include="SendToServerThread.cs" />
+    <Compile Include="TextMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

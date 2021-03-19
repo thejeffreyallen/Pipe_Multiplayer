@@ -66,15 +66,13 @@ namespace PIPE_Valve_Online_Server
         // called on tick rate
         public void Update()
         {
-            if (RiderPositions != null && RiderRotations != null)
+            if (RiderPositions != null && RiderRotations != null && LastAudioUpdate != null && LastAudioUpdate.Length > 0)
             {
                 SendTransformInfoToAll();
-            }
-
-            if(LastAudioUpdate != null && LastAudioUpdate.Length > 0)
-            {
                 ServerSend.SendAudioToAllPlayers(clientID, LastAudioUpdate);
             }
+
+            
 
         }
 

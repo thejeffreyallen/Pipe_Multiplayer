@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PIPE_Valve_Online_Server
 {
-    class Server_SavedData
+    static class Server_SavedData
     {
         /// <summary>
         /// username and associated IP
@@ -14,7 +14,10 @@ namespace PIPE_Valve_Online_Server
         public static Dictionary<string, string> BannedIps = new Dictionary<string, string>();
         
 
+        public static void LoadFiles()
+        {
 
+        }
 
 
         // populate on startup

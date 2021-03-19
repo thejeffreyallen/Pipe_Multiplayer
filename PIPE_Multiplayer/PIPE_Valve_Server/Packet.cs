@@ -21,7 +21,7 @@ namespace PIPE_Valve_Online_Server
         SendTexturetoPlayer,
         DisconnectedPlayer,
         SendAudioUpdate,
-        SendTextToAll,
+        SendText,
 
 
     }

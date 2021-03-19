@@ -9,6 +9,7 @@ using System.Net;
 using UnityEngine;
 
 
+
 namespace PIPE_Valve_Console_Client
 {
     class GameNetworking
@@ -39,6 +40,10 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		public NetworkingSockets client;
 
+		const int maxMessages = 256;
+
+		NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
+
 		/// <summary>
 		/// connection number of server, only ever one connection for client, client.sendmessage(connection,any byte[], reference a flag)
 		/// </summary>
@@ -59,8 +64,17 @@ namespace PIPE_Valve_Console_Client
 		public static Dictionary<int, PacketHandler> packetHandlers;
 
 
+		
+		
+
+
 		public void Start()
         {
+
+			
+			
+
+
 			if (instance == null)
 			{
 				instance = this;
@@ -117,7 +131,7 @@ namespace PIPE_Valve_Console_Client
 						break;
 
 					case ConnectionState.Connected:
-						SendToUnityThread.ExecuteOnMainThread(() =>
+						SendToUnityThread.instance.ExecuteOnMainThread(() =>
 						{
 							Debug.Log("connected to server - ID: " + connection);
 						});
@@ -126,9 +140,9 @@ namespace PIPE_Valve_Console_Client
 					case ConnectionState.ClosedByPeer:
 					case ConnectionState.ProblemDetectedLocally:
 						client.CloseConnection(connection);
-						SendToUnityThread.ExecuteOnMainThread(() =>
+						SendToUnityThread.instance.ExecuteOnMainThread(() =>
 						{
-							Debug.Log("Disconeected from Server - ID: " + connection);
+							Debug.Log("Disconnected from Server - ID: " + connection);
 						});
 						break;
 				}
@@ -141,9 +155,7 @@ namespace PIPE_Valve_Console_Client
 		Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 200;
-
-			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
+			
 #endif
 			
 
@@ -152,16 +164,17 @@ namespace PIPE_Valve_Console_Client
 #else
 
 			
-			    // Listen on the Server thread
+				SendToUnityThread.instance.ExecuteOnMainThread(() =>
+				{
+			    // Do incoming on Unity thread
 				int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
 
 
 			    // if theres messages, send Back to Unity Thread for processing, neccessary for anything that uses Untiy API even debug.log for some reason, maybe because its outside assemblyC
 				if (netMessagesCount > 0)
 				{
-				SendToUnityThread.ExecuteOnMainThread(() =>
-				{
 
+					
 				for (int i = 0; i < netMessagesCount; i++)
 					{
 						ref NetworkingMessage netMessage = ref netMessages[i];
@@ -175,7 +188,7 @@ namespace PIPE_Valve_Console_Client
 						{
 							int _packetId = _packet.ReadInt();
 							
-								GameNetworking.packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
+								packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
 						}
 
 					
@@ -186,11 +199,11 @@ namespace PIPE_Valve_Console_Client
 						netMessage.Destroy();
 					}
 				
-				});
 
 				
 
 				}
+				});
 
 			
 
@@ -242,6 +255,7 @@ namespace PIPE_Valve_Console_Client
 				{
 					IsBackground = true
 				};
+				ServerLoopIsRunning = true;
 				ServerThread.Start();
 
 			}
@@ -271,9 +285,9 @@ namespace PIPE_Valve_Console_Client
 		public void NetWorkThreadLoop()
 		{
 			// Tell main thread ive started
-			SendToUnityThread.ExecuteOnMainThread(() =>
+			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
-				InGameUI.instance.Messages.Add("SERVER Thread Started up");
+				InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Server thread Started up", 1, 0));
 			});
 
 			DateTime _nextloop = DateTime.Now;
@@ -307,9 +321,9 @@ namespace PIPE_Valve_Console_Client
 
 
 
-			SendToUnityThread.ExecuteOnMainThread(() =>
+			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
-				InGameUI.instance.Messages.Add("SERVER Thread Ending");
+				InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Server Thread ending", 1, 0));
 			});
 		}
 

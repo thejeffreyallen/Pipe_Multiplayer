@@ -19,9 +19,6 @@ namespace PIPE_Valve_Console_Client
         public AssetBundle FrostyAssets;
 
         // found riders in Custom Players
-        AssetBundle[] Ridermodels;
-        DirectoryInfo riderdirinfo;
-        FileInfo[] riderfiles;
         string riderdirectory = Application.dataPath + "/Custom Players/";
 
 
@@ -101,8 +98,8 @@ namespace PIPE_Valve_Console_Client
         {
             if (Input.GetKeyDown(KeyCode.F))
             {
-                GetComponent<LocalPlayer>().enabled = true;
-                GetComponent<InGameUI>().enabled = true;
+                //GetComponent<LocalPlayer>().enabled = true;
+                //GetComponent<InGameUI>().enabled = true;
                 InGameUI.instance.OfflineMenu = true;
                  
             }

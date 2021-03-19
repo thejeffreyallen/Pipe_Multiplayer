@@ -24,8 +24,10 @@ namespace PIPE_Valve_Online_Server
         static void Main(string[] args)
         {
 
-
-            // Check directories exist on startup, if not create
+            Console.WriteLine("PIPE ONLINE SERVER V1.0.0");
+            Console.WriteLine("Powered by Valve's GamenetworkingSockets");
+            Console.WriteLine("Checking Directories..");
+            // Check directories info on startup, if not create
             DirectoryInfo texinfo = new DirectoryInfo(Server.TexturesDir);
             DirectoryInfo info = new DirectoryInfo(Server.Rootdir);
             if (!info.Exists)
@@ -33,21 +35,27 @@ namespace PIPE_Valve_Online_Server
                 info.Create();
                 texinfo.Create();
             }
+            Console.WriteLine("Directories good");
 
+            Console.WriteLine("Please enter Max player count (1 - ~");
+            int Maxplayers = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("PIPE ONLINE SERVER V1.0.0");
-			Console.WriteLine("Please enter Max player count (1 - ~");
-			int Maxplayers = int.Parse(Console.ReadLine());
+            Console.WriteLine("Please enter Port to listen on");
+            int port = int.Parse(Console.ReadLine());
 
-			Console.WriteLine("Please enter Port to listen on");
-			int port = int.Parse(Console.ReadLine());
+            Console.WriteLine("Set Ticks per second, 30-60 recommended");
+            Constants.TicksPerSec = int.Parse(Console.ReadLine());
 
-			Console.WriteLine($"Boot with maxplayers: {Maxplayers} and port: {port}");
-			Console.ReadLine();
+            Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
+            Console.ReadLine();
 
-            Thread _ProcessThread = new Thread(new ThreadStart(ProcessThread));
-        _ProcessThread.Start();
+            Thread _ProcessThread = new Thread(new ThreadStart(ProcessThread))
+            {
+                IsBackground = true
+            };
+            
             isrunning = true;
+        _ProcessThread.Start();
 
 			Server.Run(port,Maxplayers);
 
@@ -64,7 +72,9 @@ namespace PIPE_Valve_Online_Server
 
 
         
-
+        /// <summary>
+        /// Server's Secondary thread loop
+        /// </summary>
     private static void ProcessThread()
     {
         Console.WriteLine($"Main Thread running at {Constants.TicksPerSec} ticks per second");
@@ -72,8 +82,7 @@ namespace PIPE_Valve_Online_Server
 
         while (isrunning)
         {
-
-
+ 
 
             while (_nextloop < DateTime.Now)
             {

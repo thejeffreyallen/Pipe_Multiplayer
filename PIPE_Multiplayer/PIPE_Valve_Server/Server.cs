@@ -89,7 +89,7 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.ReceiveTexturenames, ServersHandles.TexturenamesReceive},
 				{ (int)ClientPackets.TransformUpdate, ServersHandles.TransformReceive},
 				{ (int)ClientPackets.ReceiveAudioUpdate,ServersHandles.ReceiveAudioUpdate},
-				{ (int)ClientPackets.ReceiveTextMessage,ServersHandles.ReceiveTextMessage},
+				{ (int)ClientPackets.ReceiveTextMessage,ServersHandles.RelayPlayerMessage},
 
 			};
 
@@ -102,7 +102,7 @@ namespace PIPE_Valve_Online_Server
 
 
 		/// <summary>
-		/// Loops Server
+		/// Servers Primary thread loop
 		/// </summary>
 		public static void Run(int port, int _MaxPlayers)
 		{
@@ -159,7 +159,11 @@ namespace PIPE_Valve_Online_Server
 
 			Address address = new Address();
 			
-			address.SetAddress("::0",(ushort)port);
+			address.SetAddress("::0", (ushort)port);
+			
+
+
+			
 
 			uint listenSocket = server.CreateListenSocket(ref address);
 
@@ -173,7 +177,7 @@ namespace PIPE_Valve_Online_Server
 		Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 200;
+			const int maxMessages = 256;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif
@@ -223,9 +227,6 @@ namespace PIPE_Valve_Online_Server
 							netMessage.Destroy();
 						}
 
-					
-
-					
 				}
 					
 					
@@ -264,7 +265,7 @@ namespace PIPE_Valve_Online_Server
                     {
 						server.CloseConnection(info.connection);
 						
-						Console.WriteLine("Player refused connection due to Ban");
+						Console.WriteLine($"refused a connection due to Ban: {info.connectionInfo.address.GetIP()}");
 						return;
                     }
                 }

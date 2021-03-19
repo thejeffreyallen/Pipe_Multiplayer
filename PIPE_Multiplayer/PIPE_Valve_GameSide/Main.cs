@@ -43,7 +43,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
             if (!File.Exists(directory + "\\libprotobuf.dll"))
@@ -55,7 +55,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
             if (!File.Exists(directory + "\\libcrypto-1_1.dll"))
@@ -67,7 +67,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
 
@@ -77,8 +77,8 @@ namespace PIPE_Valve_Console_Client
             FNetOBJ = new GameObject("Fnet");
             FNetOBJ.AddComponent<ConsoleLog>().enabled = false;
             FNetOBJ.AddComponent<GameManager>();
-            FNetOBJ.AddComponent<InGameUI>().enabled = false;
-            FNetOBJ.AddComponent<LocalPlayer>().enabled = false;
+            FNetOBJ.AddComponent<InGameUI>();
+            FNetOBJ.AddComponent<LocalPlayer>();
             FNetOBJ.AddComponent<SendToUnityThread>();
             UnityEngine.Object.DontDestroyOnLoad(FNetOBJ);
 

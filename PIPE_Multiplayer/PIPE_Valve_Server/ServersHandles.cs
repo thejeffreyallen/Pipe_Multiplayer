@@ -25,13 +25,12 @@ namespace PIPE_Valve_Online_Server
             Player p = new Player(_from, Ridermodel, name);
             Server.Players.Add(_from, p);
 
-            ServerSend.RequestTexturenames(_from);
+           // ServerSend.RequestTexturenames(_from);
 
             // send this player info to everyone online
             foreach (Player c in Server.Players.Values)
             {
-                if (c != null)
-                {
+                
                     if (c.clientID != _from)
                     {
                         Console.WriteLine($"Sending Setup command from {_from} to {c.clientID}");
@@ -39,7 +38,7 @@ namespace PIPE_Valve_Online_Server
 
                     }
 
-                }
+                
 
 
 
@@ -192,22 +191,24 @@ namespace PIPE_Valve_Online_Server
             {
                 if(p.clientID == _from)
                 {
+                   // Console.WriteLine("Received audio");
                   p.LastAudioUpdate = newbytes;
+                 // ServerSend.SendAudioToAllPlayers(_from,newbytes);
 
                 }
             }
 
 
-          
+
         }
 
 
 
 
-        public static void ReceiveTextMessage(uint _from, Packet _packet)
+        public static void RelayPlayerMessage(uint _from, Packet _packet)
         {
             string _mess = _packet.ReadString();
-           
+            
             ServerSend.SendTextMessageToAll(_from, _mess);
             
         }

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
+
 
 namespace PIPE_Valve_Console_Client
 {
@@ -13,10 +14,10 @@ namespace PIPE_Valve_Console_Client
 
 
 
-          
-            InGameUI.instance.Messages.Add(_msg);
-            
-            
+
+            InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage(_msg, 4, 0));
+
+
             Debug.Log($"Message from server: {_msg}");
            
             ClientSend.WelcomeReceived();
@@ -38,7 +39,9 @@ namespace PIPE_Valve_Console_Client
             Vector3 RiderRotation = _packet.ReadVector3();
             string CurrentModel = _packet.ReadString();
 
-            InGameUI.instance.Messages.Add($"{playerusername} is here riding as {CurrentModel}");
+            Debug.Log("Setting up player");
+            
+            InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage($"{playerusername} is riding", 4, 0));
             GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel, Riderposition, RiderRotation);
 
            
@@ -202,8 +205,8 @@ namespace PIPE_Valve_Console_Client
                     {
                         Destroy(GameManager.Players[_id].RiderModel);
                         Destroy(GameManager.Players[_id].BMX);
-                        InGameUI.instance.Messages.Add($"{GameManager.Players[_id].username} Left");
-                    }
+                    InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage(player.username + " Left the game", 4, 0));
+                }
                 }
                 GameManager.Players.Remove(_id);
                 Destroy(GameManager.Players[_id].gameObject);
@@ -215,9 +218,32 @@ namespace PIPE_Valve_Console_Client
         {
             uint _from = (uint)_packet.ReadLong();
             string _message = _packet.ReadString();
+            int fromcode = _packet.ReadInt();
 
-            InGameUI.instance.Messages.Add($"{GameManager.Players[_from].username}: {_message}");
+            if(fromcode == 3)
+            {
+            TextMessage tm = new TextMessage(GameManager.Players[_from].username + " : " + _message, fromcode, _from);
+                InGameUI.instance.NewMessage(Constants.PlayerMessage, tm);
+            }
+            if(fromcode == 2)
+            {
+                TextMessage tm = new TextMessage(InGameUI.instance.Username + " : " + _message, fromcode, _from);
+                InGameUI.instance.NewMessage(Constants.PlayerMessage, tm);
+            }
+            if (fromcode == 1)
+            {
+                TextMessage tm = new TextMessage("System : " + _message, fromcode, _from);
+                InGameUI.instance.NewMessage(Constants.SystemMessage, tm);
+            }
+            if (fromcode == 4)
+            {
+                TextMessage tm = new TextMessage("Server : " + _message, fromcode, _from);
+                InGameUI.instance.NewMessage(Constants.ServerMessage, tm);
+            }
 
+
+
+            
         }
         
     }

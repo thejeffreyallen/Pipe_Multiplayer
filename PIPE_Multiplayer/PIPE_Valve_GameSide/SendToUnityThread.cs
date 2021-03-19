@@ -10,7 +10,7 @@ namespace PIPE_Valve_Console_Client
     /// </summary>
     public class SendToUnityThread : MonoBehaviour
     {
-        public SendToUnityThread instance;
+        public static SendToUnityThread instance;
 
         private static readonly List<UnityAction> executeOnMainThread = new List<UnityAction>();
         private static readonly List<UnityAction> executeCopiedOnMainThread = new List<UnityAction>();
@@ -34,7 +34,7 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// this will run any actions copied from servers thread on Unity's thread
         /// </summary>
-        private void FixedUpdate()
+        void FixedUpdate()
         {
             UpdateMain();
         }
@@ -42,7 +42,7 @@ namespace PIPE_Valve_Console_Client
 
         /// <summary>Sets an action to be executed on the main thread.</summary>
         /// <param name="_action">The action to be executed on the main thread.</param>
-        public static void ExecuteOnMainThread(UnityAction _action)
+        public void ExecuteOnMainThread(UnityAction _action)
         {
             if (_action == null)
             {
@@ -61,7 +61,7 @@ namespace PIPE_Valve_Console_Client
 
         /// <summary>Executes all code meant to run on the main thread. NOTE: Call this ONLY from the main thread.</summary>
 
-        public static void UpdateMain()
+        public void UpdateMain()
         {
             if (actionToExecuteOnMainThread)
             {

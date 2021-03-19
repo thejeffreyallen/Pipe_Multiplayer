@@ -28,9 +28,9 @@ namespace PIPE_Valve_Console_Client
         public string desiredport = "7777";
 
         public int messagetimer;
-        public List<string> Messages = new List<string>();
-        public string Messagetosend = "Send a message to all..."; 
-        
+        public List<TextMessage> Messages = new List<TextMessage>();
+        public string Messagetosend = "Send a message to all...";
+        Dictionary<int, Color> MessageColour;
 
 
         /// <summary>
@@ -55,7 +55,13 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         private void Start()
         {
-            
+            MessageColour = new Dictionary<int, Color>()
+            {
+                {(int)MessageCode.Me,Color.blue},
+                {(int)MessageCode.Player,Color.black},
+                {(int)MessageCode.System,Color.yellow},
+                {(int)MessageCode.Server,Color.red},
+            };
            _localplayer = gameObject.GetComponent<LocalPlayer>();
            
 
@@ -67,8 +73,7 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public void ConnectToServer()
         {
-            _localplayer.GrabTextures();
-            _localplayer.RiderTrackingSetup();
+           
             GameNetworking.instance.ConnectMaster();
             Connected = true;
            // DeleteMessageLoop();
@@ -101,6 +106,7 @@ namespace PIPE_Valve_Console_Client
        
         void OnGUI()
         {
+            
           
             if (OfflineMenu && !OnlineMenu)
             {
@@ -142,9 +148,9 @@ namespace PIPE_Valve_Console_Client
 
             if (GUILayout.Button("Connect to Server"))
             {
-               
-            // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
-            _localplayer.RiderTrackingSetup();
+                InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Trying Setup..", 1, 0));
+                // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
+                _localplayer.RiderTrackingSetup();
             // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
             _localplayer.GrabTextures();
                 ConnectToServer();
@@ -160,14 +166,8 @@ namespace PIPE_Valve_Console_Client
                 GUILayout.Label("P2P Menu");
                 GUILayout.Space(10);
 
-                GUILayout.Label("Generate Secure Key for Friends");
+                GUILayout.Label("Generate Secure Key");
 
-
-                GUILayout.Space(10);
-                if (GUILayout.Button("Go Back"))
-                {
-                    P2PMenu = false;
-                }
                 GUILayout.Space(10);
             }
 
@@ -176,8 +176,8 @@ namespace PIPE_Valve_Console_Client
             if (GUILayout.Button("Exit"))
             {
                 OfflineMenu = false;
-                GetComponent<LocalPlayer>().enabled = false;
-                GetComponent<InGameUI>().enabled = false;
+                //GetComponent<LocalPlayer>().enabled = false;
+                //GetComponent<InGameUI>().enabled = false;
             }
             GUILayout.Space(20);
            
@@ -192,18 +192,21 @@ namespace PIPE_Valve_Console_Client
                 if(Messagetosend != null)
                 {
                 ClientSend.SendTextMessage(Messagetosend.ToString());
+                    Messagetosend = "";
 
                 }
             }
             GUILayout.Space(20);
             GUILayout.Label("Messages:");
-            foreach(string mess in Messages)
+            foreach(TextMessage mess in Messages)
             {
-                GUILayout.Label(mess.ToString());
+                var style = new GUIStyle(GUI.skin.label);
+                style.normal.textColor = MessageColour[mess.FromCode];
+                GUILayout.Label(mess.Message,style);
             }
 
 
-            if (GUILayout.Button("Go Back"))
+            if (GUILayout.Button("Disconnect"))
             {
                 OnlineMenu = false;
                 OfflineMenu = true;
@@ -215,6 +218,7 @@ namespace PIPE_Valve_Console_Client
 
 
      
+        /*
         static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
         {
             // Check arguments.
@@ -255,8 +259,37 @@ namespace PIPE_Valve_Console_Client
             return encrypted;
         }
 
-        
+        */
 
+
+        /// <summary>
+        /// Incoming messages get different colors
+        /// </summary>
+        enum MessageCode
+        {
+            System = 1,
+            Me = 2,
+            Player = 3,
+            Server = 4,
+        }
+
+
+
+
+
+
+
+        public void NewMessage(int _time, TextMessage message)
+        {
+            StartCoroutine(MessageEnum(_time, message));
+        }
+        private IEnumerator MessageEnum(int _time, TextMessage message)
+        {
+            InGameUI.instance.Messages.Add(message);
+            yield return new WaitForSeconds(_time);
+            InGameUI.instance.Messages.Remove(message);
+            yield return null;
+        }
 
     }
 }

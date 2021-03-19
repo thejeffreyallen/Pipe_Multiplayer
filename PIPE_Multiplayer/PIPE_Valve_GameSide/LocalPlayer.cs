@@ -6,7 +6,13 @@ namespace PIPE_Valve_Console_Client
     public class LocalPlayer : MonoBehaviour
     {
         private bool initsuccess;
+
+        /// <summary>
+        /// Master Switch to Send continuous data from FixedUpdate
+        /// </summary>
         public bool ServerActive=false;
+
+
         // GameObject roots: Rider_Root is always Daryien, ridermodel can be daryien or the custom rider model, in that case, Daryien is still there hes just invisible and ridermodel is using him
         public GameObject Rider_Root;
         public GameObject Bmx_Root;
@@ -38,6 +44,7 @@ namespace PIPE_Valve_Console_Client
 
             Audio = gameObject.AddComponent<LocalPlayerAudio>();
             Audio.Riderroot = Rider_Root;
+            
         }
 
 
@@ -149,6 +156,7 @@ namespace PIPE_Valve_Console_Client
             if (Rider_Root.transform.parent.gameObject.GetComponentsInChildren<Transform>().Length < 75)
             {
                 RiderModelname = "Daryien";
+                InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Detected Daryien", 1, 0));
             }
             else
             {
@@ -158,6 +166,7 @@ namespace PIPE_Valve_Console_Client
                     if (i.name.Contains("Clone"))
                     {
                         RiderModelname = i.name.Replace("(Clone)", "");
+                        InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage($"Detected {RiderModelname} ", 1, 0));
                         ridermodel = i.gameObject;
                         Riders_Transforms[0] = ridermodel.transform;
                         Riders_Transforms[1] = ridermodel.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
@@ -199,6 +208,7 @@ namespace PIPE_Valve_Console_Client
 
 
             }
+            InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Rider Tracking Done", 1, 0));
         }
 
 

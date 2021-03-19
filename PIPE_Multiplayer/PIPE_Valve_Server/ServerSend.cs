@@ -198,13 +198,13 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        public static void SendAudioToAllPlayers(uint _fromplayer, byte[] lastupdate)
+        public static void SendAudioToAllPlayers(uint _from, byte[] lastupdate)
         {
             using(Packet _packet = new Packet((int)ServerPacket.SendAudioUpdate))
             {
-                _packet.Write(_fromplayer);
+                _packet.Write(_from);
                 _packet.Write(lastupdate);
-           SendToAll(_fromplayer,_packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
+           SendToAll(_packet.ToArray(),Valve.Sockets.SendFlags.NoDelay);
             }
             
         }
@@ -215,13 +215,22 @@ namespace PIPE_Valve_Online_Server
 
         public static void SendTextMessageToAll(uint _fromplayer, string _message)
         {
-            using (Packet _packet = new Packet((int)ServerPacket.SendTextToAll))
+            using (Packet _packet = new Packet((int)ServerPacket.SendText))
             {
                 _packet.Write(_fromplayer);
                 _packet.Write(_message);
-
+                _packet.Write(3);
                 SendToAll(_fromplayer, _packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
             }
+
+            using (Packet _packet = new Packet((int)ServerPacket.SendText))
+            {
+                _packet.Write(_fromplayer);
+                _packet.Write(_message);
+                _packet.Write(2);
+                SendtoOne(_fromplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
         }
 
 

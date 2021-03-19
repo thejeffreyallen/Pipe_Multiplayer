@@ -10,6 +10,8 @@ namespace PIPE_Valve_Console_Client
     public class LocalPlayerAudio : MonoBehaviour
     {
 
+        public LocalPlayer Mylocalplayer;
+
         public bool active = false;
         // list of Risers with play state attached
       
@@ -35,6 +37,7 @@ namespace PIPE_Valve_Console_Client
         void Start()
         {
 
+            Mylocalplayer = gameObject.GetComponent<LocalPlayer>();
             // setup state handlers to fire approriate function for each state
             StateHandlers = new Dictionary<int, Handler>()
             {
@@ -66,8 +69,9 @@ namespace PIPE_Valve_Console_Client
         {
 
             
-            if (InGameUI.instance.Connected && FindRisers != null)
+            if(InGameUI.instance.Connected && Mylocalplayer.ServerActive)
             {
+          
                 for (int i = 0; i < FindRisers.Length; i++)
                 {
                     FindRisers[i].sound.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE st);
@@ -107,17 +111,23 @@ namespace PIPE_Valve_Console_Client
                     }
 
                     }
+
+
+            if(statesUpdate.Count > 0)
+                {
+                    
+            ClientSend.SendAudioUpdate(statesUpdate);
+            statesUpdate.Clear();
+
+                    
+
+
                     laststates[i] = (int)st;
+                }
 
 
                 }
 
-            }
-
-            if(statesUpdate.Count > 0 && InGameUI.instance.Connected)
-            {
-            ClientSend.SendAudioUpdate(statesUpdate);
-            statesUpdate.Clear();
             }
             
 

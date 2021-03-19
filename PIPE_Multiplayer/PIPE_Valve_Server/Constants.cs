@@ -9,7 +9,7 @@ namespace PIPE_Valve_Online_Server
 {
     class Constants
     {
-        public const int TicksPerSec = 60;
-        public const int MSPerTick = 1000 / TicksPerSec;
+        public static int TicksPerSec = 60;
+        public static int MSPerTick = 1000 / TicksPerSec;
     }
 }

@@ -20,21 +20,11 @@ namespace PIPE_Valve_Console_Client
             
             // run receive
             GameNetworking.instance.Run();
-            if(InGameUI.instance.Messages.Count > 0)
-            {
-            InGameUI.instance.messagetimer++;
-            if(InGameUI.instance.messagetimer >= Constants.MessageWaittodestroy)
-            {
-               
-                InGameUI.instance.Messages.RemoveAt(0);
-                    InGameUI.instance.messagetimer = 0;
-                
-            }
-            }
+           
 
            
 
-                // run any commands from Unity's Thread
+                // Do any outgoing on Server thread
                 SendToServerThread.UpdateMain();
            
         }

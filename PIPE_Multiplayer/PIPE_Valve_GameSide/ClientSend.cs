@@ -40,6 +40,7 @@ namespace PIPE_Valve_Console_Client
 
         public static void WelcomeReceived()
         {
+            InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Established connection", 1, 0));
             
                 using (Packet _packet = new Packet((int)ClientPackets.WelcomeReceived))
                 {
@@ -49,9 +50,9 @@ namespace PIPE_Valve_Console_Client
 
 
                     GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                GameManager.instance._localplayer.ServerActive = true;
                 }
 
+            GameManager.instance._localplayer.ServerActive = true;
            
             
         }
