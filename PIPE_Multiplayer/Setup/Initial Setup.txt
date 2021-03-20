@@ -4,7 +4,12 @@ For Game:
 
 step 1) Copy PipeMultiplayer folder to your Mods folder in PIPE Game folder.
 
-step 2) Copy Appropriate AssemblyC for your game and overwrite existing in Managed folder in your PIPE_data (see Setup/For game/PIPE_data/Managed for AssemblyC's)
+
+step 2) Copy Appropriate AssemblyC for your game from folder and overwrite existing file in your PIPE_data/Managed (see Setup/For game/PIPE_data/Managed for AssemblyC's), this will depend on what mods you have
+installed, There can only be 1 AssemblyC as it contains all code for the game, so editing and saving an assemblyC essentially produces a seperate version of the entire game logic, therefore,
+for an AssemblyC to contain 2 mods, the second mod must be done on
+the edited AssemblyC of mod 1 and so on, having the wrong AssemblyC for the mods you have can cause anything from no error, to a game that will never boot.
+
 
 step 3) Copy Setup/For game/PIPE_data/ FrostyMultplayerAssets into your PIPE_Data folder
 
@@ -24,6 +29,8 @@ Step 3) Input Max players count and press enter
 
 Step 4) Enter port to listen (match port setup in Port forwarding) and press Enter
 
-Step 5) Enter to Begin listening
+Step 5) Enter TickRate and press enter
 
-Step 6) Provide clients with port and External IP
+Step 6) Enter to go
+
+Step 7) Provide clients with port and External IP

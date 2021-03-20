@@ -11,7 +11,8 @@ namespace PIPE_Valve_Console_Client
         public GameObject Rider;
 
         // list of updates that come in through Clienthandle.ReceiveAudioForAPlayer
-        public List<AudioStateUpdate> IncomingStateUpdates;
+        public List<AudioStateUpdate> IncomingRiserUpdates;
+        public List<AudioStateUpdate> IncomingOneShotUpdates;
 
         string sliderpath;
         string railsinglepath;
@@ -51,8 +52,8 @@ namespace PIPE_Valve_Console_Client
         {
 
            
-            IncomingStateUpdates = new List<AudioStateUpdate>();
-
+            IncomingRiserUpdates = new List<AudioStateUpdate>();
+            IncomingOneShotUpdates = new List<AudioStateUpdate>();
 
             // setup state handlers to fire approriate function for each state
             StateHandlers = new Dictionary<string, Handler>()
@@ -112,18 +113,18 @@ namespace PIPE_Valve_Console_Client
 
 
               // Clienthandle adds updates to this list on receive 
-            if(IncomingStateUpdates.Count > 0)
+            if(IncomingRiserUpdates.Count > 0)
             {
                 try
                 {
-                   foreach(AudioStateUpdate update in IncomingStateUpdates)
+                   foreach(AudioStateUpdate update in IncomingRiserUpdates)
                    {
                        // UnityEngine.Debug.Log($"Incoming audio state: {update.playstate}");
                  StateHandlers[update.nameofriser]?.Invoke(update);
                    }
 
                    
-                        IncomingStateUpdates.Clear();
+                        IncomingRiserUpdates.Clear();
 
                 }
                 catch(UnityException x)
@@ -137,7 +138,15 @@ namespace PIPE_Valve_Console_Client
             }
            
            
-               
+             if(IncomingOneShotUpdates.Count > 0)
+            {
+                for (int i = 0; i < IncomingOneShotUpdates.Count; i++)
+                {
+                    PlayOneShot(IncomingOneShotUpdates[i].Path, IncomingOneShotUpdates[i].Volume);
+                    
+                }
+                IncomingOneShotUpdates.Clear();
+            }  
 
             
                 
@@ -850,6 +859,19 @@ namespace PIPE_Valve_Console_Client
             {
 
             }
+        }
+
+
+
+        void PlayOneShot(string bankPath, float volume)
+        {
+            FMOD.Studio.EventInstance eventInstance = RuntimeManager.CreateInstance(bankPath);
+            eventInstance.set3DAttributes(Rider.transform.To3DAttributes());
+            eventInstance.setVolume(volume);
+           
+            eventInstance.start();
+            eventInstance.release();
+            eventInstance.clearHandle();
         }
 
 

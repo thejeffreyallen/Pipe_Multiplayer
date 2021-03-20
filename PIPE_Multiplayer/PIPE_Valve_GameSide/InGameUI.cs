@@ -76,7 +76,7 @@ namespace PIPE_Valve_Console_Client
            
             GameNetworking.instance.ConnectMaster();
             Connected = true;
-           // DeleteMessageLoop();
+          
         }
 
 

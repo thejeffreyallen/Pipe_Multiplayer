@@ -122,7 +122,6 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		public void Run()
         {
-			
 
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
@@ -148,6 +147,7 @@ namespace PIPE_Valve_Console_Client
 				}
 			};
 
+			//client.RunCallbacks();
 
 
 #if VALVESOCKETS_SPAN
@@ -232,7 +232,7 @@ namespace PIPE_Valve_Console_Client
 			Address address = new Address();
 			address.SetAddress(ip,(ushort)port);
 			connection = client.Connect(ref address);
-			//client.RunCallbacks();
+			
 			
 			ServerLoopIsRunning = true;
 			if(ServerThread == null)

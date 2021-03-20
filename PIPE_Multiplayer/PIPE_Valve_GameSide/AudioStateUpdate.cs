@@ -15,6 +15,8 @@ namespace PIPE_Valve_Console_Client
         public int playstate;
         public string nameofriser;
         public float Velocity;
+        public string Path;
+        public int code;
 
         public AudioStateUpdate(float _volume, float _pitch, int _playstate, string _nameofrisersound, float _Velocity)
         {
@@ -23,7 +25,22 @@ namespace PIPE_Valve_Console_Client
             playstate = _playstate;
             nameofriser = _nameofrisersound;
             Velocity = _Velocity;
+            code = 1;
 
         }
+
+        public AudioStateUpdate(float _volume, string Pathofsound)
+        {
+            Volume = _volume;
+            Path = Pathofsound;
+            code = 2;
+        }
+
+        enum Audiotype
+        {
+            Riser = 1,
+            OneShot = 2,
+        }
+
     }
 }

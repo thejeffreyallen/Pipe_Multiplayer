@@ -38,3 +38,5 @@ see "Setup/Custom Players with filenames matching Gameobject/" for prechanged fi
 
 AssemblyC.dll alteration for Audio; most elegent solution ive found is to flip the EventInstance variable in FMODRiserByVel from private to public, this way i can use the FMOD intended method of polling
 these stored EventInstance's to learn simple info about each sound. This also means i dont have send any audio or complex data, just the name of the sound, playstate(int),volume float, pitch float, velocity float.
+
+One Shots required adding a momentary reference object to each oneshot, which is tracked in the same way

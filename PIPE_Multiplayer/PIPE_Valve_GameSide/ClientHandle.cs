@@ -154,7 +154,10 @@ namespace PIPE_Valve_Console_Client
 
 
                     int count = _packet.ReadInt();
+                int code = _packet.ReadInt();
 
+                if(code == 1)
+                {
                     for (int i = 0; i < count; i++)
                     {
                         string nameofriser = _packet.ReadString();
@@ -168,12 +171,38 @@ namespace PIPE_Valve_Console_Client
                         {
                             if (player.id == _from)
                             {
-                                GameManager.Players[_from].Audio.IncomingStateUpdates.Add(update);
+                                GameManager.Players[_from].Audio.IncomingRiserUpdates.Add(update);
 
                             }
                         }
 
                     }
+
+                }
+
+                if(code == 2)
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        string Pathofsound = _packet.ReadString();
+                        float volume = _packet.ReadFloat();
+
+
+                        AudioStateUpdate update = new AudioStateUpdate(volume, Pathofsound);
+                        foreach (RemotePlayer player in GameManager.Players.Values)
+                        {
+                            if (player.id == _from)
+                            {
+                                GameManager.Players[_from].Audio.IncomingOneShotUpdates.Add(update);
+
+                            }
+                        }
+
+                    }
+
+                }
+
+
                 }
                 catch (UnityException x)
                 {
@@ -205,6 +234,8 @@ namespace PIPE_Valve_Console_Client
                     {
                         Destroy(GameManager.Players[_id].RiderModel);
                         Destroy(GameManager.Players[_id].BMX);
+                        Destroy(GameManager.Players[_id].Audio);
+                        
                     InGameUI.instance.NewMessage(Constants.ServerMessage, new TextMessage(player.username + " Left the game", 4, 0));
                 }
                 }

@@ -104,9 +104,13 @@ namespace PIPE_Valve_Online_Server
                 p.RiderPositions = _pos;
                 p.RiderRotations = _rot;
 
+                    ThreadManager.ExecuteOnMainThread(() =>
+                    {
+                        ServerSend.SendATransformUpdate(_from, count, _pos, _rot);
+                    });
 
 
-            }
+                }
 
             }
         }
@@ -175,19 +179,40 @@ namespace PIPE_Valve_Online_Server
 
 
             int amount = _packet.ReadInt();
-            for (int i = 0; i < amount; i++)
+            int code = _packet.ReadInt();
+
+            if (code == 1)
             {
-                string name = _packet.ReadString();
-                int state = _packet.ReadInt();
-                float vol = _packet.ReadFloat();
-                float pitch = _packet.ReadFloat();
-                float Velo = _packet.ReadFloat();
-           // Console.WriteLine($"Audio Packet from {_from}: {_packet.ToArray().Length}: riser {name} in state {state}");
+                for (int i = 0; i < amount; i++)
+                {
+                    string nameofriser = _packet.ReadString();
+                    int playstate = _packet.ReadInt();
+                    float volume = _packet.ReadFloat();
+                    float pitch = _packet.ReadFloat();
+                    float Velocity = _packet.ReadFloat();
+
+                    
+
+                }
+
+            }
+
+            if (code == 2)
+            {
+                for (int i = 0; i < amount; i++)
+                {
+                    string Pathofsound = _packet.ReadString();
+                    float volume = _packet.ReadFloat();
+
+
+                   
+                }
+
             }
 
 
             // avoids the possiblilty of referencing player[_from] when it doesnt exist
-           foreach(Player p in Server.Players.Values)
+            foreach (Player p in Server.Players.Values)
             {
                 if(p.clientID == _from)
                 {

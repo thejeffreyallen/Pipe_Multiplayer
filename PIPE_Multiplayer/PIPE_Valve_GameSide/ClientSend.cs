@@ -124,12 +124,17 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public static void SendAudioUpdate(List<AudioStateUpdate> updates)
+        public static void SendAudioUpdate(List<AudioStateUpdate> updates, int code)
         {
-            
+
+            // Risers
+            if(code == 1)
+            {
                 using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
                 {
                     _packet.Write(updates.Count);
+                        _packet.Write(code);
+
                     foreach (AudioStateUpdate update in updates)
                     {
                         _packet.Write(update.nameofriser);
@@ -141,6 +146,25 @@ namespace PIPE_Valve_Console_Client
                     SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
 
                 }
+
+            }
+
+            // One Shots
+            if(code == 2)
+            {
+                using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
+                {
+                    _packet.Write(updates.Count);
+                        _packet.Write(code);
+                    foreach (AudioStateUpdate update in updates)
+                    {
+                        _packet.Write(update.Path);
+                        _packet.Write(update.Volume);
+                    }
+                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+
+                }
+            }
            
                
 
