@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace PIPE_Valve_Console_Client
 {
-
+    // Unneeded, brought in by Frosty manager, this will fire up just mutltiplayer stuff
 
 
     static class Main
@@ -46,12 +46,12 @@ namespace PIPE_Valve_Console_Client
                     Debug.Log(x);
                 }
             }
-            if (!File.Exists(directory + "\\libprotobuf.dll"))
+            if (!File.Exists(directory + "\\libprotobufd.dll"))
             {
                 try
                 {
 
-                    File.Copy(modEntry.Path + "libprotobuf.dll", directory + "\\libprotobuf.dll", true);
+                    File.Copy(modEntry.Path + "libprotobufd.dll", directory + "\\libprotobufd.dll", true);
                 }
                 catch (UnityException x)
                 {
@@ -75,11 +75,12 @@ namespace PIPE_Valve_Console_Client
             
             
             FNetOBJ = new GameObject("Fnet");
-            FNetOBJ.AddComponent<ConsoleLog>().enabled = false;
+            FNetOBJ.AddComponent<ConsoleLog>();
             FNetOBJ.AddComponent<GameManager>();
             FNetOBJ.AddComponent<InGameUI>();
             FNetOBJ.AddComponent<LocalPlayer>();
             FNetOBJ.AddComponent<SendToUnityThread>();
+            FNetOBJ.AddComponent<CharacterModding>();
             UnityEngine.Object.DontDestroyOnLoad(FNetOBJ);
 
             Network = new GameNetworking();

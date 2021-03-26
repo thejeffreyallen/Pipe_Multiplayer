@@ -1,9 +1,0 @@
-{
-  "Id": "PIPE_Valve_Gameside",
-  "DisplayName": "PIPE Multiplayer v1",
-  "Author": "Frosty P",
-  "Version": "1.0",
-  "ManagerVersion": "0.12.3",
-  "AssemblyName": "PIPE_Valve_Console_Client.dll",
-  "EntryMethod": "PIPE_Valve_Console_Client.Main.Load"
-}

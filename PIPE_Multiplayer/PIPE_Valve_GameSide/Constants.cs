@@ -5,12 +5,12 @@ using System.Text;
 
 namespace PIPE_Valve_Console_Client
 {
-    class Constants
+   public class Constants
     {
         public const int TicksPerSec = 60; // seconds
         public const int MSPerTick = 1000 / TicksPerSec;
-        public const int ServerMessage = 5; // seconds
-        public const int PlayerMessage = 10; // seconds
-        public const int SystemMessage = 2; // seconds
+        public const int ServerMessageTime = 12; // seconds
+        public const int PlayerMessageTime = 15; // seconds
+        public const int SystemMessageTime = 5; // seconds
     }
 }

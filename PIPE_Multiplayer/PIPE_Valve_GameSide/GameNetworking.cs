@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace PIPE_Valve_Console_Client
 {
-    class GameNetworking
+    public class GameNetworking
     {
 		// this class accessable anywhere
 		public static GameNetworking instance;
@@ -103,6 +103,9 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.DisconnectedPlayer,ClientHandle.PlayerDisconnected},
 				{ (int)ServerPacket.ReceiveAudioForPlayer,ClientHandle.ReceiveAudioForaPlayer},
 				{ (int)ServerPacket.IncomingTextMessage, ClientHandle.IncomingTextMessage},
+				{ (int)ServerPacket.RequestformyBike, ClientHandle.RequestforMyBike},
+				{ (int)ServerPacket.BikeQuickUpdate, ClientHandle.BikeQuickupdate},
+				{ (int)ServerPacket.RiderQuickUpdate, ClientHandle.RiderQuickupdate},
 
 
 			};
@@ -122,6 +125,7 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		public void Run()
         {
+			client.RunCallbacks();
 
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
@@ -147,24 +151,24 @@ namespace PIPE_Valve_Console_Client
 				}
 			};
 
-			//client.RunCallbacks();
 
+			
 
 #if VALVESOCKETS_SPAN
 	MessageCallback message = (in NetworkingMessage netMessage) => {
 		Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			
+
 #endif
-			
+
 
 #if VALVESOCKETS_SPAN
 		client.ReceiveMessagesOnConnection(connection, message, 20);
 #else
 
-			
-				SendToUnityThread.instance.ExecuteOnMainThread(() =>
+
+			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 				{
 			    // Do incoming on Unity thread
 				int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
@@ -222,21 +226,35 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		 public void ConnectMaster()
         {
+            try
+            {
 			Library.Initialize();
 			utils = new NetworkingUtils();
 			client = new NetworkingSockets();
-
+			netMessages = new NetworkingMessage[maxMessages];
 
 			utils.SetStatusCallback(status);
 
 			Address address = new Address();
 			address.SetAddress(ip,(ushort)port);
 			connection = client.Connect(ref address);
+			int sendRateMin = 600000;
+			int sendRateMax = 15400000;
+			int sendBufferSize = 409715200;
 			
-			
-			ServerLoopIsRunning = true;
+
+			unsafe
+			{
+				//utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				//utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				//utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+				//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
+				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
+			}
+
 			if(ServerThread == null)
             {
+			ServerLoopIsRunning = true;
 			ServerThread = new Thread(NetWorkThreadLoop)
 			{
 				IsBackground = true
@@ -260,6 +278,12 @@ namespace PIPE_Valve_Console_Client
 
 			}
 			
+
+            }
+			catch(Exception x)
+            {
+				Debug.Log("Error on Connect click : " + x);
+            }
 			
 		}
 
@@ -270,13 +294,17 @@ namespace PIPE_Valve_Console_Client
         {
 			ServerLoopIsRunning = false;
 			client.CloseConnection(connection);
-			Library.Deinitialize();
+			//client.FlushMessagesOnConnection(connection);
 			utils = null;
 			client = null;
 			status = null;
-			ServerThread = null;
+
 			
-        }
+			ServerThread.Abort();
+			ServerThread = null;
+
+			Library.Deinitialize();
+		}
 
 
 		/// <summary>
@@ -287,7 +315,7 @@ namespace PIPE_Valve_Console_Client
 			// Tell main thread ive started
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
-				InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Server thread Started up", 1, 0));
+				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server thread Started up", 1, 0));
 			});
 
 			DateTime _nextloop = DateTime.Now;
@@ -323,7 +351,7 @@ namespace PIPE_Valve_Console_Client
 
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
-				InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Server Thread ending", 1, 0));
+				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server Thread ending", 1, 0));
 			});
 		}
 

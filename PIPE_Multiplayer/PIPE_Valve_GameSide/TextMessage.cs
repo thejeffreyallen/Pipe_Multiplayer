@@ -12,16 +12,18 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public string Message;
         /// <summary>
-        /// The int representing whether this is a server or player message
+        /// Colour code (int), use (int)MessageColour.
         /// </summary>
         public int FromCode;
-
+        /// <summary>
+        /// not used, Server adds an int to tell me whether its a server, player or my message
+        /// </summary>
         public uint FromConnection;
 
-        public TextMessage(string _message, int _fromcode, uint _fromconnection)
+        public TextMessage(string _message, int messagecolourclass, uint _fromconnection)
         {
             Message = _message;
-            FromCode = _fromcode;
+            FromCode = messagecolourclass;
             FromConnection = _fromconnection;
         }
 

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 namespace PIPE_Valve_Console_Client
 {
@@ -12,6 +14,8 @@ namespace PIPE_Valve_Console_Client
         public uint id;
         public string username;
         public string CurrentModelName;
+        public string Modelbundlename;
+        public List<TextureInfo> _texinfos;
 
 
         public GameObject RiderModel;
@@ -21,7 +25,7 @@ namespace PIPE_Valve_Console_Client
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public float LerpSpeed = 1f;
+        public float LerpSpeed = 0.999f;
         public float timeatlasttranformupdate;
 
         private GameObject[] wheelcolliders;
@@ -31,10 +35,51 @@ namespace PIPE_Valve_Console_Client
 
 
 
+        public Vector3 FrameColour = new Vector3(1, 0, 0);
+        public float FrameSmooth = 0;
+        public byte[] FrameTex = new byte[0];
+
+        public Vector3 ForksColour = new Vector3(0, 0, 0);
+        public float ForksSmooth = 0;
+        public byte[] ForksTex = new byte[0];
+
+        public Vector3 BarsColour = new Vector3(1, 0, 0);
+        public float BarsSmooth = 0;
+        public byte[] BarsTex = new byte[0];
+
+        public Vector3 SeatColour = new Vector3(0, 0, 0);
+        public float SeatSmooth = 0;
+        public byte[] SeatTex = new byte[0];
+
+        public Vector3 FTireColour = new Vector3(0, 0, 0);
+        public Vector3 RTireColour = new Vector3(0, 0, 0);
+        public Vector3 FTireSideColour = new Vector3(0, 0, 0);
+        public Vector3 RTireSideColour = new Vector3(0, 0, 0);
+        public byte[] TiresTex = new byte[0];
+        public byte[] TiresNormal = new byte[0];
+
+        public string FrameTexname = "";
+        public string ForkTexname = "";
+        public string SeatTexname = "";
+        public string BarTexName = "";
+        public string TireTexName = "";
+        public string TireNormalName = "";
+
+
+        MeshRenderer FrameRen;
+        MeshRenderer ForksRen;
+        MeshRenderer BarsRen;
+        MeshRenderer SeatRen;
+        MeshRenderer FTireRen;
+        MeshRenderer RTireRen;
+
+
+
         // Call initiation once on start, inititation to reoccur until resolved
         private void Start()
         {
             Initialize();
+            
         }
 
 
@@ -47,14 +92,18 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
-
             // decifer the rider and bmx specifics needed especially for daryien and bike colours
-            RiderModel = GameObject.Instantiate(DecideRider(CurrentModelName)) as GameObject;
-            RiderModel.name = "Model " + id;
+            RiderModel = DecideRider(CurrentModelName);
+            
             BMX = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
-            BMX.name = "BMX " + id;
-            Destroy(BMX.GetComponentInChildren<BikeLoadOut>().gameObject);
+            
+
+            FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
+            ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();
+            BarsRen = BMX.transform.FindDeepChild("Bars Mesh").gameObject.GetComponent<MeshRenderer>();
+            SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
+            FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+            RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
 
             // remove or disable components
             if (RiderModel.GetComponent<Animation>())
@@ -97,36 +146,23 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
+            StartCoroutine(Initialiseafterwait());
         }
 
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
             {
                 UpdateAllRiderParts();
+               
             }
 
             // loops ridersetup until it succeeds and marks masteractive as true
-            if (!MasterActive)
-            {
-                RiderSetup();
-            }
+           
 
-            if(Audio.Rider == null)
-            {
-                try
-                {
-                Audio.Rider = RiderModel;
-                }
-                catch(UnityException c)
-                {
-                    Debug.Log("Audio Rider!!");
-                    Debug.Log(c);
-                }
-            }
+           
 
         }
 
@@ -150,45 +186,116 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-        // Called by DecideRider if Currentmodelname is Daryien, will then ask for more info from server about textures
+        // Called by DecideRider if Currentmodelname is Daryien
         private GameObject DaryienSetup()
         {
-            GameObject daz = UnityEngine.GameObject.Find("Daryien");
+            GameObject daz = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien"));
 
             // make sure meshes are active, pipeworks PI keeps daryien but turns off all his meshes, then tracks new models to daryiens bones
             Transform[] children = daz.GetComponentsInChildren<Transform>(true);
             foreach (Transform t in children)
             {
                 t.gameObject.SetActive(true);
+
+            }
+            SkinnedMeshRenderer[] r = daz.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+            // find all files that match with custom tex names,then load
+            foreach (SkinnedMeshRenderer s in r)
+            {
+                if(_texinfos != null)
+                {
+                foreach (TextureInfo t in _texinfos)
+                {
+                    byte[] bytes = null;
+                    if (s.gameObject.name == t.NameofparentGameObject)
+                    {
+                        
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach(DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach(FileInfo f in images)
+                            {
+                                if(f.Name == t.Nameoftexture)
+                                {
+                                   bytes = File.ReadAllBytes(f.FullName);
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                        Texture2D image = new Texture2D(2, 2);
+                       image.LoadImage(bytes);
+                            image.Apply();
+                        s.material.mainTexture = image;
+                            }
+                            catch (UnityException x)
+                            {
+                                Debug.Log("Daryien setup error : " + x);
+                            }
+
+                        }
+                    }
+                    
+
+
+                }
+                }
             }
 
-
-
-
-
-            return daz;
+                    return daz;
         }
 
-        // Called by DecideRider if Currentmodelname isnt Daryien
+        /// <summary>
+        /// Called to load a custom model, will return Daryiensetup() if nothing can be done
+        /// </summary>
+        /// <returns></returns>
         private GameObject LoadRiderFromAssets()
         {
             GameObject loadedrider;
             bool found = false;
 
-            // check if loaded already
+
+
+            IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
+            foreach (AssetBundle a in bundles)
+            {
+                    if (a.name.Contains(Modelbundlename.ToLower()))
+                    {
+                        Debug.Log("Matched bundle to requested model");
+                        loadedrider = GameObject.Instantiate(a.LoadAsset(CurrentModelName) as GameObject);
+                        found = true;
+
+
+                        return loadedrider;
+                    }
+            }
+
+
+            if (!found)
+            {
+                AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
             IEnumerable<AssetBundle> loadedalready = AssetBundle.GetAllLoadedAssetBundles();
             foreach (AssetBundle a in loadedalready)
             {
-                if (a.name.Contains(CurrentModelName))
+                if (a.name.Contains(Modelbundlename))
                 {
                     Debug.Log("Matched bundle to requested model");
-                    loadedrider = a.LoadAsset(CurrentModelName) as GameObject;
+                    loadedrider = GameObject.Instantiate(a.LoadAsset(CurrentModelName) as GameObject);
                     found = true;
 
 
                     return loadedrider;
                 }
             }
+
+            }
+            
 
             if (!found)
             {
@@ -197,12 +304,16 @@ namespace PIPE_Valve_Console_Client
                 AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
 
                 loadedrider = b.LoadAsset(CurrentModelName) as GameObject;
-
+                found = true;
                 return loadedrider;
+            }
+            else if(!found)
+            {
+                return DaryienSetup();
             }
             else
             {
-                return null;
+                return DaryienSetup();
             }
 
         }
@@ -350,6 +461,127 @@ namespace PIPE_Valve_Console_Client
             }
 
 
+        }
+
+
+        public void UpdateTextures()
+        {
+            // look through rider
+            if (GameManager.PlayersTexinfos[id].Count > 0)
+            {
+                Debug.Log($"Updating Textures for {id}");
+
+
+
+
+
+
+
+
+
+            SkinnedMeshRenderer[] r = RiderModel.GetComponentsInChildren<SkinnedMeshRenderer>();
+            foreach (SkinnedMeshRenderer s in r)
+            {
+                foreach (TextureInfo t in GameManager.PlayersTexinfos[id])
+                {
+                    byte[] bytes = null;
+                    if (s.gameObject.name == t.NameofparentGameObject)
+                    {
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name.Contains(t.Nameoftexture))
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+                                        
+
+                                    }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                                try
+                                {
+                            Texture2D image = new Texture2D(1024, 1024);
+                            
+                                    ImageConversion.LoadImage(image, bytes);
+                            s.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    Debug.Log($"Failed to apply texture to {id}");
+                                }
+
+                        }
+                    }
+
+
+
+                }
+            }
+
+            }
+
+            // look through bike
+            if(_texinfos.Count > 0)
+            {
+
+            }
+
+
+        }
+
+
+
+        public void UpdateColours()
+        {
+            try
+            {
+            FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
+            ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();
+            BarsRen = BMX.transform.FindDeepChild("Bars Mesh").gameObject.GetComponent<MeshRenderer>();
+            SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
+            FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+            RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+
+
+            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Bike Colours",(int)MessageColour.System,(uint)0));
+            FrameRen.material.color = new Color(GameManager.PlayersColours[id][0].x, GameManager.PlayersColours[id][0].y, GameManager.PlayersColours[id][0].z);
+           ForksRen.material.color = new Color(GameManager.PlayersColours[id][1].x, GameManager.PlayersColours[id][1].y, GameManager.PlayersColours[id][1].z);
+            BarsRen.material.color = new Color(GameManager.PlayersColours[id][2].x, GameManager.PlayersColours[id][2].y, GameManager.PlayersColours[id][2].z);
+            SeatRen.material.color = new Color(GameManager.PlayersColours[id][3].x, GameManager.PlayersColours[id][3].y, GameManager.PlayersColours[id][3].z);
+            FTireRen.materials[1].color = new Color(GameManager.PlayersColours[id][4].x,GameManager.PlayersColours[id][4].y, GameManager.PlayersColours[id][4].z);
+            FTireRen.materials[0].color = new Color(GameManager.PlayersColours[id][5].x, GameManager.PlayersColours[id][5].y, GameManager.PlayersColours[id][5].z);
+            RTireRen.materials[1].color = new Color(GameManager.PlayersColours[id][6].x, GameManager.PlayersColours[id][6].y, GameManager.PlayersColours[id][6].z);
+            RTireRen.materials[0].color = new Color(GameManager.PlayersColours[id][7].x, GameManager.PlayersColours[id][7].y, GameManager.PlayersColours[id][7].z);
+
+            }
+            catch(UnityException x)
+            {
+                Debug.Log("Update colours error  " + x);
+            }
+
+
+
+        }
+
+
+
+        IEnumerator Initialiseafterwait()
+        {
+
+            yield return new WaitForSeconds(2);
+            RiderModel.name = "Model " + id;
+            BMX.name = "BMX " + id;
+            Destroy(BMX.transform.Find("BMX Load Out").gameObject);
+            UpdateTextures();
+            UpdateColours();
+            Debug.Log("Late init of remote rider done");
         }
 
 

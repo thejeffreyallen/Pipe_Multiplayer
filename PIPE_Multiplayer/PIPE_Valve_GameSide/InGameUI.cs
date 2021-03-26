@@ -5,6 +5,10 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Threading;
 using System;
+using FrostyP_Game_Manager;
+using UnityEngine.Rendering;
+
+
 
 namespace PIPE_Valve_Console_Client
 {
@@ -12,7 +16,10 @@ namespace PIPE_Valve_Console_Client
     {
         public static InGameUI instance;
         public LocalPlayer _localplayer;
+       
 
+        public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
+        public GUIStyle Generalstyle = new GUIStyle();
 
         public string Username = "Username...";
         
@@ -22,15 +29,23 @@ namespace PIPE_Valve_Console_Client
         /// In Online mode
         /// </summary>
         public bool Connected;
-        public bool OfflineMenu;
-        private bool OnlineMenu;
-        private bool P2PMenu;
+        public bool OfflineMenu = true;
+        public bool OnlineMenu;
         public string desiredport = "7777";
+        public string desiredIP = "127.0.0.1";
 
         public int messagetimer;
         public List<TextMessage> Messages = new List<TextMessage>();
         public string Messagetosend = "Send a message to all...";
         Dictionary<int, Color> MessageColour;
+
+        Vector2 scrollPosition;
+        Texture2D RedTex;
+        Texture2D BlackTex;
+        Texture2D GreyTex;
+        Texture2D GreenTex;
+        Texture2D whiteTex;
+        Texture2D TransTex;
 
 
         /// <summary>
@@ -44,7 +59,7 @@ namespace PIPE_Valve_Console_Client
             }
             else if (instance != this)
             {
-                Debug.Log("Client already exists, destroying old client now");
+                Debug.Log("IngameUI already exists, destroying old InGameUI now");
                 Destroy(this);
             }
         }
@@ -55,12 +70,161 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         private void Start()
         {
+            RedTex = new Texture2D(Screen.width / 6, Screen.height / 4); ;
+            Color[] colorarray = RedTex.GetPixels();
+            Color newcolor = new Color(0.5f, 0, 0, 1);
+            for (var i = 0; i < colorarray.Length; ++i)
+            {
+                colorarray[i] = newcolor;
+            }
+
+            RedTex.SetPixels(colorarray);
+
+            RedTex.Apply();
+
+            BlackTex = Texture2D.blackTexture;
+            Color[] colorarray2 = BlackTex.GetPixels();
+            Color newcolor2 = new Color(0, 0, 0, 0.4f);
+            for (var i = 0; i < colorarray2.Length; ++i)
+            {
+                colorarray2[i] = newcolor2;
+            }
+
+            BlackTex.SetPixels(colorarray2);
+
+            BlackTex.Apply();
+
+            GreyTex = Texture2D.blackTexture;
+            Color[] colorarray3 = GreyTex.GetPixels();
+            Color newcolor3 = new Color(0.5f, 0.5f, 0.5f, 1);
+            for (var i = 0; i < colorarray3.Length; ++i)
+            {
+                colorarray3[i] = newcolor3;
+            }
+
+            GreyTex.SetPixels(colorarray3);
+
+            GreyTex.Apply();
+
+
+            GreenTex = new Texture2D(20, 10);
+            Color[] colorarray4 = GreenTex.GetPixels();
+            Color newcolor4 = new Color(0.2f, 0.6f, 0.2f, 1f);
+            for (var i = 0; i < colorarray4.Length; ++i)
+            {
+                colorarray4[i] = newcolor4;
+            }
+
+            GreenTex.SetPixels(colorarray4);
+
+            GreenTex.Apply();
+
+
+
+            whiteTex = new Texture2D(20, 10);
+            Color[] colorarray5 = whiteTex.GetPixels();
+            Color newcolor5 = new Color(1f, 1f, 1f, 0.3f);
+            for (var i = 0; i < colorarray5.Length; ++i)
+            {
+                colorarray5[i] = newcolor5;
+            }
+
+            whiteTex.SetPixels(colorarray5);
+
+            whiteTex.Apply();
+
+
+            TransTex = new Texture2D(20, 10);
+            Color[] colorarray6 = TransTex.GetPixels();
+            Color newcolor6 = new Color(1f, 1f, 1f, 0f);
+            for (var i = 0; i < colorarray6.Length; ++i)
+            {
+                colorarray6[i] = newcolor6;
+            }
+
+            TransTex.SetPixels(colorarray6);
+
+            TransTex.Apply();
+
+            Generalstyle.normal.background = whiteTex;
+            Generalstyle.normal.textColor = Color.black;
+
+            Generalstyle.alignment = TextAnchor.MiddleCenter;
+            Generalstyle.fontStyle = FontStyle.Bold;
+            //Generalstyle.fontSize = 16;
+            //Generalstyle.border.left = 5;
+            //Generalstyle.border.right = 5;
+            //Generalstyle.margin.left = 5;
+            //Generalstyle.margin.right = 5;
+
+            skin.label.normal.textColor = Color.black;
+            skin.label.fontSize = 15;
+            skin.label.fontStyle = FontStyle.Bold;
+            skin.label.alignment = TextAnchor.MiddleCenter;
+            skin.label.normal.background = TransTex;
+
+
+
+            skin.textField.alignment = TextAnchor.MiddleCenter;
+            skin.textField.normal.textColor = Color.red;
+            skin.textField.normal.background = GreyTex;
+            skin.textField.focused.background = BlackTex;
+            skin.textField.focused.textColor = Color.white;
+            skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
+            skin.textField.padding = new RectOffset(10, 10, 10, 10);
+
+
+
+            skin.button.normal.textColor = Color.black;
+            skin.button.alignment = TextAnchor.MiddleCenter;
+            skin.button.normal.background = GreenTex;
+            skin.button.onNormal.background = GreyTex;
+            skin.button.onNormal.textColor = Color.red;
+            skin.button.onHover.background = GreenTex;
+            skin.button.hover.textColor = Color.green;
+            skin.button.normal.background.wrapMode = TextureWrapMode.Clamp;
+            skin.button.hover.background = GreyTex;
+
+
+
+            skin.toggle.normal.textColor = Color.black;
+            skin.toggle.alignment = TextAnchor.MiddleCenter;
+            skin.toggle.normal.background = GreenTex;
+            skin.toggle.onNormal.background = GreyTex;
+            skin.toggle.onNormal.textColor = Color.black;
+            skin.toggle.onHover.background = GreenTex;
+            skin.toggle.hover.textColor = Color.green;
+            skin.toggle.normal.background.wrapMode = TextureWrapMode.Clamp;
+            skin.toggle.hover.background = GreyTex;
+
+
+            skin.horizontalSlider.alignment = TextAnchor.MiddleCenter;
+            skin.horizontalSlider.normal.textColor = Color.black;
+            skin.horizontalSlider.normal.background = GreyTex;
+            skin.horizontalSliderThumb.normal.background = GreenTex;
+            skin.horizontalSliderThumb.normal.background.wrapMode = TextureWrapMode.Clamp;
+            skin.horizontalSliderThumb.normal.textColor = Color.white;
+            skin.horizontalSliderThumb.fixedWidth = 20;
+            skin.horizontalSliderThumb.fixedHeight = 20;
+            skin.horizontalSliderThumb.hover.background = BlackTex;
+
+            skin.button.normal.textColor = Color.black;
+            skin.button.alignment = TextAnchor.MiddleCenter;
+            skin.scrollView.normal.background = GreenTex;
+            skin.verticalScrollbarThumb.normal.background = GreenTex;
+            skin.scrollView.alignment = TextAnchor.MiddleCenter;
+            skin.scrollView.fixedWidth = Screen.width / 4;
+
+
+
+            
+
             MessageColour = new Dictionary<int, Color>()
             {
-                {(int)MessageCode.Me,Color.blue},
-                {(int)MessageCode.Player,Color.black},
-                {(int)MessageCode.System,Color.yellow},
-                {(int)MessageCode.Server,Color.red},
+                {(int)PIPE_Valve_Console_Client.MessageColour.Me,Color.blue},
+                {(int)PIPE_Valve_Console_Client.MessageColour.Player,Color.black},
+                {(int)PIPE_Valve_Console_Client.MessageColour.System,Color.green},
+                {(int)PIPE_Valve_Console_Client.MessageColour.Server,Color.red},
             };
            _localplayer = gameObject.GetComponent<LocalPlayer>();
            
@@ -85,17 +249,30 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public void Disconnect()
         {
+            Connected = false;
+            List<GameObject> objs = new List<GameObject>();
             GameNetworking.instance.DisconnectMaster();
            
             foreach (RemotePlayer r in GameManager.Players.Values)
             {
                 Destroy(r.RiderModel);
                 Destroy(r.BMX);
-                Destroy(r.gameObject);
+                Destroy(r.Audio);
+                objs.Add(r.gameObject);
+                
 
             }
+            if (objs.Count > 0)
+            {
+                foreach(GameObject obj in objs)
+                {
+                    Destroy(obj);
+                }
+            }
             GameManager.Players.Clear();
-            
+            GameManager.PlayersColours.Clear();
+            GameManager.PlayersSmooths.Clear();
+            GameManager.PlayersTexinfos.Clear();
            
             // Server learns of disconnection itself and tells everyone
 
@@ -104,32 +281,9 @@ namespace PIPE_Valve_Console_Client
 
        
        
-        void OnGUI()
-        {
-            
-          
-            if (OfflineMenu && !OnlineMenu)
-            {
-                ClientsOfflineMenu();
-            }
-            if (!OfflineMenu && OnlineMenu)
-            {
-                ClientsOnlineMenu();
-            }
-
-           
-
-
-        }
-        
-
-        
-       
-
-
     
 
-        void ClientsOfflineMenu()
+       public void ClientsOfflineMenu()
         {
             
             GUILayout.Label("Client Mode");
@@ -141,25 +295,35 @@ namespace PIPE_Valve_Console_Client
             // setup stuff before connecting
             Username = GUILayout.TextField(Username);
             GUILayout.Space(10);
-            GameNetworking.instance.ip = GUILayout.TextField(GameNetworking.instance.ip);
+            desiredIP = GUILayout.TextField(GameNetworking.instance.ip);
+            if(desiredIP != "")
+            {
+                GameNetworking.instance.ip = desiredIP;
+            }
             desiredport = GUILayout.TextField(desiredport);
+            if(desiredport != "")
+            {
             GameNetworking.instance.port = int.Parse(desiredport);
+            }
             GUILayout.Space(5);
 
             if (GUILayout.Button("Connect to Server"))
             {
-                InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Trying Setup..", 1, 0));
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
             // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
             _localplayer.GrabTextures();
+            BMXNetLoadout.instance.GrabTextures();
                 ConnectToServer();
                 OnlineMenu = true;
                 OfflineMenu = false;
+
+                
                
             }
 
-
+            /*
             P2PMenu = GUILayout.Toggle(P2PMenu, "P2P Menu");
             if (P2PMenu)
             {
@@ -170,22 +334,20 @@ namespace PIPE_Valve_Console_Client
 
                 GUILayout.Space(10);
             }
-
+            */
            
-            GUILayout.Space(10);
-            if (GUILayout.Button("Exit"))
-            {
-                OfflineMenu = false;
-                //GetComponent<LocalPlayer>().enabled = false;
-                //GetComponent<InGameUI>().enabled = false;
-            }
-            GUILayout.Space(20);
+            GUILayout.Space(30);
+           
+            
+           
            
             
         }
 
-        void ClientsOnlineMenu()
+       public void ClientsOnlineMenu()
         {
+            GUILayout.Space(10);
+
             Messagetosend = GUILayout.TextField(Messagetosend.ToString());
            if( GUILayout.Button("Send"))
             {
@@ -198,14 +360,21 @@ namespace PIPE_Valve_Console_Client
             }
             GUILayout.Space(20);
             GUILayout.Label("Messages:");
+            
+           // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
             foreach(TextMessage mess in Messages)
             {
-                var style = new GUIStyle(GUI.skin.label);
+                GUIStyle style = new GUIStyle();
                 style.normal.textColor = MessageColour[mess.FromCode];
+                style.alignment = TextAnchor.MiddleCenter;
+                style.padding = new RectOffset(10, 0, 0, 10);
+                style.fontStyle = FontStyle.Bold;
+                
                 GUILayout.Label(mess.Message,style);
             }
 
-
+           // GUILayout.EndScrollView();
+            GUILayout.Space(50);
             if (GUILayout.Button("Disconnect"))
             {
                 OnlineMenu = false;
@@ -218,7 +387,7 @@ namespace PIPE_Valve_Console_Client
 
 
      
-        /*
+        
         static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
         {
             // Check arguments.
@@ -259,20 +428,10 @@ namespace PIPE_Valve_Console_Client
             return encrypted;
         }
 
-        */
+        
 
 
-        /// <summary>
-        /// Incoming messages get different colors
-        /// </summary>
-        enum MessageCode
-        {
-            System = 1,
-            Me = 2,
-            Player = 3,
-            Server = 4,
-        }
-
+       
 
 
 
@@ -292,4 +451,17 @@ namespace PIPE_Valve_Console_Client
         }
 
     }
+
+    /// <summary>
+    /// Incoming messages get different colors
+    /// </summary>
+    public enum MessageColour
+    {
+        System = 1,
+        Me = 2,
+        Player = 3,
+        Server = 4,
+    }
+
+
 }

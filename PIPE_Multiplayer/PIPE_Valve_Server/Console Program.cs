@@ -44,7 +44,10 @@ namespace PIPE_Valve_Online_Server
             int port = int.Parse(Console.ReadLine());
 
             Console.WriteLine("Set Ticks per second, 30-60 recommended");
+
             Constants.TicksPerSec = int.Parse(Console.ReadLine());
+            
+            
 
             Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
             Console.ReadLine();

@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,12 +34,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>pipeservericon_pJC_icon.ico</ApplicationIcon>
+    <ApplicationIcon>pipeservericon_cDx_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -54,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BMXLoadout.cs" />
     <Compile Include="Console Program.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GameLogic.cs" />
@@ -63,7 +66,7 @@
     <Compile Include="Server.cs" />
     <Compile Include="ServerSend.cs" />
     <Compile Include="ServersHandles.cs" />
-    <Compile Include="Server_SavedData.cs" />
+    <Compile Include="ServerData.cs" />
     <Compile Include="ThreadManager.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -75,7 +78,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="pipeservericon_pJC_icon.ico" />
+    <Content Include="pipeservericon_cDx_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -84,15 +84,19 @@ namespace PIPE_Valve_Online_Server
 			packetHandlers = new Dictionary<int, PacketHandler>()
 			{
 				{ (int)ClientPackets.WelcomeReceived, ServersHandles.WelcomeReceived },
-				{ (int)ClientPackets.ClientsRiderInfo, ServersHandles.RiderInfoReceive },
-				{ (int)ClientPackets.ReceiveTexture, ServersHandles.TextureReceive },
-				{ (int)ClientPackets.ReceiveTexturenames, ServersHandles.TexturenamesReceive},
+				{ (int)ClientPackets.BikeDataReceive, ServersHandles.BikeDataReceive },
+				{ (int)ClientPackets.SendTexture, ServersHandles.TextureReceive },
+				{ (int)ClientPackets.SendTextureNames, ServersHandles.TexturenamesReceive},
 				{ (int)ClientPackets.TransformUpdate, ServersHandles.TransformReceive},
-				{ (int)ClientPackets.ReceiveAudioUpdate,ServersHandles.ReceiveAudioUpdate},
-				{ (int)ClientPackets.ReceiveTextMessage,ServersHandles.RelayPlayerMessage},
+				{ (int)ClientPackets.SendAudioUpdate,ServersHandles.ReceiveAudioUpdate},
+				{ (int)ClientPackets.SendTextMessage,ServersHandles.RelayPlayerMessage},
+				{ (int)ClientPackets.RequestforTex,ServersHandles.RequestforTex },
+				{ (int)ClientPackets.ReceiveQuickBikeUpdate,ServersHandles.BikeDataQuickUpdate },
+				{ (int)ClientPackets.ReceiveQuickRiderUpdate,ServersHandles.RiderQuickUpdate },
 
 			};
 
+			
 
 		}
 
@@ -120,7 +124,18 @@ namespace PIPE_Valve_Online_Server
 			server = new NetworkingSockets();
 
 			pollGroup = server.CreatePollGroup();
-			
+
+			int sendRateMin = 600000;
+			int sendRateMax = 15400000;
+			int sendBufferSize = 509715200;
+
+			unsafe
+			{
+				//utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				//utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				//utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+			}
+
 			// what happens on connection state change
 			StatusCallback status = (ref StatusInfo info) =>
 			{
@@ -147,8 +162,10 @@ namespace PIPE_Valve_Online_Server
 					case ConnectionState.ProblemDetectedLocally:
 						server.CloseConnection(info.connection);
 						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
-						ServerSend.DisconnectTellAll(info.connection);
+
+						// should be smarter, wait for any remaining packets from client? bugs out sometimes
 						Players.Remove(info.connection);
+						ServerSend.DisconnectTellAll(info.connection);
 						break;
 
 
@@ -177,7 +194,7 @@ namespace PIPE_Valve_Online_Server
 		Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 256;
+			const int maxMessages = 250;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif
@@ -189,10 +206,11 @@ namespace PIPE_Valve_Online_Server
 #if VALVESOCKETS_SPAN
 		//server.ReceiveMessagesOnPollGroup(pollGroup, message, 20);
 #else
-
+				//if (server != null)
+				//	GC.KeepAlive(server);
 
 				// process Incoming Data by reading int from byte[] and sending to function that corresponds to the int
-					
+
 				server.RunCallbacks();
 				int netMessagesCount = server.ReceiveMessagesOnPollGroup(pollGroup, netMessages, maxMessages);
 					
@@ -259,7 +277,7 @@ namespace PIPE_Valve_Online_Server
         {
 			if(Players.Values.Count < MaxPlayers)
             {
-				foreach(string ip in Server_SavedData.BannedIps.Values)
+				foreach(string ip in ServerData.BannedIps.Values)
                 {
 					if (ip == info.connectionInfo.address.GetIP())
                     {
@@ -282,36 +300,42 @@ namespace PIPE_Valve_Online_Server
 		}
 
 
-		public static void CheckForTextureFiles(List<string> listoffilenames, uint _fromclient)
+		public static void CheckForTextureFiles(List<TextureInfo> listoffilenames, uint _fromclient)
         {
 			DirectoryInfo info = new DirectoryInfo(TexturesDir);
 			FileInfo[] files = info.GetFiles();
 			List<string> Unfound = new List<string>();
 
-			foreach (string s in listoffilenames)
+			foreach (TextureInfo s in listoffilenames)
 			{
+				if(s.Nameoftexture != "")
+                {
 				bool found = false;
 				foreach (FileInfo file in files)
 				{
-					if (file.Name == s)
+					if (file.Name == s.Nameoftexture)
 					{
 						found = true;
-						Console.WriteLine($"Matched {s} to {file.Name}");
+						Console.WriteLine($"Matched {s.Nameoftexture} to {file.Name}");
 					}
 				}
 				if (!found)
 				{
 					// server doesnt have it, request it
-					Unfound.Add(s);
-					Console.WriteLine(s + "Added to unfound list");
+					Unfound.Add(s.Nameoftexture);
+					Console.WriteLine(s.Nameoftexture + " Added to unfound list");
 				}
 
+                }
 			}
+
+
+
 			// if any unfound, send list of required textures back to the client
 			if (Unfound.Count > 0)
 			{
 				ServerSend.RequestTextures(_fromclient, Unfound);
-
+				Console.WriteLine($"Send Texture request for {Unfound.Count} items");
 			}
 			else
 			{
@@ -319,6 +343,59 @@ namespace PIPE_Valve_Online_Server
 			}
 
 		}
+
+		public static List<TextureBytes> GiveTexturesFromDirectory(List<string> listoffilenames)
+        {
+			List<TextureBytes> bytes = new List<TextureBytes>();
+
+			DirectoryInfo info = new DirectoryInfo(TexturesDir);
+			FileInfo[] files = info.GetFiles();
+			List<string> Found = new List<string>();
+			
+
+			// goes through Texture directory, add found to list, if not it may be incoming now or incompatible though its name got through
+			foreach (string s in listoffilenames)
+			{
+				if (s != "")
+				{
+					bool found = false;
+					foreach (FileInfo file in files)
+					{
+						if (file.Name.Contains(s))
+						{
+						Found.Add(file.FullName);
+							
+							found = true;
+							Console.WriteLine($"Matched {s} to {file.Name}, sending to player");
+						}
+					}
+					if (!found)
+					{
+						// server doesnt have it, request it
+						Console.WriteLine(s + " Unfound to give to player");
+					}
+
+				}
+			}
+
+            if (Found.Count > 0)
+            {
+				foreach(string n in Found)
+                {
+					byte[] b = File.ReadAllBytes(n);
+					bytes.Add(new TextureBytes(b,n));
+                }
+
+			return bytes;
+            }
+            else
+            {
+				return null;
+            }
+
+        }
+		
+
 
         #region Functions_Fired_By_Servers_GUI
         private static void BanAPlayer(uint Playersconnection, string username)
@@ -351,4 +428,23 @@ namespace PIPE_Valve_Online_Server
 
         #endregion
     }
+
+	/// <summary>
+	/// Keep track of a texture in bytes and its file name
+	/// </summary>
+	class TextureBytes
+    {
+		public byte[] bytes;
+		public string Texname;
+
+		public TextureBytes(byte[] _bytes, string _texname)
+        {
+			Texname = _texname;
+			bytes = _bytes;
+        }
+
+    }
+
+
+
 }

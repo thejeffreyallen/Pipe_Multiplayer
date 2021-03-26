@@ -16,19 +16,23 @@ namespace PIPE_Valve_Online_Server
         public string Username;
         public uint clientID;
         public string Ridermodel;
+        public string Ridermodelbundlename;
         public string MapName;
 
-        public List<string> RidersTexturenames;
+        public List<TextureInfo> RiderTextureInfoList = new List<TextureInfo>();
 
         public Vector3[] RiderPositions;
         public Vector3[] RiderRotations;
 
+        public BMXLoadout Loadout;
 
         // audio
         public byte[] LastAudioUpdate;
         public bool newAudioReceived;
 
-
+        public bool Gottexnames;
+        public bool GotBikeData;
+        public bool Ready;
 
 
 
@@ -39,11 +43,12 @@ namespace PIPE_Valve_Online_Server
         /// <summary>
         /// Constructor to initiailise with Connection id and rider info, also initialises vectors for storage
         /// </summary>
-        public Player(uint connofPlayer, string _riderModel, string _username)
+        public Player(uint connofPlayer, string _riderModel, string _username, string _ridermodelbundlename)
         {
             clientID = connofPlayer;
             Username = _username;
             Ridermodel = _riderModel;
+            Ridermodelbundlename = _ridermodelbundlename;
 
             RiderRotations = new Vector3[32];
             RiderPositions = new Vector3[32];
@@ -61,18 +66,25 @@ namespace PIPE_Valve_Online_Server
                 RiderRotations[i].Z = 0;
             }
 
+            Loadout = new BMXLoadout();
+            Loadout.Setup();
+
         }
 
 
         // called on tick rate
         public void Update()
         {
-            if (RiderPositions != null && RiderRotations != null)
+            if (Ready)
             {
                 SendTransformInfoToAll();
+                
             }
 
-           
+           if(GotBikeData && Gottexnames)
+            {
+                Ready = true;
+            }
 
             
 
@@ -82,6 +94,23 @@ namespace PIPE_Valve_Online_Server
         {
 
             ServerSend.SendATransformUpdate(clientID, RiderPositions.Length, RiderPositions, RiderRotations);
+        }
+
+
+    }
+    /// <summary>
+    /// Used for keeping track of texture name and the gameobject its on for when it reaches remote players
+    /// </summary>
+    public class TextureInfo
+    {
+        public string Nameoftexture;
+        public string NameofparentGameObject;
+
+
+        public TextureInfo(string nameoftex, string nameofG_O)
+        {
+            Nameoftexture = nameoftex;
+            NameofparentGameObject = nameofG_O;
         }
 
 

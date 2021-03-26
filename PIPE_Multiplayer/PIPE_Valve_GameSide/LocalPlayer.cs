@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.IO;
+
 
 namespace PIPE_Valve_Console_Client
 {
@@ -23,15 +26,22 @@ namespace PIPE_Valve_Console_Client
         Vector3[] riderPositions;
         Vector3[] riderRotations;
 
-        public string RiderModelname;
+        public string RiderModelname = "";
+        public string RiderModelBundleName = "";
+        public List<string[]> Assetnames = new List<string[]>();
 
         // null unless InGameUI.Connect sees that you are Daryien, then GrabTextures is called.
-        public List<string> RidersTexturenames;
-        public List<Texture2D> RidersTextures;
+        public List<TextureInfo> RiderTextureInfoList = new List<TextureInfo>();
+        public List<Texture2D> RidersTextures = new List<Texture2D>();
+        public List<Texture2D> BikesTextures = new List<Texture2D>();
 
 
         LocalPlayerAudio Audio;
 
+
+
+
+      
 
 
         private void Start()
@@ -100,6 +110,7 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         private void FixedUpdate()
         {
+            
 
             if (InGameUI.instance.Connected)
             {
@@ -113,8 +124,7 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
-
+       
 
 
 
@@ -150,23 +160,30 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        // called by GUI on connect, so leaving and changing rider will fire this again. For net, if component count is less than 70 theres no extra mixamorig attached so make ridermodel name Daryien, if more, rename Ridermodelname to new character, grab new character reference and realign Rider_Transforms to the new bones
+        // called by GUI on connect, so leaving and changing rider will fire this again. For net, 
+        //if component count is less than 70 theres no extra mixamorig attached so make ridermodel name Daryien, if more, rename Ridermodelname to new character,
+        //grab new character reference and realign Rider_Transforms to the new bones,
+        // then grabs assetbundle name associated with ridermodelname, needed for checking whether,
+        // the bundle is already loaded at any point and accessing that bundle if it is,
+        // G-O name and filename are not reliable
         public void RiderTrackingSetup()
         {
+            // if theres less than 75 parts, the PI rig is not there, must be daryien, if not, go and get GO name and Assetbundle name as they can be different
             if (Rider_Root.transform.parent.gameObject.GetComponentsInChildren<Transform>().Length < 75)
             {
                 RiderModelname = "Daryien";
-                InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Detected Daryien", 1, 0));
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Detected Daryien", 1, 0));
             }
             else
             {
+               
                 Transform[] objs = Rider_Root.transform.parent.gameObject.GetComponentsInChildren<Transform>();
                 foreach (Transform i in objs)
                 {
                     if (i.name.Contains("Clone"))
                     {
                         RiderModelname = i.name.Replace("(Clone)", "");
-                        InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage($"Detected {RiderModelname} ", 1, 0));
+                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Detected {RiderModelname} ", 1, 0));
                         ridermodel = i.gameObject;
                         Riders_Transforms[0] = ridermodel.transform;
                         Riders_Transforms[1] = ridermodel.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
@@ -202,21 +219,38 @@ namespace PIPE_Valve_Console_Client
                         Riders_Transforms[29] = Bmx_Root.transform.FindDeepChild("BMX:Wheel 1");
                         Riders_Transforms[30] = Bmx_Root.transform.FindDeepChild("BMX:LeftPedal_Joint");
                         Riders_Transforms[31] = Bmx_Root.transform.FindDeepChild("BMX:RightPedal_Joint");
+
+
+                        IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
+                        foreach (AssetBundle a in bundles)
+                        {
+                            string[] names = a.GetAllAssetNames();
+                            Assetnames.Add(names);
+                            foreach (string name in names)
+                            {
+                                if (name.Contains(RiderModelname.ToLower()))
+                                {
+                                    RiderModelBundleName = a.name;
+                                }
+                            }
+                        }
+
                     }
+                   
                 }
 
 
 
             }
-            InGameUI.instance.NewMessage(Constants.SystemMessage, new TextMessage("Rider Tracking Done", 1, 0));
+            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Rider Tracking Done", 1, 0));
         }
 
 
         // Called By Gui on connect if RiderTrackingSetup set name to Daryien
         public void GrabTextures()
         {
-            RidersTexturenames = new List<string>();
-            RidersTextures = new List<Texture2D>();
+            RiderTextureInfoList.Clear();
+            RidersTextures.Clear();
 
             SkinnedMeshRenderer[] r = ridermodel.GetComponentsInChildren<SkinnedMeshRenderer>();
 
@@ -225,18 +259,43 @@ namespace PIPE_Valve_Console_Client
             {
                 foreach (Material m in s.materials)
                 {
+
                     if(m.mainTexture != null)
                     {
+                    byte[] bytes = new byte[0];
                         Texture2D t = m.mainTexture as Texture2D;
-                    RidersTexturenames.Add(t.name.ToString());
-                    RidersTextures.Add(t);
-                       // InGameUI.instance.Messages.Add(t.name + "Grabbed");
+
+
+                        // just filters out default tex's as their not readable and cause errors
+                    try
+                    {
+                       bytes = t.GetRawTextureData();
+                    }
+                    catch(UnityException x)
+                    {
 
                     }
+
+                        if(bytes.Length > 1 && t.name.Length > 1)
+                        {
+                    RiderTextureInfoList.Add(new TextureInfo(t.name,s.gameObject.name));
+                    RidersTextures.Add(t);
+
+                        }
+
+                        
+                       
+
+                    }
+
+
+
+
+
                 }
             }
 
-
+           
         }
 
 
@@ -245,7 +304,9 @@ namespace PIPE_Valve_Console_Client
         {
 
             List<Texture2D> matchedtexs = new List<Texture2D>();
-            // match with requested list and add to new list of textures, so clientsend gets them all and sends when ready
+
+
+            // Search Riders list of textures
             foreach (Texture2D t in RidersTextures)
             {
                 foreach (string n in names)
@@ -254,22 +315,100 @@ namespace PIPE_Valve_Console_Client
                     if (t.name == n)
                     {
                         matchedtexs.Add(t);
+                       
                     }
                 }
 
 
             }
+
+            // Search
+            string[] files = Directory.GetFiles(CharacterModding.instance.Texturerootdir, "*.png", SearchOption.AllDirectories);
+            DirectoryInfo info = new DirectoryInfo(CharacterModding.instance.Texturerootdir);
+            DirectoryInfo[] dirs = info.GetDirectories();
+            foreach(DirectoryInfo d in dirs)
+            {
+                FileInfo[] f = d.GetFiles();
+                foreach(FileInfo _f in f)
+                {
+                    foreach(string n in names)
+                    {
+                        if (_f.Name.Contains(n))
+                        {
+                            
+                            byte[] array2 = File.ReadAllBytes(_f.FullName);
+
+                            Texture2D texture2D = new Texture2D(1024, 1024);
+                            ImageConversion.LoadImage(texture2D, array2);
+                            texture2D.name = name;
+
+                            matchedtexs.Add(texture2D);
+                        }
+                    }
+                }
+            }
+
+
+            foreach(Renderer r in CharacterModding.instance.BMX_Materials.Values)
+            {
+                foreach(string n in names)
+                {
+                if(r.material.mainTexture != null && r.material.mainTexture.name == n)
+                {
+
+                        matchedtexs.Add((Texture2D)r.material.mainTexture);
+                }
+
+                }
+            }
+
+
+           
+            if (matchedtexs.Count > 0)
+            {
             ClientSend.SendTextures(matchedtexs);
 
-
-
+            }
+            else
+            {
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldnt locate Textures the server wants",(int) MessageColour.Server, (uint) 1));
+            }
 
 
         }
 
 
-
+      void OnGUI()
+        {
+            /* show asset and asset bundle name
+            GUILayout.Label($"model name: {RiderModelname} : ModelBundle: {RiderModelBundleName}");
+            foreach(string[] n in Assetnames)
+            {
+                foreach(string i in n)
+                {
+                    GUILayout.Label(i + "  :Asset");
+                }
+            }
+            */
+        }
 
 
     }
+    /// <summary>
+    /// Used for keeping track of texture name and the gameobject its on for when it reaches remote players
+    /// </summary>
+       public class TextureInfo
+        {
+            public string Nameoftexture;
+            public string NameofparentGameObject;
+
+
+            public TextureInfo(string nameoftex, string nameofG_O)
+            {
+                Nameoftexture = nameoftex;
+                NameofparentGameObject = nameofG_O;
+            }
+
+
+        }
 }

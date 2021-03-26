@@ -22,6 +22,10 @@ namespace PIPE_Valve_Online_Server
         DisconnectedPlayer,
         SendAudioUpdate,
         SendText,
+        RequestBike,
+        BikeQuickUpdate,
+        RiderQuickUpdate,
+
 
 
     }
@@ -32,12 +36,17 @@ namespace PIPE_Valve_Online_Server
     public enum ClientPackets
     {
         WelcomeReceived = 1,
-        ClientsRiderInfo,
+        BikeDataReceive,
         TransformUpdate,
+        SendTextureNames,
         ReceiveTexturenames,
-        ReceiveTexture,
-        ReceiveAudioUpdate = 7,
-        ReceiveTextMessage,
+        SendTexture,
+        SendAudioUpdate,
+        SendTextMessage,
+        RequestforTex,
+        ReceiveQuickBikeUpdate,
+        ReceiveQuickRiderUpdate,
+
 
     }
 
