@@ -81,7 +81,7 @@ namespace PIPE_Valve_Online_Server
                 
             }
 
-           if(GotBikeData && Gottexnames)
+           if(Gottexnames)
             {
                 Ready = true;
             }

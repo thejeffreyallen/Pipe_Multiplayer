@@ -39,7 +39,7 @@ namespace PIPE_Valve_Online_Server
         public string TireTexName = "";
         public string TireNormalName = "";
 
-       public List<string> Texturenames = new List<string>();
+       public List<string> Textureinfos = new List<string>();
        public List<Vector3> Colours = new List<Vector3>();
        public List<float> Smooths = new List<float>();
         public List<TextureInfo> TexInfos = new List<TextureInfo>();
@@ -47,7 +47,7 @@ namespace PIPE_Valve_Online_Server
 
         public void Setup()
         {
-            Texturenames = new List<string>();
+            Textureinfos = new List<string>();
             Colours = new List<Vector3>();
            Smooths = new List<float>();
             Colours.Add(FrameColour);
@@ -64,12 +64,12 @@ namespace PIPE_Valve_Online_Server
             Smooths.Add(BarsSmooth);
             Smooths.Add(SeatSmooth);
 
-            Texturenames.Add(FrameTexname);
-            Texturenames.Add(ForkTexname);
-            Texturenames.Add(BarTexName);
-            Texturenames.Add(TireTexName);
-            Texturenames.Add(TireNormalName);
-            Texturenames.Add(SeatTexname);
+            Textureinfos.Add(FrameTexname);
+            Textureinfos.Add(ForkTexname);
+            Textureinfos.Add(BarTexName);
+            Textureinfos.Add(TireTexName);
+            Textureinfos.Add(TireNormalName);
+            Textureinfos.Add(SeatTexname);
         }
 
 

@@ -1,0 +1,80 @@
+in game:
+
+G key to toggle in Game
+
+toggle debugger is very useful, if you have problems within the manager, toggle on debugger at top of manager, hit space and retry what you did to make logs of the issues appear, i have many error messages in place.
+Saves to Desktop/Your_logs
+
+
+
+
+
+Known issues:
+
+GameNetworkingSockets not found - error loading dll when clicking Connect to server = issue with VC-redist most likely, 
+potentially other builds of GameNetworkingSockets.dll required, message frostyP if this carries on
+
+bugs with LiveUpdates sometimes changing other players clothes
+
+Loading up doesnt get your rider and bike correct first time.
+
+Return from parkbuilder gives insane mode until you get off or go to marker
+
+ParkBuilder load park only works if you have all required bundles loaded
+
+inital load up not always correct, dependant on image formats, compression, bit depth
+
+Auto sending and receiving of missing textures to/from the server can fail/bug dependant on same as above aswell as image name.
+
+Server can sometimes catch error when a player disconnects, timing issue
+
+Audio has various bugs, within Grinding mostly, if a Grind sound persists after exit, doing another grind on the same surface type will cut previous sound out.
+if you join a game and hear constant bailing sound, reconnecting solves it, not sure about that so far.
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Requirements of ValveSockets:
+
+Game Side:
+1) GameNetworkingsockets.dll, Libprotofbuf.dll and libcrypto.dll must be found in PIPE folder next to .exe (all 32bit to match PIPE, modmanagers Load function checks this 
+is true and copies files from Mod folder if not found). FrostyPGamemanager uses Valve.dll found in its mod folder, which can access GamenetworkingSockets and translate from C# to C++
+
+2) GameNetworkingSockets is written in C++ not C#, vc redistributable 2015-2019 32bit is required (if you dont have visual studio? i didnt need it but laptop player 2 tester did)
+
+
+Server side:
+1)GameNetworkingsocksets.dll, Libprotofbuf.dll and libcrypto.dll and Valve.dll must be found in folder with servers .exe (64bit versions for server app, not to be messed up)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Players:
+
+1) Custom characters have their gameobject name and assetbundle name uploaded to the server as neither one is reliable for both finding the file if loading of bundle needed and locating 
+an already loaded assetbundle, Game should return a copy of your Daryien if all else fails.
+
+Known name changes:
+
+Session_Player change to Sessionguy,
+Marty_Mcfly change to marty mcfly,
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ Other Requirements:
+
+AssemblyC had to be edited, included AssemblyC has Multiplayer edits, TrickmodV2 and Pipeworks PI edits inside.
+
+
+AssemblyC.dll alteration for Audio; most elegent solution ive found is to flip the EventInstance variable in FMODRiserByVel from private to public, this way i can use the FMOD(third party Audio asset) 
+intended method of polling these stored EventInstance's to learn simple info about each sound. This also means i dont have send any audio or complex data, just the name of the sound, playstate(int),volume float, pitch float, velocity float.
+
+One Shots required adding a momentary reference object to each oneshot, which is tracked in the same way

@@ -75,107 +75,105 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        public static void BikeDataReceive(uint _from, Packet _pack)
+        public static void BikeDataReceive(uint _from, Packet _packet)
         {
-            List<string> Texturenames = new List<string>();
+            Console.Write("Receiving Inital Bike Data..");
+            List<TextureInfo> Texturenames = new List<TextureInfo>();
             List<Vector3> vecs = new List<Vector3>();
             List<float> floats = new List<float>();
 
-            foreach (Player p in Server.Players.Values)
+            int veccount = _packet.ReadInt();
+            // read colours
+            for (int i = 0; i < veccount; i++)
             {
-                if (p.clientID == _from)
+                Vector3 vec = _packet.ReadVector3();
+                vecs.Add(vec);
+
+            }
+            int floatcount = _packet.ReadInt();
+            // read smoothnesses
+            for (int i = 0; i < floatcount; i++)
+            {
+                float f = _packet.ReadFloat();
+                floats.Add(f);
+
+            }
+         
+
+            Server.Players[_from].GotBikeData = true;
+
+            /*
+            using (Packet packet = new Packet((int)ServerPacket.send))
+            {
+                packet.Write(_from);
+
+                packet.Write(vecs.Count);
+                foreach (Vector3 v in vecs)
                 {
-                    BMXLoadout loadout = Server.Players[_from].Loadout;
+                    packet.Write(v);
+                }
+                packet.Write(floatcount);
+                foreach (float t in floats)
+                {
+                    packet.Write(t);
+                }
+               
 
-                    // read colours
-                    for (int i = 0; i < 8; i++)
+                foreach (Player p in Server.Players.Values)
+                {
+                    //store
+                    if (p.clientID == _from)
                     {
-                        Vector3 vec = _pack.ReadVector3();
-                        vecs.Add(vec);
-                        loadout.Colours[i] = vec;
-                    }
-                    // read smoothnesses
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float f = _pack.ReadFloat();
-                        floats.Add(f);
-                        loadout.Smooths[i] = f;
-                    }
-                    // read texture names, empty if tex is null
-                    for (int i = 0; i < 6; i++)
-                    {
-                        string n = _pack.ReadString();
-                      
-                        Texturenames.Add(n);
-                        loadout.Texturenames[i] = n;
-                        
+                        p.Loadout.TexInfos = Texturenames;
+                        p.Loadout.Colours = vecs;
+                        p.Loadout.Smooths = floats;
                     }
 
-
-
-                    foreach(Vector3 e in vecs)
+                    // send
+                    if (p.clientID != _from)
                     {
-                        Console.WriteLine($" X: {e.X} Y: {e.Y} Z: {e.Z}");
+                        ServerSend.SendQuickBikeUpdate(p.clientID, packet);
+
+
                     }
-
-                    Console.WriteLine($"Received Bike Info from {_from}, Checking Textures..");
-
-                    List<TextureInfo> info = new List<TextureInfo>()
-                    {
-                        new TextureInfo(Texturenames[0],"Frame Mesh"),
-                         new TextureInfo(Texturenames[1],"Forks Mesh"),
-                          new TextureInfo(Texturenames[2],"Bars Mesh"),
-                           new TextureInfo(Texturenames[3],"Tire Mesh"),
-                            new TextureInfo(Texturenames[4],"Tire Normal"),
-                             new TextureInfo(Texturenames[5],"Seat Mesh"),
-
-                    };
-
-                    Server.CheckForTextureFiles(info, _from);
-
-
-
                 }
 
             }
 
-
-            Server.Players[_from].GotBikeData = true;
-            
-            
-                
-
-            
+            */
         }
 
 
         public static void BikeDataQuickUpdate(uint _from, Packet _packet)
         {
-            List<string> Texturenames = new List<string>();
+            List<TextureInfo> Texturenames = new List<TextureInfo>();
             List<Vector3> vecs = new List<Vector3>();
             List<float> floats = new List<float>();
 
-
+            int veccount = _packet.ReadInt();
             // read colours
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < veccount; i++)
             {
                 Vector3 vec = _packet.ReadVector3();
                 vecs.Add(vec);
                 
             }
+            int floatcount = _packet.ReadInt();
             // read smoothnesses
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < floatcount; i++)
             {
                 float f = _packet.ReadFloat();
                 floats.Add(f);
                 
             }
+            int texcount = _packet.ReadInt();
             // read texture names, empty if tex is null
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < texcount; i++)
             {
                 string n = _packet.ReadString();
+                string e = _packet.ReadString();
 
-                Texturenames.Add(n);
+                Texturenames.Add(new TextureInfo(n,e));
             }
 
 
@@ -184,17 +182,21 @@ namespace PIPE_Valve_Online_Server
             {
                 packet.Write(_from);
 
+                packet.Write(vecs.Count);
                 foreach(Vector3 v in vecs)
                 {
                     packet.Write(v);
                 }
+                packet.Write(floatcount);
                 foreach (float t in floats)
                 {
                     packet.Write(t);
                 }
-                foreach (string t in Texturenames)
+                packet.Write(texcount);
+                foreach (TextureInfo t in Texturenames)
                 {
-                    packet.Write(t);
+                    packet.Write(t.Nameoftexture);
+                    packet.Write(t.NameofparentGameObject);
                 }
 
 
@@ -203,7 +205,7 @@ namespace PIPE_Valve_Online_Server
                     //store
                     if (p.clientID == _from)
                     {
-                        p.Loadout.Texturenames = Texturenames;
+                        p.Loadout.TexInfos = Texturenames;
                         p.Loadout.Colours = vecs;
                         p.Loadout.Smooths = floats;
                     }
@@ -218,7 +220,7 @@ namespace PIPE_Valve_Online_Server
                 }
 
             }
-            Console.WriteLine("Quick Bike Update");
+            Console.WriteLine("Quick Bike Update stored and relayed");
         }
 
 

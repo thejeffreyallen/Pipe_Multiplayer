@@ -42,7 +42,7 @@ namespace PIPE_Valve_Online_Server
             
            // store
                 
-                temporarybyteslist.Add(this_segment_no, new TextureSegment(bytes, name, segmentcount, this_segment_no));
+                temporarybyteslist.Add(temporarybyteslist.Count, new TextureSegment(bytes, name, segmentcount, this_segment_no));
                 names.Add(name);
 
 

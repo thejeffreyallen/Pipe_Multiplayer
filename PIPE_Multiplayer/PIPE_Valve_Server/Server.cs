@@ -184,7 +184,8 @@ namespace PIPE_Valve_Online_Server
 
 			uint listenSocket = server.CreateListenSocket(ref address);
 
-			Console.WriteLine("Ready and listening");
+			Console.WriteLine("Ready and listening for connections..");
+			
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -308,7 +309,7 @@ namespace PIPE_Valve_Online_Server
 
 			foreach (TextureInfo s in listoffilenames)
 			{
-				if(s.Nameoftexture != "")
+				if(s.Nameoftexture != "e" && s.Nameoftexture != "" && s.Nameoftexture != " ")
                 {
 				bool found = false;
 				foreach (FileInfo file in files)

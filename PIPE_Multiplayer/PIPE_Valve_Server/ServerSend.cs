@@ -310,10 +310,10 @@ namespace PIPE_Valve_Online_Server
                     byte[] bytesofimage = tex.bytes;
                     int sizeofbytes = bytesofimage.Length;
                     int currentpos = 0;
-                    int n = sizeofbytes / 3000;
+                    int n = sizeofbytes / 10;
                     int a = (n / 10) * 10;
                     int b = a + 10;
-                    int divider = (n - a > b - n) ? b : a;
+                    int divider = 10;
 
 
                     for (int i = 0; i < divider; i++)
