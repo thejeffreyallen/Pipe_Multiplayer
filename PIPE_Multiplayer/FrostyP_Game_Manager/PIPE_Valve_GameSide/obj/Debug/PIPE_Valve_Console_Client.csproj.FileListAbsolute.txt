@@ -1,0 +1,354 @@
+G:\PIPE_Valve_Console_Client\bin\Debug\PIPE_Valve_Console_Client.pdb
+G:\PIPE_Valve_Console_Client\obj\Debug\PIPE_Valve_Console_Client.csprojAssemblyReference.cache
+G:\PIPE_Valve_Console_Client\obj\Debug\PIPE_Valve_Console_Client.csproj.CoreCompileInputs.cache
+G:\PIPE_Valve_Console_Client\obj\Debug\PIPE_Valve_Console_Client.csproj.CopyComplete
+G:\PIPE_Valve_Console_Client\obj\Debug\PIPE_Valve_Console_Client.pdb
+G:\PIPE_Valve_Console_Client\bin\Debug\PIPE_Valve_Console_Client.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\Assembly-CSharp-firstpass.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\Assembly-CSharp.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\com.unity.postprocessing.Runtime.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AssetBundleModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.CoreModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.IMGUIModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.PhysicsModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UI.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestTextureModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AnimationModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AudioModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestWWWModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.Networking.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.VehiclesModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\EasyRoads3Dv3.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ParticleSystemModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TerrainModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TextRenderingModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.Physics2DModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ClothModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UIModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.VRModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TerrainPhysicsModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.StyleSheetsModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UNETModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ARModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AccessibilityModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AIModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ClusterInputModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ClusterRendererModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.CrashReportingModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.DirectorModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.GameCenterModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.GridModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ImageConversionModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.InputModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.JSONSerializeModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ParticlesLegacyModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.PerformanceReportingModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ScreenCaptureModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.SharedInternalsModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.SpriteMaskModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.SpriteShapeModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TilemapModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UIElementsModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityAnalyticsModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityConnectModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestAudioModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.VideoModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.WebModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.WindModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.XRModule.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AssetBundleModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.CoreModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.IMGUIModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.PhysicsModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestTextureModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AnimationModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AudioModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestWWWModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.VehiclesModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ParticleSystemModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TerrainModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TextRenderingModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.Physics2DModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ClothModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UIModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.VRModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TerrainPhysicsModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.StyleSheetsModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UNETModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ARModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AccessibilityModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.AIModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ClusterInputModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ClusterRendererModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.CrashReportingModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.DirectorModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.GameCenterModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.GridModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ImageConversionModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.InputModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.JSONSerializeModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ParticlesLegacyModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.PerformanceReportingModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.ScreenCaptureModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.SharedInternalsModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.SpriteMaskModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.SpriteShapeModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.TilemapModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UIElementsModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityAnalyticsModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityConnectModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.UnityWebRequestAudioModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.VideoModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.WebModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.WindModule.xml
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityEngine.XRModule.xml
+G:\PIPE_Valve_Console_Client\obj\Debug\PIPE_Valve_Console_Client.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\0Harmony-1.2.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\0Harmony12.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityModManager.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\dnlib.dll
+G:\PIPE_Valve_Console_Client\bin\Debug\UnityModManager.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.dll.config
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\0Harmony-1.2.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\0Harmony12.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\Assembly-CSharp-firstpass.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\Assembly-CSharp.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\com.unity.postprocessing.Runtime.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AnimationModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AssetBundleModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AudioModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CoreModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.IMGUIModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PhysicsModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UI.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestTextureModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityModManager.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestWWWModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.Networking.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VehiclesModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\EasyRoads3Dv3.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticleSystemModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TextRenderingModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.Physics2DModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClothModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VRModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainPhysicsModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.StyleSheetsModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UNETModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ARModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AccessibilityModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AIModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterInputModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterRendererModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CrashReportingModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.DirectorModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GameCenterModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GridModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ImageConversionModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.InputModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.JSONSerializeModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticlesLegacyModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PerformanceReportingModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ScreenCaptureModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SharedInternalsModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteMaskModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteShapeModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TilemapModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIElementsModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityAnalyticsModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityConnectModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAudioModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VideoModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WebModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WindModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.XRModule.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\dnlib.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AnimationModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AssetBundleModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AudioModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CoreModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.IMGUIModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PhysicsModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestTextureModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityModManager.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestWWWModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VehiclesModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticleSystemModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TextRenderingModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.Physics2DModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClothModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VRModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainPhysicsModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.StyleSheetsModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UNETModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ARModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AccessibilityModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AIModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterInputModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterRendererModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CrashReportingModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.DirectorModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GameCenterModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GridModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ImageConversionModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.InputModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.JSONSerializeModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticlesLegacyModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PerformanceReportingModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ScreenCaptureModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SharedInternalsModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteMaskModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteShapeModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TilemapModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIElementsModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityAnalyticsModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityConnectModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAudioModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VideoModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WebModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WindModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\UnityEngine.XRModule.xml
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CoreCompileInputs.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CopyComplete
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csprojAssemblyReference.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\FrostyP_Game_Manager.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_GameSide\bin\Debug\FrostyP_Game_Manager.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.dll.config
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.pdb
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\0Harmony-1.2.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\0Harmony12.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\Assembly-CSharp-firstpass.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\Assembly-CSharp.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\com.unity.postprocessing.Runtime.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\FrostyP_Game_Manager.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AnimationModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AssetBundleModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AudioModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CoreModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ImageConversionModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.IMGUIModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PhysicsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TextRenderingModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UI.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestTextureModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityModManager.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestWWWModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.Networking.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VehiclesModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\EasyRoads3Dv3.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticleSystemModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.Physics2DModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClothModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VRModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainPhysicsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.StyleSheetsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UNETModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ARModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AccessibilityModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AIModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterInputModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterRendererModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CrashReportingModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.DirectorModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GameCenterModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GridModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.InputModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.JSONSerializeModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticlesLegacyModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PerformanceReportingModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ScreenCaptureModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SharedInternalsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteMaskModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteShapeModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TilemapModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIElementsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityAnalyticsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityConnectModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAudioModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VideoModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WebModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WindModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.XRModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\dnlib.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\FrostyP_Game_Manager.pdb
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AnimationModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AssetBundleModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AudioModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CoreModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ImageConversionModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.IMGUIModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PhysicsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TextRenderingModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestTextureModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityModManager.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestWWWModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VehiclesModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticleSystemModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.Physics2DModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClothModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VRModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TerrainPhysicsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.StyleSheetsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UNETModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ARModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AccessibilityModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.AIModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterInputModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ClusterRendererModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.CrashReportingModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.DirectorModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GameCenterModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.GridModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.InputModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.JSONSerializeModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ParticlesLegacyModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.PerformanceReportingModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.ScreenCaptureModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SharedInternalsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteMaskModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.SpriteShapeModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.TilemapModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UIElementsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityAnalyticsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityConnectModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.UnityWebRequestAudioModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.VideoModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WebModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.WindModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Debug\UnityEngine.XRModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csprojAssemblyReference.cache
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CoreCompileInputs.cache
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CopyComplete
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.pdb
