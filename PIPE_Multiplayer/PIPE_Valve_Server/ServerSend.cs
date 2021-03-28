@@ -32,6 +32,12 @@ namespace PIPE_Valve_Online_Server
         }
         private static void SendToAll(uint Exceptthis, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
+
+
+            for (int i = 0; i < Server.Players.Count; i++)
+            {
+
+            }
             try
             {
             foreach (Player client in Server.Players.Values)
@@ -128,7 +134,7 @@ namespace PIPE_Valve_Online_Server
                 {
                     _packet.Write(s);
                 }
-                SendtoOne(Clientid, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                //SendtoOne(Clientid, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }
@@ -185,8 +191,14 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_player.Loadout.TireTexName);
                 _packet.Write(_player.Loadout.TireNormalName);
 
-
+                try
+                {
                 Server.server.SendMessageToConnection(_toClient, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine("Failed To Send Setup Command");
+                }
             }
         }
 
@@ -220,8 +232,14 @@ namespace PIPE_Valve_Online_Server
                 }
 
 
-
+                try
+                {
                 SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine("Failed transform relay, player left?");
+                }
 
 
 
@@ -239,11 +257,18 @@ namespace PIPE_Valve_Online_Server
         /// <param name="ClientThatDisconnected"></param>
         public static void DisconnectTellAll(uint ClientThatDisconnected)
         {
+            Server.Players.Remove(ClientThatDisconnected);
             using (Packet _packet = new Packet((int)ServerPacket.DisconnectedPlayer))
             {
                 _packet.Write(ClientThatDisconnected);
-
+                try
+                {
                 SendToAll(ClientThatDisconnected, _packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
+                }
+                catch (Exception X)
+                {
+                    Console.WriteLine("Failed Disconnect tell all, player just left?");
+                }
             }
         }
 
@@ -257,7 +282,14 @@ namespace PIPE_Valve_Online_Server
             {
                 _packet.Write(_from);
                 _packet.Write(lastupdate);
+                try
+                {
            SendToAll(_packet.ToArray(),Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Reliable);
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine("Failed Audio relay, player left?");
+                }
             }
             
         }
@@ -268,6 +300,8 @@ namespace PIPE_Valve_Online_Server
 
         public static void SendTextMessageToAll(uint _fromplayer, string _message)
         {
+            try
+            {
             using (Packet _packet = new Packet((int)ServerPacket.SendText))
             {
                 _packet.Write(_fromplayer);
@@ -282,6 +316,12 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_message);
                 _packet.Write(2);
                 SendtoOne(_fromplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine("Failed send tex to all, player left?");
             }
 
         }
@@ -335,8 +375,8 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(tex.Texname);
                             _packet.Write(segment);
 
-                            SendtoOne(_toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                            Console.WriteLine($"Sending {n} to {_toplayer}: Packet {i} of {divider}");
+                            //SendtoOne(_toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                           // Console.WriteLine($"Sending {n} to {_toplayer}: Packet {i} of {divider}");
                         }
                     }
 
@@ -354,13 +394,27 @@ namespace PIPE_Valve_Online_Server
 
         public static void SendQuickBikeUpdate(uint __toplayer, Packet _packet)
         {
-            SendtoOne(__toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            try
+            {
+            SendToAll(__toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine("Quick bike update error : " + x);
+            }
         }
 
 
         public static void SendQuickRiderUpdate(uint _toplayer, Packet _packet)
         {
-            
+            try
+            {
+                SendToAll(_toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine("Quick bike update error : " + x);
+            }
         }
 
         #endregion

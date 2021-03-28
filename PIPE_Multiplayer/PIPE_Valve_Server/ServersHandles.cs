@@ -72,9 +72,6 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-
-
-
         public static void BikeDataReceive(uint _from, Packet _packet)
         {
             Console.Write("Receiving Inital Bike Data..");
@@ -199,7 +196,8 @@ namespace PIPE_Valve_Online_Server
                     packet.Write(t.NameofparentGameObject);
                 }
 
-
+                try
+                {
                 foreach (Player p in Server.Players.Values)
                 {
                     //store
@@ -218,9 +216,14 @@ namespace PIPE_Valve_Online_Server
 
                    }
                 }
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine("Quick bike error: player: " + _from);
+                }
 
             }
-            Console.WriteLine("Quick Bike Update stored and relayed");
+            Console.WriteLine("Quick Bike Update stored and relayed, player: " + _from);
         }
 
 
@@ -245,8 +248,9 @@ namespace PIPE_Valve_Online_Server
                     packet.Write(v.Nameoftexture);
                     packet.Write(v.NameofparentGameObject);
                 }
-                
 
+                try
+                {
                 foreach (Player p in Server.Players.Values)
                 {
                     //store
@@ -257,9 +261,14 @@ namespace PIPE_Valve_Online_Server
                     // send to all
                     if (p.clientID != _from)
                     {
-                        ServerSend.SendQuickBikeUpdate(p.clientID, packet);
+                        ServerSend.SendQuickRiderUpdate(p.clientID, packet);
                     }
 
+                }
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine("Quick Rider error, player: " + _from);
                 }
 
             }
@@ -293,8 +302,9 @@ namespace PIPE_Valve_Online_Server
 
             }
 
-
-            // If Player is active checker, if so, update his Player info on the server
+            try
+            {
+           
             foreach(Player p in Server.Players.Values)
             {
             if (p.clientID == _from)
@@ -302,14 +312,19 @@ namespace PIPE_Valve_Online_Server
                 p.RiderPositions = _pos;
                 p.RiderRotations = _rot;
 
-                    ThreadManager.ExecuteOnMainThread(() =>
-                    {
+                    
                         ServerSend.SendATransformUpdate(_from, count, _pos, _rot);
-                    });
+                    
 
 
                 }
 
+            }
+
+            }
+            catch (Exception x)
+            {
+                Console.Write("Failed Transform relay! Player left?");
             }
         }
 
@@ -339,10 +354,18 @@ namespace PIPE_Valve_Online_Server
                 Console.WriteLine($"Received {name} texture name from {Server.Players[_fromclient].Username} ");
 
             }
+            try
+            {
             Server.Players[_fromclient].Gottexnames = true;
             // now checks the server has them
             Console.WriteLine("Checking I have them now..");
             Server.CheckForTextureFiles(Server.Players[_fromclient].RiderTextureInfoList, _fromclient);
+
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine("Failed Texture name recieve, player not found");
+            }
 
            
 
@@ -368,7 +391,7 @@ namespace PIPE_Valve_Online_Server
             string name = _pack.ReadString();
             byte[] bytes = _pack.ReadBytes(bytecount);
 
-            ServerData.SaveATexture(bytes, name,segmentscount,segmentno);
+           // ServerData.SaveATexture(bytes, name,segmentscount,segmentno);
            Console.Write($" | Received {bytecount} bytes for {name}:  segment {segmentno} of {segmentscount-1} | ");
 
         }
@@ -427,22 +450,29 @@ namespace PIPE_Valve_Online_Server
 
             }
 
-
-            // avoids the possiblilty of referencing player[_from] when it doesnt exist
-            foreach (Player p in Server.Players.Values)
+            try
             {
-                if(p.clientID == _from)
-                {
-                   // Console.WriteLine("Received audio");
-                  p.LastAudioUpdate = newbytes;
-                    p.newAudioReceived = true;
-                    ThreadManager.ExecuteOnMainThread(() =>
-                    {
-                    ServerSend.SendAudioToAllPlayers(_from,newbytes);
-                    });
 
+                foreach (Player p in Server.Players.Values)
+                {
+                    if (p.clientID == _from)
+                    {
+                        // Console.WriteLine("Received audio");
+                        p.LastAudioUpdate = newbytes;
+                        p.newAudioReceived = true;
+                        
+                            ServerSend.SendAudioToAllPlayers(_from, newbytes);
+                    
+
+                    }
                 }
             }
+            catch (Exception x)
+            {
+                Console.WriteLine("Failed audio relay, Player left?");
+            }
+            
+            // avoids the possiblilty of referencing player[_from] when it doesnt exist
 
 
 
@@ -474,7 +504,7 @@ namespace PIPE_Valve_Online_Server
 
             }
 
-            ServerSend.SendTextures(_from,names);
+           // ServerSend.SendTextures(_from,names);
 
         }
 

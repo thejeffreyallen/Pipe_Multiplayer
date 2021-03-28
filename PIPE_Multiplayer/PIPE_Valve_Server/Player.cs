@@ -77,7 +77,7 @@ namespace PIPE_Valve_Online_Server
         {
             if (Ready)
             {
-                SendTransformInfoToAll();
+                //SendTransformInfoToAll();
                 
             }
 

@@ -1,8 +1,0 @@
-Copy the folder into your PIPE_data/ folder.
-
-ive had Trickmodv2's sharedassets2.assets in PIPE_Data while testing, unsure whether you require it
-
-as this mod requires AssemblyC mods there is a conflict of which AssemblyC to use, This AssemblyC installs trickmodv2 as standard.
-
-AssemblyC Provided is good for FrostyP manager, Trickmodv2, Pipeworks PI and MI
-for alternative AssemblyC's message FrostyP

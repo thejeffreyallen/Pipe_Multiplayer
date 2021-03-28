@@ -1,9 +1,0 @@
-{
-  "Id": "PipeworksMI",
-  "DisplayName": "Pipeworks Map Importer",
-  "Author": "Mayhem & Lineryder",
-  "Version": "2.0",
-  "ManagerVersion": "0.12.3",
-  "AssemblyName": "PipeworksMapImporter.dll",
-  "EntryMethod": "PipeMapImporter.Main.Load"
-}

@@ -4,7 +4,6 @@ E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE_V
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\System.Numerics.Vectors.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\Valve.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\Valve.pdb
-E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csprojAssemblyReference.cache
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csproj.CoreCompileInputs.cache
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.exe

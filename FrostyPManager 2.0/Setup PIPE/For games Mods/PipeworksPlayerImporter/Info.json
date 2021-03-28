@@ -1,9 +1,0 @@
-{
-  "Id": "Pipeworks_PI",
-  "DisplayName": "Pipeworks Player Importer",
-  "Author": "Mayhem",
-  "Version": "0.1",
-  "ManagerVersion": "0.12.3",
-  "AssemblyName": "PipeworksPlayerImporter.dll",
-  "EntryMethod": "PIPE_Player_Importer.Main.Load"
-}

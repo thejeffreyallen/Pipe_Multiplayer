@@ -131,8 +131,8 @@ namespace PIPE_Valve_Online_Server
 
 			unsafe
 			{
-				//utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-				//utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 				//utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 			}
 
@@ -164,7 +164,7 @@ namespace PIPE_Valve_Online_Server
 						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
 
 						// should be smarter, wait for any remaining packets from client? bugs out sometimes
-						Players.Remove(info.connection);
+						
 						ServerSend.DisconnectTellAll(info.connection);
 						break;
 
@@ -276,6 +276,7 @@ namespace PIPE_Valve_Online_Server
 		/// <param name="info"></param>
 		private static void ConnectionRequest(StatusInfo info)
         {
+			
 			if(Players.Values.Count < MaxPlayers)
             {
 				foreach(string ip in ServerData.BannedIps.Values)
@@ -335,7 +336,7 @@ namespace PIPE_Valve_Online_Server
 			// if any unfound, send list of required textures back to the client
 			if (Unfound.Count > 0)
 			{
-				ServerSend.RequestTextures(_fromclient, Unfound);
+				//ServerSend.RequestTextures(_fromclient, Unfound);
 				Console.WriteLine($"Send Texture request for {Unfound.Count} items");
 			}
 			else
