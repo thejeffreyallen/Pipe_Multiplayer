@@ -31,6 +31,7 @@ namespace PIPE_Valve_Console_Client
         public bool Connected;
         public bool OfflineMenu = true;
         public bool OnlineMenu;
+        public bool Minigui;
         public string desiredport = "7777";
         public string desiredIP = "127.0.0.1";
 
@@ -312,6 +313,8 @@ namespace PIPE_Valve_Console_Client
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
+                CharacterModding.instance.LoadBmxSetup();
+                GameManager.instance.GetLevelName();
             // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
             _localplayer.GrabRiderTextures();
             BMXNetLoadout.instance.GrabTextures();
@@ -347,6 +350,25 @@ namespace PIPE_Valve_Console_Client
        public void ClientsOnlineMenu()
         {
             GUILayout.Space(10);
+            if (GUILayout.Button("Mini GUI"))
+            {
+                FrostyPGamemanager.instance.OpenMenu = false;
+                Minigui = true;
+            }
+            if (GUILayout.Button("Send Map name"))
+            {
+                try
+                {
+                GameManager.instance.GetLevelName();
+                ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
+                NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
+                }
+                catch(UnityException x)
+                {
+                    Debug.Log(x);
+                }
+            }
+            GUILayout.Space(10);
 
             Messagetosend = GUILayout.TextField(Messagetosend.ToString());
            if( GUILayout.Button("Send"))
@@ -358,6 +380,13 @@ namespace PIPE_Valve_Console_Client
 
                 }
             }
+            GUILayout.Space(20);
+            GUILayout.Label("Live Rider list:", Generalstyle);
+            foreach(RemotePlayer r in GameManager.Players.Values)
+            {
+                GUILayout.Label($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}");
+            }
+
             GUILayout.Space(20);
             GUILayout.Label("Messages:");
             
@@ -386,6 +415,14 @@ namespace PIPE_Valve_Console_Client
         }
 
 
+        void OnGUI()
+        {
+            if (Minigui)
+            {
+                MiniGUI();
+            }
+
+        }
      
         
         static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
@@ -431,13 +468,59 @@ namespace PIPE_Valve_Console_Client
         
 
 
-       
+       public void MiniGUI()
+        {
+            GUILayout.Space(50);
+            if (GUILayout.Button("return"))
+            {
+                Minigui = false;
+                OnlineMenu = true;
+                OfflineMenu = false;
+                FrostyPGamemanager.instance.OpenMenu = true;
+               
+               
+            }
+            GUILayout.Space(20);
+
+            GUILayout.Label("Live Rider list:", Generalstyle);
+            foreach (RemotePlayer r in GameManager.Players.Values)
+            {
+                GUIStyle style = new GUIStyle();
+                style.normal.textColor = Color.green;
+                style.alignment = TextAnchor.MiddleCenter;
+                style.padding = new RectOffset(10, 0, 0, 10);
+                style.fontStyle = FontStyle.Bold;
+                GUILayout.Label($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}",style);
+            }
+
+            GUILayout.Space(20);
+            GUILayout.Label("Messages:");
+
+            // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+            foreach (TextMessage mess in Messages)
+            {
+                GUIStyle style = new GUIStyle();
+                style.normal.textColor = MessageColour[mess.FromCode];
+                style.alignment = TextAnchor.MiddleCenter;
+                style.padding = new RectOffset(10, 0, 0, 10);
+                style.fontStyle = FontStyle.Bold;
+
+                GUILayout.Label(mess.Message, style);
+            }
+
+           
+
+        }
 
 
 
 
 
-
+        /// <summary>
+        /// Call IngameUI.instance.NewMessage(constants.?, new textmessage("message", messagecolour.?, 1(incoming messages from server are coded and handled in clienthandle)  ))     to display message
+        /// </summary>
+        /// <param name="_time"></param>
+        /// <param name="message"></param>
         public void NewMessage(int _time, TextMessage message)
         {
             StartCoroutine(MessageEnum(_time, message));

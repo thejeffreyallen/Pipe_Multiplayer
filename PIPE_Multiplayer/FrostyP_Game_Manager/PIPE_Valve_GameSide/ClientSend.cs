@@ -54,6 +54,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(InGameUI.instance.Username);
                     _packet.Write(InGameUI.instance._localplayer.RiderModelname);
                     _packet.Write(InGameUI.instance._localplayer.RiderModelBundleName);
+                    _packet.Write(GameManager.instance.MycurrentLevel);
 
 
                     GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
@@ -343,6 +344,18 @@ namespace PIPE_Valve_Console_Client
             }
                 SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
+        }
+
+
+        public static void SendMapName(string name)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.SendMapName))
+            {
+                _packet.Write(name);
+              
+                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
         }
 
 

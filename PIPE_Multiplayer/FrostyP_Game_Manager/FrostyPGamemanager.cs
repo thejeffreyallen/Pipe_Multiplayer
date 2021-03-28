@@ -1056,6 +1056,10 @@ namespace FrostyP_Game_Manager
 					{
 					   PIPE_Valve_Console_Client.InGameUI.instance.ClientsOnlineMenu();
 					}
+                    if (PIPE_Valve_Console_Client.InGameUI.instance.Minigui)
+                    {
+						PIPE_Valve_Console_Client.InGameUI.instance.MiniGUI();
+                    }
 
 				}
 

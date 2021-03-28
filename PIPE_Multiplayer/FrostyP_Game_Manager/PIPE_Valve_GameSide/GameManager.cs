@@ -11,6 +11,7 @@ namespace PIPE_Valve_Console_Client
         
 
         public LocalPlayer _localplayer;
+        public string MycurrentLevel = "Unknown";
         public uint MyPlayerId;
         public static Dictionary<uint, RemotePlayer> Players;
         public static Dictionary<uint, List<Vector3>> PlayersColours;
@@ -62,10 +63,20 @@ namespace PIPE_Valve_Console_Client
         }
 
 
+        public void GetLevelName()
+        {
+            try
+            {
+                MycurrentLevel = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            }
+            catch (UnityException)
+            {
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldnt grab Current Scene name", (int)MessageColour.Server, 1));
+            }
+        }
 
 
-
-        public void SpawnOnMyGame(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, List<TextureInfo> infos, List<Vector3> colours, List<float> smooths)
+        public void SpawnOnMyGame(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, List<TextureInfo> infos, List<Vector3> colours, List<float> smooths, string Currentmap)
         {
             // firstly transfer any data, ready for remote rider to pick up once created
             List<string> Unfound = new List<string>();
@@ -82,7 +93,9 @@ namespace PIPE_Valve_Console_Client
                     r.Modelbundlename = modelbundlename;
                     r.id = _id;
                     r.username = _username;
+                    r.CurrentMap = Currentmap;
                     r._texinfos = new List<TextureInfo>();
+                    DontDestroyOnLoad(New);
 
 
             /*

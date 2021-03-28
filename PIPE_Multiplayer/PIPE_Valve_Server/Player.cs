@@ -43,12 +43,13 @@ namespace PIPE_Valve_Online_Server
         /// <summary>
         /// Constructor to initiailise with Connection id and rider info, also initialises vectors for storage
         /// </summary>
-        public Player(uint connofPlayer, string _riderModel, string _username, string _ridermodelbundlename)
+        public Player(uint connofPlayer, string _riderModel, string _username, string _ridermodelbundlename, string currentlevel)
         {
             clientID = connofPlayer;
             Username = _username;
             Ridermodel = _riderModel;
             Ridermodelbundlename = _ridermodelbundlename;
+            MapName = currentlevel;
 
             RiderRotations = new Vector3[32];
             RiderPositions = new Vector3[32];

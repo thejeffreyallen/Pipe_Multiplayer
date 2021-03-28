@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.IO;
 
+using PIPE_Server_GUI;
+
 
 
 namespace PIPE_Valve_Online_Server
@@ -20,7 +22,7 @@ namespace PIPE_Valve_Online_Server
 
         private static bool isrunning = false;
 
-        
+       
         static void Main(string[] args)
         {
             int Maxplayers;
@@ -72,6 +74,7 @@ namespace PIPE_Valve_Online_Server
             isrunning = true;
         _ProcessThread.Start();
 
+
 			Server.Run(port,Maxplayers);
 
           
@@ -92,10 +95,12 @@ namespace PIPE_Valve_Online_Server
     {
         Console.WriteLine($"Main Thread running at {Constants.TicksPerSec} ticks per second");
         DateTime _nextloop = DateTime.Now;
+           
 
         while (isrunning)
         {
- 
+             
+                
 
             while (_nextloop < DateTime.Now)
             {

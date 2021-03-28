@@ -370,7 +370,9 @@ namespace PIPE_Valve_Console_Client
                 if (materialstoggle)
                 {
 					Renderer m = FrameRen;
-
+					float r = _r;
+					float g = _g;
+					float b = _b;
 					
 					GUILayout.Label("RGB");
 					_r = GUILayout.HorizontalSlider(_r, 0, 1);
@@ -383,9 +385,9 @@ namespace PIPE_Valve_Console_Client
 					m.material.SetInt("_SmoothnessTextureChannel", 0);
 					m.material.SetFloat("_Metallic", 0.27f);
 					m.material.SetFloat("_Glossiness", smoothness);
-					BMXNetLoadout.instance.FrameColour.x = _r;
-					BMXNetLoadout.instance.FrameColour.y = _g;
-					BMXNetLoadout.instance.FrameColour.z = _b;
+					BMXNetLoadout.instance.FrameColour.x = r;
+					BMXNetLoadout.instance.FrameColour.y = g;
+					BMXNetLoadout.instance.FrameColour.z = b;
 					BMXNetLoadout.instance.FrameSmooth = smoothness;
 				}
 				GUILayout.Space(20);
@@ -410,6 +412,10 @@ namespace PIPE_Valve_Console_Client
 				if (materialstoggle)
 				{
 					Renderer m = BMX_Materials["Forks Mesh"];
+					float r = _r;
+					float g = _g;
+					float b = _b;
+
 
 					GUILayout.Label("RGB");
 					_r = GUILayout.HorizontalSlider(_r, 0, 1);
@@ -422,9 +428,9 @@ namespace PIPE_Valve_Console_Client
 					m.material.SetInt("_SmoothnessTextureChannel", 0);
 					m.material.SetFloat("_Metallic", 0.27f);
 					m.material.SetFloat("_Glossiness", smoothness);
-					BMXNetLoadout.instance.ForksColour.x = _r;
-					BMXNetLoadout.instance.ForksColour.y = _g;
-					BMXNetLoadout.instance.ForksColour.z = _b;
+					BMXNetLoadout.instance.ForksColour.x = r;
+					BMXNetLoadout.instance.ForksColour.y = g;
+					BMXNetLoadout.instance.ForksColour.z = b;
 					BMXNetLoadout.instance.ForksSmooth = smoothness;
 
 				}
@@ -450,6 +456,12 @@ namespace PIPE_Valve_Console_Client
 				if (materialstoggle)
 				{
 					Renderer m = BMX_Materials["Bars Mesh"];
+					float r = _r;
+					float g = _g;
+					float b = _b;
+
+
+
 
 					GUILayout.Label("RGB");
 					_r = GUILayout.HorizontalSlider(_r, 0, 1);
@@ -462,9 +474,9 @@ namespace PIPE_Valve_Console_Client
 					m.material.SetInt("_SmoothnessTextureChannel", 0);
 					m.material.SetFloat("_Metallic", 0.2f);
 					m.material.SetFloat("_Glossiness", smoothness);
-					BMXNetLoadout.instance.BarsColour.x = _r;
-					BMXNetLoadout.instance.BarsColour.y = _g;
-					BMXNetLoadout.instance.BarsColour.z = _b;
+					BMXNetLoadout.instance.BarsColour.x = r;
+					BMXNetLoadout.instance.BarsColour.y = g;
+					BMXNetLoadout.instance.BarsColour.z = b;
 					BMXNetLoadout.instance.BarsSmooth = smoothness;
 				}
 
@@ -490,6 +502,10 @@ namespace PIPE_Valve_Console_Client
 				if (materialstoggle)
 				{
 					Renderer m = BMX_Materials["Seat Mesh"];
+					float r = _r;
+					float g = _g;
+					float b = _b;
+
 
 					GUILayout.Label("RGB");
 					_r = GUILayout.HorizontalSlider(_r, 0, 1);
@@ -502,9 +518,9 @@ namespace PIPE_Valve_Console_Client
 					m.material.SetInt("_SmoothnessTextureChannel", 0);
 					m.material.SetFloat("_Metallic", 0.27f);
 					m.material.SetFloat("_Glossiness", smoothness);
-					BMXNetLoadout.instance.SeatColour.x = _r;
-					BMXNetLoadout.instance.SeatColour.y = _g;
-					BMXNetLoadout.instance.SeatColour.z = _b;
+					BMXNetLoadout.instance.SeatColour.x = r;
+					BMXNetLoadout.instance.SeatColour.y = g;
+					BMXNetLoadout.instance.SeatColour.z = b;
 					BMXNetLoadout.instance.SeatSmooth = smoothness;
 				}
 
@@ -532,6 +548,19 @@ namespace PIPE_Valve_Console_Client
 				if (materialstoggle)
 				{
 					Renderer m = BMX_Materials["Tire Mesh Front"];
+					float r = _r;
+					float g = _g;
+					float b = _b;
+					float r2 = _r2;
+					float g2 = _g2;
+					float b2 = _b2;
+					float r3 = _r3;
+					float g3 = _g3;
+					float b3 = _b3;
+					float r4 = _r4;
+					float g4 = _g4;
+					float b4 = _b4;
+
 					//m.material.mainTexture = null;
 					GUILayout.Label("Front Tire:");
 					GUILayout.Space(5);
@@ -577,20 +606,20 @@ namespace PIPE_Valve_Console_Client
 					_m.material.SetFloat("_Metallic", 0.27f);
 					_m.material.SetFloat("_Glossiness", smoothness2);
 
-					BMXNetLoadout.instance.FTireColour.x = _r;
-					BMXNetLoadout.instance.FTireColour.y = _g;
-					BMXNetLoadout.instance.FTireColour.z = _b;
-					BMXNetLoadout.instance.FTireSideColour.x = _r2;
-					BMXNetLoadout.instance.FTireSideColour.y = _g2;
-					BMXNetLoadout.instance.FTireSideColour.z = _b2;
+					BMXNetLoadout.instance.FTireColour.x = r;
+					BMXNetLoadout.instance.FTireColour.y = g;
+					BMXNetLoadout.instance.FTireColour.z = b;
+					BMXNetLoadout.instance.FTireSideColour.x = r2;
+					BMXNetLoadout.instance.FTireSideColour.y = g2;
+					BMXNetLoadout.instance.FTireSideColour.z = b2;
 
 
-					BMXNetLoadout.instance.RTireColour.x = _r3;
-					BMXNetLoadout.instance.RTireColour.y = _g3;
-					BMXNetLoadout.instance.RTireColour.z = _b3;
-					BMXNetLoadout.instance.RTireSideColour.x = _r4;
-					BMXNetLoadout.instance.RTireSideColour.y = _g4;
-					BMXNetLoadout.instance.RTireSideColour.z = _b4;
+					BMXNetLoadout.instance.RTireColour.x = r3;
+					BMXNetLoadout.instance.RTireColour.y = g3;
+					BMXNetLoadout.instance.RTireColour.z = b3;
+					BMXNetLoadout.instance.RTireSideColour.x = r4;
+					BMXNetLoadout.instance.RTireSideColour.y = g4;
+					BMXNetLoadout.instance.RTireSideColour.z = b4;
 
 				}
 
@@ -749,6 +778,7 @@ namespace PIPE_Valve_Console_Client
 			{
 				
 				byte[] array = File.ReadAllBytes(path);
+				
 				savedTex = new Texture2D(1024, 1024);
 				savedTex.name = name;
 				ImageConversion.LoadImage(savedTex, array);
@@ -1009,17 +1039,17 @@ namespace PIPE_Valve_Console_Client
 				Directory.CreateDirectory(BmxSaveDir);
 			}
 
-			FileStream file;
+		
 
-			if (File.Exists(BmxSaveDir + "BMXSAVE.FrostyPreset"))
+			if (!File.Exists(BmxSaveDir + "BMXSAVE.FrostyPreset"))
 			{
-				file = File.OpenWrite(BmxSaveDir + "BMXSAVE.FrostyPreset");
+				File.Create(BmxSaveDir + "BMXSAVE.FrostyPreset");
 			}
-			else file = File.Create(BmxSaveDir + "BMXSAVE.FrostyPreset");
+			
 			
 			BinaryFormatter bf = new BinaryFormatter();
-			bf.Serialize(file, Data);
-			file.Close();
+			bf.Serialize(File.OpenWrite(BmxSaveDir + "BMXSAVE.FrostyPreset"), Data);
+			
 			Debug.Log("Completed Saving BMX");
 			return;
 

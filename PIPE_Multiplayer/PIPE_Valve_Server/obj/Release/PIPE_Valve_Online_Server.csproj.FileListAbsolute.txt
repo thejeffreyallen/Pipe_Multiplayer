@@ -18,3 +18,6 @@ C:\Users\sam_s\Desktop\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\R
 C:\Users\sam_s\Desktop\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csproj.CopyComplete
 C:\Users\sam_s\Desktop\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.exe
 C:\Users\sam_s\Desktop\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.dll.config
