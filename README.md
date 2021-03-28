@@ -73,6 +73,11 @@ Step 6) Enter again to go live
 
 Step 7) now in Host mode, provide clients with port you specified and External IP of your router - port you specify must be that of your port forward
 
+# NEW Auto Server
+In the Host App folder, there is a batch script that can be configured and run that will input all the info about the server, i.e. players, port, tickrate, and will start the server in 1-click. It will also restart itself automatically.
+
+There is also an aditional group of scripts in Host App/ServerBatchScripts that will start a group of servers, currently 4 are set up to auto run, but just duplicating the script will add more.
+
 # Using the Mod
 
 # in game:
