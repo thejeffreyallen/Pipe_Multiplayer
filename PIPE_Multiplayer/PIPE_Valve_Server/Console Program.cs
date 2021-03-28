@@ -23,6 +23,8 @@ namespace PIPE_Valve_Online_Server
         
         static void Main(string[] args)
         {
+            int Maxplayers;
+            int port;
 
             Console.WriteLine("PIPE ONLINE SERVER V1.0.0");
             Console.WriteLine("Powered by Valve's GamenetworkingSockets");
@@ -36,26 +38,36 @@ namespace PIPE_Valve_Online_Server
                 texinfo.Create();
             }
             Console.WriteLine("Directories good");
+            if (args.Length != 3)
+            {
+                Console.WriteLine("Please enter Max player count (1 - ~");
+                Maxplayers = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Please enter Max player count (1 - ~");
-            int Maxplayers = int.Parse(Console.ReadLine());
+                Console.WriteLine("Please enter Port to listen on");
+                port = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Please enter Port to listen on");
-            int port = int.Parse(Console.ReadLine());
+                Console.WriteLine("Set Ticks per second, 30-60 recommended");
 
-            Console.WriteLine("Set Ticks per second, 30-60 recommended");
+                Constants.TicksPerSec = int.Parse(Console.ReadLine());
 
-            Constants.TicksPerSec = int.Parse(Console.ReadLine());
-            
-            
 
-            Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
-            Console.ReadLine();
 
+                Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
+                Console.ReadLine();
+            }
+            else {
+                Maxplayers = int.Parse(args[0]);
+                port = int.Parse(args[1]);
+                Constants.TicksPerSec = int.Parse(args[2]);
+                Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
+
+
+            }
             Thread _ProcessThread = new Thread(new ThreadStart(ProcessThread))
             {
                 IsBackground = true
             };
+
             
             isrunning = true;
         _ProcessThread.Start();
