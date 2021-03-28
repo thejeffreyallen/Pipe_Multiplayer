@@ -14,7 +14,7 @@ namespace PIPE_Valve_Online_Server
         public static void Update()
         {
             // Fire every players Update function
-            foreach (Player _client in Server.Players.Values)
+            foreach (Player _client in Server.Players.Values.ToList())
             {
                 if (_client != null)
                 {

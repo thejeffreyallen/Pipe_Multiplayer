@@ -24,7 +24,7 @@ namespace PIPE_Valve_Online_Server
         }
         private static void SendToAll(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            foreach(Player client in Server.Players.Values)
+            foreach(Player client in Server.Players.Values.ToList())
             {
 
             Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
@@ -40,7 +40,7 @@ namespace PIPE_Valve_Online_Server
             }
             try
             {
-            foreach (Player client in Server.Players.Values)
+            foreach (Player client in Server.Players.Values.ToList())
             {
                 if(client.clientID != Exceptthis)
                 {
