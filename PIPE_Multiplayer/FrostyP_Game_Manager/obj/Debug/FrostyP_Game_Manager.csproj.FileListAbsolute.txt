@@ -1,0 +1,242 @@
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\FrostyP_Game_Manager.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\FrostyP_Game_Manager.pdb
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\0Harmony-1.2.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\0Harmony12.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\Assembly-CSharp-firstpass.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\Assembly-CSharp.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\Assembly-UnityScript-firstpass.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\Assembly-UnityScript.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\com.unity.postprocessing.Runtime.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AIModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.CoreModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.IMGUIModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.PhysicsModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UI.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityModManager.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AnimationModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AudioModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AssetBundleModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestWWWModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.Networking.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.VehiclesModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\EasyRoads3Dv3.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticleSystemModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TextRenderingModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.Physics2DModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClothModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\Boo.Lang.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.VRModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainPhysicsModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.StyleSheetsModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UNETModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ARModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AccessibilityModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterInputModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterRendererModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.CrashReportingModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.DirectorModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.GameCenterModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.GridModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ImageConversionModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.InputModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.JSONSerializeModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticlesLegacyModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.PerformanceReportingModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ScreenCaptureModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.SharedInternalsModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteMaskModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteShapeModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TilemapModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIElementsModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityAnalyticsModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityConnectModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAudioModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestTextureModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.VideoModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.WebModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.WindModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.XRModule.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\dnlib.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AIModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.CoreModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.IMGUIModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.PhysicsModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityModManager.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AnimationModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AudioModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AssetBundleModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestWWWModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.VehiclesModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticleSystemModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TextRenderingModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.Physics2DModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClothModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.VRModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainPhysicsModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.StyleSheetsModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UNETModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ARModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.AccessibilityModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterInputModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterRendererModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.CrashReportingModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.DirectorModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.GameCenterModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.GridModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ImageConversionModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.InputModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.JSONSerializeModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticlesLegacyModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.PerformanceReportingModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.ScreenCaptureModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.SharedInternalsModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteMaskModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteShapeModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.TilemapModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIElementsModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityAnalyticsModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityConnectModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAudioModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestTextureModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.VideoModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.WebModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.WindModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\bin\Debug\UnityEngine.XRModule.xml
+E:\FrostyP Mods\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.csprojAssemblyReference.cache
+E:\FrostyP Mods\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.csproj.CoreCompileInputs.cache
+E:\FrostyP Mods\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.csproj.CopyComplete
+E:\FrostyP Mods\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.dll
+E:\FrostyP Mods\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.pdb
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\FrostyP_Game_Manager.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\FrostyP_Game_Manager.pdb
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\0Harmony-1.2.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\0Harmony12.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\Assembly-CSharp-firstpass.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\Assembly-CSharp.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\Assembly-UnityScript-firstpass.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\Assembly-UnityScript.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\com.unity.postprocessing.Runtime.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AIModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.CoreModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.IMGUIModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.PhysicsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UI.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityModManager.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AnimationModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AudioModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AssetBundleModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestWWWModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.Networking.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.VehiclesModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\EasyRoads3Dv3.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticleSystemModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TextRenderingModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.Physics2DModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClothModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\Boo.Lang.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.VRModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainPhysicsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.StyleSheetsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UNETModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ARModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AccessibilityModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterInputModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterRendererModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.CrashReportingModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.DirectorModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.GameCenterModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.GridModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ImageConversionModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.InputModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.JSONSerializeModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticlesLegacyModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.PerformanceReportingModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ScreenCaptureModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.SharedInternalsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteMaskModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteShapeModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TilemapModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIElementsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityAnalyticsModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityConnectModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAudioModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestTextureModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.VideoModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.WebModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.WindModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.XRModule.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\dnlib.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AIModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.CoreModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.IMGUIModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.PhysicsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityModManager.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AnimationModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AudioModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AssetBundleModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestWWWModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.VehiclesModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticleSystemModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TextRenderingModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAssetBundleModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.Physics2DModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClothModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.VRModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TerrainPhysicsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.StyleSheetsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UNETModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ARModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.AccessibilityModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterInputModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ClusterRendererModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.CrashReportingModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.DirectorModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.GameCenterModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.GridModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ImageConversionModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.InputModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.JSONSerializeModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ParticlesLegacyModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.PerformanceReportingModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.ScreenCaptureModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.SharedInternalsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteMaskModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.SpriteShapeModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.TilemapModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UIElementsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityAnalyticsModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityConnectModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestAudioModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.UnityWebRequestTextureModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.VideoModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.WebModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.WindModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\UnityEngine.XRModule.xml
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.csproj.CoreCompileInputs.cache
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.csproj.CopyComplete
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.pdb
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\PIPE_Valve_Console_Client.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\Valve.dll
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\PIPE_Valve_Console_Client.pdb
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\bin\Debug\PIPE_Valve_Console_Client.dll.config
+E:\FrostyP Mods project folder\FrostyP_Game_Manager\obj\Debug\FrostyP_Game_Manager.csprojAssemblyReference.cache
