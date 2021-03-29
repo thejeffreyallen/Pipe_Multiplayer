@@ -20,14 +20,19 @@ namespace PIPE_Valve_Online_Server
         // These top three functions are used by the send functions, give connection number, bytes and specify a send mode from Valve.sockets.sendflags.
         private static void SendtoOne(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            Server.server.SendMessageToConnection(toclient, bytes,sendflag);
+            ThreadManager.ExecuteOnMainThread(() =>
+            {
+                Server.server.SendMessageToConnection(toclient, bytes, sendflag);
+            });
         }
         private static void SendToAll(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
             foreach(Player client in Server.Players.Values.ToList())
             {
-
-            Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
+                ThreadManager.ExecuteOnMainThread(() =>
+                {
+                    Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
+                });
             }
         }
         private static void SendToAll(uint Exceptthis, byte[] bytes, Valve.Sockets.SendFlags sendflag)
@@ -40,9 +45,12 @@ namespace PIPE_Valve_Online_Server
             foreach (Player client in Server.Players.Values.ToList())
             {
                 if(client.clientID != Exceptthis)
-                {
+                    {
+                        ThreadManager.ExecuteOnMainThread(() =>
+                        {
 
-                Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
+                            Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
+                        });
                 }
             }
 

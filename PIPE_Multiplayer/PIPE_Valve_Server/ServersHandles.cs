@@ -24,7 +24,17 @@ namespace PIPE_Valve_Online_Server
             string name = _pack.ReadString();
             string Ridermodel = _pack.ReadString();
             string RidermodelBundlename = _pack.ReadString();
-            string CurrentLevel = _pack.ReadString();
+            string CurrentLevel;
+            try
+            {
+            CurrentLevel = _pack.ReadString();
+            }
+            catch(Exception x)
+            {
+                Server.server.CloseConnection(_from);
+                Console.WriteLine($"Player {name} refused, old version, couldnt get map name");
+                return;
+            }
 
             Console.WriteLine($"New Client {name} with connID {_from} received welcome and called back with rider model {Ridermodel} at {CurrentLevel} level");
             Console.WriteLine("Setting up Player on server..");

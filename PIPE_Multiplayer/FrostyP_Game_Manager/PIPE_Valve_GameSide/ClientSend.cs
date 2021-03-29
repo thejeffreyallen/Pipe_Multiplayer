@@ -12,10 +12,11 @@ namespace PIPE_Valve_Console_Client
         // These top three functions are used by the send functions, give connection number, bytes and specify a send mode from Valve.sockets.sendflags.
         private static void SendToServer(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            SendToUnityThread.instance.ExecuteOnMainThread(() =>
+            SendToServerThread.ExecuteOnMainThread(() =>
             {
                 GameNetworking.instance.client.SendMessageToConnection(toclient, bytes, sendflag);
             });
+           
            
         }
        
@@ -57,7 +58,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(GameManager.instance.MycurrentLevel);
 
 
-                    GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 }
 
             GameManager.instance._localplayer.ServerActive = true;
@@ -88,8 +89,9 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(rotations[i]);
 
                     }
-
-                    GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                
+                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Unreliable);
+                
                 }
             
             
@@ -224,7 +226,7 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(update.pitch);
                         _packet.Write(update.Velocity);
                     }
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
 
                 }
 
@@ -242,7 +244,7 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(update.Path);
                         _packet.Write(update.Volume);
                     }
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
 
                 }
             }

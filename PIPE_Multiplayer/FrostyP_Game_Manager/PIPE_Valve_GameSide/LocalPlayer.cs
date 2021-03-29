@@ -108,7 +108,7 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Any info to send to server and when
         /// </summary>
-        private void FixedUpdate()
+        private void Update()
         {
             
 

@@ -126,15 +126,16 @@ namespace PIPE_Valve_Online_Server
 
 			pollGroup = server.CreatePollGroup();
 
-			int sendRateMin = 600000;
-			int sendRateMax = 15400000;
+			int sendRateMin = 900000;
+			int sendRateMax = 55400000;
 			int sendBufferSize = 509715200;
 
 			unsafe
 			{
-				//utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-				//utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
-				//utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+				
 			}
 
 			// what happens on connection state change
@@ -196,7 +197,7 @@ namespace PIPE_Valve_Online_Server
 		Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 	};
 #else
-			const int maxMessages = 250;
+			const int maxMessages = 256;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 #endif
@@ -346,6 +347,8 @@ namespace PIPE_Valve_Online_Server
 			}
 
 		}
+
+
 
 		public static List<TextureBytes> GiveTexturesFromDirectory(List<string> listoffilenames)
         {

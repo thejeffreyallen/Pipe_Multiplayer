@@ -13,14 +13,7 @@ namespace PIPE_Valve_Online_Server
         /// </summary>
         public static void Update()
         {
-            // Fire every players Update function
-            foreach (Player _client in Server.Players.Values.ToList())
-            {
-                if (_client != null)
-                {
-                    _client.Update();
-                }
-            }
+            
 
             // run any actions added by other threads, listen socket automatically adds incoming messages to be
             // processed at tick rate

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj": {}
+    "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\FrostyP_Game_Manager\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj": {}
   },
   "projects": {
-    "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj": {
+    "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\FrostyP_Game_Manager\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj",
+        "projectUniqueName": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\FrostyP_Game_Manager\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj",
         "projectName": "PIPE_Valve_Console_Client",
-        "projectPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj",
+        "projectPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\FrostyP_Game_Manager\\PIPE_Valve_GameSide\\PIPE_Valve_Console_Client.csproj",
         "packagesPath": "C:\\Users\\tom\\.nuget\\packages\\",
-        "outputPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_GameSide\\obj\\",
+        "outputPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\FrostyP_Game_Manager\\PIPE_Valve_GameSide\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
         "configFilePaths": [

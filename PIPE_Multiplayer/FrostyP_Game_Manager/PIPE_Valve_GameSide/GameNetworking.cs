@@ -6,7 +6,7 @@ using System.Text;
 using Valve.Sockets;
 using System.Threading;
 using System.Net;
-using UnityEngine;
+//using UnityEngine;
 
 
 
@@ -81,7 +81,7 @@ namespace PIPE_Valve_Console_Client
 			}
 			else if (instance != this)
 			{
-				Debug.Log("Instance already exists, destroying object!");
+				//Debug.Log("Instance already exists, destroying object!");
 				
 			}
 
@@ -89,7 +89,7 @@ namespace PIPE_Valve_Console_Client
 			
 
 
-			Debug.Log("Initialising GameNetworking..");
+			//Debug.Log("Initialising GameNetworking..");
 
 			// list of functions linking to incoming int codes
 			packetHandlers = new Dictionary<int, PacketHandler>()
@@ -114,7 +114,7 @@ namespace PIPE_Valve_Console_Client
 
 
 			
-			Debug.Log("GameNetworking Startup Complete");
+			//Debug.Log("GameNetworking Startup Complete");
 
         }
 
@@ -128,7 +128,7 @@ namespace PIPE_Valve_Console_Client
 		public void Run()
         {
 			client.RunCallbacks();
-
+			GC.KeepAlive(status);
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
 				{
@@ -154,7 +154,7 @@ namespace PIPE_Valve_Console_Client
 			};
 
 
-			
+
 
 #if VALVESOCKETS_SPAN
 	MessageCallback message = (in NetworkingMessage netMessage) => {
@@ -168,12 +168,10 @@ namespace PIPE_Valve_Console_Client
 #if VALVESOCKETS_SPAN
 		client.ReceiveMessagesOnConnection(connection, message, 20);
 #else
+			netMessages = new NetworkingMessage[maxMessages];
 
-
-			SendToUnityThread.instance.ExecuteOnMainThread(() =>
-				{
-			    // Do incoming on Unity thread
-				int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
+			// Do incoming on Server thread, send to unity
+			int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
 
 
 			    // if theres messages, send Back to Unity Thread for processing, neccessary for anything that uses Untiy API even debug.log for some reason, maybe because its outside assemblyC
@@ -181,7 +179,7 @@ namespace PIPE_Valve_Console_Client
 				{
 
 					
-				for (int i = 0; i < netMessagesCount; i++)
+				    for (int i = 0; i < netMessagesCount; i++)
 					{
 						ref NetworkingMessage netMessage = ref netMessages[i];
 
@@ -190,6 +188,8 @@ namespace PIPE_Valve_Console_Client
 						netMessage.CopyTo(bytes);
 
 					
+			      SendToUnityThread.instance.ExecuteOnMainThread(() =>
+				  {
 						using (Packet _packet = new Packet(bytes))
 						{
 							int _packetId = _packet.ReadInt();
@@ -198,6 +198,7 @@ namespace PIPE_Valve_Console_Client
 						}
 
 					
+				  });
 
 
 						//Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
@@ -209,7 +210,6 @@ namespace PIPE_Valve_Console_Client
 				
 
 				}
-				});
 
 			
 
@@ -233,23 +233,23 @@ namespace PIPE_Valve_Console_Client
 			Library.Initialize();
 			utils = new NetworkingUtils();
 			client = new NetworkingSockets();
-			netMessages = new NetworkingMessage[maxMessages];
+			
+				utils.SetStatusCallback(status);
+				
 
-			utils.SetStatusCallback(status);
-
-			Address address = new Address();
+				Address address = new Address();
 			address.SetAddress(ip,(ushort)port);
 			connection = client.Connect(ref address);
-			int sendRateMin = 600000;
-			int sendRateMax = 25400000;
-			int sendBufferSize = 409715200;
+			int sendRateMin = 400000;
+			int sendRateMax = 55400000;
+			int sendBufferSize = 209715200;
 			
 
 			unsafe
 			{
 				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
 				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
-				//utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 			}
@@ -284,7 +284,7 @@ namespace PIPE_Valve_Console_Client
             }
 			catch(Exception x)
             {
-				Debug.Log("Error on Connect click : " + x);
+				//Debug.Log("Error on Connect click : " + x);
             }
 			
 		}
