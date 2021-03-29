@@ -317,7 +317,7 @@ namespace PIPE_Valve_Console_Client
                // CharacterModding.instance.LoadBmxSetup();
                 GameManager.instance.GetLevelName();
             // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
-            _localplayer.GrabRiderTextures();
+             _localplayer.GrabRiderTextures();
            // BMXNetLoadout.instance.GrabTextures();
                 ConnectToServer();
                 OnlineMenu = true;

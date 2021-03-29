@@ -250,7 +250,7 @@ namespace PIPE_Valve_Console_Client
            
             // no need to read packet, the opcode is enough to know the server wants names
            // InGameUI.instance.Messages.Add("Server Requesting Textures");
-            ClientSend.SendDaryienTexNames();
+           // ClientSend.SendDaryienTexNames();
             InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Custom textures detected on daryien, checking server has them..", (int)MessageColour.System, 0));
 
         }
