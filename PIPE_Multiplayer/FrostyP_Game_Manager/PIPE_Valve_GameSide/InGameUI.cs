@@ -48,8 +48,6 @@ namespace PIPE_Valve_Console_Client
         Texture2D whiteTex;
         Texture2D TransTex;
 
-        
-
 
         /// <summary>
         /// just checks that theres only one instance and this is it
@@ -71,10 +69,8 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Grabs anything that wont change
         /// </summary>
-        public void Start()
+        private void Start()
         {
-            
-
             RedTex = new Texture2D(Screen.width / 6, Screen.height / 4); ;
             Color[] colorarray = RedTex.GetPixels();
             Color newcolor = new Color(0.5f, 0, 0, 1);
