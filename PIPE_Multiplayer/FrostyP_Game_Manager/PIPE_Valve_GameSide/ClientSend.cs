@@ -12,10 +12,10 @@ namespace PIPE_Valve_Console_Client
         // These top three functions are used by the send functions, give connection number, bytes and specify a send mode from Valve.sockets.sendflags.
         private static void SendToServer(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            SendToServerThread.ExecuteOnMainThread(() =>
-            {
+           // SendToServerThread.ExecuteOnMainThread(() =>
+           // {
                 GameNetworking.instance.client.SendMessageToConnection(toclient, bytes, sendflag);
-            });
+           // });
            
            
         }
