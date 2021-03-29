@@ -24,10 +24,11 @@ namespace PIPE_Valve_Online_Server
             string name = _pack.ReadString();
             string Ridermodel = _pack.ReadString();
             string RidermodelBundlename = _pack.ReadString();
+            string CurrentLevel = _pack.ReadString();
 
-            Console.WriteLine($"New Client {name} with connID {_from} received welcome and called back with rider model {Ridermodel}");
+            Console.WriteLine($"New Client {name} with connID {_from} received welcome and called back with rider model {Ridermodel} at {CurrentLevel} level");
             Console.WriteLine("Setting up Player on server..");
-            Player p = new Player(_from, Ridermodel, name, RidermodelBundlename);
+            Player p = new Player(_from, Ridermodel, name, RidermodelBundlename,CurrentLevel);
             Server.Players.Add(_from, p);
 
 
@@ -42,14 +43,14 @@ namespace PIPE_Valve_Online_Server
 
             ServerSend.RequestBike(_from);
 
-            // Start setup for every player but this one
+            // Start setup for every player but this one --------------------    
             foreach (Player c in Server.Players.Values.ToList())
             {
 
                 if (c.clientID != _from)
                 {
                     Console.WriteLine($"Sending Setup command for {_from} to {c.clientID}");
-                    ServerSend.SetupPlayer(c.clientID, Server.Players[_from]);
+                    ServerSend.SetupNewPlayer(c.clientID, Server.Players[_from]);
 
                 }
 
@@ -57,15 +58,12 @@ namespace PIPE_Valve_Online_Server
             }
 
 
-            // Start setup for every player online
-            foreach (Player _client in Server.Players.Values.ToList())
-            {
-                if (_client != null && _client.clientID != _from)
-                {
-                    Console.WriteLine($"Sending Setup info back to {name} player about active player: {_client.Username}");
-                    ServerSend.SetupPlayer(_from, _client);
 
-                }
+            if (Server.Players.Count > 1)
+            {
+                    Console.WriteLine($"Sending Setup info back to {name} player about {Server.Players.Count} players");
+                    ServerSend.SetupAllOnlinePlayers(_from, Server.Players.Values.ToList());
+
             }
            
 
@@ -98,6 +96,7 @@ namespace PIPE_Valve_Online_Server
          
 
             Server.Players[_from].GotBikeData = true;
+            Console.WriteLine("Bike Data Sound");
 
             /*
             using (Packet packet = new Packet((int)ServerPacket.send))
@@ -207,20 +206,20 @@ namespace PIPE_Valve_Online_Server
                         p.Loadout.Colours = vecs;
                         p.Loadout.Smooths = floats;
                     }
-
-                    // send
-                    if (p.clientID != _from)
-                   {
-                        ServerSend.SendQuickBikeUpdate(p.clientID, packet);
-
-
-                   }
                 }
+
+                    // send to all but me
+                        ServerSend.SendQuickBikeUpdate(_from, packet);
+
                 }
                 catch (Exception x)
                 {
                     Console.WriteLine("Quick bike error: player: " + _from);
                 }
+
+
+
+
 
             }
             Console.WriteLine("Quick Bike Update stored and relayed, player: " + _from);
@@ -258,18 +257,23 @@ namespace PIPE_Valve_Online_Server
                     {
                         p.Loadout.TexInfos = infos;
                     }
-                    // send to all
-                    if (p.clientID != _from)
-                    {
-                        ServerSend.SendQuickRiderUpdate(p.clientID, packet);
-                    }
+                   
+                    
+                    
 
                 }
+
+                        ServerSend.SendQuickRiderUpdate(_from, packet);
+
                 }
                 catch (Exception x)
                 {
                     Console.WriteLine("Quick Rider error, player: " + _from);
                 }
+
+
+
+
 
             }
             Console.WriteLine("Quick Rider Update received, stored and relayed to all");
@@ -505,6 +509,27 @@ namespace PIPE_Valve_Online_Server
             }
 
            // ServerSend.SendTextures(_from,names);
+
+        }
+
+
+
+
+        public static void ReceiveMapname(uint _from, Packet _packet)
+        {
+            string name = _packet.ReadString();
+            Server.Players[_from].MapName = name;
+
+            try
+            {
+                ServerSend.SendMapName(_from,name);
+                Console.WriteLine($"Map name Sync for {_from}");
+            }
+            catch(Exception x)
+            {
+                Console.WriteLine($"Map name sync issue, player: {_from}");
+            }
+
 
         }
 

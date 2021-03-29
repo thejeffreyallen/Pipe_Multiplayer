@@ -52,10 +52,6 @@
     <Reference Include="com.unity.postprocessing.Runtime">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\com.unity.postprocessing.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="PIPE_Valve_Console_Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>PIPE_Valve_GameSide\bin\Debug\PIPE_Valve_Console_Client.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -104,6 +100,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveLoadFrostyPManagersettings.cs" />
     <Compile Include="ParkSaver.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="PIPE_Valve_GameSide\PIPE_Valve_Console_Client.csproj">
+      <Project>{74ae80a9-46d3-4e58-a8e2-e4903ace307b}</Project>
+      <Name>PIPE_Valve_Console_Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

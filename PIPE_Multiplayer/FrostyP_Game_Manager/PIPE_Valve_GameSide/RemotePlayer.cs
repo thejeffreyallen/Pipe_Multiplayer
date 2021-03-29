@@ -15,6 +15,7 @@ namespace PIPE_Valve_Console_Client
         public string username;
         public string CurrentModelName;
         public string Modelbundlename;
+        public string CurrentMap = "Unknown";
         public List<TextureInfo> _texinfos;
 
 
@@ -112,7 +113,8 @@ namespace PIPE_Valve_Console_Client
             RiderModel = DecideRider(CurrentModelName);
             
             BMX = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
-            
+            DontDestroyOnLoad(BMX);
+            DontDestroyOnLoad(RiderModel);
 
             FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
             ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();

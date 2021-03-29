@@ -93,6 +93,7 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.RequestforTex,ServersHandles.RequestforTex },
 				{ (int)ClientPackets.ReceiveQuickBikeUpdate,ServersHandles.BikeDataQuickUpdate },
 				{ (int)ClientPackets.ReceiveQuickRiderUpdate,ServersHandles.RiderQuickUpdate },
+				{ (int)ClientPackets.ReceiveMapname,ServersHandles.ReceiveMapname},
 
 			};
 
@@ -131,8 +132,8 @@ namespace PIPE_Valve_Online_Server
 
 			unsafe
 			{
-				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				//utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				//utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 				//utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 			}
 

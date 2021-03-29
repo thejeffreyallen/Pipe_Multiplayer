@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sam_s\\Desktop\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj": {}
+    "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sam_s\\Desktop\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj": {
+    "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sam_s\\Desktop\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj",
+        "projectUniqueName": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj",
         "projectName": "PIPE_Valve_Online_Server",
-        "projectPath": "C:\\Users\\sam_s\\Desktop\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj",
-        "packagesPath": "C:\\Users\\sam_s\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sam_s\\Desktop\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\obj\\",
+        "projectPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj",
+        "packagesPath": "C:\\Users\\tom\\.nuget\\packages\\",
+        "outputPath": "E:\\GITHUB\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
         "configFilePaths": [
-          "C:\\Users\\sam_s\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tom\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

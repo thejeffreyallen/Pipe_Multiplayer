@@ -106,6 +106,8 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.RequestformyBike, ClientHandle.RequestforMyBike},
 				{ (int)ServerPacket.BikeQuickUpdate, ClientHandle.BikeQuickupdate},
 				{ (int)ServerPacket.RiderQuickUpdate, ClientHandle.RiderQuickupdate},
+				{ (int)ServerPacket.ReceiveSetupAllOnlinePlayers, ClientHandle.SetupAllOnlinePlayers},
+				{ (int)ServerPacket.ReceiveMapName, ClientHandle.ReceiveMapname},
 
 
 			};
@@ -136,7 +138,7 @@ namespace PIPE_Valve_Console_Client
 					case ConnectionState.Connected:
 						SendToUnityThread.instance.ExecuteOnMainThread(() =>
 						{
-							Debug.Log("connected to server - ID: " + connection);
+							InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Connected To Server", (int)MessageColour.System, 1));
 						});
 						break;
 
@@ -145,7 +147,7 @@ namespace PIPE_Valve_Console_Client
 						client.CloseConnection(connection);
 						SendToUnityThread.instance.ExecuteOnMainThread(() =>
 						{
-							Debug.Log("Disconnected from Server - ID: " + connection);
+							InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Disconnected from Server", (int)MessageColour.System, 1));
 						});
 						break;
 				}

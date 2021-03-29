@@ -24,6 +24,8 @@ namespace PIPE_Valve_Console_Client
         RequestformyBike,
         BikeQuickUpdate,
         RiderQuickUpdate,
+        ReceiveSetupAllOnlinePlayers,
+        ReceiveMapName,
 
 
 
@@ -45,6 +47,7 @@ namespace PIPE_Valve_Console_Client
         RequestforTex,
         QuickBikeUpdate,
         QuickRiderUpdate,
+        SendMapName,
 
 
     }

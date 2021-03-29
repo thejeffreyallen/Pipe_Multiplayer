@@ -34,10 +34,7 @@ namespace PIPE_Valve_Online_Server
         {
 
 
-            for (int i = 0; i < Server.Players.Count; i++)
-            {
-
-            }
+          
             try
             {
             foreach (Player client in Server.Players.Values.ToList())
@@ -52,7 +49,7 @@ namespace PIPE_Valve_Online_Server
             }
             catch (Exception x)
             {
-                Console.WriteLine("Interupted while Sending to all");
+                Console.WriteLine("Interupted while Sending to all" + x);
             }
 
         }
@@ -145,12 +142,14 @@ namespace PIPE_Valve_Online_Server
 
 
         /// <summary>
-        /// Fires once enough info has been obtained about player, sends command to a player to instantiate new player
+        /// Fires when an new player joins,sending them to everyone
         /// </summary>
         /// <param name="_toClient"></param>
         /// <param name="_player"></param>
-        public static void SetupPlayer(uint _toClient, Player _player)
+        public static void SetupNewPlayer(uint _toClient, Player _player)
         {
+           
+
             using (Packet _packet = new Packet((int)ServerPacket.SetupAPlayer))
             {
                 _packet.Write(_player.clientID);
@@ -159,8 +158,9 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_player.RiderRotations[0]);
                 _packet.Write(_player.Ridermodel);
                 _packet.Write(_player.Ridermodelbundlename);
+                _packet.Write(_player.MapName);
 
-                if(_player.Ridermodel == "Daryien")
+                if (_player.Ridermodel == "Daryien")
                 {
                 _packet.Write(_player.RiderTextureInfoList.Count);
                 foreach(TextureInfo t in _player.RiderTextureInfoList)
@@ -193,7 +193,7 @@ namespace PIPE_Valve_Online_Server
 
                 try
                 {
-                Server.server.SendMessageToConnection(_toClient, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                Server.server.SendMessageToConnection(_toClient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
                 }
                 catch (Exception x)
                 {
@@ -203,6 +203,99 @@ namespace PIPE_Valve_Online_Server
         }
 
 
+        /// <summary>
+        /// Fires when a new player joins, sending everyone back to them in packs of 5 to ease the potential load of many players
+        /// </summary>
+        /// <param name="_toclient"></param>
+        /// <param name="_players"></param>
+        public static void SetupAllOnlinePlayers(uint _toclient, List<Player> _players)
+        {
+            List<Player> listof5 = new List<Player>();
+            
+            for (int i = 0; i < _players.Count; i++)
+            {
+                if(_players[i].clientID != _toclient)
+                {
+                listof5.Add(_players[i]);
+
+                }
+
+
+                if (listof5.Count == 5 | i == _players.Count - 1)
+                {
+                    Console.WriteLine($"Sending {listof5.Count} players out of {_players.Count} in bundle");
+                    using (Packet _packet = new Packet((int)ServerPacket.SetupAllOnlinePlayers))
+                    {
+                        // amount of players in this bundle, for the last bundle or if less than 5 are on
+                        _packet.Write(listof5.Count);
+                        foreach (Player _player in listof5.ToList())
+                        {
+                            _packet.Write(_player.clientID);
+                            _packet.Write(_player.Username);
+                            _packet.Write(_player.RiderPositions[0]);
+                            _packet.Write(_player.RiderRotations[0]);
+                            _packet.Write(_player.Ridermodel);
+                            _packet.Write(_player.Ridermodelbundlename);
+                            _packet.Write(_player.MapName);
+
+                            if (_player.Ridermodel == "Daryien")
+                            {
+                                _packet.Write(_player.RiderTextureInfoList.Count);
+                                foreach (TextureInfo t in _player.RiderTextureInfoList)
+                                {
+                                    _packet.Write(t.Nameoftexture);
+                                    _packet.Write(t.NameofparentGameObject);
+                                }
+
+                            }
+
+
+                            _packet.Write(_player.Loadout.FrameColour);
+                            _packet.Write(_player.Loadout.ForksColour);
+                            _packet.Write(_player.Loadout.BarsColour);
+                            _packet.Write(_player.Loadout.SeatColour);
+                            _packet.Write(_player.Loadout.FTireColour);
+                            _packet.Write(_player.Loadout.RTireColour);
+                            _packet.Write(_player.Loadout.FTireSideColour);
+                            _packet.Write(_player.Loadout.RTireSideColour);
+                            _packet.Write(_player.Loadout.FrameSmooth);
+                            _packet.Write(_player.Loadout.ForksSmooth);
+                            _packet.Write(_player.Loadout.SeatSmooth);
+                            _packet.Write(_player.Loadout.BarsSmooth);
+                            _packet.Write(_player.Loadout.FrameTexname);
+                            _packet.Write(_player.Loadout.ForkTexname);
+                            _packet.Write(_player.Loadout.BarTexName);
+                            _packet.Write(_player.Loadout.SeatTexname);
+                            _packet.Write(_player.Loadout.TireTexName);
+                            _packet.Write(_player.Loadout.TireNormalName);
+
+                        }
+
+                    try
+                    {
+                       Server.server.SendMessageToConnection(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
+                            listof5.Clear();
+                            Console.WriteLine("Player bundle sent");
+                    }
+                    catch (Exception x)
+                    {
+                        Console.WriteLine($"Failed To Send Player bundle: Players: {listof5.Count} in list, total to send: {_players}");
+
+                    }
+                    }
+
+                
+                }
+
+
+
+            }
+
+
+
+
+
+        }
 
 
 
@@ -413,9 +506,24 @@ namespace PIPE_Valve_Online_Server
             }
             catch (Exception x)
             {
-                Console.WriteLine("Quick bike update error : " + x);
+                Console.WriteLine("Quick Rider update error : " + x);
             }
         }
+
+
+
+        public static void SendMapName(uint _from,string name)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.SendMapName))
+            {
+                _packet.Write(name);
+                _packet.Write(_from);
+                SendToAll(_from, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+        }
+
+
 
         #endregion
 

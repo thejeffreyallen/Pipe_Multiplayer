@@ -57,37 +57,6 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-            FrameColour = new Vector3(0, 0, 0);
-        FrameSmooth = 0;
-        FrameTex = new byte[0];
-
-        ForksColour = new Vector3(0, 0, 0);
-        ForksSmooth = 0;
-        ForksTex = new byte[0];
-
-        BarsColour = new Vector3(0, 0, 0);
-        BarsSmooth = 0;
-        BarsTex = new byte[0];
-
-        SeatColour = new Vector3(0, 0, 0);
-        SeatSmooth = 0;
-        SeatTex = new byte[0];
-
-        FTireColour = new Vector3(0, 0, 0);
-        RTireColour = new Vector3(0, 0, 0);
-        FTireSideColour = new Vector3(0, 0, 0);
-        RTireSideColour = new Vector3(0, 0, 0);
-        TiresTex = new byte[0];
-        TiresNormal = new byte[0];
-
-        FrameTexname = "e";
-        ForkTexname = "e";
-        SeatTexname = "e";
-        BarTexName = "e";
-        TireTexName = "e";
-        TireNormalName = "e";
-
-
 
 
     }
