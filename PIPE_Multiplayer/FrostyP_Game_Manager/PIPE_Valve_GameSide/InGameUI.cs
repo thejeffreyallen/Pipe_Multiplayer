@@ -259,6 +259,7 @@ namespace PIPE_Valve_Console_Client
                 Destroy(r.RiderModel);
                 Destroy(r.BMX);
                 Destroy(r.Audio);
+                Destroy(r.nameSign);
                 objs.Add(r.gameObject);
                 
 

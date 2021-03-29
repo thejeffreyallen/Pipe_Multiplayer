@@ -525,6 +525,7 @@ namespace PIPE_Valve_Console_Client
                         Destroy(GameManager.Players[_id].RiderModel);
                         Destroy(GameManager.Players[_id].BMX);
                         Destroy(GameManager.Players[_id].Audio);
+                        Destroy(GameManager.Players[_id].nameSign);
                     todelete = player.gameObject;
                     InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(player.username + " Left the game", 4, 0));
                     }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
+
+
 namespace PIPE_Valve_Console_Client
 {
     /// <summary>
@@ -73,6 +75,9 @@ namespace PIPE_Valve_Console_Client
         MeshRenderer SeatRen;
         MeshRenderer FTireRen;
         MeshRenderer RTireRen;
+		
+		public GameObject nameSign;
+		TextMesh tm;
 
 
 
@@ -81,8 +86,20 @@ namespace PIPE_Valve_Console_Client
         {
             Initialize();
             
+            nameSign = new GameObject("player_label");
+			nameSign.transform.position = RiderModel.transform.position + Vector3.up * 1.8f;
+            nameSign.transform.parent = RiderModel.transform;
+			tm = nameSign.AddComponent<TextMesh>();
+            
+			tm.color = new Color(0.3f, 0.3f, 0.3f);
+            tm.fontStyle = FontStyle.Bold;
+            tm.alignment = TextAlignment.Center;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.characterSize = 0.1f;
+			tm.fontSize = 20;
+            
+            
         }
-
 
 
 
@@ -154,10 +171,13 @@ namespace PIPE_Valve_Console_Client
 
         private void Update()
         {
+			tm.text = username;
+			nameSign.transform.rotation = Camera.main.transform.rotation;
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
             {
                 UpdateAllRiderParts();
+				
                
             }
 
@@ -593,6 +613,10 @@ namespace PIPE_Valve_Console_Client
             yield return null;
         }
 
+
+
+
+        
 
     }
 }
