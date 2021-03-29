@@ -87,16 +87,18 @@ namespace PIPE_Valve_Console_Client
             Initialize();
             
             nameSign = new GameObject("player_label");
+            DontDestroyOnLoad(nameSign);
 			nameSign.transform.position = RiderModel.transform.position + Vector3.up * 1.8f;
             nameSign.transform.parent = RiderModel.transform;
 			tm = nameSign.AddComponent<TextMesh>();
             
-			tm.color = new Color(0.3f, 0.3f, 0.3f);
+			tm.color = new Color(0.8f, 0.8f, 0.8f);
             tm.fontStyle = FontStyle.Bold;
             tm.alignment = TextAlignment.Center;
             tm.anchor = TextAnchor.MiddleCenter;
             tm.characterSize = 0.1f;
 			tm.fontSize = 20;
+			tm.text = username;
             
             
         }
@@ -171,14 +173,12 @@ namespace PIPE_Valve_Console_Client
 
         private void Update()
         {
-			tm.text = username;
 			nameSign.transform.rotation = Camera.main.transform.rotation;
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
             {
                 UpdateAllRiderParts();
 				
-               
             }
 
             // loops ridersetup until it succeeds and marks masteractive as true

@@ -128,7 +128,7 @@ namespace PIPE_Valve_Console_Client
 		public void Run()
         {
 			client.RunCallbacks();
-			GC.KeepAlive(status);
+			//GC.KeepAlive(status);
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
 				{

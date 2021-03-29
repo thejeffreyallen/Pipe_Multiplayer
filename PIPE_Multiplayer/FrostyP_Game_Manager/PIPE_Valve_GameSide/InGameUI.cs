@@ -314,11 +314,11 @@ namespace PIPE_Valve_Console_Client
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
-               // CharacterModding.instance.LoadBmxSetup();
+                CharacterModding.instance.LoadBmxSetup();
                 GameManager.instance.GetLevelName();
             // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
              _localplayer.GrabRiderTextures();
-           // BMXNetLoadout.instance.GrabTextures();
+            BMXNetLoadout.instance.GrabTextures();
                 ConnectToServer();
                 OnlineMenu = true;
                 OfflineMenu = false;
