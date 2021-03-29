@@ -32,6 +32,7 @@ namespace PIPE_Valve_Console_Client
         public RemotePlayerAudio Audio;
 
         private bool SetupSuccess;
+        public RemotePlayer instance;
 
 
 
@@ -73,13 +74,28 @@ namespace PIPE_Valve_Console_Client
         MeshRenderer FTireRen;
         MeshRenderer RTireRen;
 
+        public GameObject sign;
+        public TextMesh tm;
+
+
 
 
         // Call initiation once on start, inititation to reoccur until resolved
-        private void Start()
+        public void Start()
         {
+            instance = this;
             Initialize();
+            sign = new GameObject("player_label");
+
+            tm = sign.AddComponent<TextMesh>();
+            tm.color = new Color(0.8f, 0.8f, 0.8f);
             
+            tm.fontStyle = FontStyle.Bold;
+            tm.alignment = TextAlignment.Center;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.characterSize = 0.065f;
+            tm.fontSize = 20;
+
         }
 
 
@@ -156,7 +172,10 @@ namespace PIPE_Valve_Console_Client
             if (MasterActive)
             {
                 UpdateAllRiderParts();
-               
+                tm.text = username;
+                sign.transform.rotation = Camera.main.transform.rotation; // Causes the text faces camera.
+                sign.transform.position = RiderModel.transform.position + Vector3.up * 1.8f;
+
             }
 
             // loops ridersetup until it succeeds and marks masteractive as true

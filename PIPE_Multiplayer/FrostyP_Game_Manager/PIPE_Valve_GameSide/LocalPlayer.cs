@@ -9,6 +9,8 @@ namespace PIPE_Valve_Console_Client
     public class LocalPlayer : MonoBehaviour
     {
         private bool initsuccess;
+        public InGameUI inGameUI;
+        public List<RemotePlayer> remotePlayers;
 
         /// <summary>
         /// Master Switch to Send continuous data from FixedUpdate
@@ -38,14 +40,35 @@ namespace PIPE_Valve_Console_Client
 
         LocalPlayerAudio Audio;
 
+        public GameObject sign;
+        public TextMesh tm;
 
 
 
-      
 
 
-        private void Start()
+
+
+        public void Start()
         {
+
+            inGameUI = InGameUI.instance;
+
+            Rider_Root = UnityEngine.GameObject.Find("Daryien");
+            ridermodel = Rider_Root;
+            Bmx_Root = UnityEngine.GameObject.Find("BMX");
+
+            sign = new GameObject("player_label");
+
+            tm = sign.AddComponent<TextMesh>();
+            tm.color = new Color(0.8f, 0.8f, 0.8f);
+       
+            tm.fontStyle = FontStyle.Bold;
+            tm.alignment = TextAlignment.Center;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.characterSize = 0.065f;
+            tm.fontSize = 20;
+
 
             Riders_Transforms = new Transform[32];
             riderPositions = new Vector3[32];
@@ -63,9 +86,7 @@ namespace PIPE_Valve_Console_Client
         // Grabs all of Daryiens Bones on Start, and the bikes, stores in Rider_Transforms[] for sending
         public bool InitialiseLocalRider()
         {
-            Rider_Root = UnityEngine.GameObject.Find("Daryien");
-            ridermodel = Rider_Root;
-            Bmx_Root = UnityEngine.GameObject.Find("BMX");
+            
 
             Riders_Transforms[0] = Rider_Root.transform;
             Riders_Transforms[1] = Rider_Root.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
@@ -108,27 +129,23 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Any info to send to server and when
         /// </summary>
-        private void FixedUpdate()
+        public void FixedUpdate()
         {
-            
 
+            
             if (InGameUI.instance.Connected)
             {
                 if (Riders_Transforms != null && Rider_Root != null && initsuccess && ServerActive)
                 {
-                   PackTransformsandSend();
+                    tm.text = inGameUI.Username;
+                    sign.transform.rotation = Camera.main.transform.rotation; // Causes the text faces camera.
+                    sign.transform.position = Rider_Root.transform.position + Vector3.up * 1.8f;
+                    PackTransformsandSend();
 
                 }
 
             }
         }
-
-
-       
-
-
-
-
 
         /// <summary>Sends player Movement to the server.</summary>
         private void PackTransformsandSend()
