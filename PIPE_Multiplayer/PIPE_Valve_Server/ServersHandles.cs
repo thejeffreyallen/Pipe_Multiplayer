@@ -54,7 +54,7 @@ namespace PIPE_Valve_Online_Server
             ServerSend.RequestBike(_from);
 
             // Start setup for every player but this one --------------------    
-            foreach (Player c in Server.Players.Values.ToList())
+            foreach (Player c in Server.Players.Values)
             {
 
                 if (c.clientID != _from)
@@ -319,7 +319,7 @@ namespace PIPE_Valve_Online_Server
             try
             {
            
-            foreach(Player p in Server.Players.Values.ToList())
+            foreach(Player p in Server.Players.Values)
             {
             if (p.clientID == _from)
             {

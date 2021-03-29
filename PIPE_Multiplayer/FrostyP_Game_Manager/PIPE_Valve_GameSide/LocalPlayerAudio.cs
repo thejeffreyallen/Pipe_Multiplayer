@@ -32,8 +32,6 @@ namespace PIPE_Valve_Console_Client
         private string LastSoundPath = "";
         private string ThisSoundpath;
         private FMOD.Studio.EventInstance LastOneShotEvent;
-        float count;
-        bool gotit;
         private List<AudioStateUpdate> OneShotUpdates = new List<AudioStateUpdate>();
 
 

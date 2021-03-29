@@ -152,7 +152,7 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        private void LateUpdate()
+        private void Update()
         {
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)

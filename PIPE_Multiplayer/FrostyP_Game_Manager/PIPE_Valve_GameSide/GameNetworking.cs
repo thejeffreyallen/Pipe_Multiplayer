@@ -241,7 +241,7 @@ namespace PIPE_Valve_Console_Client
 			address.SetAddress(ip,(ushort)port);
 			connection = client.Connect(ref address);
 			int sendRateMin = 400000;
-			int sendRateMax = 55400000;
+			int sendRateMax = 45400000;
 			int sendBufferSize = 209715200;
 			
 

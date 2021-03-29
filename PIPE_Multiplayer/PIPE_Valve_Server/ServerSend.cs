@@ -27,7 +27,7 @@ namespace PIPE_Valve_Online_Server
         }
         private static void SendToAll(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            foreach(Player client in Server.Players.Values.ToList())
+            foreach(Player client in Server.Players.Values)
             {
                 ThreadManager.ExecuteOnMainThread(() =>
                 {
@@ -42,7 +42,7 @@ namespace PIPE_Valve_Online_Server
           
             try
             {
-            foreach (Player client in Server.Players.Values.ToList())
+            foreach (Player client in Server.Players.Values)
             {
                 if(client.clientID != Exceptthis)
                     {
@@ -229,14 +229,14 @@ namespace PIPE_Valve_Online_Server
                 }
 
 
-                if (listof5.Count == 5 | i == _players.Count - 1)
+                if (listof5.Count == 5 | i == _players.Count - 1 && listof5.Count>0)
                 {
-                    Console.WriteLine($"Sending {listof5.Count} players out of {_players.Count} in bundle");
+                    Console.WriteLine($"Sending {listof5.Count} players out of {_players.Count} in Player list");
                     using (Packet _packet = new Packet((int)ServerPacket.SetupAllOnlinePlayers))
                     {
                         // amount of players in this bundle, for the last bundle or if less than 5 are on
                         _packet.Write(listof5.Count);
-                        foreach (Player _player in listof5.ToList())
+                        foreach (Player _player in listof5)
                         {
                             _packet.Write(_player.clientID);
                             _packet.Write(_player.Username);
