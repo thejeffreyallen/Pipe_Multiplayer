@@ -1,5 +1,4 @@
 ﻿
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +6,12 @@ using System.Text;
 using System.Threading;
 using System.IO;
 
-using PIPE_Server_GUI;
 
 
 
 namespace PIPE_Valve_Online_Server
 {
-    
+
     /// <summary>
     /// Servers Console
     /// </summary>
@@ -22,13 +20,13 @@ namespace PIPE_Valve_Online_Server
 
         private static bool isrunning = false;
 
-       
+
         static void Main(string[] args)
         {
             int Maxplayers;
             int port;
 
-            Console.WriteLine("PIPE ONLINE SERVER V1.0.0");
+            Console.WriteLine($"PIPE ONLINE SERVER V{Server.VERSIONNUMBER}");
             Console.WriteLine("Powered by Valve's GamenetworkingSockets");
             Console.WriteLine("Checking Directories..");
             // Check directories info on startup, if not create
@@ -70,56 +68,48 @@ namespace PIPE_Valve_Online_Server
                 IsBackground = true
             };
 
-            
+
             isrunning = true;
-        _ProcessThread.Start();
+            _ProcessThread.Start();
 
 
-			Server.Run(port,Maxplayers);
-
-          
-
-			
-		}
-
-
-
-
-
-
-        
-        /// <summary>
-        /// Server's Secondary thread loop
-        /// </summary>
-    private static void ProcessThread()
-    {
-        Console.WriteLine($"Main Thread running at {Constants.TicksPerSec} ticks per second");
-        DateTime _nextloop = DateTime.Now;
-           
-
-        while (isrunning)
-        {
-             
-                
-
-            while (_nextloop < DateTime.Now)
-            {
-                GameLogic.Update();
-
-                _nextloop = _nextloop.AddMilliseconds(Constants.MSPerTick);
-
-                if (_nextloop > DateTime.Now)
-                {
-                    Thread.Sleep(_nextloop - DateTime.Now);
-                }
-            }
+            Server.Run(port, Maxplayers);
 
 
 
 
         }
 
-    }
 
-}
+
+
+
+
+
+        /// <summary>
+        /// Server's Secondary thread loop
+        /// </summary>
+        private static void ProcessThread()
+        {
+            Console.WriteLine($"Main Thread running at {Constants.TicksPerSec} ticks per second");
+            DateTime _nextloop = DateTime.Now;
+
+
+            while (isrunning)
+            {
+                if (_nextloop < DateTime.Now)
+                {
+                    GameLogic.Update();
+
+                    _nextloop = _nextloop.AddMilliseconds(Constants.MSPerTick);
+                }
+                else
+                {
+                    Thread.Sleep(_nextloop - DateTime.Now);
+                }
+            }
+        }
+    
+
+    }
 }

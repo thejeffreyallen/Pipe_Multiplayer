@@ -32,8 +32,10 @@ namespace PIPE_Valve_Console_Client
         public static void SetupPlayerReceive(Packet _packet)
         {
             // optional
-            List<TextureInfo> infos = new List<TextureInfo>();
-           
+            List<TextureInfo> BmxTexinfos = new List<TextureInfo>();
+            List<TextureInfo> BmxNormalinfos = new List<TextureInfo>();
+            List<TextureInfo> riderinfos = new List<TextureInfo>();
+
             uint playerid =(uint)_packet.ReadLong();
             string playerusername = _packet.ReadString();
 
@@ -44,27 +46,6 @@ namespace PIPE_Valve_Console_Client
             string RidermodelBundlename = _packet.ReadString();
             string currentmap = _packet.ReadString();
 
-            if (CurrentModel == "Daryien")
-            {
-                infos = new List<TextureInfo>();
-                int count = _packet.ReadInt();
-                if (count > 0)
-                {
-                for (int i = 0; i < count; i++)
-                {
-                    string name = _packet.ReadString();
-                   string nameofobj = _packet.ReadString();
-                        if(name != "")
-                        {
-                    TextureInfo t = new TextureInfo(name, nameofobj);
-                    infos.Add(t);
-
-                        }
-
-                }
-
-                }
-            }
 
 
             Vector3 Framecol = _packet.ReadVector3();
@@ -76,70 +57,117 @@ namespace PIPE_Valve_Console_Client
             Vector3 ftiresidecol = _packet.ReadVector3();
             Vector3 rtiresidecol = _packet.ReadVector3();
 
+            Vector3 Stemcol = _packet.ReadVector3();
+            Vector3 FRimcol = _packet.ReadVector3();
+            Vector3 RRimcol = _packet.ReadVector3();
+
+
             float framesmooth = _packet.ReadFloat();
             float forksmooth = _packet.ReadFloat();
            float seatsmooth = _packet.ReadFloat();
            float barssmooth = _packet.ReadFloat();
 
-           string frametexname = _packet.ReadString();
-           string forktexname = _packet.ReadString();
-           string Bartexname = _packet.ReadString();
-           string Seattexname = _packet.ReadString();
-           string Tiretexname = _packet.ReadString();
-           string Tirenormalname = _packet.ReadString();
+            float stemsmooth =_packet.ReadFloat();
+            float FRimsmooth = _packet.ReadFloat();
+            float RRimsmooth = _packet.ReadFloat();
 
-           
-                TextureInfo Frame = new TextureInfo(frametexname, "Frame Mesh");
-                infos.Add(Frame);
-            TextureInfo fork = new TextureInfo(forktexname, "Forks Mesh");
-            infos.Add(fork);
-            TextureInfo Bar = new TextureInfo(Bartexname, "Bars Mesh");
-            infos.Add(Bar);
-            TextureInfo seat = new TextureInfo(Seattexname, "Seat Mesh");
-            infos.Add(seat);
-            TextureInfo tire = new TextureInfo(Tiretexname, "Tire Mesh");
-            infos.Add(tire);
-            TextureInfo tirenormal = new TextureInfo(Tirenormalname, "Tire Mesh");
-            infos.Add(tirenormal);
+
+
+            float Framemett = _packet.ReadFloat();
+            float Forksmett = _packet.ReadFloat();
+            float barsmett = _packet.ReadFloat();
+            float stemmett = _packet.ReadFloat();
+            float FRimmett = _packet.ReadFloat();
+            float RRimmett = _packet.ReadFloat();
+
+            int Ridertexnamecount = _packet.ReadInt();
+            if (Ridertexnamecount > 0)
+            {
+                for (int i = 0; i < Ridertexnamecount; i++)
+                {
+                    string nameoftex = _packet.ReadString();
+                    string nameofGO = _packet.ReadString();
+                    riderinfos.Add(new TextureInfo(nameoftex, nameofGO));
+                }
+            }
+
+
+
+            int Biketexnamecount = _packet.ReadInt();
+            if (Biketexnamecount > 0)
+            {
+                for (int i = 0; i < Biketexnamecount; i++)
+                {
+                    string nameoftex = _packet.ReadString();
+                    string nameofGO = _packet.ReadString();
+                    BmxTexinfos.Add(new TextureInfo(nameoftex, nameofGO));
+                }
+            }
+
+            int bikenormalnamecount = _packet.ReadInt();
+            if (bikenormalnamecount > 0)
+            {
+                for (int i = 0; i < bikenormalnamecount; i++)
+                {
+                    string nameoftex = _packet.ReadString();
+                    string nameofGO = _packet.ReadString();
+                    BmxNormalinfos.Add(new TextureInfo(nameoftex, nameofGO));
+                }
+            }
+
+
+
+
 
             Debug.Log("Setting up player");
-            List<Vector3> vecs = new List<Vector3>();
-            vecs.Add(Framecol);
-            vecs.Add(forkcol);
-            vecs.Add(barscol);
-            vecs.Add(seatcol);
-            vecs.Add(ftirecol);
-            vecs.Add(ftiresidecol);
-            vecs.Add(rtirecol);
-            vecs.Add(rtiresidecol);
-            GameManager.PlayersColours.Add(playerid, vecs);
-            List<float> floats = new List<float>();
-            floats.Add(framesmooth);
-            floats.Add(forksmooth);
-            floats.Add(barssmooth);
-            floats.Add(seatsmooth);
-            GameManager.PlayersSmooths.Add(playerid, floats);
-            GameManager.PlayersTexinfos.Add(playerid, infos);
-            
-            GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation, infos,vecs,floats,currentmap);
+            List<Vector3> bikecols = new List<Vector3>();
+            bikecols.Add(Framecol);
+            bikecols.Add(forkcol);
+            bikecols.Add(barscol);
+            bikecols.Add(seatcol);
+            bikecols.Add(ftirecol);
+            bikecols.Add(ftiresidecol);
+            bikecols.Add(rtirecol);
+            bikecols.Add(rtiresidecol);
+            bikecols.Add(Stemcol);
+            bikecols.Add(FRimcol);
+            bikecols.Add(RRimcol);
+          
+            List<float> bikesmooths = new List<float>();
+            bikesmooths.Add(framesmooth);
+            bikesmooths.Add(forksmooth);
+            bikesmooths.Add(barssmooth);
+            bikesmooths.Add(seatsmooth);
+            bikesmooths.Add(stemsmooth);
+            bikesmooths.Add(FRimsmooth);
+            bikesmooths.Add(RRimsmooth);
+            List<float> bikemetts = new List<float>();
+            bikemetts.Add(Framemett);
+            bikemetts.Add(Forksmett);
+            bikemetts.Add(barsmett);
+            bikemetts.Add(stemmett);
+            bikemetts.Add(FRimmett);
+            bikemetts.Add(RRimmett);
+
+            GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation, BmxTexinfos,bikecols,bikesmooths, bikemetts,currentmap,riderinfos, BmxNormalinfos);
+
 
            
-              
-            
-
-            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{playerusername} is riding", 4, 0));
            
 
         }
 
 
-
+        
         public static void SetupAllOnlinePlayers(Packet _packet)
         {
             int amountinbundle = _packet.ReadInt();
             for (int _i = 0; _i < amountinbundle; _i++)
             {
-                List<TextureInfo> infos = new List<TextureInfo>();
+                // optional
+                List<TextureInfo> BmxTexinfos = new List<TextureInfo>();
+                List<TextureInfo> BmxNormalinfos = new List<TextureInfo>();
+                List<TextureInfo> riderinfos = new List<TextureInfo>();
 
                 uint playerid = (uint)_packet.ReadLong();
                 string playerusername = _packet.ReadString();
@@ -149,29 +177,8 @@ namespace PIPE_Valve_Console_Client
                 Vector3 RiderRotation = _packet.ReadVector3();
                 string CurrentModel = _packet.ReadString();
                 string RidermodelBundlename = _packet.ReadString();
-                string CurrentMap = _packet.ReadString();
+                string currentmap = _packet.ReadString();
 
-                if (CurrentModel == "Daryien")
-                {
-                    infos = new List<TextureInfo>();
-                    int count = _packet.ReadInt();
-                    if (count > 0)
-                    {
-                        for (int i = 0; i < count; i++)
-                        {
-                            string name = _packet.ReadString();
-                            string nameofobj = _packet.ReadString();
-                            if (name != "")
-                            {
-                                TextureInfo t = new TextureInfo(name, nameofobj);
-                                infos.Add(t);
-
-                            }
-
-                        }
-
-                    }
-                }
 
 
                 Vector3 Framecol = _packet.ReadVector3();
@@ -183,58 +190,102 @@ namespace PIPE_Valve_Console_Client
                 Vector3 ftiresidecol = _packet.ReadVector3();
                 Vector3 rtiresidecol = _packet.ReadVector3();
 
+                Vector3 Stemcol = _packet.ReadVector3();
+                Vector3 FRimcol = _packet.ReadVector3();
+                Vector3 RRimcol = _packet.ReadVector3();
+
+
                 float framesmooth = _packet.ReadFloat();
                 float forksmooth = _packet.ReadFloat();
                 float seatsmooth = _packet.ReadFloat();
                 float barssmooth = _packet.ReadFloat();
 
-                string frametexname = _packet.ReadString();
-                string forktexname = _packet.ReadString();
-                string Bartexname = _packet.ReadString();
-                string Seattexname = _packet.ReadString();
-                string Tiretexname = _packet.ReadString();
-                string Tirenormalname = _packet.ReadString();
+                float stemsmooth = _packet.ReadFloat();
+                float FRimsmooth = _packet.ReadFloat();
+                float RRimsmooth = _packet.ReadFloat();
 
 
-                TextureInfo Frame = new TextureInfo(frametexname, "Frame Mesh");
-                infos.Add(Frame);
-                TextureInfo fork = new TextureInfo(forktexname, "Forks Mesh");
-                infos.Add(fork);
-                TextureInfo Bar = new TextureInfo(Bartexname, "Bars Mesh");
-                infos.Add(Bar);
-                TextureInfo seat = new TextureInfo(Seattexname, "Seat Mesh");
-                infos.Add(seat);
-                TextureInfo tire = new TextureInfo(Tiretexname, "Tire Mesh");
-                infos.Add(tire);
-                TextureInfo tirenormal = new TextureInfo(Tirenormalname, "Tire Mesh");
-                infos.Add(tirenormal);
+
+                float Framemett = _packet.ReadFloat();
+                float Forksmett = _packet.ReadFloat();
+                float barsmett = _packet.ReadFloat();
+                float stemmett = _packet.ReadFloat();
+                float FRimmett = _packet.ReadFloat();
+                float RRimmett = _packet.ReadFloat();
+
+                int Ridertexnamecount = _packet.ReadInt();
+                if (Ridertexnamecount > 0)
+                {
+                    for (int i = 0; i < Ridertexnamecount; i++)
+                    {
+                        string nameoftex = _packet.ReadString();
+                        string nameofGO = _packet.ReadString();
+                        riderinfos.Add(new TextureInfo(nameoftex, nameofGO));
+                    }
+                }
+
+
+
+                int Biketexnamecount = _packet.ReadInt();
+                if (Biketexnamecount > 0)
+                {
+                    for (int i = 0; i < Biketexnamecount; i++)
+                    {
+                        string nameoftex = _packet.ReadString();
+                        string nameofGO = _packet.ReadString();
+                        BmxTexinfos.Add(new TextureInfo(nameoftex, nameofGO));
+                    }
+                }
+
+                int bikenormalnamecount = _packet.ReadInt();
+                if (bikenormalnamecount > 0)
+                {
+                    for (int i = 0; i < bikenormalnamecount; i++)
+                    {
+                        string nameoftex = _packet.ReadString();
+                        string nameofGO = _packet.ReadString();
+                        BmxNormalinfos.Add(new TextureInfo(nameoftex, nameofGO));
+                    }
+                }
+
+
+
+
 
                 Debug.Log("Setting up player");
-                List<Vector3> vecs = new List<Vector3>();
-                vecs.Add(Framecol);
-                vecs.Add(forkcol);
-                vecs.Add(barscol);
-                vecs.Add(seatcol);
-                vecs.Add(ftirecol);
-                vecs.Add(ftiresidecol);
-                vecs.Add(rtirecol);
-                vecs.Add(rtiresidecol);
-                GameManager.PlayersColours.Add(playerid, vecs);
-                List<float> floats = new List<float>();
-                floats.Add(framesmooth);
-                floats.Add(forksmooth);
-                floats.Add(barssmooth);
-                floats.Add(seatsmooth);
-                GameManager.PlayersSmooths.Add(playerid, floats);
-                GameManager.PlayersTexinfos.Add(playerid, infos);
+                List<Vector3> bikecols = new List<Vector3>();
+                bikecols.Add(Framecol);
+                bikecols.Add(forkcol);
+                bikecols.Add(barscol);
+                bikecols.Add(seatcol);
+                bikecols.Add(ftirecol);
+                bikecols.Add(ftiresidecol);
+                bikecols.Add(rtirecol);
+                bikecols.Add(rtiresidecol);
+                bikecols.Add(Stemcol);
+                bikecols.Add(FRimcol);
+                bikecols.Add(RRimcol);
 
-                GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, infos, vecs, floats, CurrentMap);
+                List<float> bikesmooths = new List<float>();
+                bikesmooths.Add(framesmooth);
+                bikesmooths.Add(forksmooth);
+                bikesmooths.Add(barssmooth);
+                bikesmooths.Add(seatsmooth);
+                bikesmooths.Add(stemsmooth);
+                bikesmooths.Add(FRimsmooth);
+                bikesmooths.Add(RRimsmooth);
+                List<float> bikemetts = new List<float>();
+                bikemetts.Add(Framemett);
+                bikemetts.Add(Forksmett);
+                bikemetts.Add(barsmett);
+                bikemetts.Add(stemmett);
+                bikemetts.Add(FRimmett);
+                bikemetts.Add(RRimmett);
+
+                GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, BmxTexinfos, bikecols, bikesmooths, bikemetts, currentmap, riderinfos, BmxNormalinfos);
 
 
 
-
-
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{playerusername} is riding on {CurrentMap} level", 4, 0));
 
 
             }
@@ -242,7 +293,7 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-
+        
 
 
         public static void RequestforDaryienTexNamesReceive(Packet _packet)
@@ -278,9 +329,10 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public static void RequestforMyBike(Packet _packet)
+        public static void RequestForAllParts(Packet _packet)
         {
-            GameManager.instance.SendMyBikeToServer();
+            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sending Playerdata to server", 1, 0));
+            GameManager.instance.SendAllParts();
         }
 
 
@@ -293,7 +345,7 @@ namespace PIPE_Valve_Console_Client
             List<TextureInfo> Texturenames = new List<TextureInfo>();
             List<Vector3> vecs = new List<Vector3>();
             List<float> floats = new List<float>();
-
+            List<float> BikeMetallics = new List<float>();
             int veccount = _packet.ReadInt();
             // read colours
             for (int i = 0; i < veccount; i++)
@@ -310,25 +362,36 @@ namespace PIPE_Valve_Console_Client
                 floats.Add(f);
 
             }
+            int Metallicscount = _packet.ReadInt();
+            for (int i = 0; i < Metallicscount; i++)
+            {
+                float m = _packet.ReadFloat();
+                BikeMetallics.Add(m);
+            }
             int texcount = _packet.ReadInt();
             // read texture names, empty if tex is null
+            if (texcount > 0)
+            {
             for (int i = 0; i < texcount; i++)
             {
                 string n = _packet.ReadString();
                 string G_O = _packet.ReadString();
                 if (n != "e")
                 {
-                    // construct textureinfo !!!!
+                  
                 Texturenames.Add(new TextureInfo(n,G_O));
                 }
+            }
+
             }
 
 
             GameManager.PlayersColours[_from] = vecs;
             GameManager.PlayersSmooths[_from] = floats;
-            GameManager.PlayersTexinfos[_from] = Texturenames;
-            GameManager.Players[_from].UpdateColours();
-            GameManager.Players[_from].UpdateTextures();
+            GameManager.PlayersMetals[_from] = BikeMetallics;
+          
+            GameManager.Players[_from].UpdateBike();
+        
 
         }
 
@@ -344,19 +407,28 @@ namespace PIPE_Valve_Console_Client
             {
                 string Texname = _packet.ReadString();
                 string ParentG_O = _packet.ReadString();
+                if(Texname != "" && Texname != " ")
                 infos.Add(new TextureInfo(Texname, ParentG_O));
                 Debug.Log(Texname + "  " + ParentG_O);
             }
 
             try
             {
-            GameManager.PlayersTexinfos[_from] = infos;
-                GameManager.Players[_from].UpdateTextures();
+                
+                if(GameManager.Players[_from].CurrentModelName == "Daryien")
+                {
+                GameManager.RiderTexinfos[_from] = infos;
+                GameManager.Players[_from].UpdateDaryien();
+                }
+                else
+                {
+                    InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"RiderUpdate for custom model!", (int)MessageColour.Server, 1));
+                }
             }
             catch(UnityException x)
             {
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Couldnt do UpdateTextures for {GameManager.Players[_from].username}", (int)MessageColour.Server, 1));
-                Debug.Log("Error updating player tex list");
+                Debug.Log("Error updating player tex list :  " + x);
             }
 
         }
@@ -380,8 +452,6 @@ namespace PIPE_Valve_Console_Client
            
             uint FromId = (uint)_packet.ReadLong();
             int count = _packet.ReadInt();
-
-
 
             Vector3[] Positions = new Vector3[count];
             for (int i = 0; i < count; i++)
@@ -412,7 +482,6 @@ namespace PIPE_Valve_Console_Client
 
                         }
                         //player.timeatlasttranformupdate = Time.time;
-                        // Debug.Log("Position received:" + Positions[0].ToString());
                     }
 
                     else
@@ -515,7 +584,8 @@ namespace PIPE_Valve_Console_Client
                 uint _id = (uint)_packet.ReadLong();
             GameManager.PlayersColours.Remove(_id);
             GameManager.PlayersSmooths.Remove(_id);
-            GameManager.PlayersTexinfos.Remove(_id);
+            GameManager.BikeTexinfos.Remove(_id);
+            GameManager.RiderTexinfos.Remove(_id);
 
             // delete rider, bike and then self and remove id from manager
             foreach (RemotePlayer player in GameManager.Players.Values)
@@ -588,9 +658,19 @@ namespace PIPE_Valve_Console_Client
             }
             catch(System.Exception x)
             {
-                Debug.Log("Map name error");
+                Debug.Log("Map name error " + x);
             }
 
+        }
+
+
+        public static void Disconnectme(Packet _packet)
+        {
+            string msg = _packet.ReadString();
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(msg + ": disconnecting", 4, 0));
+            InGameUI.instance.Disconnect();
+            InGameUI.instance.Connected = false;
+            InGameUI.instance.Waittoend();
         }
 
         

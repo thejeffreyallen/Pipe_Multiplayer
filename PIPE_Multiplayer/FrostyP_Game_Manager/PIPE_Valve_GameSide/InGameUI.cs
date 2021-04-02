@@ -40,7 +40,7 @@ namespace PIPE_Valve_Console_Client
         public string Messagetosend = "Send a message to all...";
         Dictionary<int, Color> MessageColour;
 
-        Vector2 scrollPosition;
+        
         Texture2D RedTex;
         Texture2D BlackTex;
         Texture2D GreyTex;
@@ -274,7 +274,7 @@ namespace PIPE_Valve_Console_Client
             GameManager.Players.Clear();
             GameManager.PlayersColours.Clear();
             GameManager.PlayersSmooths.Clear();
-            GameManager.PlayersTexinfos.Clear();
+            GameManager.BikeTexinfos.Clear();
            
             // Server learns of disconnection itself and tells everyone
 
@@ -314,11 +314,53 @@ namespace PIPE_Valve_Console_Client
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
-                CharacterModding.instance.LoadBmxSetup();
-                GameManager.instance.GetLevelName();
-            // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
-             _localplayer.GrabRiderTextures();
-            BMXNetLoadout.instance.GrabTextures();
+                if (CharacterModding.instance.LoadBmxSetup() == 0)
+                {
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your bmx save, save a bmx", 4, 0));
+                }
+                else
+                {
+                    CharacterModding.instance.LoadBmxSetup();
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Bmx Save", 4, 0));
+                }
+
+
+                if(_localplayer.RiderModelname == "Daryien")
+                {
+                if (CharacterModding.instance.LoadRiderSetup() == 0)
+                {
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your Rider, Select a texture for all rider parts and save for sync of Daryien", 4, 0));
+                }
+                else
+                {
+                    CharacterModding.instance.LoadBmxSetup();
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Daryien's Save", 4, 0));
+                }
+
+                }
+
+
+
+
+
+                try
+                {
+            GameManager.instance.GetLevelName();
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Cant find scene name  : " + x);
+                }
+                // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
+                try
+                {
+                 BMXNetLoadout.instance.GrabTextures();
+                }
+                catch(Exception x)
+                {
+                    Debug.Log("Couldnt look for bike textures" + x);
+                }
+               // CharacterModding.instance.SaveRiderSetup();
                 ConnectToServer();
                 OnlineMenu = true;
                 OfflineMenu = false;
@@ -333,14 +375,39 @@ namespace PIPE_Valve_Console_Client
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Frosty..", 1, 0));
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
-                CharacterModding.instance.LoadBmxSetup();
-                GameManager.instance.GetLevelName();
+                if (CharacterModding.instance.LoadBmxSetup() == 0)
+                {
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your bmx save, save a bmx for instant sync", 4, 0));
+                }
+                else
+                {
+                    CharacterModding.instance.LoadBmxSetup();
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Bmx Save", 4, 0));
+                }
+
+
+                try
+                {
+                    GameManager.instance.GetLevelName();
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Cant find scene name  : " + x);
+                }
                 // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
-                _localplayer.GrabRiderTextures();
-                BMXNetLoadout.instance.GrabTextures();
+                try
+                {
+                    BMXNetLoadout.instance.GrabTextures();
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Couldnt look for bike textures" + x);
+                }
+                // CharacterModding.instance.SaveRiderSetup();
                 ConnectToServer();
                 OnlineMenu = true;
                 OfflineMenu = false;
+
 
 
 
@@ -541,6 +608,21 @@ namespace PIPE_Valve_Console_Client
             InGameUI.instance.Messages.Remove(message);
             yield return null;
         }
+
+        public void Waittoend()
+        {
+            StartCoroutine(WaitthenEnd());
+        }
+
+        private IEnumerator WaitthenEnd()
+        {
+            yield return new WaitForSeconds(3);
+           OnlineMenu = false;
+            OfflineMenu = true;
+            yield return null;
+        }
+
+
 
     }
 

@@ -56,12 +56,13 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(InGameUI.instance._localplayer.RiderModelname);
                     _packet.Write(InGameUI.instance._localplayer.RiderModelBundleName);
                     _packet.Write(GameManager.instance.MycurrentLevel);
+                    _packet.Write(GameNetworking.instance.VERSIONNUMBER);
 
 
                     SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 }
 
-            GameManager.instance._localplayer.ServerActive = true;
+           
            
             
         }
@@ -268,28 +269,75 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public static void SendBikeData(List<Vector3> vectors, List<float> floats)
+        public static void SendAllParts(List<Vector3> Bikecolours, List<float> BikeSmooths, List<TextureInfo> _BikeTexname, List<TextureInfo> _RiderTexnames, List<float> bikemetallics, List<TextureInfo> bikenormalnames)
         {
-            using(Packet _packet = new Packet((int)ClientPackets.SendBikeData))
+            using(Packet _packet = new Packet((int)ClientPackets.SendAllParts))
             {
-                _packet.Write(vectors.Count);
-                for (int i = 0; i < vectors.Count; i++)
+                _packet.Write(Bikecolours.Count);
+                for (int i = 0; i < Bikecolours.Count; i++)
                 {
-                _packet.Write(vectors[i]);
+                _packet.Write(Bikecolours[i]);
                 }
-                _packet.Write(floats.Count);
-                for (int i = 0; i < floats.Count; i++)
+
+
+                _packet.Write(BikeSmooths.Count);
+                for (int i = 0; i < BikeSmooths.Count; i++)
                 {
-                    _packet.Write(floats[i]);
+                    _packet.Write(BikeSmooths[i]);
                 }
+
+
+                _packet.Write(bikemetallics.Count);
+                for (int i = 0; i < bikemetallics.Count; i++)
+                {
+                    _packet.Write(bikemetallics[i]);
+                }
+
+
+                _packet.Write(_BikeTexname.Count);
+                for (int i = 0; i < _BikeTexname.Count; i++)
+                {
+                    _packet.Write(_BikeTexname[i].Nameoftexture);
+                    _packet.Write(_BikeTexname[i].NameofparentGameObject);
+
+                }
+
+
+                _packet.Write(_RiderTexnames.Count);
+                if (_RiderTexnames.Count > 0)
+                {
+                for (int i = 0; i < _RiderTexnames.Count; i++)
+                {
+                    _packet.Write(_RiderTexnames[i].Nameoftexture);
+                    _packet.Write(_RiderTexnames[i].NameofparentGameObject);
+                }
+
+                }
+
+
+                _packet.Write(bikenormalnames.Count);
+                if(bikenormalnames.Count > 0)
+                {
+                    for (int i = 0; i < bikenormalnames.Count; i++)
+                    {
+                        _packet.Write(bikenormalnames[i].Nameoftexture);
+                        _packet.Write(bikenormalnames[i].NameofparentGameObject);
+
+                    }
+                }
+
+
+
+                Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames}");
                
                 SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                GameManager.instance._localplayer.ServerActive = true;
             }
 
         }
 
 
-        public static void SendQuickBikeUpdate(List<Vector3> vectors, List<float> floats, List<TextureInfo> Texnames)
+        public static void SendQuickBikeUpdate(List<Vector3> vectors, List<float> floats, List<float> bikemetallics, List<TextureInfo> Texnames)
         {
             using (Packet _packet = new Packet((int)ClientPackets.QuickBikeUpdate))
             {
@@ -303,11 +351,20 @@ namespace PIPE_Valve_Console_Client
                 {
                     _packet.Write(floats[i]);
                 }
+                 _packet.Write(bikemetallics.Count);
+                for (int i = 0; i < bikemetallics.Count; i++)
+                {
+                    _packet.Write(bikemetallics[i]);
+                }
+
                 _packet.Write(Texnames.Count);
+                if (Texnames.Count > 0)
+                {
                 for (int i = 0; i < Texnames.Count; i++)
                 {
                     _packet.Write(Texnames[i].Nameoftexture);
                     _packet.Write(Texnames[i].NameofparentGameObject);
+                }
                 }
                 SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }

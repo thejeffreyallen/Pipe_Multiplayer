@@ -108,7 +108,7 @@ namespace PIPE_Valve_Console_Client
                        
                         if(r.Nameofasset == name)
                         {
-                            GameManager.Players[r.player].UpdateTextures();
+                            GameManager.Players[r.player].UpdateDaryien();
                             todelete.Add(r);
                         }
                     }

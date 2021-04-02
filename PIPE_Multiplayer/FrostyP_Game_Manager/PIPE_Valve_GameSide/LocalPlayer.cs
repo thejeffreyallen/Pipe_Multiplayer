@@ -26,8 +26,8 @@ namespace PIPE_Valve_Console_Client
         Vector3[] riderPositions;
         Vector3[] riderRotations;
 
-        public string RiderModelname = "";
-        public string RiderModelBundleName = "";
+        public string RiderModelname = "Daryien";
+        public string RiderModelBundleName = "e";
         public List<string[]> Assetnames = new List<string[]>();
 
         // null unless InGameUI.Connect sees that you are Daryien, then GrabTextures is called.
@@ -247,11 +247,14 @@ namespace PIPE_Valve_Console_Client
 
 
         // Called By Gui on connect if RiderTrackingSetup set name to Daryien
-        public void GrabRiderTextures()
+        public int GrabRiderTextures()
         {
             RiderTextureInfoList.Clear();
             RidersTextures.Clear();
 
+
+            try
+            {
             SkinnedMeshRenderer[] r = ridermodel.GetComponentsInChildren<SkinnedMeshRenderer>();
 
             // add all main textures and names to lists
@@ -273,6 +276,7 @@ namespace PIPE_Valve_Console_Client
                     }
                     catch(UnityException x)
                     {
+                                Debug.Log($"Error getting {t.name}: must be stock daryien tex, locked in editor:  " + x);
 
                     }
 
@@ -288,14 +292,18 @@ namespace PIPE_Valve_Console_Client
 
                     }
 
-
-
-
-
                 }
             }
 
-           
+            }
+            catch (Exception x)
+            {
+                Debug.Log(x);
+                
+                return 0;
+            }
+
+            return RidersTextures.Count;
         }
 
 
@@ -380,16 +388,7 @@ namespace PIPE_Valve_Console_Client
 
       void OnGUI()
         {
-            /* show asset and asset bundle name
-            GUILayout.Label($"model name: {RiderModelname} : ModelBundle: {RiderModelBundleName}");
-            foreach(string[] n in Assetnames)
-            {
-                foreach(string i in n)
-                {
-                    GUILayout.Label(i + "  :Asset");
-                }
-            }
-            */
+          // GUILayout.Label(RiderModelname);
         }
 
 

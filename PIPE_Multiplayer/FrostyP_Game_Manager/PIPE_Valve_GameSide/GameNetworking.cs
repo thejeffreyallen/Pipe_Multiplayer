@@ -14,6 +14,10 @@ namespace PIPE_Valve_Console_Client
 {
     public class GameNetworking
     {
+
+		public float VERSIONNUMBER { get; } = 2.1f;
+
+
 		// this class accessable anywhere
 		public static GameNetworking instance;
 		public bool ServerLoopIsRunning = false;
@@ -103,32 +107,20 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.DisconnectedPlayer,ClientHandle.PlayerDisconnected},
 				{ (int)ServerPacket.ReceiveAudioForPlayer,ClientHandle.ReceiveAudioForaPlayer},
 				{ (int)ServerPacket.IncomingTextMessage, ClientHandle.IncomingTextMessage},
-				{ (int)ServerPacket.RequestformyBike, ClientHandle.RequestforMyBike},
+				{ (int)ServerPacket.RequestForAllParts, ClientHandle.RequestForAllParts},
 				{ (int)ServerPacket.BikeQuickUpdate, ClientHandle.BikeQuickupdate},
 				{ (int)ServerPacket.RiderQuickUpdate, ClientHandle.RiderQuickupdate},
 				{ (int)ServerPacket.ReceiveSetupAllOnlinePlayers, ClientHandle.SetupAllOnlinePlayers},
 				{ (int)ServerPacket.ReceiveMapName, ClientHandle.ReceiveMapname},
+				{ (int)ServerPacket.disconnectme, ClientHandle.Disconnectme},
 
 
 			};
 
 
+
 			
-			//Debug.Log("GameNetworking Startup Complete");
-
-        }
-
-
-		
-
-
-		/// <summary>
-		/// Receiving System loop for network
-		/// </summary>
-		public void Run()
-        {
-			client.RunCallbacks();
-			//GC.KeepAlive(status);
+			
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
 				{
@@ -153,6 +145,25 @@ namespace PIPE_Valve_Console_Client
 				}
 			};
 
+			//Debug.Log("GameNetworking Startup Complete");
+
+		}
+
+
+		
+
+
+		/// <summary>
+		/// Receiving System loop for network
+		/// </summary>
+		public void Run()
+        {
+			if (client != null)
+			{
+				//client.RunCallbacks(); =====================================================================    this will provide callbacks about connection, disconnection, data about current
+				//GC.KeepAlive(status);
+
+			}
 
 
 
@@ -235,10 +246,12 @@ namespace PIPE_Valve_Console_Client
 			client = new NetworkingSockets();
 			
 				utils.SetStatusCallback(status);
+
+				string _ip = ip.Replace(" ", "");
 				
 
 				Address address = new Address();
-			address.SetAddress(ip,(ushort)port);
+			address.SetAddress(_ip,(ushort)port);
 			connection = client.Connect(ref address);
 			int sendRateMin = 400000;
 			int sendRateMax = 45400000;
@@ -284,7 +297,7 @@ namespace PIPE_Valve_Console_Client
             }
 			catch(Exception x)
             {
-				//Debug.Log("Error on Connect click : " + x);
+				
             }
 			
 		}

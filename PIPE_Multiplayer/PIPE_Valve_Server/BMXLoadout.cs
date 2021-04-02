@@ -11,15 +11,36 @@ namespace PIPE_Valve_Online_Server
     {
         public Vector3 FrameColour = new Vector3(1, 0, 0);
         public float FrameSmooth = 0;
+        public float FrameMetallic = 0;
         public byte[] FrameTex = new byte[0];
 
         public Vector3 ForksColour = new Vector3(0, 0, 0);
         public float ForksSmooth = 0;
+        public float ForksMetallic = 0;
         public byte[] ForksTex = new byte[0];
 
         public Vector3 BarsColour = new Vector3(0, 0, 0);
         public float BarsSmooth = 0;
+        public float BarsMetallic = 0;
         public byte[] BarsTex = new byte[0];
+
+        public Vector3 StemColour = new Vector3(0, 0, 0);
+        public float StemSmooth = 0;
+        public float StemMetallic = 0;
+        public byte[] StemTex = new byte[0];
+
+
+        public Vector3 FRimColour = new Vector3(0, 0, 0);
+        public float FRimSmooth = 0;
+        public float FrimMetallic = 0;
+        public byte[] FrimTex = new byte[0];
+
+        public Vector3 RRimColour = new Vector3(0, 0, 0);
+        public float RRimSmooth = 0;
+        public float RrimMetallic = 0;
+        public byte[] RrimTex = new byte[0];
+
+
 
         public Vector3 SeatColour = new Vector3(0, 0, 0);
         public float SeatSmooth = 0;
@@ -33,17 +54,38 @@ namespace PIPE_Valve_Online_Server
         public byte[] TiresNormal = new byte[0];
 
         public string FrameTexname = "";
+        public string Framenormalname = "";
+
         public string ForkTexname = "";
+        public string Forknormalname = "";
+
+        public string StemTexName = "";
+        public string Stemnormalname = "";
+
         public string SeatTexname = "";
+        public string Seatnormalname = "";
+
         public string BarTexName = "";
+        public string Barnormalname = "";
+
         public string TireTexName = "";
-        public string TireNormalName = "";
+        public string Tirenormalname = "";
+
+        public string FRimTexName = "";
+        public string FRimnormalname = "";
+
+        public string RRimTexName = "";
+        public string RRimnormalname = "";
+     
+
 
        public List<string> Textureinfos = new List<string>();
        public List<Vector3> Colours = new List<Vector3>();
        public List<float> Smooths = new List<float>();
-        public List<TextureInfo> TexInfos = new List<TextureInfo>();
-       
+       public List<TextureInfo> bikeTexnames = new List<TextureInfo>();
+        public List<TextureInfo> Bikenormalnames = new List<TextureInfo>();
+        public List<TextureInfo> RiderTexnames = new List<TextureInfo>();
+
 
         public void Setup()
         {
@@ -68,7 +110,7 @@ namespace PIPE_Valve_Online_Server
             Textureinfos.Add(ForkTexname);
             Textureinfos.Add(BarTexName);
             Textureinfos.Add(TireTexName);
-            Textureinfos.Add(TireNormalName);
+            Textureinfos.Add(Tirenormalname);
             Textureinfos.Add(SeatTexname);
         }
 

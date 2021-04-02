@@ -95,7 +95,7 @@ namespace PIPE_Valve_Console_Client
         }
 
        
-        void FixedUpdate()
+        void Update()
         {
             if(Rider == null)
             {

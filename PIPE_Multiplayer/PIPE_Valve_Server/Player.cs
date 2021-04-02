@@ -19,14 +19,20 @@ namespace PIPE_Valve_Online_Server
         public string Ridermodelbundlename;
         public string MapName;
 
-        public List<TextureInfo> RiderTextureInfoList = new List<TextureInfo>();
+       
 
         public Vector3[] RiderPositions;
         public Vector3[] RiderRotations;
 
+        /// <summary>
+        /// contains everything about bike
+        /// </summary>
         public BMXLoadout Loadout;
 
         // audio
+        /// <summary>
+        /// updated here every time an update in received
+        /// </summary>
         public byte[] LastAudioUpdate;
         public bool newAudioReceived;
 

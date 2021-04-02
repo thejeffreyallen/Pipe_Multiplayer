@@ -18,7 +18,6 @@ namespace PIPE_Valve_Console_Client
         public string CurrentModelName;
         public string Modelbundlename;
         public string CurrentMap = "Unknown";
-        public List<TextureInfo> _texinfos;
 
 
         public GameObject RiderModel;
@@ -75,8 +74,19 @@ namespace PIPE_Valve_Console_Client
         MeshRenderer SeatRen;
         MeshRenderer FTireRen;
         MeshRenderer RTireRen;
-		
-		public GameObject nameSign;
+        MeshRenderer StemRen;
+        MeshRenderer FRimRen;
+        MeshRenderer RRimRen;
+            
+
+        SkinnedMeshRenderer shirtren;
+        SkinnedMeshRenderer bottomsren;
+        MeshRenderer hatren;
+        SkinnedMeshRenderer shoesren;
+        SkinnedMeshRenderer bodyren;
+        
+
+        public GameObject nameSign;
 		TextMesh tm;
 
 
@@ -84,23 +94,57 @@ namespace PIPE_Valve_Console_Client
         // Call initiation once on start, inititation to reoccur until resolved
         private void Start()
         {
+            // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
+            Riders_Transforms = new Transform[32];
+            Riders_positions = new Vector3[32];
+            Riders_rotations = new Vector3[32];
+
             Initialize();
-            
+            RiderModel.name = "Model " + id;
+            BMX.name = "BMX " + id;
+           
+            DontDestroyOnLoad(BMX);
+            DontDestroyOnLoad(RiderModel);
+            GameManager.Players.Add(id, this);
+
+           
+            FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
+            ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();
+            BarsRen = BMX.transform.FindDeepChild("Bars Mesh").gameObject.GetComponent<MeshRenderer>();
+            SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
+            FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+            RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+            StemRen = BMX.transform.FindDeepChild("Stem Mesh").gameObject.GetComponent<MeshRenderer>();
+            FRimRen = BMX.transform.FindDeepChild("BMX:Wheel").transform.Find("Rim Mesh").gameObject.GetComponent<MeshRenderer>();
+            RRimRen = BMX.transform.FindDeepChild("BMX:Wheel 1").transform.Find("Rim Mesh").gameObject.GetComponent<MeshRenderer>();
+
+            if (CurrentModelName == "Daryien")
+            {
+            shirtren = RiderModel.transform.Find("shirt_geo").GetComponent<SkinnedMeshRenderer>();
+            bottomsren = RiderModel.transform.Find("pants_geo").GetComponent<SkinnedMeshRenderer>();
+            shoesren = RiderModel.transform.Find("shoes_geo").GetComponent<SkinnedMeshRenderer>();
+            hatren = RiderModel.transform.FindDeepChild("Baseball Cap_R").GetComponent<MeshRenderer>();
+            bodyren = RiderModel.transform.Find("body_geo").GetComponent<SkinnedMeshRenderer>();
+
+            }
+
+
             nameSign = new GameObject("player_label");
             DontDestroyOnLoad(nameSign);
-			nameSign.transform.position = RiderModel.transform.position + Vector3.up * 1.8f;
+            nameSign.transform.position = RiderModel.transform.position + Vector3.up * 1.8f;
             nameSign.transform.parent = RiderModel.transform;
-			tm = nameSign.AddComponent<TextMesh>();
-            
-			tm.color = new Color(0.8f, 0.8f, 0.8f);
+            tm = nameSign.AddComponent<TextMesh>();
+
+            tm.color = new Color(0.8f, 0.8f, 0.8f);
             tm.fontStyle = FontStyle.Bold;
             tm.alignment = TextAlignment.Center;
             tm.anchor = TextAnchor.MiddleCenter;
             tm.characterSize = 0.1f;
-			tm.fontSize = 20;
-			tm.text = username;
-            
-            
+            tm.fontSize = 20;
+            tm.text = username;
+
+
+
         }
 
 
@@ -108,23 +152,15 @@ namespace PIPE_Valve_Console_Client
         public void Initialize()
         {
             // this player has just been added to server, when this pc got the message to create the prefab and attach this class, it assigned the netid of this player, username, currentmodelname and inital pos and rot
-            Debug.Log($"Remote Rider { id } Initialising.....");
+            Debug.Log($"Remote Rider { username } Initialising.....");
 
 
 
             // decifer the rider and bmx specifics needed especially for daryien and bike colours
             RiderModel = DecideRider(CurrentModelName);
-            
-            BMX = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
-            DontDestroyOnLoad(BMX);
-            DontDestroyOnLoad(RiderModel);
 
-            FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
-            ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();
-            BarsRen = BMX.transform.FindDeepChild("Bars Mesh").gameObject.GetComponent<MeshRenderer>();
-            SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
-            FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
-            RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+            BMX = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
+            Destroy(BMX.transform.Find("BMX Load Out").gameObject);
 
             // remove or disable components
             if (RiderModel.GetComponent<Animation>())
@@ -151,20 +187,22 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-            // Add Audio Component, audio component will receive data from master player
+
+
+            // Add Audio Component
             Audio = gameObject.AddComponent<RemotePlayerAudio>();
             Audio.Rider = RiderModel;
 
-            // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
-            Riders_Transforms = new Transform[32];
-            Riders_positions = new Vector3[32];
-            Riders_rotations = new Vector3[32];
+            
 
 
             // Once models instatiated, run findriderparts to locate and assign all ridertransforms to models and children joints of models, sets masteractive on success
             SetupSuccess = RiderSetup();
 
-
+            if (!SetupSuccess)
+            {
+                Debug.Log("Error with Ridersetup()");
+            }
 
 
             StartCoroutine(Initialiseafterwait());
@@ -181,10 +219,13 @@ namespace PIPE_Valve_Console_Client
 				
             }
 
-            // loops ridersetup until it succeeds and marks masteractive as true
-           
 
-           
+            if (!SetupSuccess)
+            {
+                SetupSuccess = RiderSetup();
+            }
+
+
 
         }
 
@@ -194,19 +235,23 @@ namespace PIPE_Valve_Console_Client
         // decides whether to get daryien and start the texture process, or grab a custom model, Gives back gameobject to Initialise for instantiation
         private GameObject DecideRider(string modelname)
         {
-            GameObject Rider;
+            
 
             if (modelname == "Daryien")
             {
-                Rider = DaryienSetup();
-                return Rider;
+                
+                return DaryienSetup();
             }
             else
             {
-                Rider = LoadRiderFromAssets();
-                return Rider;
+
+                return LoadRiderFromAssets();
             }
         }
+
+
+
+
 
         // Called by DecideRider if Currentmodelname is Daryien
         private GameObject DaryienSetup()
@@ -214,64 +259,18 @@ namespace PIPE_Valve_Console_Client
             GameObject daz = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien"));
 
             // make sure meshes are active, pipeworks PI keeps daryien but turns off all his meshes, then tracks new models to daryiens bones
-            Transform[] children = daz.GetComponentsInChildren<Transform>(true);
-            foreach (Transform t in children)
+            foreach(Transform t in daz.GetComponentsInChildren<Transform>(true))
             {
                 t.gameObject.SetActive(true);
-
             }
-            SkinnedMeshRenderer[] r = daz.GetComponentsInChildren<SkinnedMeshRenderer>();
-
-            // find all files that match with custom tex names,then load
-            foreach (SkinnedMeshRenderer s in r)
-            {
-                if(_texinfos != null)
-                {
-                foreach (TextureInfo t in _texinfos)
-                {
-                    byte[] bytes = null;
-                    if (s.gameObject.name == t.NameofparentGameObject)
-                    {
-                        
-                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
-                        foreach(DirectoryInfo i in files)
-                        {
-                            FileInfo[] images = i.GetFiles();
-                            foreach(FileInfo f in images)
-                            {
-                                if(f.Name == t.Nameoftexture)
-                                {
-                                   bytes = File.ReadAllBytes(f.FullName);
-
-                                }
-                            }
-                        }
-
-                        if (bytes != null)
-                        {
-                            try
-                            {
-                        Texture2D image = new Texture2D(2, 2);
-                       image.LoadImage(bytes);
-                            image.Apply();
-                        s.material.mainTexture = image;
-                            }
-                            catch (UnityException x)
-                            {
-                                Debug.Log("Daryien setup error : " + x);
-                            }
-
-                        }
-                    }
-                    
-
-
-                }
-                }
-            }
-
-                    return daz;
+          
+                     return daz;
         }
+
+
+
+
+
 
         /// <summary>
         /// Called to load a custom model, will return Daryiensetup() if nothing can be done
@@ -399,7 +398,7 @@ namespace PIPE_Valve_Console_Client
 
                 // Collision setup, Add Rigidbodies last as they require colliders.
                 // All remote rider rigidboides are kinematic so they should plow down any local rider they touch, but the remote rider is being updated by its local counterpart, and on that machine its them that has the live rigidbody and they too have hit a kinematic remote rider. 
-                // Result: if your still and your RB is asleep your a brick wall, if your moving, both riders take impact.
+                // Result: if your still and your RB is asleep your a brick wall, if your moving, both riders take impact(lag dependant)
 
                 if (wheelcolliders == null)
                 {
@@ -423,22 +422,26 @@ namespace PIPE_Valve_Console_Client
                 if (RiderModel.GetComponent<Rigidbody>() == null)
                 {
                     Rider_RB = RiderModel.AddComponent<Rigidbody>();
+                    Rider_RB.isKinematic = true;
                 }
-                Rider_RB.isKinematic = true;
+                SphereCollider spherehead = RiderModel.transform.FindDeepChild("mixamorig:Head").gameObject.AddComponent<SphereCollider>();
+                spherehead.radius = 0.012f;
+                spherehead.center = new Vector3(0, 0.1f, 0.03f);
+                spherehead.transform.localPosition = new Vector3(0, 0.1028246f, 0.0511784f);
 
                 if (BMX.GetComponent<Rigidbody>() == null)
                 {
                     BMX_RB = BMX.AddComponent<Rigidbody>();
+                    BMX_RB.isKinematic = true;
                 }
-                BMX_RB.isKinematic = true;
 
 
 
-                // complete, send message that i have arrived and set masteractive true so i start to update myself
 
-               
+
+
+
                 MasterActive = true;
-
                 Debug.Log("All Remote Rider Parts Assigned");
                 return true;
             }
@@ -451,6 +454,8 @@ namespace PIPE_Valve_Console_Client
 
 
         }
+
+
 
 
         /// <summary>
@@ -486,29 +491,28 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public void UpdateTextures()
+
+
+        public void UpdateDaryien()
         {
             // look through rider
-            if (GameManager.PlayersTexinfos[id].Count > 0)
+            if (GameManager.RiderTexinfos[id].Count > 0)
             {
                 Debug.Log($"Updating Textures for {id}");
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Rider..", 1, 1));
 
 
-
-
-
-
-
-
-
-            SkinnedMeshRenderer[] r = RiderModel.GetComponentsInChildren<SkinnedMeshRenderer>();
-            foreach (SkinnedMeshRenderer s in r)
-            {
-                foreach (TextureInfo t in GameManager.PlayersTexinfos[id])
+                try
+                {
+                    
+                foreach (TextureInfo t in GameManager.RiderTexinfos[id])
                 {
                     byte[] bytes = null;
-                    if (s.gameObject.name == t.NameofparentGameObject)
+                    if (t.NameofparentGameObject == "Daryien_Head")
                     {
+
+
+
 
                         DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
                         foreach (DirectoryInfo i in files)
@@ -516,12 +520,12 @@ namespace PIPE_Valve_Console_Client
                             FileInfo[] images = i.GetFiles();
                             foreach (FileInfo f in images)
                             {
-                                if (f.Name.Contains(t.Nameoftexture))
+                                if (f.Name == t.Nameoftexture)
                                 {
                                     bytes = File.ReadAllBytes(f.FullName);
                                         
 
-                                    }
+                                }
                             }
                         }
 
@@ -532,35 +536,269 @@ namespace PIPE_Valve_Console_Client
                             Texture2D image = new Texture2D(1024, 1024);
                             
                                     ImageConversion.LoadImage(image, bytes);
-                            s.material.mainTexture = image;
+                                image.name = t.Nameoftexture;
+                                    bodyren.materials[0].mainTexture = image;
                                 }
                                 catch (System.Exception x)
                                 {
-                                    Debug.Log($"Failed to apply texture to {id}");
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
                                 }
 
                         }
                     }
+                    if (t.NameofparentGameObject == "Daryien_Body")
+                    {
 
 
 
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name.Contains(t.Nameoftexture))
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                                Texture2D image = new Texture2D(1024, 1024);
+
+                                ImageConversion.LoadImage(image, bytes);
+                                image.name = t.Nameoftexture;
+                                bodyren.materials[1].mainTexture = image;
+                            }
+                            catch (System.Exception x)
+                            {
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                Debug.Log($"Failed to apply texture to {id}  " + x);
+                            }
+
+                        }
+                    }
+                    if (t.NameofparentGameObject == "Daryien_HandsFeet")
+                    {
+
+
+
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name.Contains(t.Nameoftexture))
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                                Texture2D image = new Texture2D(1024, 1024);
+
+                                ImageConversion.LoadImage(image, bytes);
+                                image.name = t.Nameoftexture;
+                                bodyren.materials[2].mainTexture = image;
+                            }
+                            catch (System.Exception x)
+                            {
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                Debug.Log($"Failed to apply texture to {id}  " + x);
+                            }
+
+                        }
+                    }
+                    if (t.NameofparentGameObject == "shirt_geo")
+                    {
+
+
+
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                                Texture2D image = new Texture2D(1024, 1024);
+
+                                ImageConversion.LoadImage(image, bytes);
+                                image.name = t.Nameoftexture;
+                                shirtren.material.mainTexture = image;
+                            }
+                            catch (System.Exception x)
+                            {
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                Debug.Log($"Failed to apply texture to {id}  " + x);
+                            }
+
+                        }
+                    }
+                    if (t.NameofparentGameObject == "pants_geo")
+                    {
+
+
+
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name.Contains(t.Nameoftexture))
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                                Texture2D image = new Texture2D(1024, 1024);
+
+                                ImageConversion.LoadImage(image, bytes);
+                                image.name = t.Nameoftexture;
+                               bottomsren.material.mainTexture = image;
+                            }
+                            catch (System.Exception x)
+                            {
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                Debug.Log($"Failed to apply texture to {id}  " + x);
+                            }
+
+                        }
+                    }
+                    if (t.NameofparentGameObject == "Baseball Cap_R")
+                    {
+
+
+
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name.Contains(t.Nameoftexture))
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                                Texture2D image = new Texture2D(1024, 1024);
+
+                                ImageConversion.LoadImage(image, bytes);
+                                image.name = t.Nameoftexture;
+                                hatren.material.mainTexture = image;
+                                hatren.material.color = Color.white;
+                            }
+                            catch (System.Exception x)
+                            {
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                Debug.Log($"Failed to apply texture to {id}  " + x);
+                            }
+
+                        }
+                    }
+                    if (t.NameofparentGameObject == "shoes_geo")
+                    {
+
+
+
+
+                        DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
+                        foreach (DirectoryInfo i in files)
+                        {
+                            FileInfo[] images = i.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name.Contains(t.Nameoftexture))
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+                        }
+
+                        if (bytes != null)
+                        {
+                            try
+                            {
+                                Texture2D image = new Texture2D(1024, 1024);
+
+                                ImageConversion.LoadImage(image, bytes);
+                                image.name = t.Nameoftexture;
+                                shoesren.material.mainTexture = image;
+                            }
+                            catch (System.Exception x)
+                            {
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                Debug.Log($"Failed to apply texture to {id}  " + x);
+                            }
+
+                        }
+                    }
                 }
-            }
+                }
+                catch (UnityException x)
+                {
+                    Debug.Log(x);
+                }
+           
+            
 
             }
 
-            // look through bike
-            if(_texinfos.Count > 0)
-            {
-
-            }
-
-
+           
         }
 
 
 
-        public void UpdateColours()
+        public void UpdateBike()
         {
             try
             {
@@ -570,17 +808,53 @@ namespace PIPE_Valve_Console_Client
             SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
             FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
             RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+                StemRen = BMX.transform.FindDeepChild("Stem Mesh").gameObject.GetComponent<MeshRenderer>();
+                FRimRen = BMX.transform.FindDeepChild("BMX:Wheel").transform.Find("Rim Mesh").gameObject.GetComponent<MeshRenderer>();
+                RRimRen = BMX.transform.FindDeepChild("BMX:Wheel 1").transform.Find("Rim Mesh").gameObject.GetComponent<MeshRenderer>();
 
 
-            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Bike Colours",(int)MessageColour.System,(uint)0));
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Bike Colours",(int)MessageColour.System,(uint)0));
             FrameRen.material.color = new Color(GameManager.PlayersColours[id][0].x, GameManager.PlayersColours[id][0].y, GameManager.PlayersColours[id][0].z);
-           ForksRen.material.color = new Color(GameManager.PlayersColours[id][1].x, GameManager.PlayersColours[id][1].y, GameManager.PlayersColours[id][1].z);
-            BarsRen.material.color = new Color(GameManager.PlayersColours[id][2].x, GameManager.PlayersColours[id][2].y, GameManager.PlayersColours[id][2].z);
-            SeatRen.material.color = new Color(GameManager.PlayersColours[id][3].x, GameManager.PlayersColours[id][3].y, GameManager.PlayersColours[id][3].z);
-            FTireRen.materials[1].color = new Color(GameManager.PlayersColours[id][4].x,GameManager.PlayersColours[id][4].y, GameManager.PlayersColours[id][4].z);
-            FTireRen.materials[0].color = new Color(GameManager.PlayersColours[id][5].x, GameManager.PlayersColours[id][5].y, GameManager.PlayersColours[id][5].z);
-            RTireRen.materials[1].color = new Color(GameManager.PlayersColours[id][6].x, GameManager.PlayersColours[id][6].y, GameManager.PlayersColours[id][6].z);
-            RTireRen.materials[0].color = new Color(GameManager.PlayersColours[id][7].x, GameManager.PlayersColours[id][7].y, GameManager.PlayersColours[id][7].z);
+                FrameRen.material.SetInt("_SmoothnessTextureChannel", 0);
+                FrameRen.material.SetFloat("_Glossiness", GameManager.PlayersSmooths[id][0]);
+                FrameRen.material.SetFloat("_Metallic", GameManager.PlayersMetals[id][0]);
+
+                ForksRen.material.color = new Color(GameManager.PlayersColours[id][1].x, GameManager.PlayersColours[id][1].y, GameManager.PlayersColours[id][1].z);
+                ForksRen.material.SetInt("_SmoothnessTextureChannel", 0);
+                ForksRen.material.SetFloat("_Glossiness", GameManager.PlayersSmooths[id][1]);
+                ForksRen.material.SetFloat("_Metallic", GameManager.PlayersMetals[id][1]);
+
+                BarsRen.material.color = new Color(GameManager.PlayersColours[id][2].x, GameManager.PlayersColours[id][2].y, GameManager.PlayersColours[id][2].z);
+                BarsRen.material.SetInt("_SmoothnessTextureChannel", 0);
+                BarsRen.material.SetFloat("_Glossiness", GameManager.PlayersSmooths[id][2]);
+                BarsRen.material.SetFloat("_Metallic", GameManager.PlayersMetals[id][2]);
+
+
+                SeatRen.material.color = new Color(GameManager.PlayersColours[id][3].x, GameManager.PlayersColours[id][3].y, GameManager.PlayersColours[id][3].z);
+            FTireRen.materials[0].color = new Color(GameManager.PlayersColours[id][4].x,GameManager.PlayersColours[id][4].y, GameManager.PlayersColours[id][4].z);
+            FTireRen.materials[1].color = new Color(GameManager.PlayersColours[id][5].x, GameManager.PlayersColours[id][5].y, GameManager.PlayersColours[id][5].z);
+            RTireRen.materials[0].color = new Color(GameManager.PlayersColours[id][6].x, GameManager.PlayersColours[id][6].y, GameManager.PlayersColours[id][6].z);
+            RTireRen.materials[1].color = new Color(GameManager.PlayersColours[id][7].x, GameManager.PlayersColours[id][7].y, GameManager.PlayersColours[id][7].z);
+
+
+                StemRen.material.color = new Color(GameManager.PlayersColours[id][8].x, GameManager.PlayersColours[id][8].y, GameManager.PlayersColours[id][8].z);
+               StemRen.material.SetInt("_SmoothnessTextureChannel", 0);
+                StemRen.material.SetFloat("_Glossiness", GameManager.PlayersSmooths[id][3]);
+                StemRen.material.SetFloat("_Metallic", GameManager.PlayersMetals[id][3]);
+
+
+               FRimRen.material.color = new Color(GameManager.PlayersColours[id][9].x, GameManager.PlayersColours[id][9].y, GameManager.PlayersColours[id][9].z);
+                FRimRen.material.SetInt("_SmoothnessTextureChannel", 0);
+                FRimRen.material.SetFloat("_Glossiness", GameManager.PlayersSmooths[id][4]);
+                FRimRen.material.SetFloat("_Metallic", GameManager.PlayersMetals[id][4]);
+
+
+                RRimRen.material.color = new Color(GameManager.PlayersColours[id][10].x, GameManager.PlayersColours[id][10].y, GameManager.PlayersColours[id][10].z);
+                RRimRen.material.SetInt("_SmoothnessTextureChannel", 0);
+                RRimRen.material.SetFloat("_Glossiness", GameManager.PlayersSmooths[id][5]);
+                RRimRen.material.SetFloat("_Metallic", GameManager.PlayersMetals[id][5]);
+
+
 
             }
             catch(UnityException x)
@@ -590,31 +864,786 @@ namespace PIPE_Valve_Console_Client
 
 
 
+            try
+            {
+                FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
+                ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();
+                BarsRen = BMX.transform.FindDeepChild("Bars Mesh").gameObject.GetComponent<MeshRenderer>();
+                SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
+                FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+                RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
+                StemRen = BMX.transform.FindDeepChild("Stem Mesh").gameObject.GetComponent<MeshRenderer>();
+                FRimRen = BMX.transform.FindDeepChild("BMX:Wheel").transform.Find("Rim Mesh").gameObject.GetComponent<MeshRenderer>();
+                RRimRen = BMX.transform.FindDeepChild("BMX:Wheel 1").transform.Find("Rim Mesh").gameObject.GetComponent<MeshRenderer>();
+
+                FrameRen.material.EnableKeyword("_NORMALMAP");
+                ForksRen.material.EnableKeyword("_NORMALMAP");
+                BarsRen.material.EnableKeyword("_NORMALMAP");
+                SeatRen.material.EnableKeyword("_NORMALMAP");
+                StemRen.material.EnableKeyword("_NORMALMAP");
+                FTireRen.material.EnableKeyword("_NORMALMAP");
+                RTireRen.material.EnableKeyword("_NORMALMAP");
+                FRimRen.material.EnableKeyword("_NORMALMAP");
+                RRimRen.material.EnableKeyword("_NORMALMAP");
+
+                if (GameManager.BikeTexinfos[id].Count > 0)
+                {
+                    foreach(TextureInfo t in GameManager.BikeTexinfos[id])
+                    {
+                        byte[] bytes = null;
+
+                        if (t.NameofparentGameObject == "Frame Mesh")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.FrameDir);
+                           
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+                            
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    FrameRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+                           
+                        }
+
+                        if (t.NameofparentGameObject == "Forks Mesh")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.ForksDir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    ForksRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+                        if (t.NameofparentGameObject == "Stem Mesh")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Stemdir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                   StemRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Bars Mesh")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.BarsDir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    BarsRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Seat Mesh")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.SeatDir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    SeatRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Front Rim")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimdir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    FRimRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Rear Rim")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimdir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    RRimRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Tire Mesh")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.TiresDir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    FTireRen.material.mainTexture = image;
+                                    RTireRen.material.mainTexture = image;
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                    }
+
+
+
+                }
+
+
+                if (GameManager.Bikenormalinfos[id].Count > 0)
+                {
+                    foreach (TextureInfo t in GameManager.Bikenormalinfos[id])
+                    {
+                        byte[] bytes = null;
+
+                        if (t.NameofparentGameObject == "Frame Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Framenormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    FrameRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+                        if (t.NameofparentGameObject == "Forks Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Forksnormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    ForksRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+                        if (t.NameofparentGameObject == "Stem Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Stemnormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    StemRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Bars Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Barsnormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    BarsRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Seat Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Seatnormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    SeatRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "FRim Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimnormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    FRimRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "RRim Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimnormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    RRimRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                        if (t.NameofparentGameObject == "Tires Normal")
+                        {
+                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Tirenormaldir);
+
+                            FileInfo[] images = files.GetFiles();
+                            foreach (FileInfo f in images)
+                            {
+                                if (f.Name == t.Nameoftexture)
+                                {
+                                    bytes = File.ReadAllBytes(f.FullName);
+
+
+                                }
+                            }
+
+
+                            if (bytes != null)
+                            {
+                                try
+                                {
+                                    Texture2D image = new Texture2D(1024, 1024);
+
+                                    ImageConversion.LoadImage(image, bytes);
+                                    image.name = t.Nameoftexture;
+                                    FTireRen.material.SetTexture("_BumpMap", image);
+                                    RTireRen.material.SetTexture("_BumpMap", image);
+                                }
+                                catch (System.Exception x)
+                                {
+                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                    Debug.Log($"Failed to apply texture to {id}  " + x);
+                                }
+
+                            }
+
+
+
+
+
+
+
+                        }
+
+
+                    }
+
+
+
+                }
+
+
+
+
+
+            }
+            catch (System.Exception x)
+            {
+                Debug.Log("Error with Updating Bike Textures");
+            }
+
         }
 
 
 
+        /// <summary>
+        /// Give everything a moment before trying to go live and update
+        /// </summary>
+        /// <returns></returns>
         IEnumerator Initialiseafterwait()
         {
+          
+            yield return new WaitForSeconds(Random.Range(1,2));
+            if (CurrentModelName == "Daryien")
+            {
+                shirtren = RiderModel.transform.Find("shirt_geo").GetComponent<SkinnedMeshRenderer>();
+                bottomsren = RiderModel.transform.Find("pants_geo").GetComponent<SkinnedMeshRenderer>();
+                shoesren = RiderModel.transform.Find("shoes_geo").GetComponent<SkinnedMeshRenderer>();
+                hatren = RiderModel.transform.FindDeepChild("Baseball Cap_R").GetComponent<MeshRenderer>();
+                bodyren = RiderModel.transform.Find("body_geo").GetComponent<SkinnedMeshRenderer>();
+                UpdateDaryien();
+            }
 
-            yield return new WaitForSeconds(2);
-            RiderModel.name = "Model " + id;
-            BMX.name = "BMX " + id;
-            Destroy(BMX.transform.Find("BMX Load Out").gameObject);
-            FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
-            ForksRen = BMX.transform.FindDeepChild("Forks Mesh").gameObject.GetComponent<MeshRenderer>();
-            BarsRen = BMX.transform.FindDeepChild("Bars Mesh").gameObject.GetComponent<MeshRenderer>();
-            SeatRen = BMX.transform.FindDeepChild("Seat Mesh").gameObject.GetComponent<MeshRenderer>();
-            FTireRen = BMX.transform.FindDeepChild("BMX:Wheel").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
-            RTireRen = BMX.transform.FindDeepChild("BMX:Wheel 1").gameObject.transform.Find("Tire Mesh").gameObject.GetComponent<MeshRenderer>();
-            UpdateTextures();
-            UpdateColours();
+
+            UpdateBike();
+           
+            // update bike textures too
+           
             Debug.Log("Late init of remote rider done");
-            yield return null;
         }
 
 
+       
+        void OnGUI()
+        {
+           
 
+        }
 
         
 

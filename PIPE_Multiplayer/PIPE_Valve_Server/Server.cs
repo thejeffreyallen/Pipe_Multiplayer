@@ -17,14 +17,18 @@ namespace PIPE_Valve_Online_Server
     /// <summary>
     /// Servers Main Loop
     /// </summary>
-    class Server
+    static class Server
     {
-        #region Variables_Held_Here
+		#region Variables_Held_Here
+
+		
+		public static float VERSIONNUMBER { get;} = 2.1f;
+
 
 		/// <summary>
 		/// to be used for encryption/decryption mostly for authentication
 		/// </summary>
-        private Aes aes;
+        private static Aes aes;
 		/// <summary>
 		/// Switch For 
 		/// </summary>
@@ -80,14 +84,15 @@ namespace PIPE_Valve_Online_Server
         // creates any data needed at startup
         public static void Initialise()
         {
-
+			
 			packetHandlers = new Dictionary<int, PacketHandler>()
 			{
 				{ (int)ClientPackets.WelcomeReceived, ServersHandles.WelcomeReceived },
-				{ (int)ClientPackets.BikeDataReceive, ServersHandles.BikeDataReceive },
-				{ (int)ClientPackets.SendTexture, ServersHandles.TextureReceive },
-				{ (int)ClientPackets.SendTextureNames, ServersHandles.TexturenamesReceive},
+				{ (int)ClientPackets.ReceiveAllParts, ServersHandles.ReceiveAllParts },
 				{ (int)ClientPackets.TransformUpdate, ServersHandles.TransformReceive},
+				{ (int)ClientPackets.SendTextureNames, ServersHandles.TexturenamesReceive},
+				{ (int)ClientPackets.ReceiveTexturenames, ServersHandles.TexturenamesReceive},
+				{ (int)ClientPackets.SendTexture, ServersHandles.TextureReceive },
 				{ (int)ClientPackets.SendAudioUpdate,ServersHandles.ReceiveAudioUpdate},
 				{ (int)ClientPackets.SendTextMessage,ServersHandles.RelayPlayerMessage},
 				{ (int)ClientPackets.RequestforTex,ServersHandles.RequestforTex },
@@ -212,8 +217,7 @@ namespace PIPE_Valve_Online_Server
 #if VALVESOCKETS_SPAN
 		//server.ReceiveMessagesOnPollGroup(pollGroup, message, 20);
 #else
-				//if (server != null)
-				//	GC.KeepAlive(server);
+				if (server != null) GC.KeepAlive(server);
 
 				// process Incoming Data by reading int from byte[] and sending to function that corresponds to the int
 

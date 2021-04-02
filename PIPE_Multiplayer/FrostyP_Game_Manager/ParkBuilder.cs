@@ -19,9 +19,9 @@ namespace FrostyP_Game_Manager
 		MGInputManager inputman;
 		ParkSaver Saver = new ParkSaver();
 
-		Vector2 scrollPositionCurrentBuildwindow;
+		
 		Vector2 scrollPosition;
-		RaycastHit hit;
+		
 
 		public class Camspeed
         {

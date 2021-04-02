@@ -21,11 +21,12 @@ namespace PIPE_Valve_Console_Client
         DisconnectedPlayer = 7,
         ReceiveAudioForPlayer = 8,
         IncomingTextMessage,
-        RequestformyBike,
+        RequestForAllParts,
         BikeQuickUpdate,
         RiderQuickUpdate,
         ReceiveSetupAllOnlinePlayers,
         ReceiveMapName,
+        disconnectme,
 
 
 
@@ -37,7 +38,7 @@ namespace PIPE_Valve_Console_Client
     public enum ClientPackets
     {
         WelcomeReceived = 1,
-        SendBikeData,
+        SendAllParts,
         TransformUpdate,
         SendTextureNames,
         ReceiveTexturenames,

@@ -27,7 +27,7 @@ namespace PIPE_Valve_Online_Server
         }
         private static void SendToAll(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            foreach(Player client in Server.Players.Values)
+            foreach(Player client in Server.Players.Values.ToList())
             {
                 ThreadManager.ExecuteOnMainThread(() =>
                 {
@@ -42,7 +42,7 @@ namespace PIPE_Valve_Online_Server
           
             try
             {
-            foreach (Player client in Server.Players.Values)
+            foreach (Player client in Server.Players.Values.ToList())
             {
                 if(client.clientID != Exceptthis)
                     {
@@ -85,7 +85,7 @@ namespace PIPE_Valve_Online_Server
         {
             using (Packet _packet = new Packet((int)ServerPacket.Welcome))
             {
-                _packet.Write("Welcome To the Server");
+                _packet.Write($"Connected: Server Version: {Server.VERSIONNUMBER}");
              
 
 
@@ -113,9 +113,9 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-        public static void RequestBike(uint Clientid)
+        public static void RequestAllParts(uint Clientid)
         {
-            using(Packet _packet = new Packet((int)ServerPacket.RequestBike))
+            using(Packet _packet = new Packet((int)ServerPacket.RequestAllParts))
             {
                 // no data needed
                 SendtoOne(Clientid, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
@@ -168,16 +168,6 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_player.Ridermodelbundlename);
                 _packet.Write(_player.MapName);
 
-                if (_player.Ridermodel == "Daryien")
-                {
-                _packet.Write(_player.RiderTextureInfoList.Count);
-                foreach(TextureInfo t in _player.RiderTextureInfoList)
-                {
-                    _packet.Write(t.Nameoftexture);
-                    _packet.Write(t.NameofparentGameObject);
-                }
-
-                }
 
                
                 _packet.Write(_player.Loadout.FrameColour);
@@ -188,25 +178,73 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_player.Loadout.RTireColour);
                 _packet.Write(_player.Loadout.FTireSideColour);
                 _packet.Write(_player.Loadout.RTireSideColour);
+
+                _packet.Write(_player.Loadout.StemColour);
+                _packet.Write(_player.Loadout.FRimColour);
+                _packet.Write(_player.Loadout.RRimColour);
+
+
+
+
+
+
                 _packet.Write(_player.Loadout.FrameSmooth);
                 _packet.Write(_player.Loadout.ForksSmooth);
                 _packet.Write(_player.Loadout.SeatSmooth);
                 _packet.Write(_player.Loadout.BarsSmooth);
-                _packet.Write(_player.Loadout.FrameTexname);
-                _packet.Write(_player.Loadout.ForkTexname);
-                _packet.Write(_player.Loadout.BarTexName);
-                _packet.Write(_player.Loadout.SeatTexname);
-                _packet.Write(_player.Loadout.TireTexName);
-                _packet.Write(_player.Loadout.TireNormalName);
+
+                _packet.Write(_player.Loadout.StemSmooth);
+                _packet.Write(_player.Loadout.FRimSmooth);
+                _packet.Write(_player.Loadout.RRimSmooth);
+
+
+
+               
+
+
+                _packet.Write(_player.Loadout.FrameMetallic);
+                _packet.Write(_player.Loadout.ForksMetallic);
+                _packet.Write(_player.Loadout.BarsMetallic);
+                _packet.Write(_player.Loadout.StemMetallic);
+                _packet.Write(_player.Loadout.FrimMetallic);
+                _packet.Write(_player.Loadout.RrimMetallic);
+
+
+
+                _packet.Write(_player.Loadout.RiderTexnames.Count);
+                foreach(TextureInfo t in _player.Loadout.RiderTexnames)
+                {
+                    _packet.Write(t.Nameoftexture);
+                    _packet.Write(t.NameofparentGameObject);
+                    Console.WriteLine($"Packing {t.Nameoftexture} and {t.NameofparentGameObject}");
+                }
+
+                _packet.Write(_player.Loadout.bikeTexnames.Count);
+                foreach(TextureInfo binfo in _player.Loadout.bikeTexnames)
+                {
+                    _packet.Write(binfo.Nameoftexture);
+                    _packet.Write(binfo.NameofparentGameObject);
+                }
+
+                _packet.Write(_player.Loadout.Bikenormalnames.Count);
+                foreach (TextureInfo binfo in _player.Loadout.Bikenormalnames)
+                {
+                    _packet.Write(binfo.Nameoftexture);
+                    _packet.Write(binfo.NameofparentGameObject);
+                }
+
+
 
                 try
                 {
-                Server.server.SendMessageToConnection(_toClient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
+                SendtoOne(_toClient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
                 }
                 catch (Exception x)
                 {
-                    Console.WriteLine("Failed To Send Setup Command");
+                    Console.WriteLine("Failed To Send Setup Command  " + x);
                 }
+
+
             }
         }
 
@@ -219,24 +257,22 @@ namespace PIPE_Valve_Online_Server
         public static void SetupAllOnlinePlayers(uint _toclient, List<Player> _players)
         {
             List<Player> listof5 = new List<Player>();
-            
-            for (int i = 0; i < _players.Count; i++)
+            int count = 0;
+            foreach(Player __player in _players.ToList())
             {
-                if(_players[i].clientID != _toclient)
+                if(__player.clientID != _toclient)
                 {
-                listof5.Add(_players[i]);
-
+                listof5.Add(__player);
+                count++;
                 }
-
-
-                if (listof5.Count == 5 | i == _players.Count - 1 && listof5.Count>0)
+                if (listof5.Count == 5 | count == _players.Count -1 && listof5.Count>0)
                 {
                     Console.WriteLine($"Sending {listof5.Count} players out of {_players.Count} in Player list");
                     using (Packet _packet = new Packet((int)ServerPacket.SetupAllOnlinePlayers))
                     {
                         // amount of players in this bundle, for the last bundle or if less than 5 are on
                         _packet.Write(listof5.Count);
-                        foreach (Player _player in listof5)
+                        foreach (Player _player in listof5.ToList())
                         {
                             _packet.Write(_player.clientID);
                             _packet.Write(_player.Username);
@@ -246,16 +282,6 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(_player.Ridermodelbundlename);
                             _packet.Write(_player.MapName);
 
-                            if (_player.Ridermodel == "Daryien")
-                            {
-                                _packet.Write(_player.RiderTextureInfoList.Count);
-                                foreach (TextureInfo t in _player.RiderTextureInfoList)
-                                {
-                                    _packet.Write(t.Nameoftexture);
-                                    _packet.Write(t.NameofparentGameObject);
-                                }
-
-                            }
 
 
                             _packet.Write(_player.Loadout.FrameColour);
@@ -266,38 +292,87 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(_player.Loadout.RTireColour);
                             _packet.Write(_player.Loadout.FTireSideColour);
                             _packet.Write(_player.Loadout.RTireSideColour);
+
+                            _packet.Write(_player.Loadout.StemColour);
+                            _packet.Write(_player.Loadout.FRimColour);
+                            _packet.Write(_player.Loadout.RRimColour);
+
+
+
+
+
+
                             _packet.Write(_player.Loadout.FrameSmooth);
                             _packet.Write(_player.Loadout.ForksSmooth);
                             _packet.Write(_player.Loadout.SeatSmooth);
                             _packet.Write(_player.Loadout.BarsSmooth);
-                            _packet.Write(_player.Loadout.FrameTexname);
-                            _packet.Write(_player.Loadout.ForkTexname);
-                            _packet.Write(_player.Loadout.BarTexName);
-                            _packet.Write(_player.Loadout.SeatTexname);
-                            _packet.Write(_player.Loadout.TireTexName);
-                            _packet.Write(_player.Loadout.TireNormalName);
+
+                            _packet.Write(_player.Loadout.StemSmooth);
+                            _packet.Write(_player.Loadout.FRimSmooth);
+                            _packet.Write(_player.Loadout.RRimSmooth);
+
+
+
+
+
+
+                            _packet.Write(_player.Loadout.FrameMetallic);
+                            _packet.Write(_player.Loadout.ForksMetallic);
+                            _packet.Write(_player.Loadout.BarsMetallic);
+                            _packet.Write(_player.Loadout.StemMetallic);
+                            _packet.Write(_player.Loadout.FrimMetallic);
+                            _packet.Write(_player.Loadout.RrimMetallic);
+
+
+
+                            _packet.Write(_player.Loadout.RiderTexnames.Count);
+                            foreach (TextureInfo t in _player.Loadout.RiderTexnames)
+                            {
+                                _packet.Write(t.Nameoftexture);
+                                _packet.Write(t.NameofparentGameObject);
+                               
+                            }
+
+                            _packet.Write(_player.Loadout.bikeTexnames.Count);
+                            foreach (TextureInfo binfo in _player.Loadout.bikeTexnames)
+                            {
+                                _packet.Write(binfo.Nameoftexture);
+                                _packet.Write(binfo.NameofparentGameObject);
+                               
+                            }
+
+                            _packet.Write(_player.Loadout.Bikenormalnames.Count);
+                            foreach (TextureInfo binfo in _player.Loadout.Bikenormalnames)
+                            {
+                                _packet.Write(binfo.Nameoftexture);
+                                _packet.Write(binfo.NameofparentGameObject);
+                            }
+
+
+
 
                         }
 
-                    try
-                    {
-                       Server.server.SendMessageToConnection(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
+                        try
+                        {
+                       SendtoOne(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
                             listof5.Clear();
                             Console.WriteLine("Player bundle sent");
-                    }
-                    catch (Exception x)
-                    {
+                        }
+                        catch (Exception x)
+                        {
                         Console.WriteLine($"Failed To Send Player bundle: Players: {listof5.Count} in list, total to send: {_players}");
 
-                    }
+                        }
+
                     }
 
                 
                 }
 
-
-
             }
+
+                
 
 
 
@@ -339,16 +414,13 @@ namespace PIPE_Valve_Online_Server
                 }
                 catch (Exception x)
                 {
-                    Console.WriteLine("Failed transform relay, player left?");
+                    Console.WriteLine("Failed transform relay, player left?  : " + x);
                 }
 
 
 
             }
         }
-
-
-
 
 
 
@@ -358,7 +430,12 @@ namespace PIPE_Valve_Online_Server
         /// <param name="ClientThatDisconnected"></param>
         public static void DisconnectTellAll(uint ClientThatDisconnected)
         {
-            Server.Players.Remove(ClientThatDisconnected);
+
+            foreach(Player p in Server.Players.Values.ToList())
+            {
+                if(p.clientID == ClientThatDisconnected)
+                {
+                  Server.Players.Remove(ClientThatDisconnected);
             using (Packet _packet = new Packet((int)ServerPacket.DisconnectedPlayer))
             {
                 _packet.Write(ClientThatDisconnected);
@@ -368,12 +445,15 @@ namespace PIPE_Valve_Online_Server
                 }
                 catch (Exception X)
                 {
-                    Console.WriteLine("Failed Disconnect tell all, player just left?");
+                    Console.WriteLine("Failed Disconnect tell all, player just left? : " + X);
                 }
             }
+                }
+            }
+
+
+
         }
-
-
 
 
 
@@ -389,13 +469,11 @@ namespace PIPE_Valve_Online_Server
                 }
                 catch (Exception x)
                 {
-                    Console.WriteLine("Failed Audio relay, player left?");
+                    Console.WriteLine("Failed Audio relay, player left?  :" + x);
                 }
             }
             
         }
-
-
 
 
 
@@ -424,13 +502,6 @@ namespace PIPE_Valve_Online_Server
             {
                 Console.WriteLine("Failed send tex to all, player left?");
             }
-
-        }
-
-
-        public static void SendTextMessageToOne(uint _toplayer, string _message)
-        {
-
 
         }
 
@@ -506,6 +577,7 @@ namespace PIPE_Valve_Online_Server
         }
 
 
+
         public static void SendQuickRiderUpdate(uint _toplayer, Packet _packet)
         {
             try
@@ -527,6 +599,19 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(name);
                 _packet.Write(_from);
                 SendToAll(_from, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+        }
+
+
+
+       public static void DisconnectPlayer(string msg, uint _to)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.Disconnectyou))
+            {
+                _packet.Write(msg);
+              
+                SendtoOne(_to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }

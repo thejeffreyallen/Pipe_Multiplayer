@@ -43,7 +43,7 @@ namespace FrostyP_Game_Manager
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
             if (!File.Exists(directory + "\\libprotobuf.dll"))
@@ -55,7 +55,7 @@ namespace FrostyP_Game_Manager
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
             if (!File.Exists(directory + "\\libcrypto-1_1.dll"))
@@ -67,7 +67,7 @@ namespace FrostyP_Game_Manager
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
             if (!File.Exists(directory + "\\libssl-1_1.dll"))
@@ -79,7 +79,7 @@ namespace FrostyP_Game_Manager
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
             if (!File.Exists(directory + "\\steamwebrtc.dll"))
@@ -91,7 +91,7 @@ namespace FrostyP_Game_Manager
                 }
                 catch (UnityException x)
                 {
-
+                    Debug.Log(x);
                 }
             }
 
@@ -112,6 +112,7 @@ namespace FrostyP_Game_Manager
             FNetOBJ.AddComponent<SendToUnityThread>();
             FNetOBJ.AddComponent<BMXNetLoadout>();
             FNetOBJ.AddComponent<CharacterModding>();
+         
             UnityEngine.Object.DontDestroyOnLoad(FNetOBJ);
 
             Network = new GameNetworking();

@@ -20,12 +20,12 @@ namespace PIPE_Valve_Console_Client
             
             // run receive
             GameNetworking.instance.Run();
-           
 
-           
+            
 
-                // Do any outgoing on Server thread
-                SendToServerThread.UpdateMain();
+
+            // Do any outgoing on Server thread
+            SendToServerThread.UpdateMain();
            
         }
 
