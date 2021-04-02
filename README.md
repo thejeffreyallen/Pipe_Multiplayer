@@ -1,4 +1,11 @@
 # Pipe_Multiplayer
+if you have exisiting 2.0 Multiplayer install:
+overwrite your Mods/FrostyPManager/   folder
+overwrite your PIPE_Data/FrostyPmanager/  folder
+overwrite your PIPE_Data/Custom Players  folder
+
+
+
 
 # Manual Setup of FrostyP Game Manager
 
@@ -96,9 +103,6 @@ Saves to Desktop/Your_logs
 GameNetworkingSockets not found - error loading dll when clicking Connect to server = issue with VC-redist most likely, 
 potentially other builds of GameNetworkingSockets.dll required, message frostyP if this carries on
 
-bugs with LiveUpdates sometimes changing other players clothes
-
-Loading up doesnt get your rider and bike correct first time.
 
 Return from parkbuilder gives insane mode until you get off or go to marker
 
