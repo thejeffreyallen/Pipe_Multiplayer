@@ -195,6 +195,7 @@ namespace PIPE_Valve_Console_Client
 			directories.Add(Seatnormaldir);
 			directories.Add(Stemnormaldir);
 			directories.Add(Rimnormaldir);
+			directories.Add(savePath);
 
 
 			foreach (string s in directories)

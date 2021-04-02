@@ -97,15 +97,16 @@ namespace PIPE_Valve_Online_Server
 
             while (isrunning)
             {
-                if (_nextloop < DateTime.Now)
+                while (_nextloop < DateTime.Now)
                 {
                     GameLogic.Update();
 
                     _nextloop = _nextloop.AddMilliseconds(Constants.MSPerTick);
-                }
-                else
-                {
-                    Thread.Sleep(_nextloop - DateTime.Now);
+
+                    if (_nextloop > DateTime.Now)
+                    {
+                        Thread.Sleep(_nextloop - DateTime.Now);
+                    }
                 }
             }
         }
