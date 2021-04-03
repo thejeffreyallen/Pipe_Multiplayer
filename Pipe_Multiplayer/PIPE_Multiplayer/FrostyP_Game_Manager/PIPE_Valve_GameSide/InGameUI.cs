@@ -23,7 +23,7 @@ namespace PIPE_Valve_Console_Client
         public static InGameUI instance;
         public LocalPlayer _localplayer;
 
-        GameObject MyPlayer;
+       
         Camera Cam;
         GameObject Camtarget;
         GameObject Targetrider;
@@ -32,7 +32,8 @@ namespace PIPE_Valve_Console_Client
         public GUIStyle Generalstyle = new GUIStyle();
 
         public string Username = "Username...";
-        
+        public string Nickname = "Server 1";
+
         public string Key;
         public string IV;
         /// <summary>
@@ -42,6 +43,7 @@ namespace PIPE_Valve_Console_Client
         public bool OfflineMenu = true;
         public bool OnlineMenu;
         public bool Minigui;
+        public bool RecentSavedServersMenu;
         public string desiredport = "7777";
         public string desiredIP = "127.0.0.1";
         public bool IsSpectating;
@@ -90,6 +92,7 @@ namespace PIPE_Valve_Console_Client
             if(!File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
             {
                 PlayerSavedata = new PlayerSaveData(Username);
+                PlayerSavedata.savedservers = new List<SavedServer>();
                 BinaryFormatter bf = new BinaryFormatter();
                 bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
                 
@@ -265,7 +268,7 @@ namespace PIPE_Valve_Console_Client
                 {(int)PIPE_Valve_Console_Client.MessageColour.Server,Color.red},
             };
            _localplayer = gameObject.GetComponent<LocalPlayer>();
-            MyPlayer = UnityEngine.GameObject.Find("BMXS Player Components");
+           
             Camtarget = new GameObject();
 
         }
@@ -328,16 +331,75 @@ namespace PIPE_Valve_Console_Client
        public void ClientsOfflineMenu()
         {
             
-            GUILayout.Label("Client Mode");
-
-
-
+            GUILayout.Label("Online Mode");
 
             GUILayout.Space(10);
             // setup stuff before connecting
             Username = GUILayout.TextField(Username);
-            GUILayout.Space(10);
-            desiredIP = GUILayout.TextField(GameNetworking.instance.ip);
+            GUILayout.Space(30);
+            RecentSavedServersMenu = GUILayout.Toggle(RecentSavedServersMenu, "Saved Servers");
+            if (RecentSavedServersMenu)
+            {
+                GUILayout.Space(15);
+                GUILayout.Label("Save curent Ip and port by nickname:");
+                GUILayout.Space(5);
+                Nickname = GUILayout.TextField(Nickname);
+                if(GUILayout.Button($"Save current setup as {Nickname}"))
+                {
+
+
+                    if(PlayerSavedata != null)
+                    {
+
+                        if(PlayerSavedata.savedservers == null)
+                        {
+                            PlayerSavedata.savedservers = new List<SavedServer>();
+                        }
+
+
+                        PlayerSavedata.savedservers.Add(new SavedServer(desiredIP, desiredport, Nickname));
+                        BinaryFormatter bf = new BinaryFormatter();
+                        bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+                        
+                    }
+                }
+                GUILayout.Space(10);
+
+                GUILayout.Label("Saved server list:");
+                GUILayout.Space(10);
+                if (PlayerSavedata != null && PlayerSavedata.savedservers != null)
+                {
+                    foreach(SavedServer s in PlayerSavedata.savedservers)
+                    {
+                        if (GUILayout.Button("Select :" + s.Nickname))
+                        {
+                            desiredIP = s.IP;
+                            desiredport = s.PORT;
+                        }
+                        GUILayout.Space(5);
+                        if (GUILayout.Button("Remove :" + s.Nickname))
+                        {
+                            PlayerSavedata.savedservers.Remove(s);
+                            
+                                
+                                BinaryFormatter bf = new BinaryFormatter();
+                                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+
+
+                            
+
+                        }
+                        GUILayout.Space(20);
+                    }
+                }
+
+
+
+                GUILayout.Space(35);
+            }
+           
+
+            desiredIP = GUILayout.TextField(desiredIP);
             if(desiredIP != "")
             {
                 GameNetworking.instance.ip = desiredIP;
@@ -353,13 +415,15 @@ namespace PIPE_Valve_Console_Client
             {
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
 
-                if (File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+                if(PlayerSavedata != null)
                 {
-                    PlayerSavedata = new PlayerSaveData(Username);
-                    BinaryFormatter bf = new BinaryFormatter();
-                    bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+                    PlayerSavedata.Username = Username;
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+                
 
                 }
+
 
 
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
@@ -422,6 +486,15 @@ namespace PIPE_Valve_Console_Client
             {
                 
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying FrostyP..", 1, 0));
+                if (File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+                {
+                    PlayerSavedata = new PlayerSaveData(Username);
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+
+                }
+
+
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
                 if (CharacterModding.instance.LoadBmxSetup() == 0)
@@ -465,7 +538,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            GUILayout.Space(30);
+            GUILayout.Space(80);
            
             
            
@@ -567,7 +640,6 @@ namespace PIPE_Valve_Console_Client
         {
             if (IsSpectating)
             {
-               
                 SpectateControl();
             }
         }
@@ -695,7 +767,7 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
+        // --------------------------------------------------------------------------------------------  SPECTATE MODE ---------------------------------------------------------------------------------------------------
         public void SpectateEnter(uint id)
         {
             Cam = new GameObject().AddComponent<Camera>();
@@ -709,13 +781,22 @@ namespace PIPE_Valve_Console_Client
 
         public void SpectateControl()
         {
+            float speed = 1;
             Vector3 Velocity = Vector3.zero;
            
 
             Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.1f);
             Cam.transform.LookAt(Camtarget.transform);
             
-            Cam.gameObject.transform.Translate(MGInputManager.LStickX(), 0, MGInputManager.LStickY());
+            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickY()> 0.1f)
+            {
+            Cam.gameObject.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * speed, 0, MGInputManager.LStickY() * Time.deltaTime * speed);
+            }
+            if (MGInputManager.RStickY() > 0.1f)
+            {
+                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, MGInputManager.RStickY() * Time.deltaTime * speed);
+            }
+
 
             if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > 15)
             {
@@ -735,6 +816,21 @@ namespace PIPE_Valve_Console_Client
             IsSpectating = false;
 
         }
+
+        // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        
+
+
+
+
+
+
+
+
+
+
+
 
 
     }
