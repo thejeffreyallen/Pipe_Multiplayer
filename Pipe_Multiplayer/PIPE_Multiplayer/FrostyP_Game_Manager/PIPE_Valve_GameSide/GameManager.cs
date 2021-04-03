@@ -127,7 +127,9 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
+        /// <summary>
+        /// Sent Once to server, immediatley after receiving Welcome, the server receiving this is packet is what triggers a sendtoall of your data and sendtoyou of everyones data
+        /// </summary>
         public void SendAllParts()
         {
             List<TextureInfo> TexnamesBike = new List<TextureInfo>();
@@ -143,8 +145,6 @@ namespace PIPE_Valve_Console_Client
             Bikecolours.Add(BMXNetLoadout.instance.FTireSideColour);
             Bikecolours.Add(BMXNetLoadout.instance.RTireColour);
             Bikecolours.Add(BMXNetLoadout.instance.RTireSideColour);
-
-            // new
             Bikecolours.Add(BMXNetLoadout.instance.StemColour);
             Bikecolours.Add(BMXNetLoadout.instance.FRimColour);
             Bikecolours.Add(BMXNetLoadout.instance.RRimColour);
@@ -155,8 +155,6 @@ namespace PIPE_Valve_Console_Client
             BikeSmooths.Add(BMXNetLoadout.instance.ForksSmooth);
             BikeSmooths.Add(BMXNetLoadout.instance.BarsSmooth);
             BikeSmooths.Add(BMXNetLoadout.instance.SeatSmooth);
-
-            // new
             BikeSmooths.Add(BMXNetLoadout.instance.StemSmooth);
             BikeSmooths.Add(BMXNetLoadout.instance.FRimSmooth);
             BikeSmooths.Add(BMXNetLoadout.instance.RRimSmooth);
@@ -164,8 +162,6 @@ namespace PIPE_Valve_Console_Client
             BikeMetallics.Add(BMXNetLoadout.instance.FrameMetallic);
             BikeMetallics.Add(BMXNetLoadout.instance.ForksMetallic);
             BikeMetallics.Add(BMXNetLoadout.instance.BarsMetallic);
-
-            // new
             BikeMetallics.Add(BMXNetLoadout.instance.StemMetallic);
             BikeMetallics.Add(BMXNetLoadout.instance.FRimMetallic);
             BikeMetallics.Add(BMXNetLoadout.instance.RRimMetallic);
@@ -179,7 +175,7 @@ namespace PIPE_Valve_Console_Client
             TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimTexName, "Front Rim"));
             TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimTexName, "Rear Rim"));
 
-            // new
+            
             TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameNormalName, "Frame Normal"));
             TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.ForksNormalName, "Forks Normal"));
             TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.BarsNormalName, "Bars Normal"));

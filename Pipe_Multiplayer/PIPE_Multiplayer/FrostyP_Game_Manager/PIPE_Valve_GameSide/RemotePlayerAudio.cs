@@ -142,7 +142,12 @@ namespace PIPE_Valve_Console_Client
             {
                 for (int i = 0; i < IncomingOneShotUpdates.Count; i++)
                 {
-                    PlayOneShot(IncomingOneShotUpdates[i].Path, IncomingOneShotUpdates[i].Volume);
+                    FMOD.Studio.EventInstance instance = FMODUnity.RuntimeManager.CreateInstance(IncomingOneShotUpdates[i].Path);
+                    instance.setVolume(IncomingOneShotUpdates[i].Volume);
+                    instance.set3DAttributes(Rider.transform.position.To3DAttributes());
+                    instance.start();
+                    instance.release();
+                    instance.clearHandle();
                     
                 }
                 IncomingOneShotUpdates.Clear();
@@ -866,7 +871,7 @@ namespace PIPE_Valve_Console_Client
         void PlayOneShot(string bankPath, float volume)
         {
             FMOD.Studio.EventInstance eventInstance = RuntimeManager.CreateInstance(bankPath);
-            eventInstance.set3DAttributes(Rider.transform.To3DAttributes());
+            eventInstance.set3DAttributes(Rider.transform.position.To3DAttributes());
             eventInstance.setVolume(volume);
            
             eventInstance.start();

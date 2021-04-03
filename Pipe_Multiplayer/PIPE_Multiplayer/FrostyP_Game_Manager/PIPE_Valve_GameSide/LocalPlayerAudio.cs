@@ -144,7 +144,7 @@ namespace PIPE_Valve_Console_Client
                         Launcher.CurrentEvent.getDescription(out Description);
                         Description.getPath(out ThisSoundpath);
 
-                        if (state == FMOD.Studio.PLAYBACK_STATE.STARTING && ThisSoundpath != LastSoundPath)
+                        if (state == FMOD.Studio.PLAYBACK_STATE.STARTING && ThisSoundpath != LastSoundPath | state == FMOD.Studio.PLAYBACK_STATE.PLAYING && ThisSoundpath != LastSoundPath)
                         {
                             LastOneShotEvent = Launcher.CurrentEvent;
                             // process this event

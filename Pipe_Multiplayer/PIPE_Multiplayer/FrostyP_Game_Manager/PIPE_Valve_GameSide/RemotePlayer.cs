@@ -309,7 +309,6 @@ namespace PIPE_Valve_Console_Client
                 found = true;
                 
                 return loadedrider;
-
             }
             else
             {
@@ -521,6 +520,7 @@ namespace PIPE_Valve_Console_Client
                                     ImageConversion.LoadImage(image, bytes);
                                 image.name = t.Nameoftexture;
                                     bodyren.materials[0].mainTexture = image;
+                                    found = true;
                                 }
                                 catch (System.Exception x)
                                 {
@@ -560,7 +560,8 @@ namespace PIPE_Valve_Console_Client
                                 ImageConversion.LoadImage(image, bytes);
                                 image.name = t.Nameoftexture;
                                 bodyren.materials[1].mainTexture = image;
-                            }
+                                    found = true;
+                                }
                             catch (System.Exception x)
                             {
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
@@ -599,7 +600,8 @@ namespace PIPE_Valve_Console_Client
                                 ImageConversion.LoadImage(image, bytes);
                                 image.name = t.Nameoftexture;
                                 bodyren.materials[2].mainTexture = image;
-                            }
+                                    found = true;
+                                }
                             catch (System.Exception x)
                             {
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
@@ -638,7 +640,8 @@ namespace PIPE_Valve_Console_Client
                                 ImageConversion.LoadImage(image, bytes);
                                 image.name = t.Nameoftexture;
                                 shirtren.material.mainTexture = image;
-                            }
+                                    found = true;
+                                }
                             catch (System.Exception x)
                             {
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
@@ -677,7 +680,8 @@ namespace PIPE_Valve_Console_Client
                                 ImageConversion.LoadImage(image, bytes);
                                 image.name = t.Nameoftexture;
                                bottomsren.material.mainTexture = image;
-                            }
+                                    found = true;
+                                }
                             catch (System.Exception x)
                             {
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
@@ -717,7 +721,8 @@ namespace PIPE_Valve_Console_Client
                                 image.name = t.Nameoftexture;
                                 hatren.material.mainTexture = image;
                                 hatren.material.color = Color.white;
-                            }
+                                    found = true;
+                                }
                             catch (System.Exception x)
                             {
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
@@ -756,7 +761,8 @@ namespace PIPE_Valve_Console_Client
                                 ImageConversion.LoadImage(image, bytes);
                                 image.name = t.Nameoftexture;
                                 shoesren.material.mainTexture = image;
-                            }
+                                    found = true;
+                                }
                             catch (System.Exception x)
                             {
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
