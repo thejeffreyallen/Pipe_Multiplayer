@@ -472,7 +472,9 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
+        /// <summary>
+        /// Call this once Gamemanager.RiderTexinfos[id] has had its names updated
+        /// </summary>
         public void UpdateDaryien()
         {
             // look through rider
@@ -487,6 +489,7 @@ namespace PIPE_Valve_Console_Client
                     
                 foreach (TextureInfo t in GameManager.RiderTexinfos[id])
                 {
+                        bool found = false;
                     byte[] bytes = null;
                     if (t.NameofparentGameObject == "Daryien_Head")
                     {
@@ -762,6 +765,14 @@ namespace PIPE_Valve_Console_Client
 
                         }
                     }
+
+
+                        if (!found)
+                        {
+                            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} wasnt found in textures for {username}'s Daryien", 1, 1));
+                        }
+
+
                 }
                 }
                 catch (UnityException x)
@@ -870,10 +881,15 @@ namespace PIPE_Valve_Console_Client
                 {
                     foreach(TextureInfo t in GameManager.BikeTexinfos[id])
                     {
+
+
                         byte[] bytes = null;
 
                         if (t.NameofparentGameObject == "Frame Mesh")
                         {
+
+                            if(t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
+                            {
                             DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.FrameDir);
                            
                                 FileInfo[] images = files.GetFiles();
@@ -909,6 +925,12 @@ namespace PIPE_Valve_Console_Client
 
 
 
+                            }
+                            else
+                            {
+                                FrameRen.material.mainTexture = null; // if no registered name, take any exisiting material back off with update
+                            }
+
 
 
                            
@@ -916,38 +938,44 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Forks Mesh")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.ForksDir);
-
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.ForksDir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        ForksRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    ForksRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                ForksRen.material.mainTexture = null;
                             }
-
 
 
 
@@ -958,39 +986,46 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Stem Mesh")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Stemdir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Stemdir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        StemRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
+
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                   StemRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                StemRen.material.mainTexture = null;
                             }
-
-
 
 
 
@@ -1001,39 +1036,47 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Bars Mesh")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.BarsDir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.BarsDir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        BarsRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
+
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    BarsRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                BarsRen.material.mainTexture = null;
                             }
-
-
 
 
 
@@ -1044,38 +1087,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Seat Mesh")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.SeatDir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.SeatDir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        SeatRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    SeatRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                SeatRen.material.mainTexture = null;
                             }
-
 
 
 
@@ -1087,38 +1137,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Front Rim")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimdir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimdir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        FRimRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    FRimRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                FRimRen.material.mainTexture = null;
                             }
-
 
 
 
@@ -1130,38 +1187,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Rear Rim")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimdir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimdir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        RRimRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    RRimRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                RRimRen.material.mainTexture = null;
                             }
-
 
 
 
@@ -1173,39 +1237,47 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Tire Mesh")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.TiresDir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.TiresDir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        FTireRen.material.mainTexture = image;
+                                        RTireRen.material.mainTexture = image;
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    FTireRen.material.mainTexture = image;
-                                    RTireRen.material.mainTexture = image;
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                FTireRen.material.mainTexture = null;
+                                RTireRen.material.mainTexture = null;
                             }
-
 
 
 
@@ -1230,38 +1302,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Frame Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Framenormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Framenormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        FrameRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    FrameRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                FrameRen.material.SetTexture("_BumpMap", null);
                             }
-
 
 
 
@@ -1272,38 +1351,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Forks Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Forksnormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Forksnormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        ForksRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    ForksRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                ForksRen.material.SetTexture("_BumpMap", null);
                             }
-
 
 
 
@@ -1314,38 +1400,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Stem Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Stemnormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Stemnormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        StemRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    StemRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                StemRen.material.SetTexture("_BumpMap", null);
                             }
-
 
 
 
@@ -1357,38 +1450,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Bars Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Barsnormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Barsnormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        BarsRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    BarsRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                BarsRen.material.SetTexture("_BumpMap", null);
                             }
-
 
 
 
@@ -1400,38 +1500,45 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Seat Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Seatnormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Seatnormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        SeatRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    SeatRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                SeatRen.material.SetTexture("_BumpMap", null);
                             }
-
 
 
 
@@ -1443,36 +1550,44 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "FRim Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimnormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimnormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        FRimRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    FRimRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                FRimRen.material.SetTexture("_BumpMap", null);
                             }
 
 
@@ -1486,39 +1601,46 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "RRim Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimnormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Rimnormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        RRimRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
+
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    RRimRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                RRimRen.material.SetTexture("_BumpMap", null);
                             }
-
-
 
 
 
@@ -1529,39 +1651,47 @@ namespace PIPE_Valve_Console_Client
 
                         if (t.NameofparentGameObject == "Tires Normal")
                         {
-                            DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Tirenormaldir);
 
-                            FileInfo[] images = files.GetFiles();
-                            foreach (FileInfo f in images)
+                            if (t.Nameoftexture != "" && t.Nameoftexture != " " && t.Nameoftexture != "e")
                             {
-                                if (f.Name == t.Nameoftexture)
-                                {
-                                    bytes = File.ReadAllBytes(f.FullName);
+                                DirectoryInfo files = new DirectoryInfo(CharacterModding.instance.Tirenormaldir);
 
+                                FileInfo[] images = files.GetFiles();
+                                foreach (FileInfo f in images)
+                                {
+                                    if (f.Name == t.Nameoftexture)
+                                    {
+                                        bytes = File.ReadAllBytes(f.FullName);
+
+
+                                    }
+                                }
+
+
+                                if (bytes != null)
+                                {
+                                    try
+                                    {
+                                        Texture2D image = new Texture2D(1024, 1024);
+
+                                        ImageConversion.LoadImage(image, bytes);
+                                        image.name = t.Nameoftexture;
+                                        FTireRen.material.SetTexture("_BumpMap", image);
+                                        RTireRen.material.SetTexture("_BumpMap", image);
+                                    }
+                                    catch (System.Exception x)
+                                    {
+                                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
+                                        Debug.Log($"Failed to apply texture to {id}  " + x);
+                                    }
 
                                 }
                             }
-
-
-                            if (bytes != null)
+                            else
                             {
-                                try
-                                {
-                                    Texture2D image = new Texture2D(1024, 1024);
-
-                                    ImageConversion.LoadImage(image, bytes);
-                                    image.name = t.Nameoftexture;
-                                    FTireRen.material.SetTexture("_BumpMap", image);
-                                    RTireRen.material.SetTexture("_BumpMap", image);
-                                }
-                                catch (System.Exception x)
-                                {
-                                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} unsuitable for rebuild", 1, 1));
-                                    Debug.Log($"Failed to apply texture to {id}  " + x);
-                                }
-
+                                FTireRen.material.SetTexture("_BumpMap", null);
+                                RTireRen.material.SetTexture("_BumpMap", null);
                             }
-
 
 
 
