@@ -113,6 +113,7 @@ namespace FrostyP_Game_Manager
 
 		List<GameObject> itemsfound = new List<GameObject>();
 		List<GameObject> placedobjects = new List<GameObject>();
+		List<NetGameObject> Netobjectlist = new List<NetGameObject>();
 
 		Texture2D RedTex;
 		Texture2D BlackTex;

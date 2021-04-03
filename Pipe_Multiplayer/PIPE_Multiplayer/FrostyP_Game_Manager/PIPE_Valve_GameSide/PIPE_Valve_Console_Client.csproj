@@ -148,6 +148,7 @@
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GameData.cs" />
+    <Compile Include="PlayerSaveData.cs" />
     <Compile Include="RiderSaveData.cs" />
     <Compile Include="ServerUpdate.cs" />
     <Compile Include="GameManager.cs" />

@@ -7,6 +7,8 @@ using System.Threading;
 using System;
 using FrostyP_Game_Manager;
 using UnityEngine.Rendering;
+using System.Runtime.Serialization.Formatters.Binary;
+
 
 
 
@@ -14,6 +16,10 @@ namespace PIPE_Valve_Console_Client
 {
     public class InGameUI : MonoBehaviour
     {
+
+        private PlayerSaveData PlayerSavedata;
+        private string Playersavepath = Application.dataPath + "/FrostyPGameManager/PlayerSaveData/";
+
         public static InGameUI instance;
         public LocalPlayer _localplayer;
 
@@ -21,7 +27,6 @@ namespace PIPE_Valve_Console_Client
         Camera Cam;
         GameObject Camtarget;
         GameObject Targetrider;
-        MGInputManager mginput;
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
@@ -78,6 +83,31 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         private void Start()
         {
+            if(!Directory.Exists(Playersavepath))
+            {
+                Directory.CreateDirectory(Playersavepath);
+            }
+            if(!File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+            {
+                PlayerSavedata = new PlayerSaveData(Username);
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+                
+            }
+            else if(File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                PlayerSavedata = bf.Deserialize(File.OpenRead(Playersavepath + "PlayerData.FrostyPreset")) as PlayerSaveData;
+
+                Username = PlayerSavedata.Username;
+            }
+
+
+
+
+
+
+
             RedTex = new Texture2D(Screen.width / 6, Screen.height / 4); ;
             Color[] colorarray = RedTex.GetPixels();
             Color newcolor = new Color(0.5f, 0, 0, 1);
@@ -322,6 +352,16 @@ namespace PIPE_Valve_Console_Client
             if (GUILayout.Button("Connect to Server"))
             {
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
+
+                if (File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+                {
+                    PlayerSavedata = new PlayerSaveData(Username);
+                    BinaryFormatter bf = new BinaryFormatter();
+                    bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+
+                }
+
+
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
                 if (CharacterModding.instance.LoadBmxSetup() == 0)

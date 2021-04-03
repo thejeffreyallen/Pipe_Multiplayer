@@ -13,6 +13,7 @@ if you have exisiting 2.0 Multiplayer install:
 - Performance increase
 - Spectate Mode
 - More Bike Customisation
+- Parkbuilder will recognise objects with rigidbodies
 
 # Manual Setup of FrostyP Game Manager
 
@@ -155,8 +156,14 @@ an already loaded assetbundle on someone's machine among x players coming and go
 
 Known name changes:
 
-Session_Player change to Sessionguy,
-Marty_Mcfly change to marty mcfly,
+ron
+Sessionguy
+Marty Mcfly
+Big Smoke cutscene
+deadpool
+Rick Sanchez
+Shaggy Rogers
+shrek
 
 
 
