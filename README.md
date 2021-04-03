@@ -11,6 +11,8 @@ if you have exisiting 2.0 Multiplayer install:
 - Various bug fixes
 - Better handling of audio
 - Performance increase
+- Spectate Mode
+- More Bike Customisation
 
 # Manual Setup of FrostyP Game Manager
 

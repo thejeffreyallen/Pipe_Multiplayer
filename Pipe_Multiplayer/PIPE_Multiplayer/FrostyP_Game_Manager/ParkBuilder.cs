@@ -568,6 +568,7 @@ namespace FrostyP_Game_Manager
 			if (buildercam != null)
 			{
 				buildercam.enabled = true;
+				buildercam.transform.position = _playerscurrentpos + Vector3.back * 5;
 			}
 
 			if (camobj == null)
@@ -763,11 +764,18 @@ namespace FrostyP_Game_Manager
 
 
 
-		// instatiates a clone of current object, adds PLACED to its name for later reference then re-targets activeobj to the live version
+		// instantiates a clone of current object, adds PLACED to its name for later reference then re-targets activeobj to the live version
 		void PlaceObject()
         {
 			GameObject obj = GameObject.Instantiate(UnityEngine.GameObject.Find(Activeobj.name));
-			obj.transform.DetachChildren();
+			//obj.transform.DetachChildren();
+            if (obj.GetComponent<Rigidbody>())
+            {
+				obj.layer = 25;
+				obj.GetComponent<Rigidbody>().isKinematic = false;
+            }
+
+
 			obj.name = Activeobj.gameObject.name + " PLACED";
 			obj.transform.position = Activeobj.transform.position;
 			obj.transform.rotation = Activeobj.transform.rotation;

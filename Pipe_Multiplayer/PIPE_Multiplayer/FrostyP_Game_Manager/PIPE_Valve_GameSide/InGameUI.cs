@@ -483,13 +483,13 @@ namespace PIPE_Valve_Console_Client
                     SpectateEnter(r.id);
 
                 }
-               // GUILayout.Label($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}");
+              
             }
 
             GUILayout.Space(20);
             GUILayout.Label("Messages:");
             
-           // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+          
             foreach(TextMessage mess in Messages)
             {
                 GUIStyle style = new GUIStyle();
@@ -501,7 +501,7 @@ namespace PIPE_Valve_Console_Client
                 GUILayout.Label(mess.Message,style);
             }
 
-           // GUILayout.EndScrollView();
+           
             GUILayout.Space(50);
             if (GUILayout.Button("Disconnect"))
             {
