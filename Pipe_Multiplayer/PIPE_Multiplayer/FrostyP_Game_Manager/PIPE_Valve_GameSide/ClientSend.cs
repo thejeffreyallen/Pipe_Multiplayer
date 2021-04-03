@@ -9,9 +9,10 @@ namespace PIPE_Valve_Console_Client
     public class ClientSend : MonoBehaviour
     {
 
-        // These top three functions are used by the send functions, give connection number, bytes and specify a send mode from Valve.sockets.sendflags.
+        // These top three functions are used by the send functions, give connection number (Server), bytes and specify a send mode from Valve.sockets.sendflags.
         private static void SendToServer(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
+            // Sends to outgoing thread once use of Unity API is done with, Really need system.numerics (NET 4.5) to be able to do all processing of numbers in and out on a different thread
             SendToServerThread.ExecuteOnMainThread(() =>
             {
                 GameNetworking.instance.client.SendMessageToConnection(toclient, bytes, sendflag);
@@ -268,7 +269,15 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-
+        /// <summary>
+        /// Send Bike and Rider, Triggers spawn command to you and everyone else
+        /// </summary>
+        /// <param name="Bikecolours"></param>
+        /// <param name="BikeSmooths"></param>
+        /// <param name="_BikeTexname"></param>
+        /// <param name="_RiderTexnames"></param>
+        /// <param name="bikemetallics"></param>
+        /// <param name="bikenormalnames"></param>
         public static void SendAllParts(List<Vector3> Bikecolours, List<float> BikeSmooths, List<TextureInfo> _BikeTexname, List<TextureInfo> _RiderTexnames, List<float> bikemetallics, List<TextureInfo> bikenormalnames)
         {
             using(Packet _packet = new Packet((int)ClientPackets.SendAllParts))
@@ -336,25 +345,31 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-        public static void SendQuickBikeUpdate(List<Vector3> vectors, List<float> floats, List<float> bikemetallics, List<TextureInfo> Texnames)
+        /// <summary>
+        /// Called by User click
+        /// </summary>
+        /// <param name="Colours"></param>
+        /// <param name="Smooths"></param>
+        /// <param name="Metallics"></param>
+        /// <param name="Texnames"></param>
+        public static void SendQuickBikeUpdate(List<Vector3> Colours, List<float> Smooths, List<float> Metallics, List<TextureInfo> Texnames, List<TextureInfo> bikenormalsinfo)
         {
             using (Packet _packet = new Packet((int)ClientPackets.QuickBikeUpdate))
             {
-                _packet.Write(vectors.Count);
-                for (int i = 0; i < vectors.Count; i++)
+                _packet.Write(Colours.Count);
+                for (int i = 0; i < Colours.Count; i++)
                 {
-                    _packet.Write(vectors[i]);
+                    _packet.Write(Colours[i]);
                 }
-                _packet.Write(floats.Count);
-                for (int i = 0; i < floats.Count; i++)
+                _packet.Write(Smooths.Count);
+                for (int i = 0; i < Smooths.Count; i++)
                 {
-                    _packet.Write(floats[i]);
+                    _packet.Write(Smooths[i]);
                 }
-                 _packet.Write(bikemetallics.Count);
-                for (int i = 0; i < bikemetallics.Count; i++)
+                 _packet.Write(Metallics.Count);
+                for (int i = 0; i < Metallics.Count; i++)
                 {
-                    _packet.Write(bikemetallics[i]);
+                    _packet.Write(Metallics[i]);
                 }
 
                 _packet.Write(Texnames.Count);
@@ -366,12 +381,29 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(Texnames[i].NameofparentGameObject);
                 }
                 }
+
+
+                _packet.Write(bikenormalsinfo.Count);
+                if (bikenormalsinfo.Count > 0)
+                {
+                    for (int i = 0; i < bikenormalsinfo.Count; i++)
+                    {
+                        _packet.Write(bikenormalsinfo[i].Nameoftexture);
+                        _packet.Write(bikenormalsinfo[i].NameofparentGameObject);
+                    }
+                }
+
+
+
                 SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }
 
-
+        /// <summary>
+        /// Called by user click
+        /// </summary>
+        /// <param name="texnames"></param>
         public static void SendQuickRiderUpdate(List<TextureInfo> texnames)
         {
             using(Packet _packet = new Packet((int)ClientPackets.QuickRiderUpdate))
@@ -390,7 +422,10 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
+        /// <summary>
+        /// A packet from server triggers this giving list of filenames it doesnt have
+        /// </summary>
+        /// <param name="unfound"></param>
         public static void RequestTextures(List<string> unfound)
         {
             using(Packet _packet = new Packet((int)ClientPackets.RequestforTex))
@@ -405,7 +440,10 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-
+        /// <summary>
+        /// called by user click
+        /// </summary>
+        /// <param name="name"></param>
         public static void SendMapName(string name)
         {
             using (Packet _packet = new Packet((int)ClientPackets.SendMapName))

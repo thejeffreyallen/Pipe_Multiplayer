@@ -398,6 +398,7 @@ namespace PIPE_Valve_Console_Client
 		
 			if (GUILayout.Button("Save Bike/LiveUpdate") && !saving)
             {
+			    SaveBmxSetup();
 
                 if (InGameUI.instance.Connected)
                 {
@@ -405,7 +406,6 @@ namespace PIPE_Valve_Console_Client
                 }
         
 					
-			    SaveBmxSetup();
 					
                 
             }

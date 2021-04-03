@@ -21,9 +21,7 @@ namespace PIPE_Valve_Console_Client
         public static Dictionary<uint, List<TextureInfo>> Bikenormalinfos;
         public static Dictionary<uint, List<TextureInfo>> RiderTexinfos;
 
-        public List<string> Texturenames = new List<string>();
-        public List<Vector3> Vecs = new List<Vector3>();
-        public List<float> floats = new List<float>();
+      
 
 
         GameObject Prefab;
@@ -228,37 +226,62 @@ namespace PIPE_Valve_Console_Client
         public void SendQuickBikeUpdate()
         {
             Debug.Log("Sending quick bike Update");
-            List<TextureInfo> Texturenames = new List<TextureInfo>();
-            List<Vector3> Vecs = new List<Vector3>();
-            List<float> floats = new List<float>();
+            List<TextureInfo> TexnamesBike = new List<TextureInfo>();
+            List<TextureInfo> TexnormalsBike = new List<TextureInfo>();
+            List<Vector3> Bikecolours = new List<Vector3>();
+            List<float> BikeSmooths = new List<float>();
             List<float> BikeMetallics = new List<float>();
-            Vecs.Add(BMXNetLoadout.instance.FrameColour);
-            Vecs.Add(BMXNetLoadout.instance.ForksColour);
-            Vecs.Add(BMXNetLoadout.instance.BarsColour);
-            Vecs.Add(BMXNetLoadout.instance.SeatColour);
-            Vecs.Add(BMXNetLoadout.instance.FTireColour);
-            Vecs.Add(BMXNetLoadout.instance.FTireSideColour);
-            Vecs.Add(BMXNetLoadout.instance.RTireColour);
-            Vecs.Add(BMXNetLoadout.instance.RTireSideColour);
+            Bikecolours.Add(BMXNetLoadout.instance.FrameColour);
+            Bikecolours.Add(BMXNetLoadout.instance.ForksColour);
+            Bikecolours.Add(BMXNetLoadout.instance.BarsColour);
+            Bikecolours.Add(BMXNetLoadout.instance.SeatColour);
+            Bikecolours.Add(BMXNetLoadout.instance.FTireColour);
+            Bikecolours.Add(BMXNetLoadout.instance.FTireSideColour);
+            Bikecolours.Add(BMXNetLoadout.instance.RTireColour);
+            Bikecolours.Add(BMXNetLoadout.instance.RTireSideColour);
+            Bikecolours.Add(BMXNetLoadout.instance.StemColour);
+            Bikecolours.Add(BMXNetLoadout.instance.FRimColour);
+            Bikecolours.Add(BMXNetLoadout.instance.RRimColour);
 
-            floats.Add(BMXNetLoadout.instance.FrameSmooth);
-            floats.Add(BMXNetLoadout.instance.ForksSmooth);
-            floats.Add(BMXNetLoadout.instance.BarsSmooth);
-            floats.Add(BMXNetLoadout.instance.SeatSmooth);
+
+
+            BikeSmooths.Add(BMXNetLoadout.instance.FrameSmooth);
+            BikeSmooths.Add(BMXNetLoadout.instance.ForksSmooth);
+            BikeSmooths.Add(BMXNetLoadout.instance.BarsSmooth);
+            BikeSmooths.Add(BMXNetLoadout.instance.SeatSmooth);
+            BikeSmooths.Add(BMXNetLoadout.instance.StemSmooth);
+            BikeSmooths.Add(BMXNetLoadout.instance.FRimSmooth);
+            BikeSmooths.Add(BMXNetLoadout.instance.RRimSmooth);
+
             BikeMetallics.Add(BMXNetLoadout.instance.FrameMetallic);
             BikeMetallics.Add(BMXNetLoadout.instance.ForksMetallic);
             BikeMetallics.Add(BMXNetLoadout.instance.BarsMetallic);
+            BikeMetallics.Add(BMXNetLoadout.instance.StemMetallic);
+            BikeMetallics.Add(BMXNetLoadout.instance.FRimMetallic);
+            BikeMetallics.Add(BMXNetLoadout.instance.RRimMetallic);
 
-            Texturenames.Add(new TextureInfo(BMXNetLoadout.instance.FrameTexname, "Frame Mesh"));
-            Texturenames.Add(new TextureInfo(BMXNetLoadout.instance.ForkTexname, "Forks Mesh"));
-            Texturenames.Add(new TextureInfo(BMXNetLoadout.instance.BarTexName, "Bars Mesh"));
-            Texturenames.Add(new TextureInfo(BMXNetLoadout.instance.TireTexName, "Tire Mesh"));
-            Texturenames.Add(new TextureInfo(BMXNetLoadout.instance.TireNormalName, "Tire Normal"));
-            Texturenames.Add(new TextureInfo(BMXNetLoadout.instance.SeatTexname, "Seat Mesh"));
-            
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameTexname, "Frame Mesh"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.ForkTexname, "Forks Mesh"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.BarTexName, "Bars Mesh"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.TireTexName, "Tire Mesh"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.SeatTexname, "Seat Mesh"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.StemTexName, "Stem Mesh"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimTexName, "Front Rim"));
+            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimTexName, "Rear Rim"));
 
 
-            ClientSend.SendQuickBikeUpdate(Vecs, floats,BikeMetallics, Texturenames);
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameNormalName, "Frame Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.ForksNormalName, "Forks Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.BarsNormalName, "Bars Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.StemNormalName, "Stem Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.SeatNormalName, "Seat Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimNormalName, "FRim Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimNormalName, "RRim Normal"));
+            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.TireNormalName, "Tires Normal"));
+
+
+
+            ClientSend.SendQuickBikeUpdate(Bikecolours, BikeSmooths,BikeMetallics, TexnamesBike,TexnormalsBike);
             Debug.Log("Sent quick bike update");
         }
 

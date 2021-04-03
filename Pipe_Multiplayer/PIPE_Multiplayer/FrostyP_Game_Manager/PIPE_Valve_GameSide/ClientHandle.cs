@@ -342,16 +342,18 @@ namespace PIPE_Valve_Console_Client
 
             uint _from =(uint)_packet.ReadLong();
 
-            List<TextureInfo> Texturenames = new List<TextureInfo>();
-            List<Vector3> vecs = new List<Vector3>();
-            List<float> floats = new List<float>();
+            List<TextureInfo> Biketexnames = new List<TextureInfo>();
+            List<TextureInfo> Bikenormalnames = new List<TextureInfo>();
+            List<Vector3> Bikecols = new List<Vector3>();
+            List<float> Bikesmooths = new List<float>();
             List<float> BikeMetallics = new List<float>();
+
             int veccount = _packet.ReadInt();
             // read colours
             for (int i = 0; i < veccount; i++)
             {
                 Vector3 vec = _packet.ReadVector3();
-                vecs.Add(vec);
+                Bikecols.Add(vec);
 
             }
             int floatcount = _packet.ReadInt();
@@ -359,7 +361,7 @@ namespace PIPE_Valve_Console_Client
             for (int i = 0; i < floatcount; i++)
             {
                 float f = _packet.ReadFloat();
-                floats.Add(f);
+                Bikesmooths.Add(f);
 
             }
             int Metallicscount = _packet.ReadInt();
@@ -368,28 +370,40 @@ namespace PIPE_Valve_Console_Client
                 float m = _packet.ReadFloat();
                 BikeMetallics.Add(m);
             }
-            int texcount = _packet.ReadInt();
+
+            int Biketexcount = _packet.ReadInt();
             // read texture names, empty if tex is null
-            if (texcount > 0)
-            {
-            for (int i = 0; i < texcount; i++)
+            for (int i = 0; i < Biketexcount; i++)
             {
                 string n = _packet.ReadString();
-                string G_O = _packet.ReadString();
-                if (n != "e")
+                string e = _packet.ReadString();
+                Biketexnames.Add(new TextureInfo(n, e));
+            }
+
+
+
+            int bikenormalcount = _packet.ReadInt();
+            if (bikenormalcount > 0)
+            {
+
+                for (int i = 0; i < bikenormalcount; i++)
                 {
-                  
-                Texturenames.Add(new TextureInfo(n,G_O));
+                    string Texname = _packet.ReadString();
+                    string ParentG_O = _packet.ReadString();
+                    Bikenormalnames.Add(new TextureInfo(Texname, ParentG_O));
                 }
+
+
             }
 
-            }
 
 
-            GameManager.PlayersColours[_from] = vecs;
-            GameManager.PlayersSmooths[_from] = floats;
+            GameManager.PlayersColours[_from] = Bikecols;
+            GameManager.PlayersSmooths[_from] = Bikesmooths;
             GameManager.PlayersMetals[_from] = BikeMetallics;
-          
+            GameManager.BikeTexinfos[_from] = Biketexnames;
+            GameManager.Bikenormalinfos[_from] = Bikenormalnames;
+
             GameManager.Players[_from].UpdateBike();
         
 

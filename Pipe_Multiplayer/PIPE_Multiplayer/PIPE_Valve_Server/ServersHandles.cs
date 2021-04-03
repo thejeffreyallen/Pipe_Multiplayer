@@ -240,25 +240,27 @@ namespace PIPE_Valve_Online_Server
 
         public static void BikeDataQuickUpdate(uint _from, Packet _packet)
         {
-            List<TextureInfo> Texturenames = new List<TextureInfo>();
-            List<Vector3> vecs = new List<Vector3>();
-            List<float> floats = new List<float>();
+            List<TextureInfo> Biketexnames = new List<TextureInfo>();
+            List<TextureInfo> Bikenormalnames = new List<TextureInfo>();
+            List<Vector3> Bikecols = new List<Vector3>();
+            List<float> Bikesmooths = new List<float>();
             List<float> BikeMetallics = new List<float>();
+
             int veccount = _packet.ReadInt();
             // read colours
             for (int i = 0; i < veccount; i++)
             {
                 Vector3 vec = _packet.ReadVector3();
-                vecs.Add(vec);
-                
+                Bikecols.Add(vec);
+
             }
             int floatcount = _packet.ReadInt();
             // read smoothnesses
             for (int i = 0; i < floatcount; i++)
             {
                 float f = _packet.ReadFloat();
-                floats.Add(f);
-                
+                Bikesmooths.Add(f);
+
             }
             int Metallicscount = _packet.ReadInt();
             for (int i = 0; i < Metallicscount; i++)
@@ -266,29 +268,91 @@ namespace PIPE_Valve_Online_Server
                 float m = _packet.ReadFloat();
                 BikeMetallics.Add(m);
             }
-            int texcount = _packet.ReadInt();
+
+            int Biketexcount = _packet.ReadInt();
             // read texture names, empty if tex is null
-            for (int i = 0; i < texcount; i++)
+            for (int i = 0; i < Biketexcount; i++)
             {
                 string n = _packet.ReadString();
                 string e = _packet.ReadString();
-
-                Texturenames.Add(new TextureInfo(n,e));
+                Biketexnames.Add(new TextureInfo(n, e));
             }
 
 
 
-            using(Packet packet = new Packet((int)ServerPacket.BikeQuickUpdate))
+            int bikenormalcount = _packet.ReadInt();
+            if (bikenormalcount > 0)
+            {
+
+                for (int i = 0; i < bikenormalcount; i++)
+                {
+                    string Texname = _packet.ReadString();
+                    string ParentG_O = _packet.ReadString();
+                    Bikenormalnames.Add(new TextureInfo(Texname, ParentG_O));
+                }
+
+
+            }
+
+
+
+
+            ///// Add all data to the players Loadout created by the new playerscript assigned in Welcome
+
+            Server.Players[_from].Loadout.FrameColour = Bikecols[0];
+            Server.Players[_from].Loadout.ForksColour = Bikecols[1];
+            Server.Players[_from].Loadout.BarsColour = Bikecols[2];
+            Server.Players[_from].Loadout.SeatColour = Bikecols[3];
+            Server.Players[_from].Loadout.FTireColour = Bikecols[4];
+            Server.Players[_from].Loadout.FTireSideColour = Bikecols[5];
+            Server.Players[_from].Loadout.RTireColour = Bikecols[6];
+            Server.Players[_from].Loadout.RTireSideColour = Bikecols[7];
+            Server.Players[_from].Loadout.StemColour = Bikecols[8];
+            Server.Players[_from].Loadout.FRimColour = Bikecols[9];
+            Server.Players[_from].Loadout.RRimColour = Bikecols[10];
+
+
+            Server.Players[_from].Loadout.FrameSmooth = Bikesmooths[0];
+            Server.Players[_from].Loadout.ForksSmooth = Bikesmooths[1];
+            Server.Players[_from].Loadout.BarsSmooth = Bikesmooths[2];
+            Server.Players[_from].Loadout.SeatSmooth = Bikesmooths[3];
+            Server.Players[_from].Loadout.StemSmooth = Bikesmooths[4];
+            Server.Players[_from].Loadout.FRimSmooth = Bikesmooths[5];
+            Server.Players[_from].Loadout.RRimSmooth = Bikesmooths[6];
+
+
+
+            Server.Players[_from].Loadout.FrameMetallic = BikeMetallics[0];
+            Server.Players[_from].Loadout.ForksMetallic = BikeMetallics[1];
+            Server.Players[_from].Loadout.BarsMetallic = BikeMetallics[2];
+            Server.Players[_from].Loadout.StemMetallic = BikeMetallics[3];
+            Server.Players[_from].Loadout.FrimMetallic = BikeMetallics[4];
+            Server.Players[_from].Loadout.RrimMetallic = BikeMetallics[5];
+
+
+
+
+            Server.Players[_from].Loadout.bikeTexnames = Biketexnames;
+            Server.Players[_from].Loadout.Bikenormalnames = Bikenormalnames;
+
+
+
+
+
+
+
+
+            using (Packet packet = new Packet((int)ServerPacket.BikeQuickUpdate))
             {
                 packet.Write(_from);
 
-                packet.Write(vecs.Count);
-                foreach(Vector3 v in vecs)
+                packet.Write(Bikecols.Count);
+                foreach(Vector3 v in Bikecols)
                 {
                     packet.Write(v);
                 }
-                packet.Write(floatcount);
-                foreach (float t in floats)
+                packet.Write(Bikesmooths.Count);
+                foreach (float t in Bikesmooths)
                 {
                     packet.Write(t);
                 }
@@ -297,33 +361,30 @@ namespace PIPE_Valve_Online_Server
                 {
                     packet.Write(m);
                 }
-                packet.Write(texcount);
-                foreach (TextureInfo t in Texturenames)
+                packet.Write(Biketexnames.Count);
+                foreach (TextureInfo t in Biketexnames)
+                {
+                    packet.Write(t.Nameoftexture);
+                    packet.Write(t.NameofparentGameObject);
+                }
+                packet.Write(Bikenormalnames.Count);
+                foreach (TextureInfo t in Bikenormalnames)
                 {
                     packet.Write(t.Nameoftexture);
                     packet.Write(t.NameofparentGameObject);
                 }
 
+
                 try
                 {
-                foreach (Player p in Server.Players.Values.ToList())
-                {
-                    //store
-                    if (p.clientID == _from)
-                    {
-                        p.Loadout.bikeTexnames = Texturenames;
-                        p.Loadout.Colours = vecs;
-                        p.Loadout.Smooths = floats;
-                    }
-                }
-
+                
                     // send to all but me
                         ServerSend.SendQuickBikeUpdate(_from, packet);
 
                 }
                 catch (Exception x)
                 {
-                    Console.WriteLine("Quick bike error: player: " + _from);
+                    Console.WriteLine("Quick bike error: player: " + _from + "  : " + x);
                 }
 
 
