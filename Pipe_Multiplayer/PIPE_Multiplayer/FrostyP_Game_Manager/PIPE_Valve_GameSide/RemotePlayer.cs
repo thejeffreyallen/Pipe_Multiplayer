@@ -27,7 +27,7 @@ namespace PIPE_Valve_Console_Client
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public float LerpSpeed = 0.999f;
+        public float LerpSpeed = 1f;
         public float timeatlasttranformupdate;
 
         private GameObject[] wheelcolliders;

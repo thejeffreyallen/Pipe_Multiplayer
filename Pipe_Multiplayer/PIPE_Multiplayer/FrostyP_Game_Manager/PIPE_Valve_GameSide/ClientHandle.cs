@@ -600,6 +600,7 @@ namespace PIPE_Valve_Console_Client
             GameManager.PlayersSmooths.Remove(_id);
             GameManager.BikeTexinfos.Remove(_id);
             GameManager.RiderTexinfos.Remove(_id);
+            GameManager.Bikenormalinfos.Remove(_id);
 
             // delete rider, bike and then self and remove id from manager
             foreach (RemotePlayer player in GameManager.Players.Values)

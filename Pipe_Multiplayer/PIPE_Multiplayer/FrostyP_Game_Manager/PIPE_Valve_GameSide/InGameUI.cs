@@ -16,7 +16,12 @@ namespace PIPE_Valve_Console_Client
     {
         public static InGameUI instance;
         public LocalPlayer _localplayer;
-       
+
+        GameObject MyPlayer;
+        Camera Cam;
+        GameObject Camtarget;
+        GameObject Targetrider;
+        MGInputManager mginput;
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
@@ -34,6 +39,8 @@ namespace PIPE_Valve_Console_Client
         public bool Minigui;
         public string desiredport = "7777";
         public string desiredIP = "127.0.0.1";
+        public bool IsSpectating;
+        
 
         public int messagetimer;
         public List<TextMessage> Messages = new List<TextMessage>();
@@ -228,7 +235,8 @@ namespace PIPE_Valve_Console_Client
                 {(int)PIPE_Valve_Console_Client.MessageColour.Server,Color.red},
             };
            _localplayer = gameObject.GetComponent<LocalPlayer>();
-           
+            MyPlayer = UnityEngine.GameObject.Find("BMXS Player Components");
+            Camtarget = new GameObject();
 
         }
 
@@ -275,6 +283,8 @@ namespace PIPE_Valve_Console_Client
             GameManager.PlayersColours.Clear();
             GameManager.PlayersSmooths.Clear();
             GameManager.BikeTexinfos.Clear();
+            GameManager.Bikenormalinfos.Clear();
+            GameManager.RiderTexinfos.Clear();
            
             // Server learns of disconnection itself and tells everyone
 
@@ -368,11 +378,10 @@ namespace PIPE_Valve_Console_Client
                 
                
             }
-            if (GUILayout.Button("Connect to Frosty"))
+            if (GUILayout.Button("Connect to FrostyP"))
             {
-                GameNetworking.instance.port = 4130;
-                GameNetworking.instance.ip = "109.228.48.217";
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Frosty..", 1, 0));
+                
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying FrostyP..", 1, 0));
                 // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
                 _localplayer.RiderTrackingSetup();
                 if (CharacterModding.instance.LoadBmxSetup() == 0)
@@ -404,7 +413,8 @@ namespace PIPE_Valve_Console_Client
                     Debug.Log("Couldnt look for bike textures" + x);
                 }
                 // CharacterModding.instance.SaveRiderSetup();
-                ConnectToServer();
+                GameNetworking.instance.ConnectFrosty();
+                Connected = true;
                 OnlineMenu = true;
                 OfflineMenu = false;
 
@@ -444,6 +454,7 @@ namespace PIPE_Valve_Console_Client
                     Debug.Log(x);
                 }
             }
+           
             GUILayout.Space(10);
 
             Messagetosend = GUILayout.TextField(Messagetosend.ToString());
@@ -457,10 +468,22 @@ namespace PIPE_Valve_Console_Client
                 }
             }
             GUILayout.Space(20);
+            if (IsSpectating)
+            {
+                if(GUILayout.Button("End Spectate"))
+                {
+                    SpectateExit();
+                }
+            }
             GUILayout.Label("Live Rider list:", Generalstyle);
             foreach(RemotePlayer r in GameManager.Players.Values)
             {
-                GUILayout.Label($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}");
+                if(GUILayout.Button($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}") && !IsSpectating)
+                {
+                    SpectateEnter(r.id);
+
+                }
+               // GUILayout.Label($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}");
             }
 
             GUILayout.Space(20);
@@ -500,7 +523,16 @@ namespace PIPE_Valve_Console_Client
 
         }
      
-        
+        void Update()
+        {
+            if (IsSpectating)
+            {
+               
+                SpectateControl();
+            }
+        }
+
+
         static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
         {
             // Check arguments.
@@ -622,6 +654,47 @@ namespace PIPE_Valve_Console_Client
             yield return null;
         }
 
+
+
+        public void SpectateEnter(uint id)
+        {
+            Cam = new GameObject().AddComponent<Camera>();
+           // MyPlayer.GetComponentInChildren<Camera>().enabled = false;
+           
+           // mginput = new MGInputManager();
+            Targetrider = GameManager.Players[id].RiderModel;
+            IsSpectating = true;
+
+        }
+
+        public void SpectateControl()
+        {
+            Vector3 Velocity = Vector3.zero;
+           
+
+            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.1f);
+            Cam.transform.LookAt(Camtarget.transform);
+            
+            Cam.gameObject.transform.Translate(MGInputManager.LStickX(), 0, MGInputManager.LStickY());
+
+            if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > 15)
+            {
+                Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
+                Cam.transform.position = Cam.transform.position + dir * 10 * Time.deltaTime;
+
+            }
+            
+        }
+
+        public void SpectateExit()
+        {
+            Destroy(Cam.gameObject);
+           // MyPlayer.GetComponentInChildren<Camera>().enabled = true;
+            // Destroy(mginput);
+            Targetrider = null;
+            IsSpectating = false;
+
+        }
 
 
     }

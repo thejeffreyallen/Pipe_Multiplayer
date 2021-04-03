@@ -13,7 +13,7 @@ namespace PIPE_Valve_Console_Client
         
       
         /// <summary>
-        /// fixed update function of server thread
+        /// fixed update function of sendtoserver thread
         /// </summary>
         public static void Update()
         {

@@ -457,7 +457,7 @@ namespace FrostyP_Game_Manager
 
 		private void Update()
 		{
-			// if storm level loaded, hand over to storm inbuilt Manager: probs incorporate Storm components into here and remove need for seperate mod but level will then require this, still, better for updating. Installer.exe?
+			// if storm level loaded, load extra stuff for that level
             if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.Contains("Storm"))
             {
 				OpenMenu = false;
@@ -537,11 +537,11 @@ namespace FrostyP_Game_Manager
 			{
 
 
-			    if (mannystate == null)
-                {
-			       mannystate = UnityEngine.Component.FindObjectOfType<BMXS_PStates.MannyState>();
+				if (mannystate == null)
+				{
+					mannystate = UnityEngine.Component.FindObjectOfType<BMXS_PStates.MannyState>();
 
-                }
+				}
 				if (mannynoseyController == null)
 				{
 					mannynoseyController = UnityEngine.Component.FindObjectOfType<MannyNoseyPopInControl>();
@@ -737,7 +737,7 @@ namespace FrostyP_Game_Manager
 
 
 
-					mannystate.SetMaxMannyAngle(MaxMannyAngle,true);
+					mannystate.SetMaxMannyAngle(MaxMannyAngle, true);
 
 				}
 				else
@@ -774,7 +774,7 @@ namespace FrostyP_Game_Manager
 					CrankNollieMaxd = Cranksettings.nollieMaxForce;
 					CrankNollieMind = Cranksettings.nollieMinForce;
 
-					
+
 
 					LipTrickhopMaxd = LipTrickhopsettings.jHopMaxForce;
 					LipTrickhopMind = LipTrickhopsettings.jHopMinForce;
@@ -839,7 +839,7 @@ namespace FrostyP_Game_Manager
 					CrankhopMin = CrankhopMind;
 					CrankNollieMax = CrankNollieMaxd;
 					CrankNollieMin = CrankNollieMind;
-					
+
 					LipTrickhopMax = LipTrickhopMaxd;
 					LipTrickhopMin = LipTrickhopMind;
 					LipTrickNollieMax = LipTrickNollieMaxd;
@@ -875,12 +875,13 @@ namespace FrostyP_Game_Manager
 
 
 
-				
 
 
 
 
 
+				if (!PIPE_Valve_Console_Client.InGameUI.instance.IsSpectating) 
+				{ 
 
 				//Camera
 				///////////////////////////////////////////////////////
@@ -924,43 +925,25 @@ namespace FrostyP_Game_Manager
 
 
 
-					bloom.threshold.value = newbloomvalueCAMSETTING;
-					bloom.intensity.value = newbloomintvalueCAMSETTING;
-					depthoffield.focusDistance.value = focusdistanceCAMSETTING;
-					depthoffield.aperture.value = apertureCAMSETTING;
-					ColorGrade.contrast.value = ContrastNewCAMSETTING;
-					ColorGrade.saturation.value = SaturationNewCAMSETTING;
-					ColorGrade.brightness.value = BrightnessNewCAMSETTING;
-					ColorGrade.temperature.value = temperatureNewCAMSETTING;
-					Camera.current.fieldOfView = CamFOVCAMSETTING;
+				bloom.threshold.value = newbloomvalueCAMSETTING;
+				bloom.intensity.value = newbloomintvalueCAMSETTING;
+				depthoffield.focusDistance.value = focusdistanceCAMSETTING;
+				depthoffield.aperture.value = apertureCAMSETTING;
+				ColorGrade.contrast.value = ContrastNewCAMSETTING;
+				ColorGrade.saturation.value = SaturationNewCAMSETTING;
+				ColorGrade.brightness.value = BrightnessNewCAMSETTING;
+				ColorGrade.temperature.value = temperatureNewCAMSETTING;
+				Camera.current.fieldOfView = CamFOVCAMSETTING;
 
 
-
+			}
 
 				////////////////////////////////////////////////
 
 
 
 				
-				mouseX = Input.mousePosition.x;
-				mouseY = Input.mousePosition.y;
 				
-                if (Input.GetMouseButton(1))
-                {
-					float FinalX = mouseX - Screen.width/8;
-					float finalY = Screen.height - mouseY - Screen.height/5;
-					GUILayout.Label("mouse x,y" + FinalX + finalY, Generalstyle);
-					
-					if (FinalX < Screen.width - 100 && FinalX > 10) 
-					{
-						RectposX = FinalX;
-					}
-					if (finalY < Screen.height -100 && finalY > 10)
-					{
-						RectposY = finalY;
-					}
-                }
-
 
 
 

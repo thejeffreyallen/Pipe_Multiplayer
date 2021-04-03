@@ -320,16 +320,10 @@ namespace PIPE_Valve_Console_Client
 
 
 
+        
 
 
 
-
-        void Update()
-        {
-           
-
-           
-
-        }
+       
     }
 }

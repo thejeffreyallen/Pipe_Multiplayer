@@ -11,6 +11,7 @@ using PIPE_Valve_Console_Client;
 
 namespace FrostyP_Game_Manager
 {
+	
     public class ParkBuilder : MonoBehaviour
     {
 		GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
@@ -92,7 +93,7 @@ namespace FrostyP_Game_Manager
 		string SaveparkName = "Default name park";
 
 		public bool openflag = false;
-		bool startuponopen = false;
+		
 		bool snappingtofloor = true;
 		bool placedonce = false;
 		bool Saveopen = false;
@@ -129,20 +130,15 @@ namespace FrostyP_Game_Manager
 		GameObject controlobjforcam;
 		
 		GameObject Activeobj;
-		GameObject hitobj;
+		
 
-		FileInfo[] availableassetbundles;
-
+		public FileInfo[] availableassetbundles;
 		public List<AssetBundle> bundlesloaded;
 
 
 		// Use this for initialization
 		void Start()
         {
-
-
-			Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			Activeobj.name = "Pointer";
 
 			// create instance of camspeed and run setup once, this adds 3 presets for Y button to scroll through
 			camspeed = new Camspeed();
@@ -357,43 +353,6 @@ namespace FrostyP_Game_Manager
 
 
 
-
-
-
-				/*
-				// if no object is selected, enable selecting of scene objects in proximity
-				if (Activeobj.name.Contains("Pointer"))
-				{
-
-				
-
-					
-					if(Physics.Raycast(Activeobj.transform.position, Activeobj.transform.forward, out RaycastHit hit, 1))
-                    {
-					if (hit.collider.gameObject.name.Contains("PLACED"))
-					{
-						hitobj = hit.collider.gameObject;
-						lookingforobjects = true;
-
-					}
-
-                    }
-
-                    else
-                    {
-						lookingforobjects = false;
-                    }
-					
-					
-				}
-				else
-				{
-					lookingforobjects = false;
-				}
-				*/
-
-
-
 			}
 
 
@@ -539,11 +498,13 @@ namespace FrostyP_Game_Manager
                     
                 }
 
+				GUILayout.Space(20);
 
-
-				if(bundlesloaded != null)
+				if (bundlesloaded != null)
                 {
-					foreach(AssetBundle bundle in bundlesloaded)
+					GUILayout.Label(" Loaded Assets: ");
+					GUILayout.Space(10);
+					foreach (AssetBundle bundle in bundlesloaded)
                     {
 
 						GameObject[] items = bundle.LoadAllAssets<GameObject>();
@@ -574,7 +535,7 @@ namespace FrostyP_Game_Manager
 					buildercam.enabled = false;
 				Player.SetActive(true);
 				openflag = false;
-					startuponopen = false;
+					
 					
             }
 
@@ -943,19 +904,28 @@ namespace FrostyP_Game_Manager
     }
 
 
+	/// <summary>
+	/// Structure for sending data to net
+	/// </summary>
 	public class NetGameObject
     {
 		public string NameofObject;
 		public string NameofAssetBundle;
+		public string NameOfFile;
 		public Vector3 Rotation;
 		public Vector3 Position;
+		public Vector3 Scale;
+		public bool IsPhysics;
 
-		public NetGameObject(string _nameofobject, string _nameofassetbundle,Vector3 _rotation,Vector3 _position)
+		public NetGameObject(string _nameofobject,string _nameoffile, string _nameofassetbundle,Vector3 _rotation,Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled)
         {
 			NameofObject = _nameofobject;
+			NameOfFile = _nameoffile;
 			NameofAssetBundle = _nameofassetbundle;
 			Rotation = _rotation;
 			Position = _position;
+			Scale = _scale;
+			IsPhysics = _IsPhysicsenabled;
 
         }
 

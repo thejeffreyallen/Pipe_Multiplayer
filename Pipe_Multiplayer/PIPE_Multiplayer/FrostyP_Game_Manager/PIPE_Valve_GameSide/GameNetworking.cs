@@ -34,6 +34,9 @@ namespace PIPE_Valve_Console_Client
 		// ip to connect to, default local
 		public string ip = "127.0.0.1";
 		public int port;
+		public string FrostyIP = "109.228.48.217";
+		public int frostyport = 4130;
+
 
 		/// <summary>
 		/// Contains callbacks that happen on state change and other stuff
@@ -119,7 +122,8 @@ namespace PIPE_Valve_Console_Client
 
 
 
-			
+
+
 			
 			status = (ref StatusInfo info) => {
 				switch (info.connectionInfo.state)
@@ -130,6 +134,7 @@ namespace PIPE_Valve_Console_Client
 					case ConnectionState.Connected:
 						SendToUnityThread.instance.ExecuteOnMainThread(() =>
 						{
+
 							InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Connected To Server", (int)MessageColour.System, 1));
 						});
 						break;
@@ -160,7 +165,8 @@ namespace PIPE_Valve_Console_Client
         {
 			if (client != null)
 			{
-				//client.RunCallbacks(); =====================================================================    this will provide callbacks about connection, disconnection, data about current
+				
+				//client.RunCallbacks(); //=====================================================================    this will provide callbacks about connection, disconnection, data about current
 				//GC.KeepAlive(status);
 
 			}
@@ -199,17 +205,17 @@ namespace PIPE_Valve_Console_Client
 						netMessage.CopyTo(bytes);
 
 					
-			      SendToUnityThread.instance.ExecuteOnMainThread(() =>
-				  {
-						using (Packet _packet = new Packet(bytes))
-						{
+			           SendToUnityThread.instance.ExecuteOnMainThread(() =>
+				       {
+						 using (Packet _packet = new Packet(bytes))
+						 {
 							int _packetId = _packet.ReadInt();
 							
 								packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
-						}
+						 }
 
 					
-				  });
+				       });
 
 
 						//Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
@@ -301,6 +307,80 @@ namespace PIPE_Valve_Console_Client
             }
 			
 		}
+
+
+
+		public void ConnectFrosty()
+		{
+			try
+			{
+				Library.Initialize();
+				utils = new NetworkingUtils();
+				client = new NetworkingSockets();
+
+				utils.SetStatusCallback(status);
+
+				string _ip = ip.Replace(" ", "");
+
+
+				Address address = new Address();
+				address.SetAddress(FrostyIP, (ushort)frostyport);
+				connection = client.Connect(ref address);
+				int sendRateMin = 400000;
+				int sendRateMax = 45400000;
+				int sendBufferSize = 209715200;
+
+
+				unsafe
+				{
+					utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+					utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+					utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+					//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
+					//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
+				}
+
+				if (ServerThread == null)
+				{
+					ServerLoopIsRunning = true;
+					ServerThread = new Thread(NetWorkThreadLoop)
+					{
+						IsBackground = true
+					};
+					ServerThread.Start();
+				}
+				else
+				{
+					if (ServerThread.IsAlive)
+					{
+						ServerLoopIsRunning = false;
+					}
+					ServerThread.Abort();
+					ServerThread = null;
+					ServerThread = new Thread(NetWorkThreadLoop)
+					{
+						IsBackground = true
+					};
+					ServerLoopIsRunning = true;
+					ServerThread.Start();
+
+				}
+
+
+			}
+			catch (Exception x)
+			{
+
+			}
+
+		}
+
+
+
+
+
+
+
 
 		/// <summary>
 		/// Master disconnect, closes down all networking
