@@ -1,5 +1,5 @@
 # Pipe_Multiplayer
-- if you have exisiting 2.0 Multiplayer install:
+if you have exisiting 2.0 Multiplayer install:
 - overwrite your Mods/FrostyPManager/   folder
 - overwrite your PIPE_Data/FrostyPmanager/  folder
 - overwrite your PIPE_Data/Custom Players  folder
@@ -7,6 +7,7 @@
 
 # What's new?
 - Integrated the Patcha Map Importer by Herve3527 - https://github.com/herve3527/PatchaMapImporter
+- The actual map filename is now sent to other players to make it easier to find who is riding where
 - Various bug fixes
 - Better handling of audio
 - Performance increase
