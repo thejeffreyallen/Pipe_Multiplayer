@@ -5,10 +5,10 @@ overwrite your PIPE_Data/FrostyPmanager/  folder
 overwrite your PIPE_Data/Custom Players  folder
 
 # What's new?
-Integrated the Patcha Map Importer by Herve3527 - https://github.com/herve3527/PatchaMapImporter
-Various bug fixes
-Better handling of audio
-Performance increase
+- Integrated the Patcha Map Importer by Herve3527 - https://github.com/herve3527/PatchaMapImporter
+- Various bug fixes
+- Better handling of audio
+- Performance increase
 
 # Manual Setup of FrostyP Game Manager
 
