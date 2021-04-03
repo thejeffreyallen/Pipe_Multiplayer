@@ -1,8 +1,9 @@
 # Pipe_Multiplayer
-if you have exisiting 2.0 Multiplayer install:
-overwrite your Mods/FrostyPManager/   folder
-overwrite your PIPE_Data/FrostyPmanager/  folder
-overwrite your PIPE_Data/Custom Players  folder
+- if you have exisiting 2.0 Multiplayer install:
+- overwrite your Mods/FrostyPManager/   folder
+- overwrite your PIPE_Data/FrostyPmanager/  folder
+- overwrite your PIPE_Data/Custom Players  folder
+- Remove PatchaMapImporter and/or Pipeworks map importer folders from the Mods folder
 
 # What's new?
 - Integrated the Patcha Map Importer by Herve3527 - https://github.com/herve3527/PatchaMapImporter
