@@ -775,26 +775,27 @@ namespace PIPE_Valve_Console_Client
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
+            
             IsSpectating = true;
 
         }
 
         public void SpectateControl()
         {
-            float speed = 1;
+            float speed = 10;
             Vector3 Velocity = Vector3.zero;
            
 
             Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.1f);
             Cam.transform.LookAt(Camtarget.transform);
             
-            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickY()> 0.1f)
+            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickY()> 0.1f | MGInputManager.LStickX() < -0.1f | MGInputManager.LStickY() < -0.1f)
             {
             Cam.gameObject.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * speed, 0, MGInputManager.LStickY() * Time.deltaTime * speed);
             }
-            if (MGInputManager.RStickY() > 0.1f)
+            if (MGInputManager.RStickY() > 0.1f | MGInputManager.RStickY() < -0.1f)
             {
-                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, MGInputManager.RStickY() * Time.deltaTime * speed);
+                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Targetrider.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 2);
             }
 
 

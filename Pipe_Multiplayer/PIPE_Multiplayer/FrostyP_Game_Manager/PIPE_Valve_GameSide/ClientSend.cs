@@ -10,12 +10,12 @@ namespace PIPE_Valve_Console_Client
     {
 
         // These top three functions are used by the send functions, give connection number (Server), bytes and specify a send mode from Valve.sockets.sendflags.
-        private static void SendToServer(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
+        private static void SendToServer(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
             // Sends to outgoing thread once use of Unity API is done with, Really need system.numerics (NET 4.5) to be able to do all processing of numbers in and out on a different thread
             SendToServerThread.ExecuteOnMainThread(() =>
             {
-                GameNetworking.instance.client.SendMessageToConnection(toclient, bytes, sendflag);
+                GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, bytes, sendflag);
             });
            
            
@@ -60,7 +60,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(GameNetworking.instance.VERSIONNUMBER);
 
 
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 }
 
            
@@ -82,19 +82,19 @@ namespace PIPE_Valve_Console_Client
 
                     for (int i = 0; i < TransformCount; i++)
                     {
-                    Vector3 rounded = new Vector3((float)Math.Round(positions[i].x * 100) / 100, (float)Math.Round(positions[i].y * 100) / 100, (float)Math.Round(positions[i].z * 100) / 100);
+                    Vector3 rounded = new Vector3((float)Math.Round(positions[i].x * 1000) / 1000, (float)Math.Round(positions[i].y * 1000) / 1000, (float)Math.Round(positions[i].z * 1000) / 1000);
 
                         _packet.Write(rounded);
                     }
 
                     for (int i = 0; i < TransformCount; i++)
                     {
-                    Vector3 rounded = new Vector3((float)Math.Round(rotations[i].x * 100) / 100, (float)Math.Round(rotations[i].y * 100) / 100, (float)Math.Round(rotations[i].z * 100) / 100);
+                    Vector3 rounded = new Vector3((float)Math.Round(rotations[i].x * 1000) / 1000, (float)Math.Round(rotations[i].y * 1000) / 1000, (float)Math.Round(rotations[i].z * 1000) / 1000);
                     _packet.Write(rounded);
 
                     }
                 
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Unreliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Unreliable);
                 
                 }
             
@@ -117,7 +117,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(s.Nameoftexture);
                     _packet.Write(s.NameofparentGameObject);
                     }
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
 
                 }
            
@@ -226,11 +226,11 @@ namespace PIPE_Valve_Console_Client
                     {
                         _packet.Write(update.nameofriser);
                         _packet.Write(update.playstate);
-                        _packet.Write(update.Volume);
-                        _packet.Write(update.pitch);
-                        _packet.Write(update.Velocity);
+                        _packet.Write((float)Math.Round(update.Volume * 100) / 100);
+                        _packet.Write((float)Math.Round(update.pitch * 100) / 100);
+                        _packet.Write((float)Math.Round(update.Velocity * 100) / 100);
                     }
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
 
                 }
 
@@ -248,7 +248,7 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(update.Path);
                         _packet.Write(update.Volume);
                     }
-                    SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
 
                 }
             }
@@ -267,7 +267,7 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write(_message);
 
 
-                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
         }
 
@@ -341,7 +341,7 @@ namespace PIPE_Valve_Console_Client
 
                 Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames}");
                
-                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 GameManager.instance._localplayer.ServerActive = true;
             }
 
@@ -397,7 +397,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }
@@ -418,7 +418,7 @@ namespace PIPE_Valve_Console_Client
                 }
 
 
-                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }
@@ -438,7 +438,7 @@ namespace PIPE_Valve_Console_Client
               _packet.Write(t);
 
             }
-                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
         }
 
@@ -452,7 +452,7 @@ namespace PIPE_Valve_Console_Client
             {
                 _packet.Write(name);
               
-                SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }
