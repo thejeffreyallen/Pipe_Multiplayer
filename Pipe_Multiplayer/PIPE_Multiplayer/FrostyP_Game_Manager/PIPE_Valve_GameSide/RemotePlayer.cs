@@ -105,7 +105,7 @@ namespace PIPE_Valve_Console_Client
            
             DontDestroyOnLoad(BMX);
             DontDestroyOnLoad(RiderModel);
-            GameManager.Players.Add(id, this);
+            
 
            
             FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
@@ -278,44 +278,47 @@ namespace PIPE_Valve_Console_Client
         /// <returns></returns>
         private GameObject LoadRiderFromAssets()
         {
-            GameObject loadedrider;
+            GameObject loadedrider = null;
             bool found = false;
 
 
+          
 
-            IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
-            foreach (AssetBundle a in bundles)
-            {
+                IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
+                foreach (AssetBundle a in bundles)
+                {
                     if (a.name.Contains(Modelbundlename.ToLower()))
                     {
                         Debug.Log("Matched bundle to requested model");
-                        loadedrider = GameObject.Instantiate(a.LoadAsset(CurrentModelName) as GameObject);
+                        
                         found = true;
 
 
-                        return loadedrider;
+                      loadedrider = GameObject.Instantiate(a.LoadAsset(CurrentModelName) as GameObject);
                     }
-            }
+                }
+
+
+                if (!found)
+                {
+                    Debug.Log("Didnt find loaded bundle matching requested rider model, trying files");
+
+                    AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
+                    loadedrider = b.LoadAsset(CurrentModelName) as GameObject;
+                    found = true;
+
+                  loadedrider = GameObject.Instantiate(b.LoadAsset(CurrentModelName) as GameObject);
+                }
 
 
 
-            if (!found && Directory.Exists(Application.dataPath + "/Custom Players/" + CurrentModelName))
-            {
+           
+              if(!found)
+              {
+                loadedrider = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien") as GameObject);
+              }
 
-                Debug.Log("Didnt find loaded bundle matching requested rider model, trying files");
-               
-                AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
-                loadedrider = b.LoadAsset(CurrentModelName) as GameObject;
-                found = true;
-                
-                return loadedrider;
-            }
-            else
-            {
-                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Couldnt Find {CurrentModelName} Rider in your Custom Players, {username} will use your Daryien", (int)MessageColour.Server,1));
-                return DaryienSetup();
-            }
-
+            return loadedrider;  
         }
 
 
@@ -1755,13 +1758,6 @@ namespace PIPE_Valve_Console_Client
 
 
        
-        void OnGUI()
-        {
-           
-
-        }
-
-        
-
+      
     }
 }

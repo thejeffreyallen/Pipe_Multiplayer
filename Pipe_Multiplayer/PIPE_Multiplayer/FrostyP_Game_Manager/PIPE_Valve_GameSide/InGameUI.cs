@@ -297,10 +297,22 @@ namespace PIPE_Valve_Console_Client
            
             foreach (RemotePlayer r in GameManager.Players.Values)
             {
+                if (r.RiderModel)
+                {
                 Destroy(r.RiderModel);
+                }
+                if (r.BMX)
+                {
                 Destroy(r.BMX);
+                }
+                if (r.Audio)
+                {
                 Destroy(r.Audio);
+                }
+                if (r.nameSign)
+                {
                 Destroy(r.nameSign);
+                }
                 objs.Add(r.gameObject);
                 
 

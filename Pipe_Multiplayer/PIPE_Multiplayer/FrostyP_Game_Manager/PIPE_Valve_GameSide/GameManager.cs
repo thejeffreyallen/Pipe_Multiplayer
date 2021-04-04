@@ -97,6 +97,7 @@ namespace PIPE_Valve_Console_Client
             Debug.Log($"Spawning : {_username} as {currentmodel}, bundlename: {modelbundlename}, bmxinfos count: {BmxInfos.Count}, Riderinfos count: {Riderinfos.Count}, Id: {_id}, bmxnormalcount: {Bmxnormalinfos.Count}");
                     GameObject New = GameObject.Instantiate(Prefab);
                     RemotePlayer r = New.GetComponent<RemotePlayer>();
+                    Players.Add(_id, r);
                     
                     r.CurrentModelName = currentmodel;
                     New.name = _username + _id.ToString();
@@ -104,11 +105,10 @@ namespace PIPE_Valve_Console_Client
                     r.id = _id;
                     r.username = _username;
                     r.CurrentMap = Currentmap;
-          
-        
 
-           
-                    PlayersColours.Add(_id, Bikecolours);
+
+
+            PlayersColours.Add(_id, Bikecolours);
                     PlayersSmooths.Add(_id, bikesmooths);
                     BikeTexinfos.Add(_id,BmxInfos);
                     Bikenormalinfos.Add(_id, Bmxnormalinfos);

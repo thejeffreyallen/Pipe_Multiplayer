@@ -339,7 +339,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames}");
+                Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames.Count}");
                
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 GameManager.instance._localplayer.ServerActive = true;
