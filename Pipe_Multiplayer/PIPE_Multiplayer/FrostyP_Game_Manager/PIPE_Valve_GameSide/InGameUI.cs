@@ -803,7 +803,7 @@ namespace PIPE_Valve_Console_Client
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
-            Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 20);
+            Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 2);
             IsSpectating = true;
 
         }
@@ -815,7 +815,7 @@ namespace PIPE_Valve_Console_Client
             
             
 
-            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.05f);
+            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.2f);
             Cam.transform.LookAt(Camtarget.transform);
             
             if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickX() < -0.1f)
@@ -826,12 +826,12 @@ namespace PIPE_Valve_Console_Client
             if (MGInputManager.LStickY() > 0.1f)
             {
                
-                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Targetrider.transform.position, Time.deltaTime * 4);
+                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Targetrider.transform.position, Time.deltaTime * 15);
             }
             if (MGInputManager.LStickY() < -0.1f)
             {
                 Vector3 dir = (Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Cam.transform.position + dir, Time.deltaTime * 4);
+                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Cam.transform.position + dir, Time.deltaTime * 15);
             }
 
 
@@ -844,7 +844,7 @@ namespace PIPE_Valve_Console_Client
             if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > distance)
             {
                 Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Cam.transform.position + dir * 10 * Time.deltaTime,ref Velocity ,0.0001f);
+                Cam.transform.position = Vector3.Lerp(Cam.transform.position,Cam.transform.position + dir * 3 * Time.deltaTime, 0.8f);
 
             }
            
