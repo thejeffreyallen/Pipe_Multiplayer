@@ -100,7 +100,6 @@ namespace FrostyP_Game_Manager
 		bool switched;
 		bool Helpmenu;
 		bool Loadopen = false;
-		bool lookingforobjects = false;
 		bool REgrabbed = false;
 		Vector3 regrabbed_pos;
 		Vector3 regrabbed_rot;
@@ -114,6 +113,7 @@ namespace FrostyP_Game_Manager
 		List<GameObject> itemsfound = new List<GameObject>();
 		List<GameObject> placedobjects = new List<GameObject>();
 		List<NetGameObject> Netobjectlist = new List<NetGameObject>();
+		
 
 		Texture2D RedTex;
 		Texture2D BlackTex;
@@ -783,7 +783,7 @@ namespace FrostyP_Game_Manager
 			placedobjects.Add(obj);
 			
 			placedonce = true;
-
+			//Netobjectlist.Add(new NetGameObject(Activeobj.name,))
             // send to server if online
             if (InGameUI.instance.Connected)
             {

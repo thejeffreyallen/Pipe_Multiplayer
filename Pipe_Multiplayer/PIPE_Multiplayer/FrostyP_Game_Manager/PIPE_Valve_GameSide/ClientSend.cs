@@ -77,18 +77,20 @@ namespace PIPE_Valve_Console_Client
                 {
 
                     _packet.Write(TransformCount);
-
+              
 
 
                     for (int i = 0; i < TransformCount; i++)
                     {
+                    Vector3 rounded = new Vector3((float)Math.Round(positions[i].x * 100) / 100, (float)Math.Round(positions[i].y * 100) / 100, (float)Math.Round(positions[i].z * 100) / 100);
 
-                        _packet.Write(positions[i]);
+                        _packet.Write(rounded);
                     }
 
                     for (int i = 0; i < TransformCount; i++)
                     {
-                        _packet.Write(rotations[i]);
+                    Vector3 rounded = new Vector3((float)Math.Round(rotations[i].x * 100) / 100, (float)Math.Round(rotations[i].y * 100) / 100, (float)Math.Round(rotations[i].z * 100) / 100);
+                    _packet.Write(rounded);
 
                     }
                 

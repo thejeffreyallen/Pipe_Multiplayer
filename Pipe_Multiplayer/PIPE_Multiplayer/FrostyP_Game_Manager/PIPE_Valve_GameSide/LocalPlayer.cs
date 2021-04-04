@@ -154,6 +154,7 @@ namespace PIPE_Valve_Console_Client
 
             }
 
+            
 
            ClientSend.SendMyTransforms(Riders_Transforms.Length, riderPositions, riderRotations);
         }

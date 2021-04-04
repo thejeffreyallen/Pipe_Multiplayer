@@ -410,7 +410,7 @@ namespace PIPE_Valve_Online_Server
 
                 try
                 {
-                SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
                 }
                 catch (Exception x)
                 {

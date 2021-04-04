@@ -13,7 +13,10 @@ if you have exisiting 2.0 Multiplayer install:
 - Performance increase
 - Spectate Mode
 - More Bike Customisation
+- Bike and rider saves
 - Parkbuilder will recognise objects with rigidbodies
+- Saved username and saveable servers
+
 
 # Manual Setup of FrostyP Game Manager
 
@@ -30,7 +33,7 @@ To install you need 4 things to be done
 
 
 
-# For Game:
+# For Game setup do the following:
 
 step 1) Copy FrostyPGameManager folder from for_games_Mods/  to   YourPIPEfolder/Mods/
 
