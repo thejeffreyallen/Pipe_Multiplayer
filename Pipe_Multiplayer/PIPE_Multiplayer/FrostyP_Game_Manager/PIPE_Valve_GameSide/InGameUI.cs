@@ -28,6 +28,7 @@ namespace PIPE_Valve_Console_Client
         GameObject Camtarget;
         GameObject Targetrider;
         float distance = 15;
+        uint currentspecid;
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
@@ -799,12 +800,14 @@ namespace PIPE_Valve_Console_Client
         public void SpectateEnter(uint id)
         {
             Cam = new GameObject().AddComponent<Camera>();
+            DontDestroyOnLoad(Cam);
            // MyPlayer.GetComponentInChildren<Camera>().enabled = false;
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
             Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 2);
             IsSpectating = true;
+            currentspecid = id;
 
         }
 
@@ -813,7 +816,11 @@ namespace PIPE_Valve_Console_Client
             float speed = 15;
             Vector3 Velocity = Vector3.zero;
             
-            
+            if(Targetrider == null)
+            {
+                Targetrider = GameManager.Players[currentspecid].RiderModel;
+            }
+
 
             Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + (Vector3.up * 2),ref Velocity, 0.008f,100, Time.deltaTime);
             Cam.transform.LookAt(Camtarget.transform);

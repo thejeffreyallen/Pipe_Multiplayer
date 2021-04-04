@@ -278,8 +278,6 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
-
         /// <summary>
         /// Called to load a custom model, will return Daryien if nothing can be done
         /// </summary>
@@ -812,7 +810,9 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
+        /// <summary>
+        /// Call once Gamemanager.PlayerColours[id], Gamemanager.PlayerMetals[id] etc has been updated
+        /// </summary>
         public void UpdateBike()
         {
             try
@@ -1751,8 +1751,8 @@ namespace PIPE_Valve_Console_Client
         /// <returns></returns>
         IEnumerator Initialiseafterwait()
         {
-          
-            yield return new WaitForSeconds(Random.Range(1,2));
+          // stagger out the initial rider build in case many are spawning at once somehow?
+            yield return new WaitForSeconds(Random.Range(0.5f,1.5f));
             if (CurrentModelName == "Daryien")
             {
                 shirtren = RiderModel.transform.Find("shirt_geo").GetComponent<SkinnedMeshRenderer>();

@@ -134,7 +134,6 @@ namespace PIPE_Valve_Console_Client
 					case ConnectionState.Connected:
 						SendToUnityThread.instance.ExecuteOnMainThread(() =>
 						{
-
 							InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Connected To Server", (int)MessageColour.System, 1));
 						});
 						break;
@@ -163,15 +162,10 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		public void Run()
         {
-			if (client != null)
-			{
-				
+			
 				//client.RunCallbacks(); //=====================================================================    this will provide callbacks about connection, disconnection, data about current
 				//GC.KeepAlive(status);
-
-			}
-
-
+                
 
 #if VALVESOCKETS_SPAN
 	MessageCallback message = (in NetworkingMessage netMessage) => {
@@ -207,6 +201,7 @@ namespace PIPE_Valve_Console_Client
 					
 			           SendToUnityThread.instance.ExecuteOnMainThread(() =>
 				       {
+
 						 using (Packet _packet = new Packet(bytes))
 						 {
 							int _packetId = _packet.ReadInt();
@@ -273,7 +268,10 @@ namespace PIPE_Valve_Console_Client
 				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 			}
 
-			if(ServerThread == null)
+				
+
+
+				if (ServerThread == null)
             {
 			ServerLoopIsRunning = true;
 			ServerThread = new Thread(NetWorkThreadLoop)

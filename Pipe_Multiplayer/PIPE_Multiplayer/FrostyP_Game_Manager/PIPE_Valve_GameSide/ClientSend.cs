@@ -94,7 +94,7 @@ namespace PIPE_Valve_Console_Client
 
                     }
                 
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Unreliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
                 
                 }
             

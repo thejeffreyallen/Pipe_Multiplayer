@@ -171,7 +171,7 @@ namespace PIPE_Valve_Online_Server
 						server.CloseConnection(info.connection);
 						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
 
-						// should be smarter, wait for any remaining packets from client? bugs out sometimes
+						
 						
 						ServerSend.DisconnectTellAll(info.connection);
 						break;
