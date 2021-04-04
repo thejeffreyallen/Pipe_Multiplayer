@@ -665,7 +665,7 @@ namespace FrostyP_Game_Manager
 				CamFollow();
 
 				camobj.transform.RotateAround(Activeobj.transform.position, Vector3.up, MGInputManager.RStickX());
-				camobj.transform.RotateAround(Activeobj.transform.position, Vector3.right, MGInputManager.RStickY());
+				camobj.transform.RotateAround(Activeobj.transform.position, camobj.transform.right, MGInputManager.RStickY());
 
 
 

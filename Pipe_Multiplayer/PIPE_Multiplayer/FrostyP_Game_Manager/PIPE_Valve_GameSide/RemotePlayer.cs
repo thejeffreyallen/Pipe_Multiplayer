@@ -209,7 +209,7 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (nameSign && RiderModel)
             {

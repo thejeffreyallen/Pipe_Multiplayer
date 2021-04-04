@@ -27,7 +27,7 @@ namespace PIPE_Valve_Console_Client
         Camera Cam;
         GameObject Camtarget;
         GameObject Targetrider;
-        float distance = 20;
+        float distance = 15;
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
@@ -810,23 +810,24 @@ namespace PIPE_Valve_Console_Client
 
         public void SpectateControl()
         {
-            float speed = 10;
+            float speed = 15;
             Vector3 Velocity = Vector3.zero;
             
             
 
-            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.2f);
+            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + (Vector3.up * 2),ref Velocity, 0.008f,100, Time.deltaTime);
             Cam.transform.LookAt(Camtarget.transform);
             
-            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickX() < -0.1f)
+            if(MGInputManager.RStickX()> 0.1f | MGInputManager.RStickX() < -0.1f)
             {
                 
-                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.LStickX() * Time.deltaTime * speed * 5);
+                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
             }
             if (MGInputManager.LStickY() > 0.1f)
             {
-               
-                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Targetrider.transform.position, Time.deltaTime * 15);
+
+                Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
+                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Cam.transform.position + dir, Time.deltaTime * 15);
             }
             if (MGInputManager.LStickY() < -0.1f)
             {
@@ -844,7 +845,7 @@ namespace PIPE_Valve_Console_Client
             if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > distance)
             {
                 Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.transform.position = Vector3.Lerp(Cam.transform.position,Cam.transform.position + dir * 3 * Time.deltaTime, 0.8f);
+                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Camtarget.transform.position,ref Velocity, 0.002f, 100,Time.deltaTime);
 
             }
            
