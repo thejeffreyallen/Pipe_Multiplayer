@@ -27,7 +27,7 @@ namespace PIPE_Valve_Console_Client
         public Vector3[] Riders_rotations;
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public float LerpSpeed = 1f;
+        public float LerpSpeed = 0.999f;
         public float timeatlasttranformupdate;
 
         private GameObject[] wheelcolliders;
@@ -211,7 +211,11 @@ namespace PIPE_Valve_Console_Client
 
         private void Update()
         {
-			nameSign.transform.rotation = Camera.main.transform.rotation;
+            if (nameSign && RiderModel)
+            {
+			nameSign.transform.rotation = Camera.current.transform.rotation;
+
+            }
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
             {
@@ -262,6 +266,10 @@ namespace PIPE_Valve_Console_Client
             foreach(Transform t in daz.GetComponentsInChildren<Transform>(true))
             {
                 t.gameObject.SetActive(true);
+                if(t.gameObject.name == "Daryen_Hair_Matt")
+                {
+                    Destroy(t.gameObject);
+                }
             }
           
                      return daz;
@@ -273,7 +281,7 @@ namespace PIPE_Valve_Console_Client
 
 
         /// <summary>
-        /// Called to load a custom model, will return Daryiensetup() if nothing can be done
+        /// Called to load a custom model, will return Daryien if nothing can be done
         /// </summary>
         /// <returns></returns>
         private GameObject LoadRiderFromAssets()
@@ -312,10 +320,10 @@ namespace PIPE_Valve_Console_Client
 
 
 
-           
+           // change to daryien?, change to random file from Custom Players? 
               if(!found)
               {
-                loadedrider = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien") as GameObject);
+                loadedrider = DaryienSetup();
               }
 
             return loadedrider;  
@@ -445,8 +453,9 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public void UpdateAllRiderParts()
         {
-            
 
+            try
+            {
             //  Lerp all Positions to newest stored values rotations are just set
 
             // rider
@@ -467,6 +476,12 @@ namespace PIPE_Valve_Console_Client
             {
                 Riders_Transforms[i].localPosition = Vector3.Lerp(Riders_Transforms[i].localPosition, Riders_positions[i], LerpSpeed);
                 Riders_Transforms[i].localEulerAngles = Riders_rotations[i];
+            }
+
+            }
+            catch (System.Exception x)
+            {
+                Debug.Log("UpdateAllRiderParts Error   : " + x);
             }
 
 
@@ -1756,7 +1771,7 @@ namespace PIPE_Valve_Console_Client
             Debug.Log("Late init of remote rider done");
         }
 
-
+       
        
       
     }

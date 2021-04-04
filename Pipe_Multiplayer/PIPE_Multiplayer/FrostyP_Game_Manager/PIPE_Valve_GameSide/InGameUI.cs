@@ -27,6 +27,7 @@ namespace PIPE_Valve_Console_Client
         Camera Cam;
         GameObject Camtarget;
         GameObject Targetrider;
+        float distance = 20;
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
@@ -446,7 +447,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 else
                 {
-                    CharacterModding.instance.LoadBmxSetup();
+                    
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Bmx Save", 4, 0));
                 }
 
@@ -459,7 +460,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 else
                 {
-                    CharacterModding.instance.LoadBmxSetup();
+                    
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Daryien's Save", 4, 0));
                 }
 
@@ -515,9 +516,24 @@ namespace PIPE_Valve_Console_Client
                 }
                 else
                 {
-                    CharacterModding.instance.LoadBmxSetup();
+                    
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Bmx Save", 4, 0));
                 }
+
+                if (_localplayer.RiderModelname == "Daryien")
+                {
+                    if (CharacterModding.instance.LoadRiderSetup() == 0)
+                    {
+                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your Rider, Select a texture for all rider parts and save for sync of Daryien", 4, 0));
+                    }
+                    else
+                    {
+
+                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Daryien's Save", 4, 0));
+                    }
+
+                }
+
 
 
                 try
@@ -787,7 +803,7 @@ namespace PIPE_Valve_Console_Client
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
-            
+            Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 20);
             IsSpectating = true;
 
         }
@@ -796,28 +812,43 @@ namespace PIPE_Valve_Console_Client
         {
             float speed = 10;
             Vector3 Velocity = Vector3.zero;
-           
+            
+            
 
-            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.1f);
+            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + Vector3.up,ref Velocity, 0.05f);
             Cam.transform.LookAt(Camtarget.transform);
             
-            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickY()> 0.1f | MGInputManager.LStickX() < -0.1f | MGInputManager.LStickY() < -0.1f)
+            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickX() < -0.1f)
             {
-            Cam.gameObject.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * speed, 0, MGInputManager.LStickY() * Time.deltaTime * speed);
+                
+                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.LStickX() * Time.deltaTime * speed * 5);
             }
+            if (MGInputManager.LStickY() > 0.1f)
+            {
+               
+                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Targetrider.transform.position, Time.deltaTime * 4);
+            }
+            if (MGInputManager.LStickY() < -0.1f)
+            {
+                Vector3 dir = (Cam.transform.position - Camtarget.transform.position).normalized;
+                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Cam.transform.position + dir, Time.deltaTime * 4);
+            }
+
+
             if (MGInputManager.RStickY() > 0.1f | MGInputManager.RStickY() < -0.1f)
             {
-                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Targetrider.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 2);
+                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Cam.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
             }
 
 
-            if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > 15)
+            if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > distance)
             {
                 Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.transform.position = Cam.transform.position + dir * 10 * Time.deltaTime;
+                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Cam.transform.position + dir * 10 * Time.deltaTime,ref Velocity ,0.0001f);
 
             }
-            
+           
+
         }
 
         public void SpectateExit()

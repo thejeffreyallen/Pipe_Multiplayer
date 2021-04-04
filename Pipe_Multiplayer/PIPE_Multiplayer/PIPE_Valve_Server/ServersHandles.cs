@@ -565,6 +565,7 @@ namespace PIPE_Valve_Online_Server
         /// <param name="_packet"></param>
         public static void ReceiveAudioUpdate(uint _from, Packet _packet)
         {
+            
             // receives and takes the receiving PacketId off the start of the array
             byte[] oldbytes = _packet.ToArray();
 

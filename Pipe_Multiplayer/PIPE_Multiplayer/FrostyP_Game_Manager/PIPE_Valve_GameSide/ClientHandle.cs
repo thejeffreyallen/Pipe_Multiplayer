@@ -598,6 +598,7 @@ namespace PIPE_Valve_Console_Client
                 uint _id = (uint)_packet.ReadLong();
             GameManager.PlayersColours.Remove(_id);
             GameManager.PlayersSmooths.Remove(_id);
+            GameManager.PlayersMetals.Remove(_id);
             GameManager.BikeTexinfos.Remove(_id);
             GameManager.RiderTexinfos.Remove(_id);
             GameManager.Bikenormalinfos.Remove(_id);

@@ -16,6 +16,7 @@ if you have exisiting 2.0 Multiplayer install:
 - Bike and rider saves
 - Parkbuilder will recognise objects with rigidbodies
 - Saved username and saveable servers
+- Simple On-foot Collision
 
 
 # Manual Setup of FrostyP Game Manager
