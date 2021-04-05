@@ -272,6 +272,7 @@ namespace PIPE_Valve_Console_Client
            _localplayer = gameObject.GetComponent<LocalPlayer>();
            
             Camtarget = new GameObject();
+            DontDestroyOnLoad(Camtarget);
 
         }
 
@@ -669,7 +670,14 @@ namespace PIPE_Valve_Console_Client
         {
             if (IsSpectating)
             {
+                if(GameManager.Players[currentspecid] != null)
+                {
                 SpectateControl();
+                }
+                else
+                {
+                    SpectateExit();
+                }
             }
         }
 
@@ -816,13 +824,16 @@ namespace PIPE_Valve_Console_Client
             float speed = 15;
             Vector3 Velocity = Vector3.zero;
             
+            if(GameManager.Players[currentspecid] != null)
+            {
             if(Targetrider == null)
             {
                 Targetrider = GameManager.Players[currentspecid].RiderModel;
+                Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 2);
             }
 
 
-            Camtarget.transform.position = Vector3.SmoothDamp(Camtarget.transform.position,Targetrider.transform.position + (Vector3.up * 2),ref Velocity, 0.008f,100, Time.deltaTime);
+                Camtarget.transform.position = Vector3.Lerp(Camtarget.transform.position, Targetrider.transform.position + Vector3.up, 15 * Time.deltaTime);
             Cam.transform.LookAt(Camtarget.transform);
             
             if(MGInputManager.RStickX()> 0.1f | MGInputManager.RStickX() < -0.1f)
@@ -852,10 +863,17 @@ namespace PIPE_Valve_Console_Client
             if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > distance)
             {
                 Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Camtarget.transform.position,ref Velocity, 0.002f, 100,Time.deltaTime);
+                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Camtarget.transform.position,ref Velocity, 0.01f, 100f * Vector3.Distance(Cam.transform.position, Camtarget.transform.position) * Time.deltaTime, Time.deltaTime);
 
             }
-           
+
+
+            }
+            else
+            {
+                SpectateExit();
+            }
+
 
         }
 

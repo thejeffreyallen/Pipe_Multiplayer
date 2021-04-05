@@ -55,6 +55,8 @@ step 4) Ensure VC_Redist_X86 has been installed, provided in folder but also ava
 
 
 
+
+
 # For Dedicated Game Server App:
 
 
@@ -120,15 +122,9 @@ Return from parkbuilder gives insane mode until you get off or go to marker
 
 ParkBuilder load park only works if you have all required bundles loaded
 
-inital load up of textures not always correct, dependant on image formats, compression, bit depth
-
 Auto sending and receiving of missing textures to/from the server can fail/bug dependant on same as above aswell as image name, disabled for now as server app can crash in some cases.
 
-Server can sometimes catch error when a player disconnects, timing issue
-
-Audio has various bugs, within Grinding mostly, if a Grind sound persists after exit, doing another grind on the same surface type will cut previous sound out.
-if you join a game and hear constant bailing sound, reconnecting usually solves it, not sure about that so far.
-
+Audio has various bugs.
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

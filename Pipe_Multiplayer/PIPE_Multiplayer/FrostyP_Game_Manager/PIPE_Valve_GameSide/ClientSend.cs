@@ -230,7 +230,8 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write((float)Math.Round(update.pitch * 100) / 100);
                         _packet.Write((float)Math.Round(update.Velocity * 100) / 100);
                     }
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
+                    
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
 
                 }
 
@@ -248,7 +249,7 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(update.Path);
                         _packet.Write(update.Volume);
                     }
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
 
                 }
             }

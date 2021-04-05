@@ -624,7 +624,7 @@ namespace PIPE_Valve_Console_Client
             }
             else
             {
-                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Couldnt Clean up last player that left", 4, 0));
+                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Couldnt find last player that left", 4, 0));
             }
 
         }

@@ -120,7 +120,7 @@ namespace FrostyP_Game_Manager
 
 
 
-            FrostyPGamemanager.DontDestroyOnLoad(GamemanOBJ);
+            UnityEngine.Object.DontDestroyOnLoad(GamemanOBJ);
 
 
 

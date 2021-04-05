@@ -144,6 +144,8 @@ namespace PIPE_Valve_Console_Client
                         Launcher.CurrentEvent.getDescription(out Description);
                         Description.getPath(out ThisSoundpath);
 
+                        if (!ThisSoundpath.Contains("Character Sounds"))
+                        {
                         if (state == FMOD.Studio.PLAYBACK_STATE.STARTING)
                         {
                             LastOneShotEvent = Launcher.CurrentEvent;
@@ -153,6 +155,8 @@ namespace PIPE_Valve_Console_Client
 
                             OneShotUpdates.Add(new AudioStateUpdate(finalvol, ThisSoundpath));
                             LastSoundPath = ThisSoundpath;
+                        }
+
                         }
                     }
 
