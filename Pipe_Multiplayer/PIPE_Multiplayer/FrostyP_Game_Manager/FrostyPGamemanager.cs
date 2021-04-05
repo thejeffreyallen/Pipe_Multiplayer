@@ -895,11 +895,11 @@ namespace FrostyP_Game_Manager
 				volume.profile.TryGetSettings(out bloom);
 
 
-				volume.profile.TryGetSettings(out depthoffield);
-				if (depthoffield == null)
-				{
-					volume.profile.AddSettings<DepthOfField>();
-				}
+//				volume.profile.TryGetSettings(out depthoffield);
+//				if (depthoffield == null)
+//				{
+//					volume.profile.AddSettings<DepthOfField>();
+//				}
 
 
 				volume.profile.TryGetSettings(out ColorGrade);
@@ -912,9 +912,9 @@ namespace FrostyP_Game_Manager
 				bloom.threshold.overrideState = true;
 
 
-				depthoffield.enabled.value = true;
-				depthoffield.focusDistance.overrideState = true;
-				depthoffield.aperture.overrideState = true;
+//				depthoffield.enabled.value = true;
+//				depthoffield.focusDistance.overrideState = true;
+//				depthoffield.aperture.overrideState = true;
 
 
 				ColorGrade.enabled.value = true;
@@ -927,8 +927,8 @@ namespace FrostyP_Game_Manager
 
 				bloom.threshold.value = newbloomvalueCAMSETTING;
 				bloom.intensity.value = newbloomintvalueCAMSETTING;
-				depthoffield.focusDistance.value = focusdistanceCAMSETTING;
-				depthoffield.aperture.value = apertureCAMSETTING;
+//				depthoffield.focusDistance.value = focusdistanceCAMSETTING;
+//				depthoffield.aperture.value = apertureCAMSETTING;
 				ColorGrade.contrast.value = ContrastNewCAMSETTING;
 				ColorGrade.saturation.value = SaturationNewCAMSETTING;
 				ColorGrade.brightness.value = BrightnessNewCAMSETTING;
