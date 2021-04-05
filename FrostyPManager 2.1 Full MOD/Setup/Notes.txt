@@ -14,23 +14,14 @@ Known issues:
 GameNetworkingSockets not found - error loading dll when clicking Connect to server = issue with VC-redist most likely, 
 potentially other builds of GameNetworkingSockets.dll required, message frostyP if this carries on
 
-bugs with LiveUpdates sometimes changing other players clothes
-
-Loading up doesnt get your rider and bike correct first time.
 
 Return from parkbuilder gives insane mode until you get off or go to marker
 
 ParkBuilder load park only works if you have all required bundles loaded
 
-inital load up of textures not always correct, dependant on image formats, compression, bit depth
+Audio has various bugs.
 
-Auto sending and receiving of missing textures to/from the server can fail/bug dependant on same as above aswell as image name, disabled for now as server app can crash in some cases.
-
-Server can sometimes catch error when a player disconnects, timing issue
-
-Audio has various bugs, within Grinding mostly, if a Grind sound persists after exit, doing another grind on the same surface type will cut previous sound out.
-if you join a game and hear constant bailing sound, reconnecting usually solves it, not sure about that so far.
-
+First Person mode bugs out if manager is open, toggle off with G before pressing back button
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

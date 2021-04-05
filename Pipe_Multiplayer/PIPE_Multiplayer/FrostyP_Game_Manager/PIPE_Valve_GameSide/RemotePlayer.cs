@@ -413,21 +413,18 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                if (RiderModel.GetComponent<Rigidbody>() == null)
-                {
-                    Rider_RB = RiderModel.AddComponent<Rigidbody>();
-                    Rider_RB.isKinematic = true;
-                }
+
+                Rider_RB = RiderModel.AddComponent<Rigidbody>();
+                Rider_RB.isKinematic = true;
+
                 SphereCollider spherehead = RiderModel.transform.FindDeepChild("mixamorig:Head").gameObject.AddComponent<SphereCollider>();
                 spherehead.radius = 0.012f;
                 spherehead.center = new Vector3(0, 0.1f, 0.03f);
                 spherehead.transform.localPosition = new Vector3(0, 0.1028246f, 0.0511784f);
 
-                if (BMX.GetComponent<Rigidbody>() == null)
-                {
-                    BMX_RB = BMX.AddComponent<Rigidbody>();
-                    BMX_RB.isKinematic = true;
-                }
+
+                BMX_RB = BMX.AddComponent<Rigidbody>();
+                BMX_RB.isKinematic = true;
 
 
 
@@ -435,7 +432,9 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                MasterActive = true;
+
+
+               
                 Debug.Log("All Remote Rider Parts Assigned");
                 return true;
             }
@@ -1771,9 +1770,11 @@ namespace PIPE_Valve_Console_Client
 
 
             UpdateBike();
-           
+
+
+
             // update bike textures too
-           
+            MasterActive = true;
             Debug.Log("Late init of remote rider done");
         }
 

@@ -834,7 +834,7 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-                Camtarget.transform.position = Vector3.Lerp(Camtarget.transform.position, Targetrider.transform.position + Vector3.up, 15 * Time.deltaTime);
+                Camtarget.transform.position = Vector3.Lerp(Camtarget.transform.position, Targetrider.transform.position + Vector3.up, 2 * Time.deltaTime);
             Cam.transform.LookAt(Camtarget.transform);
             
             if(MGInputManager.RStickX()> 0.1f | MGInputManager.RStickX() < -0.1f)
@@ -864,7 +864,7 @@ namespace PIPE_Valve_Console_Client
             if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > distance)
             {
                 Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Camtarget.transform.position,ref Velocity, 0.01f, 100f * Vector3.Distance(Cam.transform.position, Camtarget.transform.position) * Time.deltaTime, Time.deltaTime);
+                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Camtarget.transform.position,ref Velocity, 0.2f * Time.deltaTime, 300f * Vector3.Distance(Cam.transform.position, Camtarget.transform.position) * Time.deltaTime);
 
             }
 
