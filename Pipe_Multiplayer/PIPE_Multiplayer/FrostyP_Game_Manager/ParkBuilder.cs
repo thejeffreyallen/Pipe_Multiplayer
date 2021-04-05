@@ -137,9 +137,20 @@ namespace FrostyP_Game_Manager
 		public List<AssetBundle> bundlesloaded;
 
 
+		void Awake()
+        {
+			camobj = new GameObject();
+			camobj.AddComponent<FMOD_Listener>();
+			DontDestroyOnLoad(camobj);
+			// make ghost object that rotates to camera obj only on Y
+			controlobjforcam = new GameObject();
+			DontDestroyOnLoad(controlobjforcam);
+		}
+
 		// Use this for initialization
 		void Start()
         {
+			
 
 			// create instance of camspeed and run setup once, this adds 3 presets for Y button to scroll through
 			camspeed = new Camspeed();
@@ -158,8 +169,6 @@ namespace FrostyP_Game_Manager
 			}
 
 
-			// make ghost object that rotates to camera obj only on Y
-			controlobjforcam = new GameObject();
 
 
 			RedTex = new Texture2D(Screen.width / 6, Screen.height / 4); ;
@@ -335,9 +344,10 @@ namespace FrostyP_Game_Manager
 				// check everything is there, if not load/find it/turn it on, destroying activeobj will always result in it being re-instatiated as pointer object
 				
 				
-				if (buildercam == null)
+				if (buildercam == null && camobj != null)
 				{
 					buildercam = camobj.AddComponent<Camera>();
+					camobj.AddComponent<FMOD_Listener>();
 					buildercam.transform.position = Camera.current.transform.position;
 					buildercam.transform.rotation = Camera.current.transform.rotation;
 					
@@ -534,6 +544,7 @@ namespace FrostyP_Game_Manager
             {
 					Destroy(Activeobj);
 					buildercam.enabled = false;
+					camobj.GetComponent<FMOD_Listener>().enabled = false;
 				Player.SetActive(true);
 				openflag = false;
 					
@@ -575,6 +586,12 @@ namespace FrostyP_Game_Manager
 			if (camobj == null)
 			{
 				camobj = new GameObject();
+			}
+			if(buildercam == null)
+            {
+				
+				buildercam = camobj.AddComponent<Camera>();
+				camobj.GetComponent<FMOD_Listener>().enabled = true;
 			}
 		
 			//give list of found files

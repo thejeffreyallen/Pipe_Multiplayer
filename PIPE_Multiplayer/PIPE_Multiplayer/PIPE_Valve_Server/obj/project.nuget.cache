@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "wkdDb1XpwC6MFXKma4+ABXDq5yxbThLpeWorxzQEj3VwmJCKBplLwc92DFT35phR26i97BFBTzX/ueiR3Dg5fA==",
+  "success": true,
+  "projectFilePath": "E:\\GITHUB\\Pipe_Multiplayer\\Pipe_Multiplayer\\PIPE_Multiplayer\\PIPE_Valve_Server\\PIPE_Valve_Online_Server.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tom\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}

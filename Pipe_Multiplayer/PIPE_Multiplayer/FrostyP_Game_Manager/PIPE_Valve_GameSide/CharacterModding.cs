@@ -1324,24 +1324,16 @@ namespace PIPE_Valve_Console_Client
 
 		public int LoadBmxSetup()
         {
-			FileStream file;
+			
 			BMXSaveData load;
 			
-			if (File.Exists(BmxSaveDir + "BMXSAVE.FrostyPreset")) file = File.OpenRead(BmxSaveDir + "BMXSAVE.FrostyPreset");
-			else
-			{
-				
-				Debug.Log("Couldnt find file in there");
-				return 0;
-			}
-
-
-			BinaryFormatter bf = new BinaryFormatter();
-			load = (BMXSaveData)bf.Deserialize(File.OpenRead(BmxSaveDir + "BMXSAVE.FrostyPreset"));
-			file.Close();
+			if (File.Exists(BmxSaveDir + "BMXSAVE.FrostyPreset"))
+            {
 			
             try
             {
+			BinaryFormatter bf = new BinaryFormatter();
+			load = (BMXSaveData)bf.Deserialize(File.OpenRead(BmxSaveDir + "BMXSAVE.FrostyPreset"));
 			BMXNetLoadout.instance.FrameColour = new Vector3(load.FrameColour[0],load.FrameColour[1],load.FrameColour[2]);
 			
 			BMXNetLoadout.instance.FrameSmooth = load.FrameSmooth;
@@ -1775,14 +1767,27 @@ namespace PIPE_Valve_Console_Client
 				}
 				
 				Debug.Log("Loaded BMX!");
+			    return 1;
             }
             catch (UnityException x)
             {
 				Debug.Log("Didnt load bmx: " + x);
+				return 0;
 
             }
+
+
+
+            }
+            else
+            {
+
+			return 0;
+            }
+
+
 			
-			return 1;
+
 
 		}
 

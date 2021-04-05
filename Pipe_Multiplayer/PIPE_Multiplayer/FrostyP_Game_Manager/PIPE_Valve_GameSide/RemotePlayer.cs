@@ -90,14 +90,20 @@ namespace PIPE_Valve_Console_Client
 		TextMesh tm;
 
 
-
-        // Call initiation once on start, inititation to reoccur until resolved
-        private void Start()
+        void Awake()
         {
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
             Riders_Transforms = new Transform[32];
             Riders_positions = new Vector3[32];
             Riders_rotations = new Vector3[32];
+
+        }
+
+
+        // Call initiation once on start, inititation to reoccur until resolved
+        private void Start()
+        {
+           
 
             Initialize();
             RiderModel.name = "Model " + id;

@@ -604,14 +604,14 @@ namespace PIPE_Valve_Console_Client
             GameManager.Bikenormalinfos.Remove(_id);
 
             // delete rider, bike and then self and remove id from manager
-            foreach (RemotePlayer player in GameManager.Players.Values)
+                foreach (RemotePlayer player in GameManager.Players.Values)
                 {
                     if (player.id == _id)
                     {
-                        Destroy(GameManager.Players[_id].RiderModel);
-                        Destroy(GameManager.Players[_id].BMX);
-                        Destroy(GameManager.Players[_id].Audio);
-                        Destroy(GameManager.Players[_id].nameSign);
+                      Destroy(GameManager.Players[_id].RiderModel);
+                      Destroy(GameManager.Players[_id].BMX);
+                      Destroy(GameManager.Players[_id].Audio);
+                      Destroy(GameManager.Players[_id].nameSign);
                     todelete = player.gameObject;
                     InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(player.username + " Left the game", 4, 0));
                     }

@@ -330,6 +330,7 @@ namespace PIPE_Valve_Console_Client
             GameManager.Players.Clear();
             GameManager.PlayersColours.Clear();
             GameManager.PlayersSmooths.Clear();
+            GameManager.PlayersMetals.Clear();
             GameManager.BikeTexinfos.Clear();
             GameManager.Bikenormalinfos.Clear();
             GameManager.RiderTexinfos.Clear();

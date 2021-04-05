@@ -338,7 +338,7 @@ namespace PIPE_Valve_Console_Client
 					//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 				}
 
-				if (ServerThread == null)
+				if (ServerThread == null && !ServerLoopIsRunning)
 				{
 					ServerLoopIsRunning = true;
 					ServerThread = new Thread(NetWorkThreadLoop)
@@ -347,22 +347,7 @@ namespace PIPE_Valve_Console_Client
 					};
 					ServerThread.Start();
 				}
-				else
-				{
-					if (ServerThread.IsAlive)
-					{
-						ServerLoopIsRunning = false;
-					}
-					ServerThread.Abort();
-					ServerThread = null;
-					ServerThread = new Thread(NetWorkThreadLoop)
-					{
-						IsBackground = true
-					};
-					ServerLoopIsRunning = true;
-					ServerThread.Start();
-
-				}
+				
 
 
 			}
@@ -386,8 +371,8 @@ namespace PIPE_Valve_Console_Client
 		public void DisconnectMaster()
         {
 			ServerLoopIsRunning = false;
-			client.CloseConnection(connection);
 			//client.FlushMessagesOnConnection(connection);
+			client.CloseConnection(connection);
 			utils = null;
 			client = null;
 			status = null;
