@@ -133,7 +133,7 @@ namespace PIPE_Valve_Online_Server
 
 			int sendRateMin = 600000;
 			int sendRateMax = 65400000;
-			int sendBufferSize = 509715200;
+			int sendBufferSize = 209715200;
 
 			unsafe
 			{
@@ -168,8 +168,8 @@ namespace PIPE_Valve_Online_Server
 
 					case ConnectionState.ClosedByPeer:
 					case ConnectionState.ProblemDetectedLocally:
-						server.FlushMessagesOnConnection(info.connection);
 						server.CloseConnection(info.connection);
+						server.FlushMessagesOnConnection(info.connection);
 						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
 
 						

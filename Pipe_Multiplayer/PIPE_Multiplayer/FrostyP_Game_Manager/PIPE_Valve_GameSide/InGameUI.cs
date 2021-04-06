@@ -33,6 +33,8 @@ namespace PIPE_Valve_Console_Client
         // connection status
         public float Ping = 0;
         public int SendBytesPersec = 0;
+        public float Outbytespersec = 0;
+        public float InBytespersec = 0;
 
 
 
@@ -443,6 +445,8 @@ namespace PIPE_Valve_Console_Client
                 {
                     PlayerSavedata.Username = Username;
                 BinaryFormatter bf = new BinaryFormatter();
+
+
                 bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
                 
 
@@ -757,6 +761,8 @@ namespace PIPE_Valve_Console_Client
             GUILayout.Space(20);
 
             GUILayout.Label($"Ping: {Ping}");
+           // GUILayout.Label($"Out per sec:  {Outbytespersec}");
+            //GUILayout.Label($"in per sec:  {InBytespersec}");
             //GUILayout.Label($"Bytes out/s: {SendBytesPersec}");
 
             GUILayout.Label("Live Rider list:", Generalstyle);

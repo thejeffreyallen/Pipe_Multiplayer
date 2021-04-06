@@ -255,15 +255,15 @@ namespace PIPE_Valve_Console_Client
 			address.SetAddress(_ip,(ushort)port);
 			connection = client.Connect(ref address);
 			int sendRateMin = 400000;
-			int sendRateMax = 45400000;
-			int sendBufferSize = 209715200;
+			int sendRateMax = 15400000;
+			int sendBufferSize = 109715200;
 			
 
 			unsafe
 			{
 				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
 				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
-				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 			}
@@ -466,6 +466,9 @@ namespace PIPE_Valve_Console_Client
 			if(InGameUI.instance.Connected && constat.state == Valve.Sockets.ConnectionState.Connected)
             {
 				InGameUI.instance.Ping = constat.ping;
+				//InGameUI.instance.Outbytespersec = constat.outBytesPerSecond;
+				//InGameUI.instance.InBytespersec = constat.inBytesPerSecond;
+				
 				//InGameUI.instance.SendBytesPersec = constat.sendRateBytesPerSecond;
             }
 
