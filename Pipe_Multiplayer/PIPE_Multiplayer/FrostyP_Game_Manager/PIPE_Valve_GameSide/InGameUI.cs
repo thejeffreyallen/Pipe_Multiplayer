@@ -602,8 +602,8 @@ namespace PIPE_Valve_Console_Client
                 try
                 {
                 GameManager.instance.GetLevelName();
-                ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
-                NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
+               // ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
+               // NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
                 }
                 catch(UnityException x)
                 {
