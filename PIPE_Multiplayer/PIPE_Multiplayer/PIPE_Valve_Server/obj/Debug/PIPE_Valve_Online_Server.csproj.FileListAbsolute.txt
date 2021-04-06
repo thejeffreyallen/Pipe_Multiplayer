@@ -8,3 +8,4 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\o
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.exe
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.csprojAssemblyReference.cache

@@ -119,4 +119,3 @@ E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.pdb
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Debug\PIPE_Valve_Console_Client.csprojAssemblyReference.cache

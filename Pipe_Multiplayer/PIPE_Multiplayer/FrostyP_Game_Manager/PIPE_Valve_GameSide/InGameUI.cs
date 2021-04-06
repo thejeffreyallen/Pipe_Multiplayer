@@ -28,8 +28,13 @@ namespace PIPE_Valve_Console_Client
         GameObject Ridersmoothfollower;
         GameObject ControlObj;
         GameObject Targetrider;
-        float distance = 10;
         uint currentspecid;
+
+        // connection status
+        public float Ping = 0;
+        public int SendBytesPersec = 0;
+
+
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
@@ -750,6 +755,9 @@ namespace PIPE_Valve_Console_Client
                
             }
             GUILayout.Space(20);
+
+            GUILayout.Label($"Ping: {Ping}");
+            //GUILayout.Label($"Bytes out/s: {SendBytesPersec}");
 
             GUILayout.Label("Live Rider list:", Generalstyle);
             foreach (RemotePlayer r in GameManager.Players.Values)

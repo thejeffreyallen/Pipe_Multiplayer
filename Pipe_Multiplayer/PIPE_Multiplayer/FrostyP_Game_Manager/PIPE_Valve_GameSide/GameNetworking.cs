@@ -6,6 +6,7 @@ using System.Text;
 using Valve.Sockets;
 using System.Threading;
 using System.Net;
+using FrostyP_Game_Manager;
 //using UnityEngine;
 
 
@@ -183,9 +184,8 @@ namespace PIPE_Valve_Console_Client
 
 			// Do incoming on Server thread, send to unity
 			int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
-
-
-			    // if theres messages, send Back to Unity Thread for processing, neccessary for anything that uses Untiy API even debug.log for some reason, maybe because its outside assemblyC
+			
+				// if theres messages, send Back to Unity Thread for processing, neccessary for anything that uses Untiy API even debug.log for some reason, maybe because its outside assemblyC
 				if (netMessagesCount > 0)
 				{
 
@@ -223,11 +223,11 @@ namespace PIPE_Valve_Console_Client
 
 				}
 
-			
+
 
 #endif
-			
-			
+
+			ConnectionStatus();
 
 			
 			
@@ -412,7 +412,7 @@ namespace PIPE_Valve_Console_Client
 				{
 					// this is the fixedupdate of server thread
 					ServerUpdate.Update();
-
+                   
 					_nextloop = _nextloop.AddMilliseconds(Constants.MSPerTick);
 
 					if (_nextloop > DateTime.Now)
@@ -437,6 +437,42 @@ namespace PIPE_Valve_Console_Client
 				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server Thread ending", 1, 0));
 			});
 		}
+
+
+		public void ConnectionStatus()
+        {
+			ConnectionStatus constat = new ConnectionStatus();
+			client.GetQuickConnectionStatus(connection, ref constat);
+
+			// if theres no connection, trigger full end with cleanup
+			if(constat.state == Valve.Sockets.ConnectionState.None | constat.state == Valve.Sockets.ConnectionState.ProblemDetectedLocally | constat.state == Valve.Sockets.ConnectionState.None)
+            {
+                if (InGameUI.instance.Connected)
+                {
+					InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Connection lost!", 4, 0));
+					SendToUnityThread.instance.ExecuteOnMainThread(() =>
+					{
+					InGameUI.instance.Minigui = false;
+					InGameUI.instance.OnlineMenu = true;
+						InGameUI.instance.OfflineMenu = false;
+						FrostyPGamemanager.instance.OpenMenu = true;
+					    InGameUI.instance.Connected = false;
+						InGameUI.instance.Disconnect();
+						InGameUI.instance.Waittoend();
+					});
+				}
+            }
+
+			if(InGameUI.instance.Connected && constat.state == Valve.Sockets.ConnectionState.Connected)
+            {
+				InGameUI.instance.Ping = constat.ping;
+				//InGameUI.instance.SendBytesPersec = constat.sendRateBytesPerSecond;
+            }
+
+
+		}
+
+
 
 
 	}
