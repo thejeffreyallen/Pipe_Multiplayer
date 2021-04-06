@@ -25,9 +25,10 @@ namespace PIPE_Valve_Console_Client
 
        
         Camera Cam;
-        GameObject Camtarget;
+        GameObject Ridersmoothfollower;
+        GameObject ControlObj;
         GameObject Targetrider;
-        float distance = 15;
+        float distance = 10;
         uint currentspecid;
 
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
@@ -271,8 +272,10 @@ namespace PIPE_Valve_Console_Client
             };
            _localplayer = gameObject.GetComponent<LocalPlayer>();
            
-            Camtarget = new GameObject();
-            DontDestroyOnLoad(Camtarget);
+            Ridersmoothfollower = new GameObject();
+            DontDestroyOnLoad(Ridersmoothfollower);
+            ControlObj = new GameObject();
+            DontDestroyOnLoad(ControlObj);
 
         }
 
@@ -667,18 +670,26 @@ namespace PIPE_Valve_Console_Client
 
         }
      
-        void Update()
+        void FixedUpdate()
         {
             if (IsSpectating)
             {
-                if(GameManager.Players[currentspecid] != null)
+                bool found = false;   
+                foreach(RemotePlayer r in GameManager.Players.Values)
                 {
-                SpectateControl();
+                    if(r.id == currentspecid)
+                    {
+                        found = true;
+                     SpectateControl();
+                    }
                 }
-                else
+
+                if (!found)
                 {
                     SpectateExit();
                 }
+                
+                
             }
         }
 
@@ -808,15 +819,16 @@ namespace PIPE_Valve_Console_Client
         // --------------------------------------------------------------------------------------------  SPECTATE MODE ---------------------------------------------------------------------------------------------------
         public void SpectateEnter(uint id)
         {
+            currentspecid = id;
             Cam = new GameObject().AddComponent<Camera>();
             DontDestroyOnLoad(Cam);
            // MyPlayer.GetComponentInChildren<Camera>().enabled = false;
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
-            Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 2);
+            ControlObj.transform.position = Targetrider.transform.position + -Targetrider.transform.forward * 2;
+            ControlObj.transform.parent = Ridersmoothfollower.transform;
             IsSpectating = true;
-            currentspecid = id;
 
         }
 
@@ -824,67 +836,63 @@ namespace PIPE_Valve_Console_Client
         {
             float speed = 15;
             Vector3 Velocity = Vector3.zero;
-            
-            if(GameManager.Players[currentspecid] != null)
-            {
+           
+           
             if(Targetrider == null)
             {
                 Targetrider = GameManager.Players[currentspecid].RiderModel;
-                Cam.gameObject.transform.position = Targetrider.transform.position + (Vector3.left * 2);
+                ControlObj.transform.position = Targetrider.transform.position + -Targetrider.transform.forward * 2;
             }
 
 
-                Camtarget.transform.position = Vector3.Lerp(Camtarget.transform.position, Targetrider.transform.position + Vector3.up, 2 * Time.deltaTime);
-            Cam.transform.LookAt(Camtarget.transform);
+                Ridersmoothfollower.transform.position = Vector3.Lerp(Ridersmoothfollower.transform.position, Targetrider.transform.position + Vector3.up, 2 * Time.deltaTime);
+                Cam.transform.LookAt(Ridersmoothfollower.transform);
+                ControlObj.transform.LookAt(Ridersmoothfollower.transform);
             
             if(MGInputManager.RStickX()> 0.1f | MGInputManager.RStickX() < -0.1f)
             {
                 
-                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
+                ControlObj.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
             }
             if (MGInputManager.LStickY() > 0.1f)
             {
 
-                Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Cam.transform.position + dir, Time.deltaTime * 15);
+                Vector3 dir = -(ControlObj.transform.position - Ridersmoothfollower.transform.position).normalized;
+                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 7);
             }
             if (MGInputManager.LStickY() < -0.1f)
             {
-                Vector3 dir = (Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.gameObject.transform.position = Vector3.MoveTowards(Cam.gameObject.transform.position, Cam.transform.position + dir, Time.deltaTime * 15);
+                Vector3 dir = (ControlObj.transform.position - Ridersmoothfollower.transform.position).normalized;
+                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 7);
             }
 
 
             if (MGInputManager.RStickY() > 0.1f | MGInputManager.RStickY() < -0.1f)
             {
-                Cam.gameObject.transform.RotateAround(Targetrider.transform.position, Cam.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
+                ControlObj.gameObject.transform.RotateAround(Targetrider.transform.position, Cam.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
             }
 
 
-            if (Vector3.Distance(Cam.transform.position, Camtarget.transform.position) > distance)
-            {
-                Vector3 dir = -(Cam.transform.position - Camtarget.transform.position).normalized;
-                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,Camtarget.transform.position,ref Velocity, 0.2f * Time.deltaTime, 300f * Vector3.Distance(Cam.transform.position, Camtarget.transform.position) * Time.deltaTime);
+            
+                
+                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,ControlObj.transform.position,ref Velocity, 0.1f * Time.deltaTime, 1000f);
 
-            }
+            
 
 
-            }
-            else
-            {
-                SpectateExit();
-            }
-
+            
+            
+            
 
         }
 
         public void SpectateExit()
         {
+            IsSpectating = false;
             Destroy(Cam.gameObject);
            // MyPlayer.GetComponentInChildren<Camera>().enabled = true;
             // Destroy(mginput);
             Targetrider = null;
-            IsSpectating = false;
 
         }
 

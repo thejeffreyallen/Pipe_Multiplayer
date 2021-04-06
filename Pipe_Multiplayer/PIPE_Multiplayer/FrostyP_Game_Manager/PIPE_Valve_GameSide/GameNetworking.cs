@@ -268,40 +268,29 @@ namespace PIPE_Valve_Console_Client
 				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 			}
 
-				
 
 
-				if (ServerThread == null)
-            {
-			ServerLoopIsRunning = true;
-			ServerThread = new Thread(NetWorkThreadLoop)
-			{
-				IsBackground = true
-			};
-			ServerThread.Start();
-            }
-            else
-            {
-                if (ServerThread.IsAlive)
-                {
-					ServerLoopIsRunning = false;
-                }
-				ServerThread.Abort();
-				ServerThread = null;
-				ServerThread = new Thread(NetWorkThreadLoop)
+
+				if (ServerThread == null && !ServerLoopIsRunning)
 				{
-					IsBackground = true
-				};
-				ServerLoopIsRunning = true;
-				ServerThread.Start();
+					ServerLoopIsRunning = true;
+					ServerThread = new Thread(NetWorkThreadLoop)
+					{
+						IsBackground = true
+					};
+					ServerThread.Start();
+				}
+				if (ServerThread != null && !ServerLoopIsRunning)
+				{
+					ServerLoopIsRunning = true;
+					ServerThread.Start();
+				}
+
 
 			}
-			
-
-            }
 			catch(Exception x)
             {
-				
+				UnityEngine.Debug.Log("Thread start error   :" + x);	
             }
 			
 		}
@@ -347,13 +336,18 @@ namespace PIPE_Valve_Console_Client
 					};
 					ServerThread.Start();
 				}
+                if(ServerThread != null && !ServerLoopIsRunning)
+                {
+					ServerLoopIsRunning = true;
+					ServerThread.Start();
+                }
 				
 
 
 			}
 			catch (Exception x)
 			{
-
+				UnityEngine.Debug.Log("Thread start error   :" + x);
 			}
 
 		}
@@ -370,18 +364,27 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		public void DisconnectMaster()
         {
+            try
+            {
 			ServerLoopIsRunning = false;
-			//client.FlushMessagesOnConnection(connection);
+			client.FlushMessagesOnConnection(connection);
 			client.CloseConnection(connection);
 			utils = null;
 			client = null;
 			status = null;
 
-			
-			ServerThread.Abort();
-			ServerThread = null;
+				ServerThread.Join();
+
+				
+			   ServerThread = null;
 
 			Library.Deinitialize();
+
+            }
+            catch (System.Exception x)
+            {
+				UnityEngine.Debug.Log("Thread end error  : " + x);
+            }
 		}
 
 
@@ -393,6 +396,7 @@ namespace PIPE_Valve_Console_Client
 			// Tell main thread ive started
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
+				UnityEngine.Debug.Log("Thread Started");
 				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server thread Started up", 1, 0));
 			});
 
@@ -404,7 +408,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-				while (_nextloop < DateTime.Now)
+				while (_nextloop < DateTime.Now && ServerLoopIsRunning)
 				{
 					// this is the fixedupdate of server thread
 					ServerUpdate.Update();
@@ -429,6 +433,7 @@ namespace PIPE_Valve_Console_Client
 
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
+				UnityEngine.Debug.Log("Thread Ended");
 				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server Thread ending", 1, 0));
 			});
 		}
