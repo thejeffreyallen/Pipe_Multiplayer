@@ -13,6 +13,7 @@ namespace PIPE_Valve_Console_Client
         public LocalPlayer _localplayer;
         public string MycurrentLevel = "Unknown";
         public uint MyPlayerId;
+        public bool firstMap = true;
         public static Dictionary<uint, RemotePlayer> Players;
         public static Dictionary<uint, List<Vector3>> PlayersColours;
         public static Dictionary<uint, List<float>> PlayersSmooths;
@@ -84,11 +85,19 @@ namespace PIPE_Valve_Console_Client
             try
             {
                 MycurrentLevel = string.IsNullOrEmpty(mapImporter.GetCurrentMapName()) ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().name : mapImporter.GetCurrentMapName(); // Use the actual map file name or, if on the unmodded maps, use the scene name
+                if (!firstMap)
+                {
+                    ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
+                }
+                firstMap = false;
             }
             catch (UnityException)
             {
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldnt grab Current Scene name", (int)MessageColour.Server, 1));
             }
+
+
         }
 
 

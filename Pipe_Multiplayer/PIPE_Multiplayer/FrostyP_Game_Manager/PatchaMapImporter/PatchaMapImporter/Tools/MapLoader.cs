@@ -78,7 +78,8 @@ namespace PatchaMapImporter.Tools
 				Log.Write($"ML: wait for respawn...");
 				_parent.StartCoroutine(WaitForSpawn());
 			}
-		}
+            PIPE_Valve_Console_Client.GameManager.instance.GetLevelName();
+        }
 
 		/// <summary>
 		/// Wait for player to spawn
