@@ -315,7 +315,7 @@ namespace PIPE_Valve_Console_Client
 				connection = client.Connect(ref address);
 				int sendRateMin = 400000;
 				int sendRateMax = 45400000;
-				int sendBufferSize = 209715200;
+				int sendBufferSize = 109715200;
 
 
 				unsafe
@@ -367,8 +367,8 @@ namespace PIPE_Valve_Console_Client
             try
             {
 			ServerLoopIsRunning = false;
-			client.FlushMessagesOnConnection(connection);
 			client.CloseConnection(connection);
+			client.FlushMessagesOnConnection(connection);
 			utils = null;
 			client = null;
 			status = null;

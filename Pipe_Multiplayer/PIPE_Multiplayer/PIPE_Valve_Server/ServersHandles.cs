@@ -677,10 +677,10 @@ namespace PIPE_Valve_Online_Server
         public static void ReceiveMapname(uint _from, Packet _packet)
         {
             string name = _packet.ReadString();
-            Server.Players[_from].MapName = name;
 
             try
             {
+                Server.Players[_from].MapName = name;
                 ServerSend.SendMapName(_from,name);
                 Console.WriteLine($"Map name Sync for {_from}");
             }

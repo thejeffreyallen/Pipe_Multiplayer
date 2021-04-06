@@ -331,6 +331,7 @@ namespace PIPE_Valve_Console_Client
 
         public static void RequestForAllParts(Packet _packet)
         {
+            GameManager.instance.GetLevelName();
             InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sending Playerdata to server", 1, 0));
             GameManager.instance.SendAllParts();
         }
