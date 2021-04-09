@@ -41,6 +41,7 @@ namespace PIPE_Valve_Console_Client
         //initialize mapImporter
         public void Awake()
         {
+            instance = this;
             patcha = new GameObject();
             patcha.AddComponent<PatchaMapImporter.PatchaMapImporter>();
             mapImporter = patcha.GetComponent<PatchaMapImporter.PatchaMapImporter>();
@@ -62,21 +63,11 @@ namespace PIPE_Valve_Console_Client
             Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
             wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
             Prefab.AddComponent<RemotePlayer>();
-
-
             _localplayer = gameObject.GetComponent<LocalPlayer>();
+        }
 
-            if (instance == null)
-            {
-                instance = this;
-            }
-            else if (instance != this)
-            {
-                Debug.Log("Instance already exists, destroying object!");
-                Destroy(this);
-            }
-
-           
+        public Dictionary<uint, RemotePlayer> GetPlayers() {
+            return Players;
         }
 
 

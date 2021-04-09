@@ -487,7 +487,7 @@ namespace PIPE_Valve_Console_Client
 
                 try
                 {
-           // GameManager.instance.GetLevelName();
+                     GameManager.instance.GetLevelName();
                 }
                 catch (Exception x)
                 {

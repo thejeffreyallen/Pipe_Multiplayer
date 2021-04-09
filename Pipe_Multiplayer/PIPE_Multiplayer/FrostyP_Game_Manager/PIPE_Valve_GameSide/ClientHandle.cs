@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 namespace PIPE_Valve_Console_Client
@@ -551,8 +552,13 @@ namespace PIPE_Valve_Console_Client
                         {
                             if (player.id == _from)
                             {
-                                GameManager.Players[_from].Audio.IncomingRiserUpdates.Add(update);
-
+                                try
+                                {
+                                    GameManager.Players[_from].Audio.IncomingRiserUpdates.Add(update);
+                                }
+                                catch (Exception e) {
+                                    Debug.Log("Error in foreach loop in ClientHandle.RecieveAudioForAPlayer Line: 560" + e.Message + e.StackTrace);
+                                }
                             }
                         }
 

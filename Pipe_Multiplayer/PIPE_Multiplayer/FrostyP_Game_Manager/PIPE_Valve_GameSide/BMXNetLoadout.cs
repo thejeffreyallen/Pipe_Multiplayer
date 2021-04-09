@@ -93,7 +93,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        void Start()
+        void Awake()
         {
             if (instance == null)
             {

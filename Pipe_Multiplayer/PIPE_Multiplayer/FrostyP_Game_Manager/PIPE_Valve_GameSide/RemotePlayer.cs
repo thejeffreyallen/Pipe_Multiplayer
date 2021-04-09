@@ -164,6 +164,9 @@ namespace PIPE_Valve_Console_Client
 
             // decifer the rider and bmx specifics needed especially for daryien and bike colours
             RiderModel = DecideRider(CurrentModelName);
+            // Add Audio Component
+            Audio = gameObject.AddComponent<RemotePlayerAudio>();
+            Audio.Rider = RiderModel;
 
             BMX = GameObject.Instantiate(UnityEngine.GameObject.Find("BMX"));
             Destroy(BMX.transform.Find("BMX Load Out").gameObject);
@@ -195,9 +198,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            // Add Audio Component
-            Audio = gameObject.AddComponent<RemotePlayerAudio>();
-            Audio.Rider = RiderModel;
+            
 
             
 
@@ -217,7 +218,7 @@ namespace PIPE_Valve_Console_Client
 
         private void FixedUpdate()
         {
-            if (nameSign && RiderModel)
+            if (nameSign != null && RiderModel != null && Camera.current != null)
             {
 			nameSign.transform.rotation = Camera.current.transform.rotation;
 

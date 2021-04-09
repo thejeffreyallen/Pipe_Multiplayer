@@ -108,8 +108,15 @@ namespace PIPE_Valve_Console_Client
 
                 using (Packet _packet = new Packet((int)ClientPackets.SendTextureNames))
                 {
-                    // write amount of names in list
-                    _packet.Write(GameManager.instance._localplayer.RiderTextureInfoList.Count);
+                if (GameManager.instance._localplayer == null) {
+                    Debug.Log("GameManager.instance._localplayer == null");
+                }
+                if (GameManager.instance._localplayer.RiderTextureInfoList == null)
+                {
+                    Debug.Log("GameManager.instance._localplayer.RiderTextureInfoList == null");
+                }
+                // write amount of names in list
+                _packet.Write(GameManager.instance._localplayer.RiderTextureInfoList.Count);
 
                     // write each name
                     foreach (TextureInfo s in GameManager.instance._localplayer.RiderTextureInfoList)
