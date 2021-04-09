@@ -835,12 +835,13 @@ namespace PIPE_Valve_Console_Client
         {
             currentspecid = id;
             Cam = new GameObject().AddComponent<Camera>();
+            Cam.renderingPath = RenderingPath.DeferredShading;
             DontDestroyOnLoad(Cam);
            // MyPlayer.GetComponentInChildren<Camera>().enabled = false;
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
-            ControlObj.transform.position = Targetrider.transform.position + -Targetrider.transform.forward * 2;
+            ControlObj.transform.position = Targetrider.transform.position + Vector3.back * 2;
             ControlObj.transform.parent = Ridersmoothfollower.transform;
             IsSpectating = true;
 
@@ -855,11 +856,11 @@ namespace PIPE_Valve_Console_Client
             if(Targetrider == null)
             {
                 Targetrider = GameManager.Players[currentspecid].RiderModel;
-                ControlObj.transform.position = Targetrider.transform.position + -Targetrider.transform.forward * 2;
+                ControlObj.transform.position = Targetrider.transform.position + Vector3.back * 2;
             }
 
 
-                Ridersmoothfollower.transform.position = Vector3.Lerp(Ridersmoothfollower.transform.position, Targetrider.transform.position + Vector3.up, 2 * Time.deltaTime);
+                Ridersmoothfollower.transform.position = Vector3.Lerp(Ridersmoothfollower.transform.position, Targetrider.transform.position + Vector3.up, 5 * Time.deltaTime);
                 Cam.transform.LookAt(Ridersmoothfollower.transform);
                 ControlObj.transform.LookAt(Ridersmoothfollower.transform);
             

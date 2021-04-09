@@ -149,7 +149,7 @@ namespace PIPE_Valve_Console_Client
             tm.fontSize = 20;
             tm.text = username;
 
-
+            MasterActive = true;
 
         }
 
@@ -277,6 +277,11 @@ namespace PIPE_Valve_Console_Client
                 {
                     Destroy(t.gameObject);
                 }
+                if (t.gameObject.GetComponent<Rigidbody>())
+                {
+                    t.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+                }
+
             }
           
                      return daz;
@@ -315,12 +320,23 @@ namespace PIPE_Valve_Console_Client
                 if (!found)
                 {
                     Debug.Log("Didnt find loaded bundle matching requested rider model, trying files");
+                    if(Directory.Exists(Application.dataPath + "/Custom Players/" + CurrentModelName))
+                    {
 
+                    try
+                    {
                     AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
                     loadedrider = b.LoadAsset(CurrentModelName) as GameObject;
                     found = true;
+                      loadedrider = GameObject.Instantiate(b.LoadAsset(CurrentModelName) as GameObject);
+                    }
+                    catch (System.Exception x)
+                    {
+                        Debug.Log("Couldnt load rider from file  : " + x);
+                    }
 
-                  loadedrider = GameObject.Instantiate(b.LoadAsset(CurrentModelName) as GameObject);
+                    }
+
                 }
 
 
@@ -412,7 +428,10 @@ namespace PIPE_Valve_Console_Client
                 wheelcolliders[1].transform.position = Riders_Transforms[28].position;
                 wheelcolliders[1].transform.parent = Riders_Transforms[28];
 
-
+                foreach (Rigidbody r in BMX.GetComponentsInChildren<Rigidbody>())
+                {
+                    r.isKinematic = true;
+                }
 
 
                 Rider_RB = RiderModel.AddComponent<Rigidbody>();
@@ -1758,7 +1777,7 @@ namespace PIPE_Valve_Console_Client
         IEnumerator Initialiseafterwait()
         {
           // stagger out the initial rider build in case many are spawning at once somehow?
-            yield return new WaitForSeconds(Random.Range(0.5f,1.5f));
+            yield return new WaitForSeconds(Random.Range(0.2f,1f));
             if (CurrentModelName == "Daryien")
             {
                 shirtren = RiderModel.transform.Find("shirt_geo").GetComponent<SkinnedMeshRenderer>();
@@ -1775,7 +1794,7 @@ namespace PIPE_Valve_Console_Client
 
 
             // update bike textures too
-            MasterActive = true;
+           
             Debug.Log("Late init of remote rider done");
         }
 

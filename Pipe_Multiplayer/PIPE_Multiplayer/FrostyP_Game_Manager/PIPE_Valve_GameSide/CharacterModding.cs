@@ -168,10 +168,8 @@ namespace PIPE_Valve_Console_Client
 		public string savePath;
 		public bool isSkin;
 
-
-
-		private void Start()
-		{
+		void Awake()
+        {
 			// add all directories to list and create all if needed =================================================
 			List<string> directories = new List<string>();
 			directories.Add(FrameDir);
@@ -217,6 +215,12 @@ namespace PIPE_Valve_Console_Client
 				Debug.Log("character modding already exists, destroying old character modding now");
 				Destroy(this);
 			}
+		}
+
+
+		private void Start()
+		{
+			
 
 			#region Setup Rider textures
 			// grab all clothing in folders

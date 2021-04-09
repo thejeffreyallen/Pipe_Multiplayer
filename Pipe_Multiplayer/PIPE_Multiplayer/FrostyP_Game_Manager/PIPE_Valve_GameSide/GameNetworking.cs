@@ -7,6 +7,7 @@ using Valve.Sockets;
 using System.Threading;
 using System.Net;
 using FrostyP_Game_Manager;
+using System.Diagnostics;
 //using UnityEngine;
 
 
@@ -387,6 +388,7 @@ namespace PIPE_Valve_Console_Client
             }
 		}
 
+		private Stopwatch watch;
 
 		/// <summary>
 		/// This function is running on the ProcessThread, This is unable to use any Unity API, therfore to transfer commands use processthreadmanager, Fixedupdate will come along and run them. 
@@ -400,26 +402,40 @@ namespace PIPE_Valve_Console_Client
 				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server thread Started up", 1, 0));
 			});
 
-			DateTime _nextloop = DateTime.Now;
-
+			watch = new Stopwatch();
+			watch.Start();
+			// while running, update at tick rate
 			// while running, update at tick rate
 			while (ServerLoopIsRunning)
 			{
+				watch.Reset(); watch.Start();
 
 
-
-				while (_nextloop < DateTime.Now && ServerLoopIsRunning)
+				// this is the fixedupdate of server thread
+				try
 				{
-					// this is the fixedupdate of server thread
 					ServerUpdate.Update();
-                   
-					_nextloop = _nextloop.AddMilliseconds(Constants.MSPerTick);
-
-					if (_nextloop > DateTime.Now)
-					{
-						Thread.Sleep(_nextloop - DateTime.Now);
-					}
 				}
+				catch (System.Exception x)
+				{
+					SendToUnityThread.instance.ExecuteOnMainThread(() =>
+					{
+						UnityEngine.Debug.Log("Server update issue : " + x);
+						InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server Update issue", 1, 0));
+					});
+
+				}
+				if (Constants.MSPerTick - (int)watch.ElapsedMilliseconds < 100 && Constants.MSPerTick - (int)watch.ElapsedMilliseconds > 0)
+				{
+					Thread.Sleep(Constants.MSPerTick - (int)watch.ElapsedMilliseconds);
+				}
+				else
+				{
+					watch.Reset();
+					Thread.Sleep(Constants.MSPerTick);
+
+				}
+
 
 
 
@@ -430,7 +446,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
+			watch.Reset();
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
 				UnityEngine.Debug.Log("Thread Ended");

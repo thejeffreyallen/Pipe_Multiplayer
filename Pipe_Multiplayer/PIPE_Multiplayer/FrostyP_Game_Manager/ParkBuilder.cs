@@ -139,6 +139,19 @@ namespace FrostyP_Game_Manager
 
 		void Awake()
         {
+			// check both directories and create if needed
+			DirectoryInfo info = new DirectoryInfo(ParksDirectory);
+			if (!info.Exists)
+			{
+				info.Create();
+			}
+			DirectoryInfo info1 = new DirectoryInfo(AssetbundlesDirectory);
+			if (!info1.Exists)
+			{
+				info1.Create();
+			}
+
+
 			camobj = new GameObject();
 			camobj.AddComponent<FMOD_Listener>();
 			DontDestroyOnLoad(camobj);
