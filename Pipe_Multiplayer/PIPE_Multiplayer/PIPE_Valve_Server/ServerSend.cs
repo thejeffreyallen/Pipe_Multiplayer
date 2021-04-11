@@ -237,7 +237,7 @@ namespace PIPE_Valve_Online_Server
 
                 try
                 {
-                SendtoOne(_toClient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
+                SendtoOne(_toClient, _packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
                 }
                 catch (Exception x)
                 {
@@ -267,7 +267,7 @@ namespace PIPE_Valve_Online_Server
                 }
                 if (listof5.Count == 5 | count == _players.Count -1 && listof5.Count>0)
                 {
-                    Console.WriteLine($"Sending {listof5.Count} players out of {_players.Count} in Player list");
+                    //Console.WriteLine($"Sending {listof5.Count} players out of {_players.Count} in Player list");
                     using (Packet _packet = new Packet((int)ServerPacket.SetupAllOnlinePlayers))
                     {
                         // amount of players in this bundle, for the last bundle or if less than 5 are on
@@ -355,7 +355,7 @@ namespace PIPE_Valve_Online_Server
 
                         try
                         {
-                       SendtoOne(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.NoNagle | Valve.Sockets.SendFlags.Reliable);
+                       SendtoOne(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                             listof5.Clear();
                             Console.WriteLine("Player bundle sent");
                         }
@@ -390,27 +390,19 @@ namespace PIPE_Valve_Online_Server
         /// <param name="count"></param>
         /// <param name="pos"></param>
         /// <param name="rot"></param>
-        public static void SendATransformUpdate(uint _aboutplayer,int count, Vector3[] pos, Vector3[] rot)
+        public static void SendATransformUpdate(uint _aboutplayer, Packet inpacket)
         {
             using (Packet _Packet = new Packet((int)ServerPacket.SendTransformUpdate))
             {
                 _Packet.Write(_aboutplayer);
-                _Packet.Write(count);
+                _Packet.Write(inpacket.ToArray().Length);
+                _Packet.Write(inpacket.ToArray());
 
-                for (int i = 0; i < count; i++)
-                {
-                    _Packet.Write(pos[i]);
-                }
-
-                for (int i = 0; i < count; i++)
-                {
-                    _Packet.Write(rot[i]);
-                }
 
 
                 try
                 {
-                SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
+                    SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
                 }
                 catch (Exception x)
                 {

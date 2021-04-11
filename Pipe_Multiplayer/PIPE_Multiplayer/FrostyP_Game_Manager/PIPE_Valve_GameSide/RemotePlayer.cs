@@ -23,8 +23,13 @@ namespace PIPE_Valve_Console_Client
         public GameObject RiderModel;
         public GameObject BMX;
         private Transform[] Riders_Transforms;
-        public Vector3[] Riders_positions;
-        public Vector3[] Riders_rotations;
+        public Vector3[] Riders_positionsCurrent;
+        public Vector3[] Riders_rotationsCurrent;
+        public List<Vector3[]> Positions;
+        public List<Vector3[]> Rotations;
+        public Vector3[] lastpositions;
+        public Vector3[] lastrotations;
+        
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
         public float LerpSpeed = 0.999f;
@@ -34,39 +39,6 @@ namespace PIPE_Valve_Console_Client
         public RemotePlayerAudio Audio;
 
         private bool SetupSuccess;
-
-
-
-        public Vector3 FrameColour = new Vector3(1, 0, 0);
-        public float FrameSmooth = 0;
-        public byte[] FrameTex = new byte[0];
-
-        public Vector3 ForksColour = new Vector3(0, 0, 0);
-        public float ForksSmooth = 0;
-        public byte[] ForksTex = new byte[0];
-
-        public Vector3 BarsColour = new Vector3(1, 0, 0);
-        public float BarsSmooth = 0;
-        public byte[] BarsTex = new byte[0];
-
-        public Vector3 SeatColour = new Vector3(0, 0, 0);
-        public float SeatSmooth = 0;
-        public byte[] SeatTex = new byte[0];
-
-        public Vector3 FTireColour = new Vector3(0, 0, 0);
-        public Vector3 RTireColour = new Vector3(0, 0, 0);
-        public Vector3 FTireSideColour = new Vector3(0, 0, 0);
-        public Vector3 RTireSideColour = new Vector3(0, 0, 0);
-        public byte[] TiresTex = new byte[0];
-        public byte[] TiresNormal = new byte[0];
-
-        public string FrameTexname = "";
-        public string ForkTexname = "";
-        public string SeatTexname = "";
-        public string BarTexName = "";
-        public string TireTexName = "";
-        public string TireNormalName = "";
-
 
         MeshRenderer FrameRen;
         MeshRenderer ForksRen;
@@ -89,14 +61,18 @@ namespace PIPE_Valve_Console_Client
         public GameObject nameSign;
 		TextMesh tm;
 
+        int rate = 40;
 
         void Awake()
         {
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
             Riders_Transforms = new Transform[32];
-            Riders_positions = new Vector3[32];
-            Riders_rotations = new Vector3[32];
-
+            Riders_positionsCurrent = new Vector3[32];
+            Riders_rotationsCurrent = new Vector3[32];
+            Positions = new List<Vector3[]>();
+            Rotations = new List<Vector3[]>();
+            lastpositions = new Vector3[32];
+            lastrotations = new Vector3[32];
         }
 
 
@@ -218,17 +194,20 @@ namespace PIPE_Valve_Console_Client
 
         private void FixedUpdate()
         {
-            if (nameSign != null && RiderModel != null && Camera.current != null)
+            if (nameSign != null && RiderModel != null)
             {
 			nameSign.transform.rotation = Camera.current.transform.rotation;
 
             }
+
+           
             // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
             if (MasterActive)
             {
                 UpdateAllRiderParts();
 				
             }
+           
 
 
             if (!SetupSuccess)
@@ -284,7 +263,7 @@ namespace PIPE_Valve_Console_Client
 
             }
           
-                     return daz;
+           return daz;
         }
 
 
@@ -296,60 +275,52 @@ namespace PIPE_Valve_Console_Client
         /// <returns></returns>
         private GameObject LoadRiderFromAssets()
         {
-            GameObject loadedrider = null;
-            bool found = false;
+            if (LoadFromBundle())
+            {
+                return LoadFromBundle();
 
-
-          
-
-                IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
-                foreach (AssetBundle a in bundles)
-                {
-                    if (a.name.Contains(Modelbundlename.ToLower()))
-                    {
-                        Debug.Log("Matched bundle to requested model");
-                        
-                        found = true;
-
-
-                      loadedrider = GameObject.Instantiate(a.LoadAsset(CurrentModelName) as GameObject);
-                    }
-                }
-
-
-                if (!found)
-                {
-                    Debug.Log("Didnt find loaded bundle matching requested rider model, trying files");
-                    if(Directory.Exists(Application.dataPath + "/Custom Players/" + CurrentModelName))
-                    {
-
-                    try
-                    {
-                    AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
-                    loadedrider = b.LoadAsset(CurrentModelName) as GameObject;
-                    found = true;
-                      loadedrider = GameObject.Instantiate(b.LoadAsset(CurrentModelName) as GameObject);
-                    }
-                    catch (System.Exception x)
-                    {
-                        Debug.Log("Couldnt load rider from file  : " + x);
-                    }
-
-                    }
-
-                }
-
-
-
-           // change to daryien?, change to random file from Custom Players? 
-              if(!found)
-              {
-                loadedrider = DaryienSetup();
-              }
-
-            return loadedrider;  
+            }
+            else
+            {
+                return LoadFromAssets();
+            }
         }
 
+        private GameObject LoadFromBundle()
+        {
+            
+            IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
+            foreach (AssetBundle a in bundles)
+            {
+                if (a.name.Contains(Modelbundlename.ToLower()))
+                {
+                    Debug.Log("Matched bundle to requested model");
+
+                    
+                   return GameObject.Instantiate(a.LoadAsset(CurrentModelName) as GameObject);
+                  
+                }
+               
+            }
+            return null;
+
+        }
+
+        private GameObject LoadFromAssets()
+        {
+           
+         
+                    AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
+
+                   
+                    return GameObject.Instantiate(b.LoadAsset(CurrentModelName) as GameObject);
+
+            
+           
+              
+              
+
+        }
 
 
 
@@ -479,27 +450,54 @@ namespace PIPE_Valve_Console_Client
 
             try
             {
-            //  Lerp all Positions to newest stored values rotations are just set
+                if (Positions.Count > 0)
+                {
+                LerpSpeed = 1f;
 
-            // rider
-            Riders_Transforms[0].position = Vector3.Lerp(Riders_Transforms[0].position, Riders_positions[0], LerpSpeed);
-            Riders_Transforms[0].eulerAngles = Riders_rotations[0];
+                    lastpositions[0] = Riders_Transforms[0].position;
+                    lastrotations[0] = Riders_Transforms[0].position;
 
-            for (int i = 1; i < 23; i++)
-            {
-                Riders_Transforms[i].localPosition = Vector3.Lerp(Riders_Transforms[i].localPosition, Riders_positions[i], LerpSpeed);
-                Riders_Transforms[i].localEulerAngles = Riders_rotations[i];
 
-            }
 
-            // Bmx
-            Riders_Transforms[23].position = Vector3.Lerp(Riders_Transforms[23].position, Riders_positions[23], LerpSpeed);
-            Riders_Transforms[23].eulerAngles = Riders_rotations[23];
-            for (int i = 24; i < 32; i++)
-            {
-                Riders_Transforms[i].localPosition = Vector3.Lerp(Riders_Transforms[i].localPosition, Riders_positions[i], LerpSpeed);
-                Riders_Transforms[i].localEulerAngles = Riders_rotations[i];
-            }
+                    // rider
+                   Riders_Transforms[0].position = Vector3.SlerpUnclamped(Riders_Transforms[0].position, Positions[0][0], LerpSpeed);
+                    Riders_Transforms[0].eulerAngles = Vector3.Lerp(Riders_Transforms[0].eulerAngles, Rotations[0][0],LerpSpeed);
+
+                   for (int i = 1; i < 23; i++)
+                   {
+                        lastpositions[i] = Riders_Transforms[i].localPosition;
+                        lastrotations[i] = Riders_Transforms[i].localEulerAngles;
+
+                     Riders_Transforms[i].localPosition = Vector3.SlerpUnclamped(Riders_Transforms[i].localPosition,Positions[0][i], LerpSpeed);
+                      Riders_Transforms[i].localEulerAngles = Vector3.Lerp(Riders_Transforms[i].localEulerAngles, Rotations[0][i],LerpSpeed);
+
+                   }
+
+                    lastpositions[23] = Riders_Transforms[23].position;
+                    lastrotations[23] = Riders_Transforms[23].position;
+
+                    // Bmx
+                    Riders_Transforms[23].position = Vector3.SlerpUnclamped(Riders_Transforms[23].position, Positions[0][23], LerpSpeed);
+                        Riders_Transforms[23].eulerAngles = Vector3.Lerp(Riders_Transforms[23].eulerAngles, Rotations[0][23], LerpSpeed);
+
+                    for (int i = 24; i < 32; i++)
+                    {
+                        lastpositions[i] = Riders_Transforms[i].localPosition;
+                        lastrotations[i] = Riders_Transforms[i].localEulerAngles;
+
+                        Riders_Transforms[i].localPosition = Vector3.SlerpUnclamped(Riders_Transforms[i].localPosition, Positions[0][i], LerpSpeed);
+                         Riders_Transforms[i].localEulerAngles = Vector3.Lerp(Riders_Transforms[i].localEulerAngles, Rotations[0][i], LerpSpeed);
+                    }
+
+                    
+                    Positions.RemoveAt(0);
+                    Rotations.RemoveAt(0);
+
+                    return;
+
+
+                }
+               
 
             }
             catch (System.Exception x)
@@ -507,13 +505,27 @@ namespace PIPE_Valve_Console_Client
                 Debug.Log("UpdateAllRiderParts Error   : " + x);
             }
 
+                    
+            
+
+        }
+
+
+        private void Interpolate()
+        {
+            Vector3 riderdir = -(lastpositions[0] - Riders_Transforms[0].position).normalized;
+            Riders_Transforms[0].position = Vector3.Lerp(Riders_Transforms[0].position, Riders_Transforms[0].position + riderdir,0.05f);
+
+            Vector3 bikedir = -(lastpositions[23] - Riders_Transforms[23].position).normalized;
+            Riders_Transforms[23].position = Vector3.Lerp(Riders_Transforms[23].position, Riders_Transforms[23].position + bikedir,0.05f);
+
 
         }
 
 
 
         /// <summary>
-        /// Call this once Gamemanager.RiderTexinfos[id] has had its names updated
+        /// Called by incoming rider update packet once it has updated Gamemanager.RiderTexinfos[id] 
         /// </summary>
         public void UpdateDaryien()
         {
@@ -1777,7 +1789,7 @@ namespace PIPE_Valve_Console_Client
         IEnumerator Initialiseafterwait()
         {
           // stagger out the initial rider build in case many are spawning at once somehow?
-            yield return new WaitForSeconds(Random.Range(0.2f,1f));
+            yield return new WaitForSeconds(Random.Range(0.1f,0.3f));
             if (CurrentModelName == "Daryien")
             {
                 shirtren = RiderModel.transform.Find("shirt_geo").GetComponent<SkinnedMeshRenderer>();

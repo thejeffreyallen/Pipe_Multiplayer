@@ -816,11 +816,14 @@ namespace PIPE_Valve_Console_Client
             yield return null;
         }
 
+
+        /// <summary>
+        /// Called when Disconnectme
+        /// </summary>
         public void Waittoend()
         {
             StartCoroutine(WaitthenEnd());
         }
-
         private IEnumerator WaitthenEnd()
         {
             yield return new WaitForSeconds(3);
@@ -841,7 +844,7 @@ namespace PIPE_Valve_Console_Client
            
            // mginput = new MGInputManager();
             Targetrider = GameManager.Players[id].RiderModel;
-            ControlObj.transform.position = Targetrider.transform.position + Vector3.back * 2;
+            ControlObj.transform.position = GameManager.Players[id].RiderModel.transform.position + Vector3.back * 2;
             ControlObj.transform.parent = Ridersmoothfollower.transform;
             IsSpectating = true;
 
@@ -856,7 +859,7 @@ namespace PIPE_Valve_Console_Client
             if(Targetrider == null)
             {
                 Targetrider = GameManager.Players[currentspecid].RiderModel;
-                ControlObj.transform.position = Targetrider.transform.position + Vector3.back * 2;
+                
             }
 
 
@@ -873,12 +876,12 @@ namespace PIPE_Valve_Console_Client
             {
 
                 Vector3 dir = -(ControlObj.transform.position - Ridersmoothfollower.transform.position).normalized;
-                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 7);
+                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 10);
             }
             if (MGInputManager.LStickY() < -0.1f)
             {
                 Vector3 dir = (ControlObj.transform.position - Ridersmoothfollower.transform.position).normalized;
-                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 7);
+                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 10);
             }
 
 

@@ -116,7 +116,7 @@ namespace PIPE_Valve_Console_Client
             {
                 if (Riders_Transforms != null && Rider_Root != null && initsuccess && ServerActive)
                 {
-                   PackTransformsandSend();
+                  // PackTransformsandSend();
 
                 }
 
@@ -131,7 +131,7 @@ namespace PIPE_Valve_Console_Client
 
 
         /// <summary>Sends player Movement to the server.</summary>
-        private void PackTransformsandSend()
+        public void PackTransformsandSend()
         {
             // pack world pos and rot first, then for loop from 1 through all children grabbing the local pos and rot
             riderPositions[0] = Riders_Transforms[0].position;
@@ -139,8 +139,8 @@ namespace PIPE_Valve_Console_Client
 
             for (int i = 1; i < 23; i++)
             {
-                riderPositions[i] = Riders_Transforms[i].localPosition;
-                riderRotations[i] = Riders_Transforms[i].localEulerAngles;
+                    riderPositions[i] = Riders_Transforms[i].localPosition;
+                    riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
 
 
@@ -149,9 +149,8 @@ namespace PIPE_Valve_Console_Client
 
             for (int i = 24; i < 32; i++)
             {
-                riderPositions[i] = Riders_Transforms[i].localPosition;
-                riderRotations[i] = Riders_Transforms[i].localEulerAngles;
-
+                    riderPositions[i] = Riders_Transforms[i].localPosition;
+                    riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
 
             

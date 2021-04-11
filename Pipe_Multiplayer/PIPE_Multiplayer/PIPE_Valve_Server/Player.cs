@@ -100,7 +100,7 @@ namespace PIPE_Valve_Online_Server
         public void SendTransformInfoToAll()
         {
 
-            ServerSend.SendATransformUpdate(clientID, RiderPositions.Length, RiderPositions, RiderRotations);
+           // ServerSend.SendATransformUpdate(clientID, RiderPositions.Length, RiderPositions, RiderRotations);
         }
 
 

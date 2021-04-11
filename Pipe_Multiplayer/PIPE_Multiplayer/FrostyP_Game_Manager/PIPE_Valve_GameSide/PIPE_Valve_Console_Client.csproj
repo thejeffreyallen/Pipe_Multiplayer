@@ -147,6 +147,8 @@
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GameData.cs" />
+    <Compile Include="Half.cs" />
+    <Compile Include="HalfHelper.cs" />
     <Compile Include="PlayerSaveData.cs" />
     <Compile Include="RiderSaveData.cs" />
     <Compile Include="ServerUpdate.cs" />

@@ -457,24 +457,9 @@ namespace FrostyP_Game_Manager
 
 		private void Update()
 		{
-			// if storm level loaded, load extra stuff for that level
-            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.Contains("Storm"))
-            {
-				OpenMenu = false;
-				marker.OnSetAtMarker.RemoveListener(ResetFOV);
-				this.enabled = false;
-				
-			}
-            else
-            {
-				this.enabled = true;
-            }
-           
+			
 
-
-
-
-			/// toggle menu with D
+			/// toggle menu with G
 			if (Input.GetKeyDown(KeyCode.G))
 			{
 				OpenMenu = !OpenMenu;

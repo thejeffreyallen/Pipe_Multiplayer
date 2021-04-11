@@ -36,7 +36,7 @@ namespace PIPE_Valve_Console_Client
 		// ip to connect to, default local
 		public string ip = "127.0.0.1";
 		public int port;
-		public string FrostyIP = "109.228.48.217";
+		public string FrostyIP = "";
 		public int frostyport = 4130;
 
 
@@ -255,16 +255,16 @@ namespace PIPE_Valve_Console_Client
 				Address address = new Address();
 			address.SetAddress(_ip,(ushort)port);
 			connection = client.Connect(ref address);
-			int sendRateMin = 400000;
-			int sendRateMax = 15400000;
-			int sendBufferSize = 109715200;
-			
+				int sendRateMin = 400000;
+				int sendRateMax = 1048576;
+				int sendBufferSize = 10485760;
 
-			unsafe
+
+				unsafe
 			{
 				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
 				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
-				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 			}
@@ -308,15 +308,31 @@ namespace PIPE_Valve_Console_Client
 
 				utils.SetStatusCallback(status);
 
-				string _ip = ip.Replace(" ", "");
+				
+
+				
+				
+					try
+					{
+						IPHostEntry hostInfo = Dns.GetHostEntry("b6828e9.online-server.cloud");
+						foreach (IPAddress _address in hostInfo.AddressList)
+						{
+							if (_address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+							{
+							FrostyIP = _address.ToString();
+							}
+						}
+					}
+					catch (Exception) { }
+				
 
 
 				Address address = new Address();
 				address.SetAddress(FrostyIP, (ushort)frostyport);
 				connection = client.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 45400000;
-				int sendBufferSize = 109715200;
+				int sendRateMax = 1048576;
+				int sendBufferSize = 10485760;
 
 
 				unsafe
@@ -421,7 +437,7 @@ namespace PIPE_Valve_Console_Client
 					SendToUnityThread.instance.ExecuteOnMainThread(() =>
 					{
 						UnityEngine.Debug.Log("Server update issue : " + x);
-						InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server Update issue", 1, 0));
+						InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server conflict", 1, 0));
 					});
 
 				}

@@ -21,12 +21,16 @@ namespace PIPE_Valve_Console_Client
             // run receive
             GameNetworking.instance.Run();
 
-            
-
 
             // Do any outgoing on Server thread
             SendToServerThread.UpdateMain();
-           
+
+            // update
+            SendToUnityThread.instance.ExecuteOnMainThread(() =>
+            {
+            GameManager.instance._localplayer.PackTransformsandSend();
+
+            });
         }
 
 

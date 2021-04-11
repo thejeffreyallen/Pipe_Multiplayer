@@ -459,6 +459,33 @@ namespace PIPE_Valve_Online_Server
                 /// <param name="_packet"></param>
         public static void TransformReceive(uint _from, Packet _packet)
         {
+
+            if(_packet.ToArray().Length > 500)
+            {
+                ServerSend.DisconnectPlayer("Please Update Multiplayer mod", _from);
+                return;
+            }
+
+
+            if (Server.Players.Count > 1)
+            {
+                try
+                {
+
+                    ServerSend.SendATransformUpdate(_from, _packet);
+
+                }
+                catch (Exception x)
+                {
+                    Console.Write("Failed Transform relay! Player left?  : " + x);
+                }
+
+            }
+
+
+
+
+            /*
             // collect transform count, then use that count to read all position vectors of rider, then all rotation
             int count = _packet.ReadInt();
 
@@ -486,6 +513,7 @@ namespace PIPE_Valve_Online_Server
             {
                 Console.Write("Failed Transform relay! Player left?  : " + x);
             }
+            */
         }
 
 

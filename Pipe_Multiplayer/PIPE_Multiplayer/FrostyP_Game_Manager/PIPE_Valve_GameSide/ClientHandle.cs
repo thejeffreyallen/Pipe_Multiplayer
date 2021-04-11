@@ -473,55 +473,83 @@ namespace PIPE_Valve_Console_Client
 
         public static void PlayerPositionReceive(Packet _packet)
         {
+            int divide = 10000;
 
-           
             uint FromId = (uint)_packet.ReadLong();
-            int count = _packet.ReadInt();
+            int length = _packet.ReadInt();
+            byte[] clientspacket = _packet.ReadBytes(length);
 
-            Vector3[] Positions = new Vector3[count];
-            for (int i = 0; i < count; i++)
+
+            using (Packet ClientPacket = new Packet(clientspacket))
             {
-                Positions[i] = _packet.ReadVector3();
-            }
+                int sendcode = ClientPacket.ReadInt();
 
-            Vector3[] Rotations = new Vector3[count];
-            for (int i = 0; i < count; i++)
-            {
-                Rotations[i] = _packet.ReadVector3();
-            }
+                Vector3[] Positions = new Vector3[32];
+                Vector3[] Rotations = new Vector3[32];
 
 
-            foreach (RemotePlayer player in GameManager.Players.Values)
-            {
+                Positions[0] = ClientPacket.ReadVector3();
+                Rotations[0] = ClientPacket.ReadVector3();
 
-                if (player.id == FromId)
+                for (int i = 1; i < 23; i++)
                 {
+                    SystemHalf.Half x = ClientPacket.ReadShort();
+                    SystemHalf.Half y = ClientPacket.ReadShort();
+                    SystemHalf.Half z = ClientPacket.ReadShort();
 
-                    if (player.Riders_positions != null)
-                    {
-                        for (int i = 0; i < Positions.Length; i++)
-                        {
-                            player.Riders_positions[i] = Positions[i];
+                    Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / divide, SystemHalf.HalfHelper.HalfToSingle(y) / divide, SystemHalf.HalfHelper.HalfToSingle(z) / divide);
 
-                            player.Riders_rotations[i] = Rotations[i];
+                    SystemHalf.Half _x = ClientPacket.ReadShort();
+                    SystemHalf.Half _y = ClientPacket.ReadShort();
+                    SystemHalf.Half _z = ClientPacket.ReadShort();
 
-                        }
-                        //player.timeatlasttranformupdate = Time.time;
-                    }
-
-                    else
-                    {
-                        Debug.Log($"Position received for unready player {FromId}");
-                    }
+                    Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) /80, SystemHalf.HalfHelper.HalfToSingle(_y) /80, SystemHalf.HalfHelper.HalfToSingle(_z) /80);
                 }
+
+                Positions[23] = ClientPacket.ReadVector3();
+                Rotations[23] = ClientPacket.ReadVector3();
+
+                for (int i = 24; i < 32; i++)
+                {
+                    SystemHalf.Half x = ClientPacket.ReadShort();
+                    SystemHalf.Half y = ClientPacket.ReadShort();
+                    SystemHalf.Half z = ClientPacket.ReadShort();
+
+                    Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / divide, SystemHalf.HalfHelper.HalfToSingle(y) / divide, SystemHalf.HalfHelper.HalfToSingle(z) / divide);
+
+                    SystemHalf.Half _x = ClientPacket.ReadShort();
+                    SystemHalf.Half _y = ClientPacket.ReadShort();
+                    SystemHalf.Half _z = ClientPacket.ReadShort();
+
+                    Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) /80, SystemHalf.HalfHelper.HalfToSingle(_y) /80, SystemHalf.HalfHelper.HalfToSingle(_z) /80);
+
+                }
+
+
+
+
+                try
+                {
+                    GameManager.Players[FromId].Riders_positionsCurrent = Positions;
+                    GameManager.Players[FromId].Riders_rotationsCurrent = Rotations;
+                    GameManager.Players[FromId].Positions.Add(Positions);
+                    GameManager.Players[FromId].Rotations.Add(Rotations);
+                    GameManager.Players[FromId].timeatlasttranformupdate = Time.time;
+                    
+
+
+                }
+                catch (System.Exception x)
+                {
+                    Debug.Log($"Position received for unready player {FromId}" + x);
+
+                }
+
             }
 
-           
 
 
 
-
-           
         }
 
 
@@ -690,7 +718,7 @@ namespace PIPE_Valve_Console_Client
             }
             catch(System.Exception x)
             {
-                Debug.Log("Map name error " + x);
+                Debug.Log("Map name error, player didnt exist :  " + x);
             }
 
         }

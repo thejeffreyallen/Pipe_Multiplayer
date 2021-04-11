@@ -69,36 +69,68 @@ namespace PIPE_Valve_Console_Client
         }
 
 
+
+
+
+       
+
+
+
+
+
+
+
+
         public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations)
         {
-            
 
-                using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
+
+            using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
+            {
+
+
+
+                _packet.Write(positions[0]);
+                _packet.Write(rotations[0]);
+                for (int i = 1; i < 23; i++)
                 {
 
-                    _packet.Write(TransformCount);
-              
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].x * 10000)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].y * 10000)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].z * 10000)));
 
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].x * 80)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].y * 80)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].z * 80)));
 
-                    for (int i = 0; i < TransformCount; i++)
-                    {
-                    Vector3 rounded = new Vector3((float)Math.Round(positions[i].x * 1000) / 1000, (float)Math.Round(positions[i].y * 1000) / 1000, (float)Math.Round(positions[i].z * 1000) / 1000);
-
-                        _packet.Write(rounded);
-                    }
-
-                    for (int i = 0; i < TransformCount; i++)
-                    {
-                    Vector3 rounded = new Vector3((float)Math.Round(rotations[i].x * 1000) / 1000, (float)Math.Round(rotations[i].y * 1000) / 1000, (float)Math.Round(rotations[i].z * 1000) / 1000);
-                    _packet.Write(rounded);
-
-                    }
-                
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
-                
                 }
-            
-            
+
+
+
+
+                _packet.Write(positions[23]);
+                _packet.Write(rotations[23]);
+
+                for (int i = 24; i < 32; i++)
+                {
+
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].x * 10000)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].y * 10000)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].z * 10000)));
+
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].x * 80)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].y * 80)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].z * 80)));
+
+
+                }
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable | Valve.Sockets.SendFlags.NoDelay);
+
+            }
+
+
+
         }
 
 
@@ -471,3 +503,37 @@ namespace PIPE_Valve_Console_Client
     }
 }
 
+/*
+ * 
+ *   public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations)
+        {
+            
+
+                using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
+                {
+
+                    _packet.Write(TransformCount);
+              
+
+
+                    for (int i = 0; i < TransformCount; i++)
+                    {
+                    Vector3 rounded = new Vector3((float)Math.Round(positions[i].x * 1000) / 1000, (float)Math.Round(positions[i].y * 1000) / 1000, (float)Math.Round(positions[i].z * 1000) / 1000);
+
+                        _packet.Write(rounded);
+                    }
+
+                    for (int i = 0; i < TransformCount; i++)
+                    {
+                    Vector3 rounded = new Vector3((float)Math.Round(rotations[i].x * 1000) / 1000, (float)Math.Round(rotations[i].y * 1000) / 1000, (float)Math.Round(rotations[i].z * 1000) / 1000);
+                    _packet.Write(rounded);
+
+                    }
+                
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                
+                }
+            
+            
+        }
+*/
