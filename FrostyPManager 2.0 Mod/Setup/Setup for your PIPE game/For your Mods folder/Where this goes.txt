@@ -1,3 +1,0 @@
-Copy the whole FrostyP Game Manager folder ans paste into YourPipeFolder/Mods/
-
-copy in Pipeworks PI and MI to Mods aswell if you dont have them

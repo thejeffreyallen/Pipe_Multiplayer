@@ -1,4 +1,23 @@
 # Pipe_Multiplayer
+if you have exisiting 2.0 Multiplayer install:
+- overwrite your Mods/FrostyPManager/   folder
+- overwrite your PIPE_Data/FrostyPmanager/  folder
+- overwrite your PIPE_Data/Custom Players  folder
+- Remove PatchaMapImporter and/or Pipeworks map importer folders from the Mods folder
+
+# What's new?
+- Integrated the Patcha Map Importer by Herve3527 - https://github.com/herve3527/PatchaMapImporter
+- The actual map filename is now sent to other players to make it easier to find who is riding where
+- Various bug fixes
+- Better handling of audio
+- Performance increase
+- Spectate Mode
+- More Bike Customisation
+- Bike and rider saves
+- Parkbuilder will recognise objects with rigidbodies
+- Saved username and saveable servers
+- Simple On-foot Collision
+
 
 # Manual Setup of FrostyP Game Manager
 
@@ -15,7 +34,7 @@ To install you need 4 things to be done
 
 
 
-# For Game:
+# For Game setup do the following:
 
 step 1) Copy FrostyPGameManager folder from for_games_Mods/  to   YourPIPEfolder/Mods/
 
@@ -29,6 +48,8 @@ step 3) OverWrite your AssemblyC.dll in PIPE_Data/Managed/ with AssemblyC in For
 step 4) Ensure VC_Redist_X86 has been installed, provided in folder but also available from Microsoft, you may need to restart you pc (Strongly linked to "connect to server" doing nothing in game)
 
  Dont Grab them elsewhere and use they're included AssemblyC's, there AssemblyC mods are included in this AssemblyC, but not vice versa
+
+
 
 
 
@@ -73,8 +94,8 @@ Step 6) Enter again to go live
 
 Step 7) now in Host mode, provide clients with port you specified and External IP of your router - port you specify must be that of your port forward
 
-# NEW Auto Server
-In the Host App folder, there is a batch script that can be configured and run that will input all the info about the server, i.e. players, port, tickrate, and will start the server in 1-click. It will also restart itself automatically.
+# Auto Server
+In the Host App folder, there is a batch script that can be configured and run that will input all the info about the server, i.e. players, port, tickrate, and will start the server in 1-click. It will also restart itself automatically in case it crashes.
 
 There is also an aditional group of scripts in Host App/ServerBatchScripts that will start a group of servers, currently 4 are set up to auto run, but just duplicating the script will add more.
 
@@ -96,23 +117,14 @@ Saves to Desktop/Your_logs
 GameNetworkingSockets not found - error loading dll when clicking Connect to server = issue with VC-redist most likely, 
 potentially other builds of GameNetworkingSockets.dll required, message frostyP if this carries on
 
-bugs with LiveUpdates sometimes changing other players clothes
-
-Loading up doesnt get your rider and bike correct first time.
 
 Return from parkbuilder gives insane mode until you get off or go to marker
 
 ParkBuilder load park only works if you have all required bundles loaded
 
-inital load up of textures not always correct, dependant on image formats, compression, bit depth
-
 Auto sending and receiving of missing textures to/from the server can fail/bug dependant on same as above aswell as image name, disabled for now as server app can crash in some cases.
 
-Server can sometimes catch error when a player disconnects, timing issue
-
-Audio has various bugs, within Grinding mostly, if a Grind sound persists after exit, doing another grind on the same surface type will cut previous sound out.
-if you join a game and hear constant bailing sound, reconnecting usually solves it, not sure about that so far.
-
+Audio has various bugs.
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -144,8 +156,14 @@ an already loaded assetbundle on someone's machine among x players coming and go
 
 Known name changes:
 
-Session_Player change to Sessionguy,
-Marty_Mcfly change to marty mcfly,
+ron
+Sessionguy
+Marty Mcfly
+Big Smoke cutscene
+deadpool
+Rick Sanchez
+Shaggy Rogers
+shrek
 
 
 

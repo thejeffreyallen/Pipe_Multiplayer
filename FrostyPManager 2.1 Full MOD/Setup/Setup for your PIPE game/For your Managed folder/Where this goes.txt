@@ -1,0 +1,6 @@
+This must overwrite your current AssemblyC in PIPE_Data/ Managed/
+
+protect ya neck back that stuff up somewhere.
+
+
+AssemblyC Provided is good for FrostyP manager, Trickmodv2, Pipeworks PI and Manual Mod
