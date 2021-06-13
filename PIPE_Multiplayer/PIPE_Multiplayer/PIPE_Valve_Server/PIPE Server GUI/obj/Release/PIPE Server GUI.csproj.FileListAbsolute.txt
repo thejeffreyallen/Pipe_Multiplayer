@@ -1,0 +1,18 @@
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE Server GUI.dll.config
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE Server GUI.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE Server GUI.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE_Server_GUI.Form1.resources
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE_Server_GUI.Properties.Resources.resources
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE Server GUI.csproj.GenerateResource.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE Server GUI.csproj.CoreCompileInputs.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE Server GUI.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE Server GUI.csprojAssemblyReference.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE Server GUI.exe.config
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE Server GUI.exe
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE_Valve_Online_Server.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\Valve.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE_Valve_Online_Server.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\PIPE_Valve_Online_Server.dll.config
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Release\Valve.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE Server GUI.csproj.CopyComplete
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Release\PIPE Server GUI.exe

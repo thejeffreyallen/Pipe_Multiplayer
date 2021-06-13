@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using FrostyP_Game_Manager;
 
 
 namespace PIPE_Valve_Console_Client
@@ -8,6 +9,10 @@ namespace PIPE_Valve_Console_Client
     public class ClientHandle : MonoBehaviour
     {
 
+
+
+
+        // Server Comms
         public static void Welcome(Packet _packet)
         {
             
@@ -32,6 +37,10 @@ namespace PIPE_Valve_Console_Client
 
         public static void SetupPlayerReceive(Packet _packet)
         {
+            GameManager.instance._localplayer.ServerActive = false;
+           
+
+
             // optional
             List<TextureInfo> BmxTexinfos = new List<TextureInfo>();
             List<TextureInfo> BmxNormalinfos = new List<TextureInfo>();
@@ -150,11 +159,11 @@ namespace PIPE_Valve_Console_Client
             bikemetts.Add(FRimmett);
             bikemetts.Add(RRimmett);
 
-            GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation, BmxTexinfos,bikecols,bikesmooths, bikemetts,currentmap,riderinfos, BmxNormalinfos);
+            GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation, BmxTexinfos,bikecols,bikesmooths, bikemetts,currentmap,riderinfos, BmxNormalinfos);
 
+            GameManager.instance._localplayer.ServerActive = true;
+           
 
-           
-           
 
         }
 
@@ -162,6 +171,15 @@ namespace PIPE_Valve_Console_Client
         
         public static void SetupAllOnlinePlayers(Packet _packet)
         {
+            GameManager.instance._localplayer.ServerActive = false;
+            bool builderopen = ParkBuilder.instance.openflag;
+
+
+            if (builderopen)
+            {
+                ParkBuilder.instance.Player.SetActive(false);
+            }
+
             int amountinbundle = _packet.ReadInt();
             for (int _i = 0; _i < amountinbundle; _i++)
             {
@@ -283,14 +301,28 @@ namespace PIPE_Valve_Console_Client
                 bikemetts.Add(FRimmett);
                 bikemetts.Add(RRimmett);
 
-                GameManager.instance.SpawnOnMyGame(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, BmxTexinfos, bikecols, bikesmooths, bikemetts, currentmap, riderinfos, BmxNormalinfos);
+                try
+                {
+                GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, BmxTexinfos, bikecols, bikesmooths, bikemetts, currentmap, riderinfos, BmxNormalinfos);
+
+                }
+                catch (Exception x )
+                {
+                    Debug.Log("Spawn error from clienthandle  :  " + x);
+                    InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"SpawnRider Issue for {playerusername}", (int)MessageColour.Server, 0));
+                   
+                }
 
 
 
 
 
             }
-
+                GameManager.instance._localplayer.ServerActive = true;
+            if (builderopen)
+            {
+                ParkBuilder.instance.Player.SetActive(true);
+            }
 
 
         }
@@ -335,17 +367,184 @@ namespace PIPE_Valve_Console_Client
            
             InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sending Playerdata to server", 1, 0));
             GameManager.instance.SendAllParts();
-            try
-            {
-                GameManager.instance.GetLevelName();
-                ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
-            }
-            catch (System.Exception x)
-            {
-                Debug.Log("Couldnt get level from request all parts");
-            }
+           
         }
 
+
+        public static void ReceiveTexture(Packet _packet)
+        {
+            int segmentno = _packet.ReadInt();
+            int segmentscount = _packet.ReadInt();
+            int bytecount = _packet.ReadInt();
+            string name = _packet.ReadString();
+            byte[] bytes = _packet.ReadBytes(bytecount);
+
+            GameData.SaveImage(bytes, name, segmentscount, segmentno);
+        }
+
+
+        public static void Disconnectme(Packet _packet)
+        {
+            string msg = _packet.ReadString();
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(msg + ": disconnecting", 4, 0));
+            InGameUI.instance.Disconnect();
+            InGameUI.instance.Connected = false;
+            InGameUI.instance.Waittoend();
+        }
+
+
+        public static void ReceiveMapname(Packet _packet)
+        {
+            string Name = _packet.ReadString();
+            uint from = (uint)_packet.ReadLong();
+
+            try
+            {
+                GameManager.Players[from].CurrentMap = Name;
+            }
+            catch(System.Exception x)
+            {
+                Debug.Log("Map name error, player didnt exist :  " + x);
+            }
+
+        }
+
+
+        public static void PlayerDisconnected(Packet _packet)
+        {
+            GameObject todelete = null;
+            RemotePlayer toremove = null;
+
+                uint _id = (uint)_packet.ReadLong();
+            GameManager.PlayersColours.Remove(_id);
+            GameManager.PlayersSmooths.Remove(_id);
+            GameManager.PlayersMetals.Remove(_id);
+            GameManager.BikeTexinfos.Remove(_id);
+            GameManager.RiderTexinfos.Remove(_id);
+            GameManager.Bikenormalinfos.Remove(_id);
+
+            try
+            {
+            if (GameManager.PlayersObjects[_id].Count > 0)
+            {
+            foreach(NetGameObject n in GameManager.PlayersObjects[_id])
+            {
+                if(n._Gameobject != null)
+                {
+                    Destroy(n._Gameobject);
+                }
+            }
+
+            }
+            GameManager.PlayersObjects.Remove(_id);
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("Player disconnect error  : " + x);
+            }
+
+            try
+            {
+                if (ParkBuilder.instance.ObjectstoSave.Count > 0)
+                {
+                    foreach (PlacedObject n in ParkBuilder.instance.ObjectstoSave.ToArray())
+                    {
+                        if (n.OwnerID == _id)
+                        {
+                            ParkBuilder.instance.ObjectstoSave.Remove(n);
+                        }
+                    }
+
+                }
+                GameManager.PlayersObjects.Remove(_id);
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("Player disconnect error  : " + x);
+            }
+
+
+
+
+
+
+
+            if (InGameUI.instance.IsSpectating)
+            {
+                foreach(RemotePlayer remo in InGameUI.instance.cycleplayerslist)
+                {
+                    if(remo.id == _id)
+                    {
+                        toremove = remo;
+
+                    }
+                }
+
+                if (toremove)
+                {
+                    if(InGameUI.instance.Targetrider == toremove.RiderModel)
+                    {
+                        InGameUI.instance.SpectateExit();
+                    }
+                    else
+                    {
+                    InGameUI.instance.cycleplayerslist.Remove(toremove);
+                    }
+                }
+
+            }
+
+            // delete rider, bike and then self and remove id from manager
+                foreach (RemotePlayer player in GameManager.Players.Values)
+                {
+                    if (player.id == _id)
+                    {
+                      player.Audio.ShutdownAllSounds();
+                      Destroy(player.RiderModel);
+                      Destroy(player.BMX);
+                      Destroy(player.Audio);
+                      Destroy(player.nameSign);
+                    
+                    todelete = player.gameObject;
+                    InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(player.username + " Left the game", 4, 0));
+                    }
+                }
+                GameManager.Players.Remove(_id);
+
+            if (todelete != null)
+            {
+                Destroy(todelete);
+            }
+            else
+            {
+                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Couldnt find last player that left", 4, 0));
+                try
+                {
+                    GameManager.instance.CleanUpOldPlayer(_id);
+                }
+                catch (UnityException x)
+                {
+                    Debug.Log(x);
+                }
+            }
+
+
+
+        }
+
+
+        
+
+
+
+
+
+
+
+
+        // user input
 
         public static void BikeQuickupdate(Packet _packet)
         {
@@ -459,69 +658,139 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public static void ReceiveTexture(Packet _packet)
+
+       public static void PlayerPositionReceive(Packet _packet)
         {
-            int segmentno = _packet.ReadInt();
-            int segmentscount = _packet.ReadInt();
-            int bytecount = _packet.ReadInt();
-            string name = _packet.ReadString();
-            byte[] bytes = _packet.ReadBytes(bytecount);
 
-            GameData.SaveImage(bytes, name, segmentscount, segmentno);
-        }
-
-
-        public static void PlayerPositionReceive(Packet _packet)
-        {
-            int divide = 10000;
-
+            if (GameManager.instance._localplayer.ServerActive)
+            {
+                // data server added to packet
+                int Ping = _packet.ReadInt();
+            long ServerTimestamp = _packet.ReadLong();
             uint FromId = (uint)_packet.ReadLong();
             int length = _packet.ReadInt();
-            byte[] clientspacket = _packet.ReadBytes(length);
+
+                // client packet in bytes
+            byte[] _clientspacket = _packet.ReadBytes(length);
 
 
-            using (Packet ClientPacket = new Packet(clientspacket))
+
+
+                // packet the client sent. servers transformupdate code, FromId and length have been read from the start
+            using (Packet ClientPacket = new Packet(_clientspacket))
             {
+
+                    // Transformupdate code the client placed at start when sending to server
                 int sendcode = ClientPacket.ReadInt();
 
+
+                    // to avoid truncation problem
+                    int DividePos = 4500;
+                    int DivideRot = 80;
+
+
+                    // positions to be filled
                 Vector3[] Positions = new Vector3[32];
                 Vector3[] Rotations = new Vector3[32];
 
 
+                    // Players machine timestamp
+                    long _playertime = ClientPacket.ReadLong();
+                    // riders root pos and rot
                 Positions[0] = ClientPacket.ReadVector3();
                 Rotations[0] = ClientPacket.ReadVector3();
 
+                    // rider locals
                 for (int i = 1; i < 23; i++)
                 {
                     SystemHalf.Half x = ClientPacket.ReadShort();
                     SystemHalf.Half y = ClientPacket.ReadShort();
                     SystemHalf.Half z = ClientPacket.ReadShort();
 
-                    Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / divide, SystemHalf.HalfHelper.HalfToSingle(y) / divide, SystemHalf.HalfHelper.HalfToSingle(z) / divide);
-
+                        
+                        if (SystemHalf.HalfHelper.IsInfinity(x) | SystemHalf.HalfHelper.IsNaN(x))
+                        {
+                            x = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(y) | SystemHalf.HalfHelper.IsNaN(y))
+                        {
+                            y = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(z) | SystemHalf.HalfHelper.IsNaN(z))
+                        {
+                            z = 0;
+                        }
+                        
+                        Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / DividePos, SystemHalf.HalfHelper.HalfToSingle(y) / DividePos, SystemHalf.HalfHelper.HalfToSingle(z) / DividePos);
+                       
                     SystemHalf.Half _x = ClientPacket.ReadShort();
                     SystemHalf.Half _y = ClientPacket.ReadShort();
                     SystemHalf.Half _z = ClientPacket.ReadShort();
 
-                    Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) /80, SystemHalf.HalfHelper.HalfToSingle(_y) /80, SystemHalf.HalfHelper.HalfToSingle(_z) /80);
+                        if (SystemHalf.HalfHelper.IsInfinity(_x) | SystemHalf.HalfHelper.IsNaN(_x))
+                        {
+                           _x = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(_y) | SystemHalf.HalfHelper.IsNaN(_y))
+                        {
+                            _y = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(_z) | SystemHalf.HalfHelper.IsNaN(_z))
+                        {
+                            _z = 0;
+                        }
+
+                        Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_y) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_z) / DivideRot);
                 }
 
+
+                // bike root pos and rot
                 Positions[23] = ClientPacket.ReadVector3();
                 Rotations[23] = ClientPacket.ReadVector3();
 
+                    // bike locals
                 for (int i = 24; i < 32; i++)
                 {
                     SystemHalf.Half x = ClientPacket.ReadShort();
                     SystemHalf.Half y = ClientPacket.ReadShort();
                     SystemHalf.Half z = ClientPacket.ReadShort();
 
-                    Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / divide, SystemHalf.HalfHelper.HalfToSingle(y) / divide, SystemHalf.HalfHelper.HalfToSingle(z) / divide);
 
+                        if (SystemHalf.HalfHelper.IsInfinity(x) | SystemHalf.HalfHelper.IsNaN(x))
+                        {
+                            x = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(y) | SystemHalf.HalfHelper.IsNaN(y))
+                        {
+                            y = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(z) | SystemHalf.HalfHelper.IsNaN(z))
+                        {
+                            z = 0;
+                        }
+
+
+                        Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / DividePos, SystemHalf.HalfHelper.HalfToSingle(y) / DividePos, SystemHalf.HalfHelper.HalfToSingle(z) / DividePos);
+                       
                     SystemHalf.Half _x = ClientPacket.ReadShort();
                     SystemHalf.Half _y = ClientPacket.ReadShort();
                     SystemHalf.Half _z = ClientPacket.ReadShort();
 
-                    Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) /80, SystemHalf.HalfHelper.HalfToSingle(_y) /80, SystemHalf.HalfHelper.HalfToSingle(_z) /80);
+
+                        if (SystemHalf.HalfHelper.IsInfinity(_x) | SystemHalf.HalfHelper.IsNaN(_x))
+                        {
+                            _x = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(_y) | SystemHalf.HalfHelper.IsNaN(_y))
+                        {
+                            _y = 0;
+                        }
+                        if (SystemHalf.HalfHelper.IsInfinity(_z) | SystemHalf.HalfHelper.IsNaN(_z))
+                        {
+                            _z = 0;
+                        }
+
+                        Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_y) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_z) / DivideRot);
 
                 }
 
@@ -530,12 +799,17 @@ namespace PIPE_Valve_Console_Client
 
                 try
                 {
-                    GameManager.Players[FromId].Riders_positionsCurrent = Positions;
-                    GameManager.Players[FromId].Riders_rotationsCurrent = Rotations;
-                    GameManager.Players[FromId].Positions.Add(Positions);
-                    GameManager.Players[FromId].Rotations.Add(Rotations);
-                    GameManager.Players[FromId].timeatlasttranformupdate = Time.time;
+                        if(GameManager.Players[FromId] != null)
+                        {
+                        if (GameManager.Players[FromId].MasterActive)
+                        {
+                            GameManager.Players[FromId].IncomingTransformUpdates.Add(new IncomingTransformUpdate(Positions, Rotations, Ping, ServerTimestamp, _playertime));
+                  
+                        }
                     
+
+                        }
+
 
 
                 }
@@ -547,6 +821,9 @@ namespace PIPE_Valve_Console_Client
 
             }
 
+            }
+
+
 
 
 
@@ -555,12 +832,13 @@ namespace PIPE_Valve_Console_Client
 
         public static void ReceiveAudioForaPlayer(Packet _packet)
         {
-           
 
+            if (GameManager.instance._localplayer.ServerActive)
+            {
                 try
                 {
                     uint _from = (uint)_packet.ReadLong();
-
+                    int senderspacketcode = _packet.ReadInt();
 
                     int count = _packet.ReadInt();
                 int code = _packet.ReadInt();
@@ -571,24 +849,30 @@ namespace PIPE_Valve_Console_Client
                     {
                         string nameofriser = _packet.ReadString();
                         int playstate = _packet.ReadInt();
-                        float volume = _packet.ReadFloat();
-                        float pitch = _packet.ReadFloat();
-                        float Velocity = _packet.ReadFloat();
+                            // float volume = SystemHalf.HalfHelper.HalfToSingle(_packet.ReadShort() / 1000);
+                            //float pitch = SystemHalf.HalfHelper.HalfToSingle(_packet.ReadShort() / 1000);
+                            //float Velocity = SystemHalf.HalfHelper.HalfToSingle(_packet.ReadShort() / 1000);
+                            float volume = _packet.ReadFloat();
+                            float pitch = _packet.ReadFloat();
+                            float Velocity = _packet.ReadFloat();
 
-                        AudioStateUpdate update = new AudioStateUpdate(volume, pitch, playstate, nameofriser, Velocity);
-                        foreach (RemotePlayer player in GameManager.Players.Values)
-                        {
-                            if (player.id == _from)
-                            {
+                            AudioStateUpdate update = new AudioStateUpdate(volume, pitch, playstate, nameofriser, Velocity);
+                       
                                 try
                                 {
+
+                                  if(GameManager.Players[_from].Audio != null)
+                                  {
                                     GameManager.Players[_from].Audio.IncomingRiserUpdates.Add(update);
+                                  }
+
+
                                 }
                                 catch (Exception e) {
-                                    Debug.Log("Error in foreach loop in ClientHandle.RecieveAudioForAPlayer Line: 560" + e.Message + e.StackTrace);
+                                    Debug.Log("Error in foreach loop in ClientHandle.RecieveAudioForAPlayer :" + e.Message + e.StackTrace);
                                 }
-                            }
-                        }
+                            
+                        
 
                     }
 
@@ -620,117 +904,173 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (UnityException x)
                 {
-                    Debug.LogError(x);
+                    Debug.LogError("Audio Error : " + x);
                 }
 
-
-
-
-            
-            
-
-
+            }
 
 
         }
           
 
-        public static void PlayerDisconnected(Packet _packet)
-        {
-            GameObject todelete = null;
-
-                uint _id = (uint)_packet.ReadLong();
-            GameManager.PlayersColours.Remove(_id);
-            GameManager.PlayersSmooths.Remove(_id);
-            GameManager.PlayersMetals.Remove(_id);
-            GameManager.BikeTexinfos.Remove(_id);
-            GameManager.RiderTexinfos.Remove(_id);
-            GameManager.Bikenormalinfos.Remove(_id);
-
-            // delete rider, bike and then self and remove id from manager
-                foreach (RemotePlayer player in GameManager.Players.Values)
-                {
-                    if (player.id == _id)
-                    {
-                      Destroy(GameManager.Players[_id].RiderModel);
-                      Destroy(GameManager.Players[_id].BMX);
-                      Destroy(GameManager.Players[_id].Audio);
-                      Destroy(GameManager.Players[_id].nameSign);
-                    todelete = player.gameObject;
-                    InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(player.username + " Left the game", 4, 0));
-                    }
-                }
-                GameManager.Players.Remove(_id);
-
-            if (todelete != null)
-            {
-                Destroy(todelete);
-            }
-            else
-            {
-                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Couldnt find last player that left", 4, 0));
-            }
-
-        }
-
 
         public static void IncomingTextMessage(Packet _packet)
         {
             uint _from = (uint)_packet.ReadLong();
-            string _message = _packet.ReadString();
+            string _m = _packet.ReadString();
             int fromcode = _packet.ReadInt();
 
-            if(fromcode == 3)
+           
+
+            if (fromcode == 3)
             {
-            TextMessage tm = new TextMessage(GameManager.Players[_from].username + " : " + _message, fromcode, _from);
+                TextMessage tm = new TextMessage(GameManager.Players[_from].username + " : " + _m, fromcode, _from);
                 InGameUI.instance.NewMessage(Constants.PlayerMessageTime, tm);
             }
             if(fromcode == 2)
             {
-                TextMessage tm = new TextMessage("You : " + _message, fromcode, _from);
+                TextMessage tm = new TextMessage("You : " + _m, fromcode, _from);
                 InGameUI.instance.NewMessage(Constants.PlayerMessageTime, tm);
             }
             if (fromcode == 1)
             {
-                TextMessage tm = new TextMessage("System : " + _message, fromcode, _from);
+                TextMessage tm = new TextMessage("System : " + _m, fromcode, _from);
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, tm);
             }
             if (fromcode == 4)
             {
-                TextMessage tm = new TextMessage("Server : " + _message, fromcode, _from);
+                TextMessage tm = new TextMessage("Server : " + _m, fromcode, _from);
                 InGameUI.instance.NewMessage(Constants.ServerMessageTime, tm);
             }
 
+                
 
 
             
         }
 
 
-        public static void ReceiveMapname(Packet _packet)
+
+
+
+
+        // Parkbuilder
+
+        public static void SpawnAnObjectReceive(Packet _packet)
         {
-            string Name = _packet.ReadString();
-            uint from = (uint)_packet.ReadLong();
+            string NameofGO = _packet.ReadString();
+            string NameofFile = _packet.ReadString();
+            string NameofBundle = _packet.ReadString();
+
+            Vector3 Position = _packet.ReadVector3();
+            Vector3 Rotation = _packet.ReadVector3();
+            Vector3 Scale = _packet.ReadVector3();
+            int ObjectID = _packet.ReadInt();
+
+            uint OwnerID = (uint)_packet.ReadLong();
+
+            NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID, null);
+            OBJ.OwnerID = OwnerID;
 
             try
             {
-                GameManager.Players[from].CurrentMap = Name;
+                GameManager.instance.SpawnObject(OwnerID, OBJ);
             }
-            catch(System.Exception x)
+            catch (UnityException x)
             {
-                Debug.Log("Map name error, player didnt exist :  " + x);
+                Debug.Log("Spawnobj receive error :  " + x);
             }
+
+
+        }
+
+        public static void DestroyAnObject(Packet _packet)
+        {
+            try
+            {
+               uint _ownerID = (uint)_packet.ReadLong();
+               int ObjectId = _packet.ReadInt();
+
+               NetGameObject todel = null;
+
+               foreach(NetGameObject n in GameManager.PlayersObjects[_ownerID])
+               {
+                if(n.ObjectID == ObjectId)
+                {
+                    todel = n;
+                }
+               }
+
+              if(todel != null)
+              {
+                Destroy(todel._Gameobject);
+                GameManager.PlayersObjects[_ownerID].Remove(todel);
+              }
+                PlacedObject objinsavelist = null;
+                foreach(PlacedObject p in ParkBuilder.instance.ObjectstoSave)
+                {
+                    if(p.OwnerID == _ownerID && p.ObjectId == ObjectId)
+                    {
+                        objinsavelist = p;
+                    }
+                }
+                if(objinsavelist != null)
+                {
+                    ParkBuilder.instance.ObjectstoSave.Remove(objinsavelist);
+                }
+
+
+
+            }
+            catch (Exception x)
+            {
+                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Could find player object to destroy it", (int)MessageColour.Server, 0));
+            }
+
+
+
+
+
+
+        }
+
+        public static void MoveAnObject(Packet _packet)
+        {
+            try
+            {
+            Vector3 _newpos = _packet.ReadVector3();
+            Vector3 _newrot = _packet.ReadVector3();
+            Vector3 _newscale = _packet.ReadVector3();
+            int objectID = _packet.ReadInt();
+
+            uint OwnerID = (uint)_packet.ReadLong();
+
+            foreach(NetGameObject n in GameManager.PlayersObjects[OwnerID])
+            {
+                if(n.ObjectID == objectID)
+                {
+                    GameManager.instance.MoveObject(n, _newpos, _newrot, _newscale);
+                }
+            }
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log($"Moveobject error :  " + x);
+            }
+
 
         }
 
 
-        public static void Disconnectme(Packet _packet)
+
+
+
+        // Admin
+
+        public static void LoginGood(Packet _packet)
         {
-            string msg = _packet.ReadString();
-            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(msg + ": disconnecting", 4, 0));
-            InGameUI.instance.Disconnect();
-            InGameUI.instance.Connected = false;
-            InGameUI.instance.Waittoend();
+            InGameUI.instance.AdminLoggedin = true;
         }
 
         

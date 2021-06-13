@@ -2,6 +2,7 @@
 using UnityEngine;
 using FMODUnity;
 using FMOD;
+using System.Diagnostics;
 
 namespace PIPE_Valve_Console_Client
 {
@@ -36,12 +37,7 @@ namespace PIPE_Valve_Console_Client
         FMOD.Studio.EventInstance FootBrake;
         FMOD.Studio.EventInstance Cassette;
 
-
-        int[] laststates;
-
-
-
-
+       
         delegate void Handler(AudioStateUpdate update);
         private Dictionary<string, Handler> StateHandlers;
 
@@ -123,8 +119,8 @@ namespace PIPE_Valve_Console_Client
                  StateHandlers[update.nameofriser]?.Invoke(update);
                    }
 
+                    IncomingRiserUpdates.Clear();
                    
-                        IncomingRiserUpdates.Clear();
 
                 }
                 catch(UnityException x)
@@ -139,11 +135,11 @@ namespace PIPE_Valve_Console_Client
            
            
              if(IncomingOneShotUpdates.Count > 0)
-            {
+             {
                 for (int i = 0; i < IncomingOneShotUpdates.Count; i++)
                 {
                     FMOD.Studio.EventInstance instance = FMODUnity.RuntimeManager.CreateInstance(IncomingOneShotUpdates[i].Path);
-                    instance.setVolume(IncomingOneShotUpdates[i].Volume);
+                    instance.setVolume(IncomingOneShotUpdates[i].Volume / (Vector3.Distance(Rider.transform.position, Camera.current.transform.position) * 0.5f));
                     instance.set3DAttributes(Rider.transform.position.To3DAttributes());
                     instance.start();
                     instance.release();
@@ -151,17 +147,41 @@ namespace PIPE_Valve_Console_Client
                     
                 }
                 IncomingOneShotUpdates.Clear();
-            }  
+             }  
 
             
+          
+
                 
         }
+
+
+
+      
+
+        public void ShutdownAllSounds()
+        {
+            // make sure sounds are stopped
+            RailSingle.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            Tires.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            RailDouble.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            LedgeSingle.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            LedgeDouble.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            FootBrake.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            Cassette.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            singleTire.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            Slider.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+
+
+        }
+
 
 
 
         #region Audio Controllers
         void TiresRoll(AudioStateUpdate update)
         {
+          
             Tires.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
            
             Tires.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
@@ -242,6 +262,8 @@ namespace PIPE_Valve_Console_Client
         }
         void Railsingle(AudioStateUpdate update)
         {
+           
+
             RailSingle.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
             
             RailSingle.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
@@ -322,6 +344,8 @@ namespace PIPE_Valve_Console_Client
         }
         void Raildouble(AudioStateUpdate update)
         {
+           
+
             RailDouble.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
            
             RailDouble.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
@@ -401,6 +425,9 @@ namespace PIPE_Valve_Console_Client
         }
         void Ledgesingle(AudioStateUpdate update)
         {
+          
+
+
             LedgeSingle.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
           
             LedgeSingle.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
@@ -480,6 +507,8 @@ namespace PIPE_Valve_Console_Client
         }
         void Ledgedouble(AudioStateUpdate update)
         {
+           
+
             LedgeDouble.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
             LedgeDouble.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
 
@@ -557,6 +586,8 @@ namespace PIPE_Valve_Console_Client
         }
         void FootBraking(AudioStateUpdate update)
         {
+           
+
             FootBrake.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
             FootBrake.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
 
@@ -634,6 +665,8 @@ namespace PIPE_Valve_Console_Client
         }
         void Hubsound(AudioStateUpdate update)
         {
+            
+
             Cassette.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
             Cassette.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
 
@@ -712,6 +745,8 @@ namespace PIPE_Valve_Console_Client
         }
         void SingleTire(AudioStateUpdate update)
         {
+           
+
             singleTire.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
             singleTire.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
 
@@ -790,6 +825,8 @@ namespace PIPE_Valve_Console_Client
         }
         void SliderSound(AudioStateUpdate update)
         {
+           
+
             Slider.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
             Slider.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE _currentstate);
 
@@ -866,18 +903,6 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-
-
-        void PlayOneShot(string bankPath, float volume)
-        {
-            FMOD.Studio.EventInstance eventInstance = RuntimeManager.CreateInstance(bankPath);
-            eventInstance.set3DAttributes(Rider.transform.position.To3DAttributes());
-            eventInstance.setVolume(volume);
-           
-            eventInstance.start();
-            eventInstance.release();
-            eventInstance.clearHandle();
-        }
 
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 
 
@@ -12,6 +13,9 @@ namespace PIPE_Valve_Console_Client
     /// </summary>
     public class RemotePlayer : MonoBehaviour
     {
+        /// <summary>
+        /// Should incoming updates be processed
+        /// </summary>
         public bool MasterActive = false;
         public uint id;
         public string username;
@@ -23,17 +27,19 @@ namespace PIPE_Valve_Console_Client
         public GameObject RiderModel;
         public GameObject BMX;
         private Transform[] Riders_Transforms;
-        public Vector3[] Riders_positionsCurrent;
-        public Vector3[] Riders_rotationsCurrent;
-        public List<Vector3[]> Positions;
-        public List<Vector3[]> Rotations;
-        public Vector3[] lastpositions;
-        public Vector3[] lastrotations;
-        
+       
+        public List<IncomingTransformUpdate> IncomingTransformUpdates;
+       
+
         private Rigidbody Rider_RB;
         private Rigidbody BMX_RB;
-        public float LerpSpeed = 0.999f;
-        public float timeatlasttranformupdate;
+       
+       
+
+        /// <summary>
+        /// flipped on and off by interpolation logic to keep behind realtime
+        /// </summary>
+        bool MoveRiderOn;
 
         private GameObject[] wheelcolliders;
         public RemotePlayerAudio Audio;
@@ -59,27 +65,36 @@ namespace PIPE_Valve_Console_Client
         
 
         public GameObject nameSign;
-		TextMesh tm;
+		public TextMesh tm;
 
-        int rate = 40;
+        public float PlayersFrameRate;
+        private float _playerframerate;
+        public float R2RPing;
+        public float MovementTimer;
+        public float LastGamePing;
+
+
 
         void Awake()
         {
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
             Riders_Transforms = new Transform[32];
-            Riders_positionsCurrent = new Vector3[32];
-            Riders_rotationsCurrent = new Vector3[32];
-            Positions = new List<Vector3[]>();
-            Rotations = new List<Vector3[]>();
-            lastpositions = new Vector3[32];
-            lastrotations = new Vector3[32];
+           
+           
+            IncomingTransformUpdates = new List<IncomingTransformUpdate>();
+           
         }
 
 
         // Call initiation once on start, inititation to reoccur until resolved
         private void Start()
         {
-           
+            bool builderopen = FrostyP_Game_Manager.ParkBuilder.instance.openflag;
+
+            if (builderopen)
+            {
+                FrostyP_Game_Manager.ParkBuilder.instance.Player.SetActive(true);
+            }
 
             Initialize();
             RiderModel.name = "Model " + id;
@@ -117,7 +132,7 @@ namespace PIPE_Valve_Console_Client
             nameSign.transform.parent = RiderModel.transform;
             tm = nameSign.AddComponent<TextMesh>();
 
-            tm.color = new Color(0.8f, 0.8f, 0.8f);
+            tm.color = new Color(UnityEngine.Random.Range(0.01f, 0.99f), UnityEngine.Random.Range(0.01f, 0.99f), UnityEngine.Random.Range(0.01f, 0.99f));
             tm.fontStyle = FontStyle.Bold;
             tm.alignment = TextAlignment.Center;
             tm.anchor = TextAnchor.MiddleCenter;
@@ -125,8 +140,13 @@ namespace PIPE_Valve_Console_Client
             tm.fontSize = 20;
             tm.text = username;
 
+            
             MasterActive = true;
 
+            if (builderopen)
+            {
+               FrostyP_Game_Manager.ParkBuilder.instance.Player.SetActive(false);
+            }
         }
 
 
@@ -136,8 +156,8 @@ namespace PIPE_Valve_Console_Client
             // this player has just been added to server, when this pc got the message to create the prefab and attach this class, it assigned the netid of this player, username, currentmodelname and inital pos and rot
             Debug.Log($"Remote Rider { username } Initialising.....");
 
-
-
+            try
+            {
             // decifer the rider and bmx specifics needed especially for daryien and bike colours
             RiderModel = DecideRider(CurrentModelName);
             // Add Audio Component
@@ -172,6 +192,13 @@ namespace PIPE_Valve_Console_Client
             }
 
 
+            }
+            catch(Exception x)
+            {
+                Debug.Log($"RemotePlayer.Initialize error: {x}");
+            }
+
+
 
 
             
@@ -192,7 +219,7 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             if (nameSign != null && RiderModel != null)
             {
@@ -201,24 +228,45 @@ namespace PIPE_Valve_Console_Client
             }
 
            
-            // if masteractive, start to update transform array with values of vector3 arrays which should now be taking in updates from server
-            if (MasterActive)
-            {
-                UpdateAllRiderParts();
-				
-            }
-           
-
-
             if (!SetupSuccess)
             {
                 SetupSuccess = RiderSetup();
             }
 
+           
+           
+            // keeps players up to date if stall occurs for level change, player spawn etc, list typically runs with 1-2 new positions at any one time
+            if (IncomingTransformUpdates.Count > 60)
+            {
+                IncomingTransformUpdates.Clear();
+            }
 
 
+           
+            MoveRider();
+            
+
+            
+            if (IncomingTransformUpdates.Count > 0)
+            {
+                if (Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < 0.0005f && IncomingTransformUpdates.Count >=3)
+                {     
+                  IncomingTransformUpdates.RemoveAt(0);
+                }
+            }
+            
+            if(_playerframerate > 0 && _playerframerate < 120)
+            {
+                PlayersFrameRate = _playerframerate;
+            }
+
+
+            
         }
 
+
+
+      
 
 
 
@@ -246,7 +294,7 @@ namespace PIPE_Valve_Console_Client
         // Called by DecideRider if Currentmodelname is Daryien
         private GameObject DaryienSetup()
         {
-            GameObject daz = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien"));
+            GameObject daz = GameObject.Instantiate(Component.FindObjectOfType<SkeletonReferenceValue>().gameObject);
 
             // make sure meshes are active, pipeworks PI keeps daryien but turns off all his meshes, then tracks new models to daryiens bones
             foreach(Transform t in daz.GetComponentsInChildren<Transform>(true))
@@ -262,6 +310,7 @@ namespace PIPE_Valve_Console_Client
                 }
 
             }
+            daz.SetActive(true);
           
            return daz;
         }
@@ -270,12 +319,12 @@ namespace PIPE_Valve_Console_Client
 
 
         /// <summary>
-        /// Called to load a custom model, will return Daryien if nothing can be done
+        /// Called to load a custom model
         /// </summary>
         /// <returns></returns>
         private GameObject LoadRiderFromAssets()
         {
-            if (LoadFromBundle())
+            if (BundleIsLoaded())
             {
                 return LoadFromBundle();
 
@@ -292,7 +341,7 @@ namespace PIPE_Valve_Console_Client
             IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
             foreach (AssetBundle a in bundles)
             {
-                if (a.name.Contains(Modelbundlename.ToLower()))
+                if (a.name.ToLower().Contains(Modelbundlename.ToLower()))
                 {
                     Debug.Log("Matched bundle to requested model");
 
@@ -305,15 +354,47 @@ namespace PIPE_Valve_Console_Client
             return null;
 
         }
+        private bool BundleIsLoaded()
+        {
+            IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
+            foreach (AssetBundle a in bundles)
+            {
+                if (a.name.ToLower().Contains(Modelbundlename.ToLower()))
+                {
+                   
+
+
+                    return true;
+
+                }
+                
+
+            }
+
+            return false;
+
+
+        }
+
 
         private GameObject LoadFromAssets()
         {
            
          
+            if(File.Exists(Application.dataPath + "/Custom Players/" + CurrentModelName))
+            {
+
                     AssetBundle b = AssetBundle.LoadFromFile(Application.dataPath + "/Custom Players/" + CurrentModelName);
 
                    
                     return GameObject.Instantiate(b.LoadAsset(CurrentModelName) as GameObject);
+            }
+            else
+            {
+                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"{username} is using a model called {CurrentModelName} that you dont have", (int)MessageColour.Server, 0));
+                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"{username} will be removed from your game", (int)MessageColour.Server, 0));
+                return null;
+            }
 
             
            
@@ -445,82 +526,95 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Called by FixedUpdate if MasterActive is true, Updates transforms to latest received by my Master player
         /// </summary>
-        public void UpdateAllRiderParts()
+        public void MoveRider()
         {
 
             try
             {
-                if (Positions.Count > 0)
-                {
-                LerpSpeed = 1f;
 
-                    lastpositions[0] = Riders_Transforms[0].position;
-                    lastrotations[0] = Riders_Transforms[0].position;
+                if (IncomingTransformUpdates.Count > 1)
+                {
+
+
+                    DateTime ServerCurrent = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].ServerTimeStamp);
+                    DateTime PlayertimeCurrent = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp);
+
+                    DateTime ServerTarget = DateTime.FromFileTimeUtc(IncomingTransformUpdates[1].ServerTimeStamp);
+                    DateTime PlayertimeTarget = DateTime.FromFileTimeUtc(IncomingTransformUpdates[1].Playertimestamp);
+
+                    int PingCurrent = IncomingTransformUpdates[0].Ping;
+                    int PingTarget = IncomingTransformUpdates[1].Ping;
+
+                      R2RPing = IncomingTransformUpdates[IncomingTransformUpdates.Count-1].Ping + InGameUI.instance.Ping;
+                    _playerframerate = (1 / (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[IncomingTransformUpdates.Count - 1].Playertimestamp).Subtract(TimeSpan.FromMilliseconds(IncomingTransformUpdates[IncomingTransformUpdates.Count - 1].Ping)) - DateTime.FromFileTimeUtc(IncomingTransformUpdates[IncomingTransformUpdates.Count - 2].Playertimestamp).Subtract(TimeSpan.FromMilliseconds(IncomingTransformUpdates[IncomingTransformUpdates.Count - 2].Ping))).TotalSeconds);
+
+                    float timespan = (float)(PlayertimeTarget - PlayertimeCurrent).TotalSeconds;
+                    float PlayerPingDifference = PingTarget - PingCurrent;
+                    float MyPingDifference = InGameUI.instance.Ping - LastGamePing;
+
+
+                    if (PlayerPingDifference > 0 && PlayerPingDifference < 50)
+                    {
+                        timespan = timespan + (PlayerPingDifference / 1000);
+                    }
+                    if(MyPingDifference >0 && MyPingDifference < 50)
+                    {
+                        timespan = timespan + (MyPingDifference / 1000);
+                    }
 
 
 
                     // rider
-                   Riders_Transforms[0].position = Vector3.SlerpUnclamped(Riders_Transforms[0].position, Positions[0][0], LerpSpeed);
-                    Riders_Transforms[0].eulerAngles = Vector3.Lerp(Riders_Transforms[0].eulerAngles, Rotations[0][0],LerpSpeed);
-
+                    Riders_Transforms[0].position = Vector3.MoveTowards(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0], (float)(Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[1].Positions[0]) / timespan / (1 / Time.deltaTime)));
+                    Riders_Transforms[0].eulerAngles = Vector3.Lerp(Riders_Transforms[0].eulerAngles, IncomingTransformUpdates[0].Rotations[0],1);
+                    // rider locals
                    for (int i = 1; i < 23; i++)
                    {
-                        lastpositions[i] = Riders_Transforms[i].localPosition;
-                        lastrotations[i] = Riders_Transforms[i].localEulerAngles;
-
-                     Riders_Transforms[i].localPosition = Vector3.SlerpUnclamped(Riders_Transforms[i].localPosition,Positions[0][i], LerpSpeed);
-                      Riders_Transforms[i].localEulerAngles = Vector3.Lerp(Riders_Transforms[i].localEulerAngles, Rotations[0][i],LerpSpeed);
-
+                      Riders_Transforms[i].localPosition = Vector3.MoveTowards(Riders_Transforms[i].localPosition, IncomingTransformUpdates[0].Positions[i], (float)(Vector3.Distance(Riders_Transforms[i].localPosition, IncomingTransformUpdates[1].Positions[i]) / timespan / (1 / Time.deltaTime)));
+                      Riders_Transforms[i].localEulerAngles = Vector3.Lerp(Riders_Transforms[i].localEulerAngles, IncomingTransformUpdates[0].Rotations[i],1);
                    }
 
-                    lastpositions[23] = Riders_Transforms[23].position;
-                    lastrotations[23] = Riders_Transforms[23].position;
+
 
                     // Bmx
-                    Riders_Transforms[23].position = Vector3.SlerpUnclamped(Riders_Transforms[23].position, Positions[0][23], LerpSpeed);
-                        Riders_Transforms[23].eulerAngles = Vector3.Lerp(Riders_Transforms[23].eulerAngles, Rotations[0][23], LerpSpeed);
-
+                        Riders_Transforms[23].position = Vector3.MoveTowards(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23], (float)(Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[1].Positions[23]) / timespan / (1 / Time.deltaTime)));
+                        Riders_Transforms[23].eulerAngles = Vector3.Lerp(Riders_Transforms[23].eulerAngles, IncomingTransformUpdates[0].Rotations[23], 1);
+                    // bmx locals
                     for (int i = 24; i < 32; i++)
                     {
-                        lastpositions[i] = Riders_Transforms[i].localPosition;
-                        lastrotations[i] = Riders_Transforms[i].localEulerAngles;
+                         Riders_Transforms[i].localPosition = Vector3.MoveTowards(Riders_Transforms[i].localPosition, IncomingTransformUpdates[0].Positions[i], (float)(Vector3.Distance(Riders_Transforms[i].localPosition, IncomingTransformUpdates[1].Positions[i]) / timespan / (1 / Time.deltaTime)));
+                        Riders_Transforms[i].localEulerAngles = Vector3.Lerp(Riders_Transforms[i].localEulerAngles, IncomingTransformUpdates[0].Rotations[i], 1);
+                    
 
-                        Riders_Transforms[i].localPosition = Vector3.SlerpUnclamped(Riders_Transforms[i].localPosition, Positions[0][i], LerpSpeed);
-                         Riders_Transforms[i].localEulerAngles = Vector3.Lerp(Riders_Transforms[i].localEulerAngles, Rotations[0][i], LerpSpeed);
+                    //Vector3.Lerp(Riders_Transforms[i].localEulerAngles, IncomingTransformUpdates[0].Rotations[i],1);
                     }
 
-                    
-                    Positions.RemoveAt(0);
-                    Rotations.RemoveAt(0);
-
-                    return;
-
-
                 }
-               
+
+                LastGamePing = InGameUI.instance.Ping;
 
             }
             catch (System.Exception x)
             {
-                Debug.Log("UpdateAllRiderParts Error   : " + x);
+                Debug.Log("MoveRider Error   : " + x);
             }
 
-                    
-            
-
+           
         }
 
 
-        private void Interpolate()
+
+
+
+        /// <summary>
+        /// Dead Reckoning
+        /// </summary>
+        public void Extrapolate()
         {
-            Vector3 riderdir = -(lastpositions[0] - Riders_Transforms[0].position).normalized;
-            Riders_Transforms[0].position = Vector3.Lerp(Riders_Transforms[0].position, Riders_Transforms[0].position + riderdir,0.05f);
-
-            Vector3 bikedir = -(lastpositions[23] - Riders_Transforms[23].position).normalized;
-            Riders_Transforms[23].position = Vector3.Lerp(Riders_Transforms[23].position, Riders_Transforms[23].position + bikedir,0.05f);
 
 
         }
+
 
 
 
@@ -532,8 +626,8 @@ namespace PIPE_Valve_Console_Client
             // look through rider
             if (GameManager.RiderTexinfos[id].Count > 0)
             {
-                Debug.Log($"Updating Textures for {id}");
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Rider..", 1, 1));
+                Debug.Log($"Updating Textures for {username}");
+                //InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Rider..", 1, 1));
 
 
                 try
@@ -545,9 +639,6 @@ namespace PIPE_Valve_Console_Client
                     byte[] bytes = null;
                     if (t.NameofparentGameObject == "Daryien_Head")
                     {
-
-
-
 
                         DirectoryInfo[] files = new DirectoryInfo(GameManager.instance.TexturesRootdir).GetDirectories();
                         foreach (DirectoryInfo i in files)
@@ -582,6 +673,10 @@ namespace PIPE_Valve_Console_Client
                                 }
 
                         }
+                            else
+                            {
+                                bodyren.materials[0].mainTexture = CharacterModding.instance.Heads[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Heads.Length - 1))];
+                            }
                     }
                     if (t.NameofparentGameObject == "Daryien_Body")
                     {
@@ -622,7 +717,11 @@ namespace PIPE_Valve_Console_Client
                             }
 
                         }
-                    }
+                            else
+                            {
+                                bodyren.materials[0].mainTexture = CharacterModding.instance.Bodies[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Bodies.Length - 1))];
+                            }
+                        }
                     if (t.NameofparentGameObject == "Daryien_HandsFeet")
                     {
 
@@ -662,7 +761,11 @@ namespace PIPE_Valve_Console_Client
                             }
 
                         }
-                    }
+                            else
+                            {
+                                bodyren.materials[0].mainTexture = CharacterModding.instance.Hands_feet[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Hands_feet.Length - 1))];
+                            }
+                        }
                     if (t.NameofparentGameObject == "shirt_geo")
                     {
 
@@ -702,7 +805,11 @@ namespace PIPE_Valve_Console_Client
                             }
 
                         }
-                    }
+                            else
+                            {
+                               shirtren.material.mainTexture = CharacterModding.instance.Shirts[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Shirts.Length - 1))];
+                            }
+                        }
                     if (t.NameofparentGameObject == "pants_geo")
                     {
 
@@ -742,7 +849,11 @@ namespace PIPE_Valve_Console_Client
                             }
 
                         }
-                    }
+                            else
+                            {
+                                bottomsren.material.mainTexture = CharacterModding.instance.Bottoms[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Bottoms.Length - 1))];
+                            }
+                        }
                     if (t.NameofparentGameObject == "Baseball Cap_R")
                     {
 
@@ -783,6 +894,10 @@ namespace PIPE_Valve_Console_Client
                             }
 
                         }
+                            else
+                            {
+                                hatren.material.mainTexture = CharacterModding.instance.Hats[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Hats.Length - 1))];
+                            }
                     }
                     if (t.NameofparentGameObject == "shoes_geo")
                     {
@@ -823,16 +938,22 @@ namespace PIPE_Valve_Console_Client
                             }
 
                         }
-                    }
+                            else
+                            {
+                                shoesren.material.mainTexture = CharacterModding.instance.Shoes[Mathf.RoundToInt(UnityEngine.Random.Range(0, CharacterModding.instance.Shoes.Length - 1))];
+                            }
+                        }
 
 
                         if (!found)
                         {
                             InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"{t.Nameoftexture} wasnt found in textures for {username}'s Daryien", 1, 1));
+
                         }
 
 
                 }
+
                 }
                 catch (UnityException x)
                 {
@@ -847,11 +968,15 @@ namespace PIPE_Valve_Console_Client
         }
 
 
+        
+
         /// <summary>
         /// Call once Gamemanager.PlayerColours[id], Gamemanager.PlayerMetals[id] etc has been updated
         /// </summary>
         public void UpdateBike()
         {
+
+            // colours
             try
             {
             FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
@@ -915,7 +1040,7 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-
+            // textures
             try
             {
                 FrameRen = BMX.transform.FindDeepChild("Frame Mesh").gameObject.GetComponent<MeshRenderer>();
@@ -1789,7 +1914,7 @@ namespace PIPE_Valve_Console_Client
         IEnumerator Initialiseafterwait()
         {
           // stagger out the initial rider build in case many are spawning at once somehow?
-            yield return new WaitForSeconds(Random.Range(0.1f,0.3f));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,1.5f));
             if (CurrentModelName == "Daryien")
             {
                 shirtren = RiderModel.transform.Find("shirt_geo").GetComponent<SkinnedMeshRenderer>();
@@ -1811,7 +1936,51 @@ namespace PIPE_Valve_Console_Client
         }
 
        
+        
+
        
       
     }
+
+
+
+    /// <summary>
+    /// Incoming list of received transform updates, with or without timestamp ( v2.1 support )
+    /// </summary>
+    public class IncomingTransformUpdate
+    {
+        public Vector3[] Positions;
+        public Vector3[] Rotations;
+        public int Ping;
+        public long ServerTimeStamp;
+        public long Playertimestamp;
+
+
+        /// <summary>
+        /// used to store transform update for this player along with timestamp from the moment this player sent it. Class found in RemotePlayer
+        /// </summary>
+        /// <param name="_pos"></param>
+        /// <param name="_rot"></param>
+        /// <param name="_time"></param>
+        public IncomingTransformUpdate(Vector3[] _pos, Vector3[] _rot)
+        {
+            Positions = _pos;
+            Rotations = _rot;
+            
+           
+        }
+
+        public IncomingTransformUpdate(Vector3[] _pos, Vector3[] _rot, int _ping, long _serverstamp, long _playertimestamp)
+        {
+            Positions = _pos;
+            Rotations = _rot;
+            Ping = _ping;
+            ServerTimeStamp = _serverstamp;
+            Playertimestamp = _playertimestamp;
+        }
+
+    }
+
+
+
 }

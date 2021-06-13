@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading;
 using System;
 using FrostyP_Game_Manager;
-using UnityEngine.Rendering;
+using UnityEngine.Rendering.PostProcessing;
 using System.Runtime.Serialization.Formatters.Binary;
 
 
@@ -23,18 +23,55 @@ namespace PIPE_Valve_Console_Client
         public static InGameUI instance;
         public LocalPlayer _localplayer;
 
-       
-        Camera Cam;
+        //Spectate mode
+        public GameObject SpecCamOBJ;
+        public Camera Cam;
         GameObject Ridersmoothfollower;
         GameObject ControlObj;
-        GameObject Targetrider;
+        public GameObject Targetrider;
         uint currentspecid;
+        public List<RemotePlayer> cycleplayerslist;
+        public int cyclecounter;
+        delegate void CamMode();
+        Dictionary<int, CamMode> CamModes;
+        public int cyclemodes = 0;
+
 
         // connection status
         public float Ping = 0;
         public int SendBytesPersec = 0;
         public float Outbytespersec = 0;
         public float InBytespersec = 0;
+        public int Pendingreliable;
+        public int Pendingunreliable;
+
+
+
+        // Admin mode
+        string Adminpass = "Admin Password..";
+        bool AdminOpen;
+        public bool AdminLoggedin;
+        bool bootplayeropen;
+        string BantimeParse = "5"; // mins
+        int _bantime = 5;
+        bool BootObjectOpen;
+
+
+        // MiniGUI
+        bool MiniLiveRiderstoggle;
+        GUIStyle MiniLiveRidersStyle;
+
+
+        // live riders
+        Vector2 liveridersscroll;
+
+        // Messages
+        Vector2 Messagesscroll;
+
+        // Riderinfo
+        Vector2 Riderinfoscroll;
+        bool TogglePlayerObjects = true;
+        bool TogglePlayerTag = true;
 
 
 
@@ -46,6 +83,8 @@ namespace PIPE_Valve_Console_Client
 
         public string Key;
         public string IV;
+
+
         /// <summary>
         /// In Online mode
         /// </summary>
@@ -57,7 +96,8 @@ namespace PIPE_Valve_Console_Client
         public string desiredport = "7777";
         public string desiredIP = "127.0.0.1";
         public bool IsSpectating;
-        
+        public bool RiderInfoMenuOpen;
+        public uint IdofRidertoshow = 0;
 
         public int messagetimer;
         public List<TextMessage> Messages = new List<TextMessage>();
@@ -73,6 +113,8 @@ namespace PIPE_Valve_Console_Client
         Texture2D TransTex;
 
 
+       
+
         /// <summary>
         /// just checks that theres only one instance and this is it
         /// </summary>
@@ -87,6 +129,18 @@ namespace PIPE_Valve_Console_Client
                 Debug.Log("IngameUI already exists, destroying old InGameUI now");
                 Destroy(this);
             }
+
+            CamModes = new Dictionary<int, CamMode>
+            {
+                {0,SpectateAutoFollowFreeMove },
+                {1,SpectateTripodAutoLookAt },
+                {2,SpectateTripodFullManual },
+
+            };
+
+         
+            
+
         }
 
 
@@ -95,30 +149,6 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         private void Start()
         {
-            if(!Directory.Exists(Playersavepath))
-            {
-                Directory.CreateDirectory(Playersavepath);
-            }
-            if(!File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
-            {
-                PlayerSavedata = new PlayerSaveData(Username);
-                PlayerSavedata.savedservers = new List<SavedServer>();
-                BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
-                
-            }
-            else if(File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                PlayerSavedata = bf.Deserialize(File.OpenRead(Playersavepath + "PlayerData.FrostyPreset")) as PlayerSaveData;
-
-                Username = PlayerSavedata.Username;
-            }
-
-
-
-
-
 
 
             RedTex = new Texture2D(Screen.width / 6, Screen.height / 4); ;
@@ -202,6 +232,7 @@ namespace PIPE_Valve_Console_Client
 
             Generalstyle.alignment = TextAnchor.MiddleCenter;
             Generalstyle.fontStyle = FontStyle.Bold;
+            
             //Generalstyle.fontSize = 16;
             //Generalstyle.border.left = 5;
             //Generalstyle.border.right = 5;
@@ -261,14 +292,31 @@ namespace PIPE_Valve_Console_Client
 
             skin.button.normal.textColor = Color.black;
             skin.button.alignment = TextAnchor.MiddleCenter;
-            skin.scrollView.normal.background = GreenTex;
+           // skin.scrollView.normal.background = GreenTex;
             skin.verticalScrollbarThumb.normal.background = GreenTex;
             skin.scrollView.alignment = TextAnchor.MiddleCenter;
-            skin.scrollView.fixedWidth = Screen.width / 4;
+            // skin.scrollView.fixedWidth = Screen.width / 4;
 
 
 
-            
+            MiniLiveRidersStyle = new GUIStyle();
+
+            MiniLiveRidersStyle.alignment = TextAnchor.MiddleCenter;
+            MiniLiveRidersStyle.fontStyle = FontStyle.Bold;
+            MiniLiveRidersStyle.padding = new RectOffset(5, 5, 5, 5);
+            MiniLiveRidersStyle.normal.background = GreenTex;
+            MiniLiveRidersStyle.normal.textColor = Color.black;
+            MiniLiveRidersStyle.onNormal.background = whiteTex;
+            MiniLiveRidersStyle.onNormal.textColor = Color.green;
+            MiniLiveRidersStyle.hover.background = GreyTex;
+            MiniLiveRidersStyle.hover.textColor = Color.black;
+            MiniLiveRidersStyle.onHover.background = GreyTex;
+
+
+
+
+
+
 
             MessageColour = new Dictionary<int, Color>()
             {
@@ -277,18 +325,147 @@ namespace PIPE_Valve_Console_Client
                 {(int)PIPE_Valve_Console_Client.MessageColour.System,Color.green},
                 {(int)PIPE_Valve_Console_Client.MessageColour.Server,Color.red},
             };
-           _localplayer = gameObject.GetComponent<LocalPlayer>();
-           
+
+            SpecCamOBJ = new GameObject();
+            Cam = SpecCamOBJ.AddComponent<Camera>();
+            DontDestroyOnLoad(SpecCamOBJ);
+            SpecCamOBJ.SetActive(false);
+
+            if (!Directory.Exists(Playersavepath))
+            {
+                Directory.CreateDirectory(Playersavepath);
+            }
+            if (!File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+            {
+                PlayerSavedata = new PlayerSaveData(Username);
+                PlayerSavedata.savedservers = new List<SavedServer>();
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+
+            }
+            else if (File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                PlayerSavedata = bf.Deserialize(File.OpenRead(Playersavepath + "PlayerData.FrostyPreset")) as PlayerSaveData;
+
+                Username = PlayerSavedata.Username;
+
+            }
+
+            _localplayer = gameObject.GetComponent<LocalPlayer>();
+            cycleplayerslist = new List<RemotePlayer>();
             Ridersmoothfollower = new GameObject();
             DontDestroyOnLoad(Ridersmoothfollower);
             ControlObj = new GameObject();
             DontDestroyOnLoad(ControlObj);
+            SpecCamOBJ = GameObject.Instantiate(UnityEngine.GameObject.Find("Main Camera"));
+            Cam = SpecCamOBJ.GetComponent<Camera>();
+            SpecCamOBJ.name = "SpecCam";
+            SpecCamOBJ.SetActive(false);
+            DontDestroyOnLoad(SpecCamOBJ);
 
         }
 
 
+        void Update()
+        {
+            if (IsSpectating)
+            {
+                if (MGInputManager.RB_Down())
+                {
+                    if (cycleplayerslist.Count > 1)
+                    {
+                        if (cyclecounter == cycleplayerslist.Count -1)
+                        {
+                            cyclecounter = 0;
+                        }
+                        else
+                        {
+                            cyclecounter++;
+                        }
+                        Targetrider = cycleplayerslist[cyclecounter].RiderModel;
+
+                    }
+                }
+                if (MGInputManager.LB_Down())
+                {
+                    if (cycleplayerslist.Count > 1)
+                    {
+                        if (cyclecounter == 0)
+                        {
+                            cyclecounter = cycleplayerslist.Count - 1;
+                        }
+                        else
+                        {
+                            cyclecounter--;
+                        }
+                        Targetrider = cycleplayerslist[cyclecounter].RiderModel;
+
+                    }
+                }
+
+
+                Targetrider = cycleplayerslist[cyclecounter].RiderModel;
+
+                if (MGInputManager.B_Down())
+                {
+                    if (cyclemodes == CamModes.Count - 1)
+                    {
+                        cyclemodes = 0;
+                    }
+                    else
+                    {
+                        cyclemodes++;
+                    }
+                }
+
+                
+
+            }
+
+            if (IsSpectating)
+            {
+                CamModes[cyclemodes]();
+            }
+
+
+
+            if (Connected && OnlineMenu && Input.GetKeyDown(KeyCode.A))
+            {
+                AdminOpen = !AdminOpen;
+            }
+        }
+
+
+
+        void OnGUI()
+        {
+            if (Minigui)
+            {
+                MiniGUI();
+            }
+
+            if(OnlineMenu && Connected && !Minigui && FrostyPGamemanager.instance.OpenMenu)
+            {
+                LiveRiders();
+                MessagesShow();
+
+
+            if (RiderInfoMenuOpen)
+            {
+                ShowRiderInfo();
+            }
+
+            }
+
+        }
+     
+
+
+
+
         /// <summary>
-        /// Master Call to connect
+        /// Master Call to connect, also turns connected to true which some data sends have as their/one of their conditions
         /// </summary>
         public void ConnectToServer()
         {
@@ -300,11 +477,12 @@ namespace PIPE_Valve_Console_Client
 
 
         /// <summary>
-        /// shuts down and cleans up
+        /// Call to Shutdown, also cleans up all gamemanger data and remote riders in scene
         /// </summary>
         public void Disconnect()
         {
             Connected = false;
+            GameManager.instance.firstMap = true;
             List<GameObject> objs = new List<GameObject>();
             GameNetworking.instance.DisconnectMaster();
            
@@ -344,7 +522,21 @@ namespace PIPE_Valve_Console_Client
             GameManager.BikeTexinfos.Clear();
             GameManager.Bikenormalinfos.Clear();
             GameManager.RiderTexinfos.Clear();
-           
+
+            
+            foreach(List<NetGameObject> playerobjects in GameManager.PlayersObjects.Values)
+            {
+                foreach(NetGameObject n in playerobjects)
+                {
+                    if(n._Gameobject != null)
+                    {
+                        Destroy(n._Gameobject);
+                    }
+                }
+            }
+            GameManager.PlayersObjects.Clear();
+
+
             // Server learns of disconnection itself and tells everyone
 
         }
@@ -356,7 +548,7 @@ namespace PIPE_Valve_Console_Client
 
        public void ClientsOfflineMenu()
         {
-            
+           
             GUILayout.Label("Online Mode");
 
             GUILayout.Space(10);
@@ -373,14 +565,13 @@ namespace PIPE_Valve_Console_Client
                 if(GUILayout.Button($"Save current setup as {Nickname}"))
                 {
 
-
-                    if(PlayerSavedata != null)
-                    {
-
                         if(PlayerSavedata.savedservers == null)
                         {
                             PlayerSavedata.savedservers = new List<SavedServer>();
                         }
+
+                    if(PlayerSavedata != null)
+                    {
 
 
                         PlayerSavedata.savedservers.Add(new SavedServer(desiredIP, desiredport, Nickname));
@@ -439,16 +630,17 @@ namespace PIPE_Valve_Console_Client
 
             if (GUILayout.Button("Connect to Server"))
             {
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
+                NewMessage(Constants.SystemMessageTime, new TextMessage("Trying Setup..", 1, 0));
 
                 if(PlayerSavedata != null)
                 {
                     PlayerSavedata.Username = Username;
                 BinaryFormatter bf = new BinaryFormatter();
+                    Stream _stream;
+                    _stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
 
-
-                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
-                
+                bf.Serialize(_stream, PlayerSavedata);
+                    _stream.Close();
 
                 }
 
@@ -484,25 +676,16 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
                 try
                 {
-                     GameManager.instance.GetLevelName();
+                    GameManager.instance.GetLevelName();
                 }
                 catch (Exception x)
                 {
                     Debug.Log("Cant find scene name  : " + x);
                 }
-                // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
-                try
-                {
-                 BMXNetLoadout.instance.GrabTextures();
-                }
-                catch(Exception x)
-                {
-                    Debug.Log("Couldnt look for bike textures" + x);
-                }
-               // CharacterModding.instance.SaveRiderSetup();
+
+               
                 ConnectToServer();
                 OnlineMenu = true;
                 OfflineMenu = false;
@@ -510,6 +693,9 @@ namespace PIPE_Valve_Console_Client
                 
                
             }
+
+
+
             if (GUILayout.Button("Connect to FrostyP"))
             {
                 
@@ -518,13 +704,20 @@ namespace PIPE_Valve_Console_Client
                 {
                     PlayerSavedata = new PlayerSaveData(Username);
                     BinaryFormatter bf = new BinaryFormatter();
-                    bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+                    Stream _stream;
+                    _stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
+
+                    bf.Serialize(_stream, PlayerSavedata);
+                    _stream.Close();
 
                 }
 
 
-                // just detects if ridermodel has changed from daryien and if so realigns to be tracking new rig
+                // detects if ridermodel has changed from daryien and if so re-aligns to be tracking new rig and updates modelname and bundlename
                 _localplayer.RiderTrackingSetup();
+
+
+
                 if (CharacterModding.instance.LoadBmxSetup() == 0)
                 {
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your bmx save, save a bmx for instant sync", 4, 0));
@@ -559,16 +752,7 @@ namespace PIPE_Valve_Console_Client
                 {
                     Debug.Log("Cant find scene name  : " + x);
                 }
-                // do Grabtextures to get list of materials main texture names, server will ask for them when it detects you are daryien
-                try
-                {
-                    BMXNetLoadout.instance.GrabTextures();
-                }
-                catch (Exception x)
-                {
-                    Debug.Log("Couldnt look for bike textures" + x);
-                }
-                // CharacterModding.instance.SaveRiderSetup();
+               
                 GameNetworking.instance.ConnectFrosty();
                 Connected = true;
                 OnlineMenu = true;
@@ -581,7 +765,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            GUILayout.Space(80);
+            GUILayout.Space(100);
            
             
            
@@ -589,32 +773,106 @@ namespace PIPE_Valve_Console_Client
             
         }
 
+
+
+
        public void ClientsOnlineMenu()
         {
-            GUILayout.Space(10);
+
+            if (AdminOpen)
+            {
+
+                if (!AdminLoggedin)
+                {
+                Adminpass = GUILayout.TextField(Adminpass);
+
+                if (GUILayout.Button("Login"))
+                {
+                    ClientSend.AdminModeOn(Adminpass);
+                }
+
+                }
+
+                if (AdminLoggedin)
+                {
+                    bootplayeropen = GUILayout.Toggle(bootplayeropen, "Boot a Player");
+                    if(bootplayeropen)
+                    {
+                        
+                        GUILayout.Label("Bantime (mins)");
+                        BantimeParse = GUILayout.TextField(BantimeParse);
+                        if(int.TryParse(BantimeParse, out int bantime))
+                        {
+                            _bantime = bantime;
+                        }
+
+                        foreach (RemotePlayer r in GameManager.Players.Values)
+                        {
+                            GUIStyle style = new GUIStyle();
+                            style.normal.textColor = Color.green;
+                            style.fontSize = 12;
+                            style.alignment = TextAnchor.MiddleCenter;
+                            if(GUILayout.Button($"Boot {r.username}"))
+                            {
+                                ClientSend.SendBootPlayer(r.username, _bantime);
+                            }
+                           
+
+                        }
+                        GUILayout.Space(30);
+                    }
+
+                    BootObjectOpen = GUILayout.Toggle(BootObjectOpen, "Boot an Object");
+                    if (BootObjectOpen)
+                    {
+                        foreach(RemotePlayer r in GameManager.Players.Values)
+                        {
+                            if(GameManager.PlayersObjects[r.id] != null)
+                            {
+                                if (GameManager.PlayersObjects[r.id].Count > 0)
+                                {
+                                    GUILayout.Space(10);
+                                    GUILayout.Label($"{r.username} objects:");
+                                    foreach(NetGameObject n in GameManager.PlayersObjects[r.id])
+                                    {
+                                        if(GUILayout.Button($"Boot {n.NameofObject}"))
+                                        {
+                                            ClientSend.AdminRemoveObject(r.id, n.ObjectID);
+                                        }
+                                    }
+
+                                }
+                            }
+                            GUILayout.Space(10);
+                        }
+                    }
+
+
+                    GUILayout.Space(30);
+                }
+
+
+
+
+
+            }
+
+            
+            
+
+            GUILayout.Space(20);
             if (GUILayout.Button("Mini GUI"))
             {
                 FrostyPGamemanager.instance.OpenMenu = false;
                 Minigui = true;
             }
-            if (GUILayout.Button("Send Map name"))
-            {
-                try
-                {
-                GameManager.instance.GetLevelName();
-               // ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
-               // NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
-                }
-                catch(UnityException x)
-                {
-                    Debug.Log(x);
-                }
-            }
            
-            GUILayout.Space(10);
+           
+            GUILayout.Space(20);
 
             Messagetosend = GUILayout.TextField(Messagetosend.ToString());
-           if( GUILayout.Button("Send"))
+            GUILayout.Space(5);
+            if ( GUILayout.Button("Send"))
             {
                 if(Messagetosend != null)
                 {
@@ -626,39 +884,25 @@ namespace PIPE_Valve_Console_Client
             GUILayout.Space(20);
             if (IsSpectating)
             {
+                GUILayout.Space(10);
+                GUILayout.Label($"player: {cyclecounter}  CamMode: {cyclemodes}");
                 if(GUILayout.Button("End Spectate"))
                 {
                     SpectateExit();
                 }
+               
+
+
             }
-            GUILayout.Label("Live Rider list:", Generalstyle);
-            foreach(RemotePlayer r in GameManager.Players.Values)
+            else
             {
-                if(GUILayout.Button($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}") && !IsSpectating)
+                if (GUILayout.Button("Enter Spectate Mode"))
                 {
-                    SpectateEnter(r.id);
-
+                    SpectateEnter();
                 }
-              
             }
-
             GUILayout.Space(20);
-            GUILayout.Label("Messages:");
-            
-          
-            foreach(TextMessage mess in Messages)
-            {
-                GUIStyle style = new GUIStyle();
-                style.normal.textColor = MessageColour[mess.FromCode];
-                style.alignment = TextAnchor.MiddleCenter;
-                style.padding = new RectOffset(10, 0, 0, 10);
-                style.fontStyle = FontStyle.Bold;
-                
-                GUILayout.Label(mess.Message,style);
-            }
-
            
-            GUILayout.Space(50);
             if (GUILayout.Button("Disconnect"))
             {
                 OnlineMenu = false;
@@ -667,89 +911,17 @@ namespace PIPE_Valve_Console_Client
                 Connected = false;
             }
             GUILayout.Space(20);
+           
+
+           
         }
 
-
-        void OnGUI()
-        {
-            if (Minigui)
-            {
-                MiniGUI();
-            }
-
-        }
-     
-        void FixedUpdate()
-        {
-            if (IsSpectating)
-            {
-                bool found = false;   
-                foreach(RemotePlayer r in GameManager.Players.Values)
-                {
-                    if(r.id == currentspecid)
-                    {
-                        found = true;
-                     SpectateControl();
-                    }
-                }
-
-                if (!found)
-                {
-                    SpectateExit();
-                }
-                
-                
-            }
-        }
-
-
-        static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
-        {
-            // Check arguments.
-            if (plainText == null || plainText.Length <= 0)
-                throw new System.Exception("plainText");
-            if (Key == null || Key.Length <= 0)
-                throw new System.Exception("Key");
-            if (IV == null || IV.Length <= 0)
-                throw new System.Exception("IV");
-            byte[] encrypted;
-
-            // Create an Aes object
-            // with the specified key and IV.
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = Key;
-                aesAlg.IV = IV;
-
-                // Create an encryptor to perform the stream transform.
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                // Create the streams used for encryption.
-                using (MemoryStream msEncrypt = new MemoryStream())
-                {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            //Write all data to the stream.
-                            swEncrypt.Write(plainText);
-                        }
-                        encrypted = msEncrypt.ToArray();
-                    }
-                }
-            }
-
-            // Return the encrypted bytes from the memory stream.
-            return encrypted;
-        }
-
-        
 
 
        public void MiniGUI()
         {
-            GUILayout.Space(50);
-            if (GUILayout.Button("return"))
+            GUILayout.Space(10);
+            if (GUILayout.Button("return",MiniLiveRidersStyle))
             {
                 Minigui = false;
                 OnlineMenu = true;
@@ -760,30 +932,61 @@ namespace PIPE_Valve_Console_Client
             }
             GUILayout.Space(20);
 
-            GUILayout.Label($"Ping: {Ping}");
+           // GUILayout.Label($"Ping: {Ping}");
+           // GUILayout.Label($"Pending rel: {Pendingreliable}");
+           // GUILayout.Label($"Pending unrel: {Pendingunreliable}");
            // GUILayout.Label($"Out per sec:  {Outbytespersec}");
             //GUILayout.Label($"in per sec:  {InBytespersec}");
             //GUILayout.Label($"Bytes out/s: {SendBytesPersec}");
 
-            GUILayout.Label("Live Rider list:", Generalstyle);
-            foreach (RemotePlayer r in GameManager.Players.Values)
+            
+            MiniLiveRiderstoggle = GUILayout.Toggle(MiniLiveRiderstoggle, " Live Riders", MiniLiveRidersStyle);
+
+            if (MiniLiveRiderstoggle)
             {
-                GUIStyle style = new GUIStyle();
-                style.normal.textColor = Color.green;
-                style.alignment = TextAnchor.MiddleCenter;
-                style.padding = new RectOffset(10, 0, 0, 10);
-                style.fontStyle = FontStyle.Bold;
-                GUILayout.Label($"{r.username} as {r.CurrentModelName} at {r.CurrentMap}",style);
-            }
+               
+
+
+                GUILayout.Space(20);
+                foreach (RemotePlayer r in GameManager.Players.Values)
+                {
+                  GUIStyle Playernamestyle = new GUIStyle();
+
+                    Playernamestyle.alignment = TextAnchor.MiddleCenter;
+                    Playernamestyle.fontStyle = FontStyle.Bold;
+                    Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
+                    Playernamestyle.normal.background = TransTex;
+                    Playernamestyle.normal.textColor = r.tm.color;
+                   
+
+                    GUILayout.Label($"{r.username} is at {r.CurrentMap}",Playernamestyle);
+                }
 
             GUILayout.Space(20);
-            GUILayout.Label("Messages:");
+            }
+            GUILayout.Label("Messages:", Generalstyle);
 
             // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
             foreach (TextMessage mess in Messages)
             {
                 GUIStyle style = new GUIStyle();
-                style.normal.textColor = MessageColour[mess.FromCode];
+                if(mess.FromCode == 3)
+                {
+                    try
+                    {
+                       style.normal.textColor = GameManager.Players[mess.FromConnection].tm.color;
+                    }
+                    catch (Exception x)
+                    {
+                        style.normal.textColor = Color.black;
+                        Debug.Log($"Assign text color to player color error : {x}");
+                    }
+
+                }
+                else
+                {
+                    style.normal.textColor = MessageColour[mess.FromCode];
+                }
                 style.alignment = TextAnchor.MiddleCenter;
                 style.padding = new RectOffset(10, 0, 0, 10);
                 style.fontStyle = FontStyle.Bold;
@@ -795,8 +998,187 @@ namespace PIPE_Valve_Console_Client
 
         }
 
+        public void ShowRiderInfo()
+        {
+            GUI.skin = skin;
+            if(IdofRidertoshow != 0)
+            {
+
+                foreach(RemotePlayer r in GameManager.Players.Values)
+                {
+                    if(r.id == IdofRidertoshow)
+                    {
+                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 18), new Vector2(400, 400)));
+                        GUILayout.Label($"{GameManager.Players[IdofRidertoshow].username}", Generalstyle);
+                        GUILayout.Label($"Riding at: {GameManager.Players[IdofRidertoshow].CurrentMap}" ,Generalstyle);
+                        GUILayout.Label($"As: {GameManager.Players[IdofRidertoshow].CurrentModelName}",Generalstyle);
+                        GUILayout.Label($"Net FPS: {Mathf.RoundToInt(r.PlayersFrameRate)}",Generalstyle);
+                        GUILayout.Label($"Rider2Rider Ping: {r.R2RPing} Ms",Generalstyle);
+
+                        GUILayout.Space(10);
+                        TogglePlayerTag = GUILayout.Toggle(TogglePlayerTag, "Toggle Name Tag");
+                        if (TogglePlayerTag)
+                        {
+                            r.tm.gameObject.SetActive(true);
+                        }
+                        if (!TogglePlayerTag)
+                        {
+                            r.tm.gameObject.SetActive(false);
+                        }
+
+                        if (GameManager.PlayersObjects[IdofRidertoshow].Count > 0)
+                        {
+                        TogglePlayerObjects = GUILayout.Toggle(TogglePlayerObjects,"Toggle player Objects");
+                            GUILayout.Space(10);
+                            if (TogglePlayerObjects)
+                            {
+                               
+                                    foreach (NetGameObject n in GameManager.PlayersObjects[IdofRidertoshow])
+                                    {
+                                       if(n._Gameobject != null)
+                                       {
+                                          if (!n._Gameobject.activeSelf)
+                                           {
+                                            n._Gameobject.SetActive(true);
+                                          }
+                                       }
+                                    }
+
+                                
+                            }
+                            if (!TogglePlayerObjects)
+                            {
+                               
+                                foreach (NetGameObject n in GameManager.PlayersObjects[IdofRidertoshow])
+                                {
+                                    if (n._Gameobject != null)
+                                    {
+                                        if (n._Gameobject.activeSelf)
+                                        {
+                                            n._Gameobject.SetActive(false);
+                                        }
+                                    }
+                                }
+
+                                
+                            }
 
 
+                            GUILayout.Space(10);
+                            GUILayout.Label($"Objects:", Generalstyle);
+                            GUILayout.Space(10);
+                            Riderinfoscroll = GUILayout.BeginScrollView(Riderinfoscroll);
+
+                           
+                            foreach (NetGameObject n in GameManager.PlayersObjects[IdofRidertoshow])
+                            {
+                                if (GUILayout.Button($"Vote off {n.NameofObject}"))
+                                {
+                                    ClientSend.VoteToRemoveObject(n.ObjectID, IdofRidertoshow);
+                                }
+                            }
+
+                            
+                            GUILayout.EndScrollView();
+                        }
+
+
+                        GUILayout.Space(10);
+                        if (GUILayout.Button("Close"))
+                        {
+                            RiderInfoMenuOpen = false;
+                        }
+                        GUILayout.EndArea();
+                    }
+
+                }
+              
+
+            }
+
+        }
+
+
+        public void LiveRiders()
+        {
+            Rect box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6.5f, Screen.height/3));
+            GUI.skin = skin;
+            GUILayout.BeginArea(box);
+            liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
+            GUILayout.Label("Live Rider list:", Generalstyle);
+            foreach (RemotePlayer r in GameManager.Players.Values)
+            {
+                GUIStyle Playernamestyle = new GUIStyle();
+
+                Playernamestyle.alignment = TextAnchor.MiddleCenter;
+                Playernamestyle.fontStyle = FontStyle.Bold;
+                Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
+                Playernamestyle.normal.background = TransTex;
+                Playernamestyle.normal.textColor = r.tm.color;
+                Playernamestyle.hover.textColor = Color.green;
+                Playernamestyle.hover.background = whiteTex;
+
+                if (GUILayout.Button($"{r.username}",Playernamestyle))
+                {
+                    IdofRidertoshow = r.id;
+                    RiderInfoMenuOpen = true;
+                }
+
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+
+            GUILayout.Space(50);
+        }
+
+
+        public void MessagesShow()
+        {
+            Rect box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 2), new Vector2(Screen.width / 6.5f, Screen.height / 8));
+            GUI.skin = skin;
+            GUILayout.BeginArea(box);
+            GUILayout.Label("Messages:",Generalstyle);
+            GUILayout.EndArea();
+
+            Rect _box = new Rect(new Vector2(Screen.width / 2, Screen.height / 1.9f), new Vector2(Screen.width / 2, Screen.height / 3));
+            GUILayout.BeginArea(_box);
+            Messagesscroll = GUILayout.BeginScrollView(Messagesscroll);
+            
+
+            foreach (TextMessage mess in Messages)
+            {
+                GUIStyle style = new GUIStyle();
+                if (mess.FromCode == 3)
+                {
+                    try
+                    {
+                        style.normal.textColor = GameManager.Players[mess.FromConnection].tm.color;
+                    }
+                    catch (Exception x)
+                    {
+                        style.normal.textColor = Color.black;
+                        Debug.Log($"Assign text color to player color error : {x}");
+                    }
+
+                }
+                else
+                {
+                    style.normal.textColor = MessageColour[mess.FromCode];
+                }
+                style.alignment = TextAnchor.MiddleRight;
+                style.padding = new RectOffset(10, 10, 10, 10);
+                style.fontStyle = FontStyle.Bold;
+
+                
+                GUILayout.Label(mess.Message, style);
+                
+            }
+
+
+
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+        }
 
 
         /// <summary>
@@ -818,7 +1200,7 @@ namespace PIPE_Valve_Console_Client
 
 
         /// <summary>
-        /// Called when Disconnectme
+        /// Called by Disconnectme in ClientHandle, if the server rejects us it sends a command for us to initiate the disconnect, meaning the user can receive an online message before hand saying that they have lost connection with the reason sent from server
         /// </summary>
         public void Waittoend()
         {
@@ -834,82 +1216,211 @@ namespace PIPE_Valve_Console_Client
 
 
         // --------------------------------------------------------------------------------------------  SPECTATE MODE ---------------------------------------------------------------------------------------------------
-        public void SpectateEnter(uint id)
+        public void SpectateEnter()
         {
-            currentspecid = id;
-            Cam = new GameObject().AddComponent<Camera>();
-            Cam.renderingPath = RenderingPath.DeferredShading;
-            DontDestroyOnLoad(Cam);
-           // MyPlayer.GetComponentInChildren<Camera>().enabled = false;
            
-           // mginput = new MGInputManager();
-            Targetrider = GameManager.Players[id].RiderModel;
-            ControlObj.transform.position = GameManager.Players[id].RiderModel.transform.position + Vector3.back * 2;
-            ControlObj.transform.parent = Ridersmoothfollower.transform;
-            IsSpectating = true;
+            if (GameManager.Players.Count > 0)
+            {
 
+            bool got = false;
+            foreach(RemotePlayer rem in GameManager.Players.Values)
+            {
+                if (!got)
+                {
+                    Targetrider = rem.RiderModel;
+                    ControlObj.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
+                    SpecCamOBJ.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
+                    got = true;
+                }
+                cycleplayerslist.Add(rem);
+            }
+
+
+
+            // ControlObj.transform.parent = Ridersmoothfollower.transform;
+                  if (got)
+                  {
+                    SpecCamOBJ.SetActive(true);
+                    IsSpectating = true;
+                  }
+
+
+            }
+           
         }
 
-        public void SpectateControl()
+        public void SpectateAutoFollowFreeMove()
         {
             float speed = 15;
-            Vector3 Velocity = Vector3.zero;
            
-           
-            if(Targetrider == null)
-            {
-                Targetrider = GameManager.Players[currentspecid].RiderModel;
-                
-            }
 
-
-                Ridersmoothfollower.transform.position = Vector3.Lerp(Ridersmoothfollower.transform.position, Targetrider.transform.position + Vector3.up, 5 * Time.deltaTime);
-                Cam.transform.LookAt(Ridersmoothfollower.transform);
-                ControlObj.transform.LookAt(Ridersmoothfollower.transform);
+           SpecCamOBJ.transform.parent = Targetrider.transform;
+            ControlObj.transform.position = Targetrider.transform.position + Targetrider.transform.TransformDirection(Vector3.up);
+         
+                SpecCamOBJ.transform.LookAt(ControlObj.transform);
+                //ControlObj.transform.LookAt(Ridersmoothfollower.transform);
             
-            if(MGInputManager.RStickX()> 0.1f | MGInputManager.RStickX() < -0.1f)
+            if(MGInputManager.RStickX()> 0.15f | MGInputManager.RStickX() < -0.15f)
             {
                 
-                ControlObj.gameObject.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
+                SpecCamOBJ.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
             }
-            if (MGInputManager.LStickY() > 0.1f)
+            if (MGInputManager.LStickY() > 0.15f)
             {
 
-                Vector3 dir = -(ControlObj.transform.position - Ridersmoothfollower.transform.position).normalized;
-                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 10);
+                Vector3 dir = -(SpecCamOBJ.transform.position - Targetrider.transform.position).normalized;
+               SpecCamOBJ.gameObject.transform.position = Vector3.MoveTowards(SpecCamOBJ.transform.position, SpecCamOBJ.transform.position + dir, Time.deltaTime * 5);
             }
-            if (MGInputManager.LStickY() < -0.1f)
+            if (MGInputManager.LStickY() < -0.15f)
             {
-                Vector3 dir = (ControlObj.transform.position - Ridersmoothfollower.transform.position).normalized;
-                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.gameObject.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 10);
+                Vector3 dir = (SpecCamOBJ.transform.position - Targetrider.transform.position).normalized;
+                SpecCamOBJ.gameObject.transform.position = Vector3.MoveTowards(SpecCamOBJ.transform.position, SpecCamOBJ.transform.position + dir, Time.deltaTime * 5);
             }
 
 
-            if (MGInputManager.RStickY() > 0.1f | MGInputManager.RStickY() < -0.1f)
+            if (MGInputManager.RStickY() > 0.15f | MGInputManager.RStickY() < -0.15f)
             {
-                ControlObj.gameObject.transform.RotateAround(Targetrider.transform.position, Cam.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
+               SpecCamOBJ.gameObject.transform.RotateAround(Targetrider.transform.position, SpecCamOBJ.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
             }
 
 
             
                 
-                Cam.transform.position = Vector3.SmoothDamp(Cam.transform.position,ControlObj.transform.position,ref Velocity, 0.1f * Time.deltaTime, 1000f);
+               
 
-            
-
-
-            
-            
-            
 
         }
+
+        public void SpectateTripodAutoLookAt()
+        {
+            ControlObj.transform.parent = null;
+            SpecCamOBJ.transform.parent = null;
+
+            ControlObj.transform.position = Vector3.Lerp(ControlObj.transform.position, Targetrider.transform.position +  Vector3.up, Vector3.Distance(ControlObj.transform.position, Targetrider.transform.position + Vector3.up) * 4 * Time.deltaTime);
+            Cam.transform.LookAt(ControlObj.transform);
+            ControlObj.transform.LookAt(ControlObj.transform);
+           
+
+            float zoomspeed = 15f;
+            float maxzoom = 1;
+            float minzoom = 120;
+            
+            float X = 0;
+            float Y = 0;
+            float Z = 0;
+            if (MGInputManager.RStickX() > 0.2f | MGInputManager.RStickX() < -0.2f)
+            {
+                X = MGInputManager.RStickX() * Time.deltaTime * 8;
+            }
+            if (MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
+            {
+                Y = MGInputManager.RStickY() * Time.deltaTime * 8;
+            }
+
+
+            if (MGInputManager.LStickY() > 0.2f && MGInputManager.LTrigger() < 0.5f )
+            {
+                Z = MGInputManager.LStickY() * Time.deltaTime * 10;
+            }
+            if(MGInputManager.LStickY() < -0.2f && MGInputManager.LTrigger() < 0.5f)
+            {
+                Z = MGInputManager.LStickY() * Time.deltaTime * 10;
+            }
+
+            // if LT down
+            if(MGInputManager.LTrigger() > 0.5f)
+            {
+
+            // Hold LT then use LstickY to Zoom in and out
+            if (MGInputManager.LStickY() > 0.2f)
+            {
+               
+                Camera.current.fieldOfView = Camera.current.fieldOfView + (-MGInputManager.LStickY() * Time.deltaTime * zoomspeed);
+            }
+            if (MGInputManager.LStickY() < -0.2f)
+            {
+                Camera.current.fieldOfView = Camera.current.fieldOfView + (-MGInputManager.LStickY() * Time.deltaTime * zoomspeed);
+            }
+
+                // Focus distance
+                if (MGInputManager.RStickY() > 0.18f)
+                {
+                  //  FrostyPGamemanager.instance.focusdistanceCAMSETTING++;
+                  //  FrostyPGamemanager.instance.de
+
+                }
+
+
+            }
+            
+
+            Cam.gameObject.transform.Translate(X, Y, Z);
+
+        }
+
+        public void SpectateTripodFullManual()
+        {
+            if (Targetrider == null)
+            {
+                Targetrider = cycleplayerslist[0].RiderModel;
+
+            }
+
+
+            float X = 0;
+            float Y = 0;
+            float Z = 0;
+
+            if (MGInputManager.RStickX() > 0.2f | MGInputManager.RStickX() < -0.2f)
+            {
+                X = MGInputManager.RStickX() * Time.deltaTime * 8;
+            }
+            if (MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
+            {
+                Z = MGInputManager.RStickY() * Time.deltaTime * 8;
+            }
+            if (MGInputManager.LStickY() > 0.2f| MGInputManager.LStickY() < -0.2f)
+            {
+                Y = MGInputManager.LStickY() * Time.deltaTime * 4;
+            }
+
+
+            if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f)
+            {
+                Cam.transform.Rotate(0, MGInputManager.LStickX() * 50 * Time.fixedDeltaTime, 0);
+            }
+            if (MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f)
+            {
+                Cam.transform.Rotate(-MGInputManager.LStickY() * 50 * Time.fixedDeltaTime,0, 0);
+            }
+
+
+            Cam.transform.Translate(X, 0, Z);
+
+            if(MGInputManager.LTrigger() > 0.5f)
+            {
+                if (MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f)
+                {
+                    Cam.transform.Translate(0, MGInputManager.LStickY() * 18 * Time.fixedDeltaTime, 0);
+                }
+            }
+
+        }
+
+
+
+
 
         public void SpectateExit()
         {
+            if (cycleplayerslist.Count > 0)
+            {
+            cycleplayerslist.Clear();
+            }
+            cyclecounter = 0;
             IsSpectating = false;
-            Destroy(Cam.gameObject);
-           // MyPlayer.GetComponentInChildren<Camera>().enabled = true;
-            // Destroy(mginput);
+            SpecCamOBJ.SetActive(false);
+           
             Targetrider = null;
 
         }

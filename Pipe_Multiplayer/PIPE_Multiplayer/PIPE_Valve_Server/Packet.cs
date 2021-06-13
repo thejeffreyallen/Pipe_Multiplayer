@@ -28,6 +28,11 @@ namespace PIPE_Valve_Online_Server
         SetupAllOnlinePlayers,
         SendMapName,
         Disconnectyou,
+        LoginGood,
+        SpawnNewObjectSend,
+        DestroyAnObject,
+        MoveAnObject,
+
 
 
 
@@ -50,6 +55,17 @@ namespace PIPE_Valve_Online_Server
         ReceiveQuickBikeUpdate,
         ReceiveQuickRiderUpdate,
         ReceiveMapname,
+        ReceiveBootPlayer,
+        AdminLogin,
+        SpawnNewObjectreceive,
+        DestroyAnObject,
+        MoveAnObject,
+        Turnmeon,
+        Turnmeoff,
+        VoteToRemoveObject,
+        KeepAlive,
+        AdminRemoveObject,
+
 
     }
 

@@ -31,7 +31,7 @@ namespace PIPE_Valve_Online_Server
             {
                 ThreadManager.ExecuteOnMainThread(() =>
                 {
-                    Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
+                    Server.server.SendMessageToConnection(client.RiderID, bytes, sendflag);
                 });
             }
         }
@@ -44,12 +44,13 @@ namespace PIPE_Valve_Online_Server
             {
             foreach (Player client in Server.Players.Values.ToList())
             {
-                if(client.clientID != Exceptthis)
+                if(client.RiderID != Exceptthis)
                     {
                         ThreadManager.ExecuteOnMainThread(() =>
                         {
 
-                            Server.server.SendMessageToConnection(client.clientID, bytes, sendflag);
+                            Server.server.SendMessageToConnection(client.RiderID, bytes, sendflag);
+                            
                         });
                 }
             }
@@ -62,7 +63,32 @@ namespace PIPE_Valve_Online_Server
 
         }
 
+        private static void SendToAllReadyToRoll(uint Exceptsender, byte[] bytes, Valve.Sockets.SendFlags sendflag)
+        {
 
+
+
+            try
+            {
+                foreach (Player Rider in Server.Players.Values.ToList())
+                {
+                    if (Rider.RiderID != Exceptsender && Rider.ReadytoRoll)
+                    {
+                        ThreadManager.ExecuteOnMainThread(() =>
+                        {
+
+                            Server.server.SendMessageToConnection(Rider.RiderID, bytes, sendflag);
+                        });
+                    }
+                }
+
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine("Interupted while Sending to all" + x);
+            }
+
+        }
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +186,7 @@ namespace PIPE_Valve_Online_Server
 
             using (Packet _packet = new Packet((int)ServerPacket.SetupAPlayer))
             {
-                _packet.Write(_player.clientID);
+                _packet.Write(_player.RiderID);
                 _packet.Write(_player.Username);
                 _packet.Write(_player.RiderPositions[0]);
                 _packet.Write(_player.RiderRotations[0]);
@@ -211,23 +237,23 @@ namespace PIPE_Valve_Online_Server
 
 
 
-                _packet.Write(_player.Loadout.RiderTexnames.Count);
-                foreach(TextureInfo t in _player.Loadout.RiderTexnames)
+                _packet.Write(_player.Loadout.RiderTextureInfos.Count);
+                foreach(PlayerTextureInfo t in _player.Loadout.RiderTextureInfos)
                 {
                     _packet.Write(t.Nameoftexture);
                     _packet.Write(t.NameofparentGameObject);
                     Console.WriteLine($"Packing {t.Nameoftexture} and {t.NameofparentGameObject}");
                 }
 
-                _packet.Write(_player.Loadout.bikeTexnames.Count);
-                foreach(TextureInfo binfo in _player.Loadout.bikeTexnames)
+                _packet.Write(_player.Loadout.BMXTextureInfos.Count);
+                foreach(PlayerTextureInfo binfo in _player.Loadout.BMXTextureInfos)
                 {
                     _packet.Write(binfo.Nameoftexture);
                     _packet.Write(binfo.NameofparentGameObject);
                 }
 
-                _packet.Write(_player.Loadout.Bikenormalnames.Count);
-                foreach (TextureInfo binfo in _player.Loadout.Bikenormalnames)
+                _packet.Write(_player.Loadout.BMXNormalTexInfos.Count);
+                foreach (PlayerTextureInfo binfo in _player.Loadout.BMXNormalTexInfos)
                 {
                     _packet.Write(binfo.Nameoftexture);
                     _packet.Write(binfo.NameofparentGameObject);
@@ -260,7 +286,7 @@ namespace PIPE_Valve_Online_Server
             int count = 0;
             foreach(Player __player in _players.ToList())
             {
-                if(__player.clientID != _toclient)
+                if(__player.RiderID != _toclient)
                 {
                 listof5.Add(__player);
                 count++;
@@ -274,7 +300,7 @@ namespace PIPE_Valve_Online_Server
                         _packet.Write(listof5.Count);
                         foreach (Player _player in listof5.ToList())
                         {
-                            _packet.Write(_player.clientID);
+                            _packet.Write(_player.RiderID);
                             _packet.Write(_player.Username);
                             _packet.Write(_player.RiderPositions[0]);
                             _packet.Write(_player.RiderRotations[0]);
@@ -325,24 +351,24 @@ namespace PIPE_Valve_Online_Server
 
 
 
-                            _packet.Write(_player.Loadout.RiderTexnames.Count);
-                            foreach (TextureInfo t in _player.Loadout.RiderTexnames)
+                            _packet.Write(_player.Loadout.RiderTextureInfos.Count);
+                            foreach (PlayerTextureInfo t in _player.Loadout.RiderTextureInfos)
                             {
                                 _packet.Write(t.Nameoftexture);
                                 _packet.Write(t.NameofparentGameObject);
                                
                             }
 
-                            _packet.Write(_player.Loadout.bikeTexnames.Count);
-                            foreach (TextureInfo binfo in _player.Loadout.bikeTexnames)
+                            _packet.Write(_player.Loadout.BMXTextureInfos.Count);
+                            foreach (PlayerTextureInfo binfo in _player.Loadout.BMXTextureInfos)
                             {
                                 _packet.Write(binfo.Nameoftexture);
                                 _packet.Write(binfo.NameofparentGameObject);
                                
                             }
 
-                            _packet.Write(_player.Loadout.Bikenormalnames.Count);
-                            foreach (TextureInfo binfo in _player.Loadout.Bikenormalnames)
+                            _packet.Write(_player.Loadout.BMXNormalTexInfos.Count);
+                            foreach (PlayerTextureInfo binfo in _player.Loadout.BMXNormalTexInfos)
                             {
                                 _packet.Write(binfo.Nameoftexture);
                                 _packet.Write(binfo.NameofparentGameObject);
@@ -361,7 +387,7 @@ namespace PIPE_Valve_Online_Server
                         }
                         catch (Exception x)
                         {
-                        Console.WriteLine($"Failed To Send Player bundle: Players: {listof5.Count} in list, total to send: {_players}");
+                        Console.WriteLine($"Failed To Send Player bundle: Players: {listof5.Count} in list, total to send: {_players}: Error {x}");
 
                         }
 
@@ -390,10 +416,12 @@ namespace PIPE_Valve_Online_Server
         /// <param name="count"></param>
         /// <param name="pos"></param>
         /// <param name="rot"></param>
-        public static void SendATransformUpdate(uint _aboutplayer, Packet inpacket)
+        public static void SendATransformUpdate(uint _aboutplayer, Packet inpacket, long _serverstamp, int _ping)
         {
             using (Packet _Packet = new Packet((int)ServerPacket.SendTransformUpdate))
             {
+                _Packet.Write(_ping);
+                _Packet.Write(_serverstamp);
                 _Packet.Write(_aboutplayer);
                 _Packet.Write(inpacket.ToArray().Length);
                 _Packet.Write(inpacket.ToArray());
@@ -402,7 +430,7 @@ namespace PIPE_Valve_Online_Server
 
                 try
                 {
-                    SendToAll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                    SendToAllReadyToRoll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 }
                 catch (Exception x)
                 {
@@ -423,33 +451,25 @@ namespace PIPE_Valve_Online_Server
         public static void DisconnectTellAll(uint ClientThatDisconnected)
         {
 
-            foreach(Player p in Server.Players.Values.ToList())
-            {
-                if(p.clientID == ClientThatDisconnected)
-                {
-                  Server.Players.Remove(ClientThatDisconnected);
             using (Packet _packet = new Packet((int)ServerPacket.DisconnectedPlayer))
             {
                 _packet.Write(ClientThatDisconnected);
                 try
                 {
-                SendToAll(ClientThatDisconnected, _packet.ToArray(),Valve.Sockets.SendFlags.Reliable);
+                    SendToAll(ClientThatDisconnected, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 }
                 catch (Exception X)
                 {
                     Console.WriteLine("Failed Disconnect tell all, player just left? : " + X);
                 }
             }
-                }
-            }
-
 
 
         }
 
 
 
-        public static void SendAudioToAllPlayers(uint _from, byte[] lastupdate)
+        public static void SendAudioUpdate(uint _from, byte[] lastupdate)
         {
             using(Packet _packet = new Packet((int)ServerPacket.SendAudioUpdate))
             {
@@ -457,7 +477,7 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(lastupdate);
                 try
                 {
-           SendToAll(_packet.ToArray(),Valve.Sockets.SendFlags.NoDelay | Valve.Sockets.SendFlags.Reliable);
+           SendToAllReadyToRoll(_from,_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                 }
                 catch (Exception x)
                 {
@@ -469,7 +489,7 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        public static void SendTextMessageToAll(uint _fromplayer, string _message)
+        public static void SendTextMessageFromPlayerToAll(uint _fromplayer, string _message)
         {
             try
             {
@@ -492,9 +512,21 @@ namespace PIPE_Valve_Online_Server
             }
             catch (Exception x)
             {
-                Console.WriteLine("Failed send tex to all, player left?");
+                Console.WriteLine("Failed send tex to all, player left? :    " + x);
             }
 
+        }
+
+
+        public static void SendTextFromServerToOne(uint _to, string message)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.SendText))
+            {
+                _packet.Write((uint)0);
+                _packet.Write(message);
+                _packet.Write(4);
+                SendtoOne(_to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
         }
 
 
@@ -605,6 +637,81 @@ namespace PIPE_Valve_Online_Server
               
                 SendtoOne(_to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
+
+        }
+
+
+        public static void SpawnAnObject(uint to,uint _owner,NetGameObject _netobj)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.SpawnNewObjectSend))
+            {
+
+                _packet.Write(_netobj.NameofObject);
+                _packet.Write(_netobj.NameOfFile);
+                _packet.Write(_netobj.NameofAssetBundle);
+
+                _packet.Write(_netobj.Position);
+                _packet.Write(_netobj.Rotation);
+                _packet.Write(_netobj.Scale);
+                _packet.Write(_netobj.ObjectID);
+
+                _packet.Write(_owner);
+
+
+                SendtoOne(to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+
+        public static void DestroyAnObjectToAllButOwner(uint _ownerID, int ObjectID)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.DestroyAnObject))
+            {
+                _packet.Write(_ownerID);
+                _packet.Write(ObjectID);
+
+                SendToAllReadyToRoll(_ownerID, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+
+            }
+        }
+
+
+        public static void MoveAnObject(uint _ownerId, NetGameObject _netobj)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.MoveAnObject))
+            {
+
+                _packet.Write(_netobj.Position);
+                _packet.Write(_netobj.Rotation);
+                _packet.Write(_netobj.Scale);
+                _packet.Write(_netobj.ObjectID);
+
+                _packet.Write(_ownerId);
+
+                Console.WriteLine("Object update");
+                SendToAllReadyToRoll(_ownerId, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+        public static void LoginGood(uint _to)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.LoginGood))
+            {
+
+                SendtoOne(_to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+
 
         }
 

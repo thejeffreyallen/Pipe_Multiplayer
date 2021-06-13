@@ -203,7 +203,9 @@ namespace PIPE_Valve_Console_Client
                 Vel.getValue(out float _Vel);
                 string soundname = riser.gameObject.name;
                 AudioStateUpdate update = new AudioStateUpdate(finalvol, finalpitch, state, soundname, _Vel);
+           
                 RisersStateUpdate.Add(update);
+            
 
             }
 

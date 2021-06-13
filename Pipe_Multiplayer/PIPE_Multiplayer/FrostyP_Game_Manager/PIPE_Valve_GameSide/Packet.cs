@@ -27,6 +27,10 @@ namespace PIPE_Valve_Console_Client
         ReceiveSetupAllOnlinePlayers,
         ReceiveMapName,
         disconnectme,
+        Logingood,
+        SpawnAnObjectReceive,
+        DestroyAnObject,
+        MoveAnObject,
 
 
 
@@ -49,7 +53,16 @@ namespace PIPE_Valve_Console_Client
         QuickBikeUpdate,
         QuickRiderUpdate,
         SendMapName,
-
+        SendBootPlayer,
+        AdminModeOn,
+        SpawnObject,
+        DestroyAnObject,
+        MoveAnObject,
+        Turnmeon,
+        Turnmeoff,
+        VoteToRemoveObject,
+        KeepActive,
+        AdminRemoveObject,
 
     }
 

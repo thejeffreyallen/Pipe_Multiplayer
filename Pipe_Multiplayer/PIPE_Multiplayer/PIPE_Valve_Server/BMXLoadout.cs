@@ -79,40 +79,14 @@ namespace PIPE_Valve_Online_Server
      
 
 
-       public List<string> Textureinfos = new List<string>();
-       public List<Vector3> Colours = new List<Vector3>();
-       public List<float> Smooths = new List<float>();
-       public List<TextureInfo> bikeTexnames = new List<TextureInfo>();
-        public List<TextureInfo> Bikenormalnames = new List<TextureInfo>();
-        public List<TextureInfo> RiderTexnames = new List<TextureInfo>();
+      
+      
+        public List<PlayerTextureInfo> BMXTextureInfos = new List<PlayerTextureInfo>();
+        public List<PlayerTextureInfo> BMXNormalTexInfos = new List<PlayerTextureInfo>();
+        public List<PlayerTextureInfo> RiderTextureInfos = new List<PlayerTextureInfo>();
 
 
-        public void Setup()
-        {
-            Textureinfos = new List<string>();
-            Colours = new List<Vector3>();
-           Smooths = new List<float>();
-            Colours.Add(FrameColour);
-            Colours.Add(ForksColour);
-            Colours.Add(BarsColour);
-            Colours.Add(SeatColour);
-            Colours.Add(FTireColour);
-            Colours.Add(FTireSideColour);
-            Colours.Add(RTireColour);
-            Colours.Add(RTireSideColour);
-
-            Smooths.Add(FrameSmooth);
-            Smooths.Add(ForksSmooth);
-            Smooths.Add(BarsSmooth);
-            Smooths.Add(SeatSmooth);
-
-            Textureinfos.Add(FrameTexname);
-            Textureinfos.Add(ForkTexname);
-            Textureinfos.Add(BarTexName);
-            Textureinfos.Add(TireTexName);
-            Textureinfos.Add(Tirenormalname);
-            Textureinfos.Add(SeatTexname);
-        }
+      
 
 
     }

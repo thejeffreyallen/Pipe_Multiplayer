@@ -96,14 +96,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Consolelog.cs" />
-    <Compile Include="PlacedObjData.cs" />
+    <Compile Include="SavedGameObject.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="FrostyPGamemanager.cs" />
     <Compile Include="ParkBuilder.cs" />
     <Compile Include="PresetData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SavedSpot.cs" />
     <Compile Include="SaveLoadFrostyPManagersettings.cs" />
-    <Compile Include="ParkSaver.cs" />
+    <Compile Include="ParkSaveLoad.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="PIPE_Valve_GameSide\PIPE_Valve_Console_Client.csproj">

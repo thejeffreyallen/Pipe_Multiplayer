@@ -6,13 +6,17 @@ using System;
 
 namespace PIPE_Valve_Console_Client
 {
+    /// <summary>
+    /// Choose a message type, give connection number (Server), bytes data and specify a send mode from Valve.sockets.sendflags, the message will then be sent to the server
+    /// </summary>
     public class ClientSend : MonoBehaviour
     {
-
-        // These top three functions are used by the send functions, give connection number (Server), bytes and specify a send mode from Valve.sockets.sendflags.
+        public static float PosMult = 4500;
+        public static float Rotmult = 80;
+        
         private static void SendToServer(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-            // Sends to outgoing thread once use of Unity API is done with, Really need system.numerics (NET 4.5) to be able to do all processing of numbers in and out on a different thread
+            
             SendToServerThread.ExecuteOnMainThread(() =>
             {
                 GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, bytes, sendflag);
@@ -21,19 +25,6 @@ namespace PIPE_Valve_Console_Client
            
         }
        
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -68,40 +59,124 @@ namespace PIPE_Valve_Console_Client
             
         }
 
-
-
-
-
-       
-
-
-
-
-
-
-
-
-        public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations)
+        /// <summary>
+        /// Send Bike and Rider, Triggers spawn command to you and everyone else
+        /// </summary>
+        /// <param name="Bikecolours"></param>
+        /// <param name="BikeSmooths"></param>
+        /// <param name="_BikeTexname"></param>
+        /// <param name="_RiderTexnames"></param>
+        /// <param name="bikemetallics"></param>
+        /// <param name="bikenormalnames"></param>
+        public static void SendAllParts(List<Vector3> Bikecolours, List<float> BikeSmooths, List<TextureInfo> _BikeTexname, List<TextureInfo> _RiderTexnames, List<float> bikemetallics, List<TextureInfo> bikenormalnames)
         {
+            using(Packet _packet = new Packet((int)ClientPackets.SendAllParts))
+            {
+                _packet.Write(Bikecolours.Count);
+                for (int i = 0; i < Bikecolours.Count; i++)
+                {
+                _packet.Write(Bikecolours[i]);
+                }
 
+
+                _packet.Write(BikeSmooths.Count);
+                for (int i = 0; i < BikeSmooths.Count; i++)
+                {
+                    _packet.Write(BikeSmooths[i]);
+                }
+
+
+                _packet.Write(bikemetallics.Count);
+                for (int i = 0; i < bikemetallics.Count; i++)
+                {
+                    _packet.Write(bikemetallics[i]);
+                }
+
+
+                _packet.Write(_BikeTexname.Count);
+                for (int i = 0; i < _BikeTexname.Count; i++)
+                {
+                    _packet.Write(_BikeTexname[i].Nameoftexture);
+                    _packet.Write(_BikeTexname[i].NameofparentGameObject);
+
+                }
+
+
+                _packet.Write(_RiderTexnames.Count);
+                if (_RiderTexnames.Count > 0)
+                {
+                for (int i = 0; i < _RiderTexnames.Count; i++)
+                {
+                    _packet.Write(_RiderTexnames[i].Nameoftexture);
+                    _packet.Write(_RiderTexnames[i].NameofparentGameObject);
+                }
+
+                }
+
+
+                _packet.Write(bikenormalnames.Count);
+                if(bikenormalnames.Count > 0)
+                {
+                    for (int i = 0; i < bikenormalnames.Count; i++)
+                    {
+                        _packet.Write(bikenormalnames[i].Nameoftexture);
+                        _packet.Write(bikenormalnames[i].NameofparentGameObject);
+
+                    }
+                }
+
+                
+
+                _packet.Write(FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count);
+
+                if(FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects!= null)
+                {
+                    if (FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count > 0)
+                    {
+                        foreach(FrostyP_Game_Manager.NetGameObject _netobj in FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects)
+                        {
+                            _packet.Write(_netobj.NameofObject);
+                            _packet.Write(_netobj.NameOfFile);
+                            _packet.Write(_netobj.NameofAssetBundle);
+
+                            _packet.Write(_netobj.Position);
+                            _packet.Write(_netobj.Rotation);
+                            _packet.Write(_netobj.Scale);
+                            _packet.Write(_netobj.ObjectID);
+                        }
+                    }
+                }
+
+
+                Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames.Count}, Object count: {FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count}");
+               
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                GameManager.instance._localplayer.ServerActive = true;
+            }
+
+        }
+
+
+
+        public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations, long _TimeStamp)
+        {
 
             using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
             {
 
-
-
+                _packet.Write(_TimeStamp);
                 _packet.Write(positions[0]);
                 _packet.Write(rotations[0]);
                 for (int i = 1; i < 23; i++)
                 {
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].x * 10000)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].y * 10000)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].z * 10000)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].x * PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].y * PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].z * PosMult))));
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].x * 80)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].y * 80)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].z * 80)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * Rotmult))));
 
                 }
 
@@ -114,18 +189,18 @@ namespace PIPE_Valve_Console_Client
                 for (int i = 24; i < 32; i++)
                 {
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].x * 10000)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].y * 10000)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(positions[i].z * 10000)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].x * PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].y * PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].z * PosMult))));
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].x * 80)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].y * 80)));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf(rotations[i].z * 80)));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * Rotmult))));
 
 
                 }
 
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable | Valve.Sockets.SendFlags.NoDelay);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
 
             }
 
@@ -196,7 +271,7 @@ namespace PIPE_Valve_Console_Client
                 if (bytesofimage.Length < 2)
                 {
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Texture requested is incompatible with encoder,", (int)MessageColour.Server, 0));
-                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"try uncompressing and saving as different bitdepth .png", (int)MessageColour.Server, 0));
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"try uncompressing {tex.name}", (int)MessageColour.Server, 0));
                     return;
                 }
 
@@ -265,12 +340,15 @@ namespace PIPE_Valve_Console_Client
                     {
                         _packet.Write(update.nameofriser);
                         _packet.Write(update.playstate);
-                        _packet.Write((float)Math.Round(update.Volume * 100) / 100);
-                        _packet.Write((float)Math.Round(update.pitch * 100) / 100);
-                        _packet.Write((float)Math.Round(update.Velocity * 100) / 100);
+                        /// _packet.Write((short)SystemHalf.HalfHelper.SingleToHalf(update.Volume * 1000));
+                        // _packet.Write((short)SystemHalf.HalfHelper.SingleToHalf(update.pitch * 1000));
+                        // _packet.Write((short)SystemHalf.HalfHelper.SingleToHalf(update.Velocity * 1000));
+                        _packet.Write(update.Volume);
+                        _packet.Write(update.pitch);
+                        _packet.Write(update.Velocity);
                     }
                     
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable | Valve.Sockets.SendFlags.NoDelay);
 
                 }
 
@@ -288,7 +366,7 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(update.Path);
                         _packet.Write(update.Volume);
                     }
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable | Valve.Sockets.SendFlags.NoDelay);
 
                 }
             }
@@ -309,82 +387,6 @@ namespace PIPE_Valve_Console_Client
 
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
-        }
-
-        /// <summary>
-        /// Send Bike and Rider, Triggers spawn command to you and everyone else
-        /// </summary>
-        /// <param name="Bikecolours"></param>
-        /// <param name="BikeSmooths"></param>
-        /// <param name="_BikeTexname"></param>
-        /// <param name="_RiderTexnames"></param>
-        /// <param name="bikemetallics"></param>
-        /// <param name="bikenormalnames"></param>
-        public static void SendAllParts(List<Vector3> Bikecolours, List<float> BikeSmooths, List<TextureInfo> _BikeTexname, List<TextureInfo> _RiderTexnames, List<float> bikemetallics, List<TextureInfo> bikenormalnames)
-        {
-            using(Packet _packet = new Packet((int)ClientPackets.SendAllParts))
-            {
-                _packet.Write(Bikecolours.Count);
-                for (int i = 0; i < Bikecolours.Count; i++)
-                {
-                _packet.Write(Bikecolours[i]);
-                }
-
-
-                _packet.Write(BikeSmooths.Count);
-                for (int i = 0; i < BikeSmooths.Count; i++)
-                {
-                    _packet.Write(BikeSmooths[i]);
-                }
-
-
-                _packet.Write(bikemetallics.Count);
-                for (int i = 0; i < bikemetallics.Count; i++)
-                {
-                    _packet.Write(bikemetallics[i]);
-                }
-
-
-                _packet.Write(_BikeTexname.Count);
-                for (int i = 0; i < _BikeTexname.Count; i++)
-                {
-                    _packet.Write(_BikeTexname[i].Nameoftexture);
-                    _packet.Write(_BikeTexname[i].NameofparentGameObject);
-
-                }
-
-
-                _packet.Write(_RiderTexnames.Count);
-                if (_RiderTexnames.Count > 0)
-                {
-                for (int i = 0; i < _RiderTexnames.Count; i++)
-                {
-                    _packet.Write(_RiderTexnames[i].Nameoftexture);
-                    _packet.Write(_RiderTexnames[i].NameofparentGameObject);
-                }
-
-                }
-
-
-                _packet.Write(bikenormalnames.Count);
-                if(bikenormalnames.Count > 0)
-                {
-                    for (int i = 0; i < bikenormalnames.Count; i++)
-                    {
-                        _packet.Write(bikenormalnames[i].Nameoftexture);
-                        _packet.Write(bikenormalnames[i].NameofparentGameObject);
-
-                    }
-                }
-
-
-
-                Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames.Count}");
-               
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                GameManager.instance._localplayer.ServerActive = true;
-            }
-
         }
 
         /// <summary>
@@ -483,7 +485,7 @@ namespace PIPE_Valve_Console_Client
         }
 
         /// <summary>
-        /// called by user click
+        /// called by user click or map change
         /// </summary>
         /// <param name="name"></param>
         public static void SendMapName(string name)
@@ -497,43 +499,147 @@ namespace PIPE_Valve_Console_Client
 
         }
 
+        public static void TurnMeOn()
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.Turnmeon))
+            {
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+        public static void TurnMeOff()
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.Turnmeoff))
+            {
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+        public static void KeepActive()
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.KeepActive))
+            {
+                // receiving any packet from my connectionId within 10 seconds resets timeout watch, no data needed
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+
+
+
+
+
+        // Parkbuilder
+
+        public static void SpawnObjectOnServer(FrostyP_Game_Manager.NetGameObject _netobj)
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.SpawnObject))
+            {
+                _packet.Write(_netobj.NameofObject);
+                _packet.Write(_netobj.NameOfFile);
+                _packet.Write(_netobj.NameofAssetBundle);
+
+                _packet.Write(_netobj.Position);
+                _packet.Write(_netobj.Rotation);
+                _packet.Write(_netobj.Scale);
+                _packet.Write(_netobj.ObjectID);
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+
+        }
+
+      
+        public static void DestroyAnObject(int objectid)
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.DestroyAnObject))
+            {
+                _packet.Write(objectid);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+        public static void ObjectTransformUpdate(FrostyP_Game_Manager.PlacedObject _placedobject)
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.MoveAnObject))
+            {
+                _packet.Write(_placedobject.ObjectId);
+                _packet.Write(_placedobject.Object.transform.position);
+                _packet.Write(_placedobject.Object.transform.eulerAngles);
+                _packet.Write(_placedobject.Object.transform.localScale);
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+        public static void VoteToRemoveObject(int ObjectID, uint _OwnerID)
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.VoteToRemoveObject))
+            {
+                _packet.Write(ObjectID);
+                _packet.Write(_OwnerID);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+
+
+
+
+
+
+
+
+        // ------------------------------------------------------------ Admin Mode --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        public static void AdminModeOn(string _password)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.AdminModeOn))
+            {
+                _packet.Write(_password);
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+
+        }
+
+
+        public static void SendBootPlayer(string _username, int mins)
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.SendBootPlayer))
+            {
+                _packet.Write(_username);
+                _packet.Write(mins);
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
+
+
+
+
+        public static void AdminRemoveObject(uint _owner, int ObjectID)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.AdminRemoveObject))
+            {
+                _packet.Write(_owner);
+                _packet.Write(ObjectID);
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+
+        }
+
+
 
         #endregion
         
     }
 }
 
-/*
- * 
- *   public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations)
-        {
-            
-
-                using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
-                {
-
-                    _packet.Write(TransformCount);
-              
 
 
-                    for (int i = 0; i < TransformCount; i++)
-                    {
-                    Vector3 rounded = new Vector3((float)Math.Round(positions[i].x * 1000) / 1000, (float)Math.Round(positions[i].y * 1000) / 1000, (float)Math.Round(positions[i].z * 1000) / 1000);
 
-                        _packet.Write(rounded);
-                    }
-
-                    for (int i = 0; i < TransformCount; i++)
-                    {
-                    Vector3 rounded = new Vector3((float)Math.Round(rotations[i].x * 1000) / 1000, (float)Math.Round(rotations[i].y * 1000) / 1000, (float)Math.Round(rotations[i].z * 1000) / 1000);
-                    _packet.Write(rounded);
-
-                    }
-                
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
-                
-                }
-            
-            
-        }
-*/

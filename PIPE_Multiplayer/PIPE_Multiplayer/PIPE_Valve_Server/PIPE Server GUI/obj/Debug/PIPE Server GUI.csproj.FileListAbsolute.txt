@@ -1,0 +1,10 @@
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Debug\PIPE Server GUI.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE Server GUI.csprojAssemblyReference.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE_Server_GUI.Form1.resources
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE_Server_GUI.Properties.Resources.resources
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE Server GUI.csproj.GenerateResource.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE Server GUI.csproj.CoreCompileInputs.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE Server GUI.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Debug\PIPE Server GUI.dll.config
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\bin\Debug\PIPE Server GUI.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\PIPE Server GUI\obj\Debug\PIPE Server GUI.dll

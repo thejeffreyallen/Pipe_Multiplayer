@@ -72,19 +72,19 @@ namespace PIPE_Valve_Console_Client
 		public string Rimnormaldir = Application.dataPath + "/FrostyPGameManager/Textures/Bmx/RimNormals/";
 		#endregion
 
-		float imagesidebuffer = Screen.width - 200f;
+		float imagesidebuffer = Screen.width - (Screen.width/4);
 		float imagewidth = 150;
 
 
 
 		// Riders Texs
-		private Texture2D[] Shirts;
-		private Texture2D[] Bottoms;
-		private Texture2D[] Hats;
-		private Texture2D[] Shoes;
-		private Texture2D[] Heads;
-		private Texture2D[] Bodies;
-		private Texture2D[] Hands_feet;
+		public Texture2D[] Shirts;
+		public Texture2D[] Bottoms;
+		public Texture2D[] Hats;
+		public Texture2D[] Shoes;
+		public Texture2D[] Heads;
+		public Texture2D[] Bodies;
+		public Texture2D[] Hands_feet;
 		public Texture2D savedTex;
 
 		
@@ -2070,6 +2070,7 @@ namespace PIPE_Valve_Console_Client
 		/// </summary>
 		private void OnGUI()
         {
+			imagesidebuffer = Screen.width - (Screen.width / 4);
 			GUI.skin = FrostyP_Game_Manager.FrostyPGamemanager.instance.skin;
 			// for rider
 			if (headtoggle)

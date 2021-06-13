@@ -13,24 +13,34 @@ namespace PIPE_Valve_Console_Client
         
       
         /// <summary>
-        /// fixed update function of sendtoserver thread
+        /// fixed update function of sendtoserver thread, everything done by the secondary thread at tick rate is here
         /// </summary>
         public static void Update()
         {
+           
+            // Run Send
+            SendToServerThread.UpdateMain();
             
             // run receive
             GameNetworking.instance.Run();
 
 
-            // Do any outgoing on Server thread
-            SendToServerThread.UpdateMain();
 
-            // update
+
+            /*
+            // Send the command back to Unity thread to check movement threshold of our guy
+            if (GameManager.instance._localplayer.ServerActive)
+            {
+           
             SendToUnityThread.instance.ExecuteOnMainThread(() =>
             {
-            GameManager.instance._localplayer.PackTransformsandSend();
+            GameManager.instance._localplayer.CheckThreshold();
 
             });
+
+            }
+            */
+            
         }
 
 

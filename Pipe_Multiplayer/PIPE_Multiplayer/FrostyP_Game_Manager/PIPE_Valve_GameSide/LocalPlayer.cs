@@ -4,6 +4,7 @@ using System;
 using System.IO;
 
 
+
 namespace PIPE_Valve_Console_Client
 {
     public class LocalPlayer : MonoBehaviour
@@ -14,7 +15,7 @@ namespace PIPE_Valve_Console_Client
         /// Master Switch to Send continuous data from FixedUpdate
         /// </summary>
         public bool ServerActive=false;
-
+        public float MovementThreshold = 0.0001f;
 
         // GameObject roots: Rider_Root is always Daryien, ridermodel can be daryien or the custom rider model, in that case, Daryien is still there hes just invisible and ridermodel is using him
         public GameObject Rider_Root;
@@ -37,10 +38,8 @@ namespace PIPE_Valve_Console_Client
 
 
         LocalPlayerAudio Audio;
-
-
-
-
+        DateTime LastTransformTime = DateTime.Now;
+       
       
 
 
@@ -57,6 +56,22 @@ namespace PIPE_Valve_Console_Client
             
         }
 
+        private void Update()
+        {
+            // MUST BE IN UPDATE, LateUpdate Causes loss of something, IK movements seem to be lost
+            // Independently measures timespan and if met, creates a transform update with timestamp and stores in SendToServer thread's outbox, Aims for 60Fps
+            if (InGameUI.instance.Connected && ServerActive)
+            {
+                if((DateTime.Now - LastTransformTime).TotalMilliseconds + (Time.deltaTime * 1000 / 3) >= 16f)
+                {
+                    CheckThreshold();
+                    LastTransformTime = DateTime.Now;
+                }
+               
+            }
+
+        }
+       
 
 
 
@@ -105,34 +120,48 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        /// <summary>
-        /// Any info to send to server and when
-        /// </summary>
-        private void Update()
-        {
-            
-
-            if (InGameUI.instance.Connected)
-            {
-                if (Riders_Transforms != null && Rider_Root != null && initsuccess && ServerActive)
-                {
-                  // PackTransformsandSend();
-
-                }
-
-            }
-        }
-
-
        
+       
+        /// <summary>
+        /// triggers a transformupdate to be sent if any ridertransform moves more than MovementThreshold
+        /// </summary>
+        public void CheckThreshold()
+        {
+            List<float> distances = new List<float>();
+           
+            distances.Add(Vector3.Distance(riderPositions[0], Riders_Transforms[0].position));
+            bool send = false;
+            for (int i = 1; i < 23 ; i++)
+            {
+                distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
+            }
+            distances.Add(Vector3.Distance(riderPositions[23], Riders_Transforms[23].position));
+            for (int i = 24; i < 32; i++)
+            {
+                distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
+            }
 
+            for (int i = 0; i < distances.Count; i++)
+            {
+                if (distances[i] > MovementThreshold)
+                {
+                    send = true;
+                }
+            }
 
+            if (send)
+            {
+              PackTransformsandSend();
+            }
+
+        }
 
 
 
         /// <summary>Sends player Movement to the server.</summary>
         public void PackTransformsandSend()
         {
+            //Debug.Log("Trans going out ::  ");
             // pack world pos and rot first, then for loop from 1 through all children grabbing the local pos and rot
             riderPositions[0] = Riders_Transforms[0].position;
             riderRotations[0] = Riders_Transforms[0].eulerAngles;
@@ -153,10 +182,13 @@ namespace PIPE_Valve_Console_Client
                     riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
 
-            
-
-           ClientSend.SendMyTransforms(Riders_Transforms.Length, riderPositions, riderRotations);
+           
+           ClientSend.SendMyTransforms(Riders_Transforms.Length, riderPositions, riderRotations, DateTime.Now.ToFileTimeUtc());
+           
         }
+
+
+
 
 
 
@@ -183,7 +215,7 @@ namespace PIPE_Valve_Console_Client
                     if (i.name.Contains("Clone"))
                     {
                         RiderModelname = i.name.Replace("(Clone)", "");
-                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Detected {RiderModelname} ", 1, 0));
+                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Detected Custom Model: {RiderModelname} ", 1, 0));
                         ridermodel = i.gameObject;
                         Riders_Transforms[0] = ridermodel.transform;
                         Riders_Transforms[1] = ridermodel.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
@@ -242,7 +274,7 @@ namespace PIPE_Valve_Console_Client
 
 
             }
-            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Rider Tracking Done", 1, 0));
+            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Rider Tracking Done for {RiderModelname}", 1, 0));
         }
 
 
@@ -385,8 +417,11 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
+        
      
+       
+
+
 
 
     }

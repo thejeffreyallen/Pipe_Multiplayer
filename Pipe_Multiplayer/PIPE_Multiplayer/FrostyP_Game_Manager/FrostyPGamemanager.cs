@@ -4,6 +4,7 @@ using UnityEngine.Rendering.PostProcessing;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using UnityEngine.UI;
 
 namespace FrostyP_Game_Manager
 {
@@ -22,18 +23,25 @@ namespace FrostyP_Game_Manager
 		float RectposY = 30;
 		string userpresetname = "Preset Name for Forces here..";
 		string userpresetnameCAM = "Preset Name for CAM here..";
-		bool consoleon = false;
+
+        #region Open/Close Toggles
+        bool consoleon = false;
 		bool camerasettingsopen = false;
 		bool Onlinesettingsopen = false;
 		bool TextureSettingsopen = false;
 		bool BMXSettingsopen = false;
-		bool ForcesEditBool = false;
+		bool Ridersettingsopen = false;
 		bool loadpresetsbool;
 		bool SaveloadCampresets;
 		bool opennollies;
 		bool openhops;
 		bool openmannysensitivity;
-		string PresetDirectory = Application.dataPath + "/FrostyPGameManager/Presets/";
+        #endregion
+
+
+
+
+        string PresetDirectory = Application.dataPath + "/FrostyPGameManager/Presets/";
 		string lastpresetselected = "Default";
 		string lastpresetselectedCAM = "Default";
 		Texture2D RedTex;
@@ -42,19 +50,21 @@ namespace FrostyP_Game_Manager
 		Texture2D GreenTex;
 		Texture2D whiteTex;
 		Texture2D TransTex;
-		public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
+		public GUISkin skin = ScriptableObject.CreateInstance<GUISkin>();
 		public GUIStyle Generalstyle = new GUIStyle();
 		public GameObject Onlineobj;
 		
 		FileInfo[] Files;
-		
 
 
-		// Camera Settings
-		private PostProcessVolume volume;
+
+        #region Camera Settings
+        private PostProcessVolume volume;
 		private Bloom bloom;
 		private DepthOfField depthoffield;
 		private ColorGrading ColorGrade;
+		private Vignette Vignette;
+		private Grain Grain;
 		public float newbloomvalueCAMSETTING;
 		public float newbloomintvalueCAMSETTING;
 		public float focusdistanceCAMSETTING;
@@ -64,6 +74,11 @@ namespace FrostyP_Game_Manager
 		public float BrightnessNewCAMSETTING;
 		public float temperatureNewCAMSETTING;
 		public float CamFOVCAMSETTING;
+		public float vignetteintensity;
+		public float VignetteRoundness;
+		public float GrainIntensity;
+		public float GrainLightcontrib;
+		public float GrainSize;
 
 		private float newbloomsaved;
 		private float newbloomthreshsaved;
@@ -74,11 +89,16 @@ namespace FrostyP_Game_Manager
 		private float Brightnesssaved;
 		private float temperaturesaved;
 		private float Camfovsaved = 60;
+		public float vignetteintensitysaved;
+		public float VignetteRoundnesssaved;
+		public float GrainIntensitysaved;
+		public float GrainLightcontribsaved;
+		public float GrainSizesaved;
+
+		#endregion
 
 
-
-
-
+		#region Rider Settings
 		// Game settings
 		public Vector3 Gravityvalue;
 		private StateHopSetting[] arrayofhopsettings;
@@ -146,7 +166,7 @@ namespace FrostyP_Game_Manager
 			public float PedalFeebsNollieMin;
 			public float PedalFeebsNollieMax;
 			public float IcehopMin;
-		public float IcehopMax;
+		    public float IcehopMax;
 			public float Unluc_ehopMin;
 			public float Unluc_ehopMax;
 			public float Unluc_eNollieMin;
@@ -155,9 +175,9 @@ namespace FrostyP_Game_Manager
 			public float FeeblehopMax;
 			public float FeebleNollieMin;
 			public float FeebleNollieMax;
-		public float MannySensitivityMax;
-		public float MannySensitivityMin;
-		public float MannysensitivityThresholdMax;
+		    public float MannySensitivityMax;
+		    public float MannySensitivityMin;
+		    public float MannysensitivityThresholdMax;
 
 
 
@@ -224,12 +244,18 @@ namespace FrostyP_Game_Manager
 
 		private BMXS_PStates.MannyState mannystate;
 		public float MaxMannyAngle;
+        #endregion
 
-		// online
 
 
-		// menu paramters
-		public bool OpenMenu;
+
+        // online
+
+
+
+
+        // menu paramters
+        public bool OpenMenu;
 		Vector2 scrollPosition;
 
 
@@ -254,11 +280,9 @@ namespace FrostyP_Game_Manager
 
 
 			// Park Builder stuff
-
 			_parkbuilder = gameObject.GetComponent<ParkBuilder>();
 
-
-
+			
 			DirectoryInfo Presetdirectoryinfo = new DirectoryInfo(PresetDirectory);
 
 			if (Presetdirectoryinfo.Exists)
@@ -282,9 +306,14 @@ namespace FrostyP_Game_Manager
 			Saturationsaved = 0;
 			Brightnesssaved = 0;
 			temperaturesaved = 0;
+		  	vignetteintensitysaved = 0;
+		    VignetteRoundnesssaved = 0;
+		    GrainIntensitysaved = 0;
+		    GrainLightcontribsaved = 0;
+		    GrainSizesaved = 0;
 
 
-			newbloomvalueCAMSETTING = 1f;
+		newbloomvalueCAMSETTING = 1f;
 			newbloomintvalueCAMSETTING = 0.01f;
 			focusdistanceCAMSETTING = 2.01f;
 			apertureCAMSETTING = 16f;
@@ -457,14 +486,11 @@ namespace FrostyP_Game_Manager
 
 		private void Update()
 		{
-			
-
 			/// toggle menu with G
 			if (Input.GetKeyDown(KeyCode.G))
 			{
 				OpenMenu = !OpenMenu;
 			}
-
 
 
 		}
@@ -483,7 +509,6 @@ namespace FrostyP_Game_Manager
 			StartCoroutine(Wait());
 
         }
-
 
 		IEnumerator Wait()
         {
@@ -522,419 +547,12 @@ namespace FrostyP_Game_Manager
 			{
 
 
-				if (mannystate == null)
-				{
-					mannystate = UnityEngine.Component.FindObjectOfType<BMXS_PStates.MannyState>();
 
-				}
-				if (mannynoseyController == null)
-				{
-					mannynoseyController = UnityEngine.Component.FindObjectOfType<MannyNoseyPopInControl>();
-				}
-				if (marker == null)
-				{
-					marker = UnityEngine.Component.FindObjectsOfType<SessionMarker>()[0];
-					marker.OnSetAtMarker.AddListener(ResetFOV);
-				}
-				if (arrayofhopsettings == null)
-				{
-					arrayofhopsettings = UnityEngine.Component.FindObjectsOfType<StateHopSetting>();
-				}
-				if (pedalingmanager == null)
-				{
-					pedalingmanager = UnityEngine.Component.FindObjectOfType<Pedaling>();
-				}
-
-				//if default pedal force has been saved, update pedalforce to GUI sliders value, if not, Save them then mark bool true
-				if (havesavedpedalforce)
-				{
-					pedalingmanager.maxPedalVel = MaxPedalV;
-				}
-				else
-				{
-					MaxPedalVsaved = pedalingmanager.maxPedalVel;
-					MaxPedalV = MaxPedalVsaved;
-					havesavedpedalforce = true;
-				}
-
-
-
-
-
-
-
-
-
-				manager = UnityEngine.Component.FindObjectOfType<VehicleManager>();
-				currentvehicle = manager.currentVehicle;
-
-
-				Physics.gravity = Gravityvalue;
-
-
-
-				//if found all hop settings, go through them and assign them based on keyword in name
-				if (arrayofhopsettings != null)
-				{
-					foreach (StateHopSetting set in arrayofhopsettings)
-					{
-						if (set.gameObject.name.Contains("Grounded"))
-						{
-
-							groundedsettings = set;
-						}
-						if (set.gameObject.name.Contains("Smith"))
-						{
-							Smithsettings = set;
-						}
-						if (set.gameObject.name.Contains("Feeble") && !set.gameObject.name.Contains("Pedal"))
-						{
-							Feeblesettings = set;
-						}
-						if (set.gameObject.name.Contains("Crook"))
-						{
-							Crooksettings = set;
-						}
-						if (set.gameObject.name.Contains("Ice"))
-						{
-							Icesettings = set;
-						}
-						if (set.gameObject.name.Contains("Tooth"))
-						{
-							Toothsettings = set;
-						}
-						if (set.gameObject.name.Contains("Crank"))
-						{
-							Cranksettings = set;
-						}
-						if (set.gameObject.name.Contains("Air"))
-						{
-							Airhopsettings = set;
-						}
-						if (set.gameObject.name.Contains("Lip"))
-						{
-							LipTrickhopsettings = set;
-						}
-						if (set.gameObject.name.Contains("Double"))
-						{
-							doublepegssettings = set;
-						}
-						if (set.gameObject.name.Contains("Manny"))
-						{
-							Mannyhopsettings = set;
-						}
-						if (set.gameObject.name.Contains("Nosey"))
-						{
-							Noseysettings = set;
-						}
-						if (set.gameObject.name.Contains("Pedal"))
-						{
-							Pedalfeeblesettings = set;
-						}
-						if (set.gameObject.name.Contains("UnLucky"))
-						{
-							unlucesettings = set;
-						}
-						if (set.gameObject.name.Contains("Lucky"))
-						{
-							lucesettings = set;
-						}
-
-					}
-				}
-
-
-
-
-
-
-				// if defaults have been saved, update forces to GUI slider values, if not Save them then mark bool true
-				if (havesavedhopsettings)
-				{
-					groundedsettings.nollieMinForce = nollieMin;
-					groundedsettings.nollieMaxForce = nollieMax;
-
-					groundedsettings.jHopMaxForce = hopMax;
-					groundedsettings.jHopMinForce = hopMin;
-
-
-
-					Smithsettings.jHopMaxForce = SmithhopMax;
-					Smithsettings.jHopMinForce = SmithhopMin;
-					Smithsettings.nollieMaxForce = SmithNollieMax;
-					Smithsettings.nollieMinForce = SmithNollieMin;
-
-					Icesettings.jHopMinForce = IcehopMin;
-					Icesettings.jHopMaxForce = IcehopMax;
-
-					Toothsettings.nollieMinForce = ToothNollieMin;
-					Toothsettings.nollieMaxForce = ToothNollieMax;
-
-					Feeblesettings.jHopMaxForce = FeeblehopMax;
-					Feeblesettings.jHopMinForce = FeeblehopMin;
-					Feeblesettings.nollieMaxForce = FeebleNollieMax;
-					Feeblesettings.nollieMinForce = FeebleNollieMin;
-
-					Crooksettings.jHopMaxForce = CrookhopMax;
-					Crooksettings.jHopMinForce = CrookhopMin;
-					Crooksettings.nollieMaxForce = CrookNollieMax;
-					Crooksettings.nollieMinForce = CrookNollieMin;
-
-					Cranksettings.jHopMaxForce = CrankhopMax;
-					Cranksettings.jHopMinForce = CrankhopMin;
-					Cranksettings.nollieMaxForce = CrankNollieMax;
-					Cranksettings.nollieMinForce = CrankNollieMin;
-
-
-					LipTrickhopsettings.jHopMaxForce = LipTrickhopMax;
-					LipTrickhopsettings.jHopMinForce = LipTrickhopMin;
-					LipTrickhopsettings.nollieMaxForce = LipTrickNollieMax;
-					LipTrickhopsettings.nollieMinForce = LipTrickNollieMin;
-
-					doublepegssettings.jHopMaxForce = PegshopMax;
-					doublepegssettings.jHopMinForce = PegshopMin;
-					doublepegssettings.nollieMaxForce = PegsNollieMax;
-					doublepegssettings.nollieMinForce = PegsNollieMin;
-
-					Mannyhopsettings.jHopMaxForce = MannyhopMax;
-					Mannyhopsettings.jHopMinForce = MannyhopMin;
-					Noseysettings.nollieMaxForce = NoseyNollieMax;
-					Noseysettings.nollieMinForce = NoseyNollieMin;
-
-					Pedalfeeblesettings.jHopMaxForce = PedalFeebshopMax;
-					Pedalfeeblesettings.jHopMinForce = PedalFeebshopMin;
-					Pedalfeeblesettings.nollieMaxForce = PedalFeebsNollieMax;
-					Pedalfeeblesettings.nollieMinForce = PedalFeebsNollieMin;
-
-					unlucesettings.jHopMaxForce = Unluc_ehopMax;
-					unlucesettings.jHopMinForce = Unluc_ehopMin;
-					unlucesettings.nollieMaxForce = Unluc_eNollieMax;
-					unlucesettings.nollieMinForce = Unluc_eNollieMin;
-
-					lucesettings.jHopMaxForce = LucehopMax;
-					lucesettings.jHopMinForce = LucehopMin;
-					lucesettings.nollieMaxForce = LuceNollieMax;
-					lucesettings.nollieMinForce = LuceNollieMin;
-
-					mannynoseyController.maxPos = MannySensitivityMax;
-					mannynoseyController.minPos = MannySensitivityMin;
-					mannynoseyController.holdTime = MannysensitivityThresholdMax;
-
-
-
-					mannystate.SetMaxMannyAngle(MaxMannyAngle, true);
-
-				}
-				else
-				{
-					nollieMind = groundedsettings.nollieMinForce;
-					nollieMaxd = groundedsettings.nollieMaxForce;
-
-					hopMaxd = groundedsettings.jHopMaxForce;
-					hopMind = groundedsettings.jHopMinForce;
-
-					SmithhopMaxd = Smithsettings.jHopMaxForce;
-					SmithhopMind = Smithsettings.jHopMinForce;
-					SmithNollieMaxd = Smithsettings.nollieMaxForce;
-					SmithNollieMind = Smithsettings.nollieMinForce;
-
-					IcehopMind = Icesettings.jHopMinForce;
-					IcehopMaxd = Icesettings.jHopMaxForce;
-
-					ToothNollieMind = Toothsettings.nollieMinForce;
-					ToothNollieMaxd = Toothsettings.nollieMaxForce;
-
-					FeeblehopMaxd = Feeblesettings.jHopMaxForce;
-					FeeblehopMind = Feeblesettings.jHopMinForce;
-					FeebleNollieMaxd = Feeblesettings.nollieMaxForce;
-					FeebleNollieMind = Feeblesettings.nollieMinForce;
-
-					CrookhopMaxd = Crooksettings.jHopMaxForce;
-					CrookhopMind = Crooksettings.jHopMinForce;
-					CrookNollieMaxd = Crooksettings.nollieMaxForce;
-					CrookNollieMind = Crooksettings.nollieMinForce;
-
-					CrankhopMaxd = Cranksettings.jHopMaxForce;
-					CrankhopMind = Cranksettings.jHopMinForce;
-					CrankNollieMaxd = Cranksettings.nollieMaxForce;
-					CrankNollieMind = Cranksettings.nollieMinForce;
-
-
-
-					LipTrickhopMaxd = LipTrickhopsettings.jHopMaxForce;
-					LipTrickhopMind = LipTrickhopsettings.jHopMinForce;
-					LipTrickNollieMaxd = LipTrickhopsettings.nollieMaxForce;
-					LipTrickNollieMind = LipTrickhopsettings.nollieMinForce;
-
-					PegshopMaxd = doublepegssettings.jHopMaxForce;
-					PegshopMind = doublepegssettings.jHopMinForce;
-					PegsNollieMaxd = doublepegssettings.nollieMaxForce;
-					PegsNollieMind = doublepegssettings.nollieMinForce;
-
-					MannyhopMaxd = Mannyhopsettings.jHopMaxForce;
-					MannyhopMind = Mannyhopsettings.jHopMinForce;
-
-					NoseyNollieMaxd = Noseysettings.nollieMaxForce;
-					NoseyNollieMind = Noseysettings.nollieMinForce;
-
-					PedalFeebshopMaxd = Pedalfeeblesettings.jHopMaxForce;
-					PedalFeebshopMind = Pedalfeeblesettings.jHopMinForce;
-					PedalFeebsNollieMaxd = Pedalfeeblesettings.nollieMaxForce;
-					PedalFeebsNollieMind = Pedalfeeblesettings.nollieMinForce;
-
-					Unluc_ehopMaxd = unlucesettings.jHopMaxForce;
-					Unluc_ehopMind = unlucesettings.jHopMinForce;
-					Unluc_eNollieMaxd = unlucesettings.nollieMaxForce;
-					Unluc_eNollieMind = unlucesettings.nollieMinForce;
-
-					LucehopMaxd = unlucesettings.jHopMaxForce;
-					LucehopMind = unlucesettings.jHopMinForce;
-					LuceNollieMaxd = unlucesettings.nollieMaxForce;
-					LuceNollieMind = unlucesettings.nollieMinForce;
-
-					MannySensitivityMaxd = mannynoseyController.maxPos;
-					MannySensitivityMind = mannynoseyController.minPos;
-					MannysensitivityThresholdMaxd = mannynoseyController.holdTime;
-
-
-
-					nollieMin = nollieMind;
-					nollieMax = nollieMaxd;
-					hopMin = hopMind;
-					hopMax = hopMaxd;
-					SmithhopMin = SmithhopMind;
-					SmithhopMax = SmithhopMaxd;
-					SmithNollieMin = SmithNollieMind;
-					SmithNollieMax = SmithNollieMaxd;
-					IcehopMin = IcehopMind;
-					IcehopMax = IcehopMaxd;
-					ToothNollieMin = ToothNollieMind;
-					ToothNollieMax = ToothNollieMaxd;
-
-
-					FeeblehopMax = FeeblehopMaxd;
-					FeeblehopMin = FeeblehopMind;
-					FeebleNollieMax = FeebleNollieMaxd;
-					FeebleNollieMin = FeebleNollieMind;
-					CrookhopMax = CrookhopMaxd;
-					CrookhopMin = CrookhopMind;
-					CrookNollieMax = CrookNollieMaxd;
-					CrookNollieMin = CrookNollieMind;
-					CrankhopMax = CrankhopMaxd;
-					CrankhopMin = CrankhopMind;
-					CrankNollieMax = CrankNollieMaxd;
-					CrankNollieMin = CrankNollieMind;
-
-					LipTrickhopMax = LipTrickhopMaxd;
-					LipTrickhopMin = LipTrickhopMind;
-					LipTrickNollieMax = LipTrickNollieMaxd;
-					LipTrickNollieMin = LipTrickNollieMind;
-					PegshopMax = PegshopMaxd;
-					PegshopMin = PegshopMind;
-					PegsNollieMax = PegsNollieMaxd;
-					PegsNollieMin = PegsNollieMind;
-					MannyhopMax = MannyhopMaxd;
-					MannyhopMin = MannyhopMind;
-					NoseyNollieMax = NoseyNollieMaxd;
-					NoseyNollieMin = NoseyNollieMind;
-					PedalFeebshopMax = PedalFeebshopMaxd;
-					PedalFeebshopMin = PedalFeebshopMind;
-					PedalFeebsNollieMax = PedalFeebsNollieMaxd;
-					PedalFeebsNollieMin = PedalFeebsNollieMind;
-					Unluc_ehopMax = Unluc_ehopMaxd;
-					Unluc_ehopMin = Unluc_ehopMind;
-					Unluc_eNollieMax = Unluc_eNollieMaxd;
-					Unluc_eNollieMin = Unluc_eNollieMind;
-					LucehopMax = LucehopMaxd;
-					LucehopMin = LucehopMind;
-					LuceNollieMax = LuceNollieMaxd;
-					LuceNollieMin = LuceNollieMind;
-					MannySensitivityMax = MannySensitivityMaxd;
-					MannySensitivityMin = MannySensitivityMind;
-					MannysensitivityThresholdMax = MannysensitivityThresholdMaxd;
-
-
-
-					havesavedhopsettings = true;
-				}
-
-
-
-
-
-
-
-
-				if (!PIPE_Valve_Console_Client.InGameUI.instance.IsSpectating) 
-				{ 
-
-				//Camera
-				///////////////////////////////////////////////////////
-
-
-				// fetches camera settings and updates if GUI is open
-				volume = Camera.current.GetComponent<PostProcessVolume>();
-
-
-
-				volume.profile.TryGetSettings(out bloom);
-
-
-//				volume.profile.TryGetSettings(out depthoffield);
-//				if (depthoffield == null)
-//				{
-//					volume.profile.AddSettings<DepthOfField>();
-//				}
-
-
-				volume.profile.TryGetSettings(out ColorGrade);
-				if (ColorGrade == null)
-				{
-					volume.profile.AddSettings<ColorGrading>();
-				}
-
-
-				bloom.threshold.overrideState = true;
-
-
-//				depthoffield.enabled.value = true;
-//				depthoffield.focusDistance.overrideState = true;
-//				depthoffield.aperture.overrideState = true;
-
-
-				ColorGrade.enabled.value = true;
-				ColorGrade.contrast.overrideState = true;
-				ColorGrade.saturation.overrideState = true;
-				ColorGrade.brightness.overrideState = true;
-				ColorGrade.temperature.overrideState = true;
-
-
-
-				bloom.threshold.value = newbloomvalueCAMSETTING;
-				bloom.intensity.value = newbloomintvalueCAMSETTING;
-//				depthoffield.focusDistance.value = focusdistanceCAMSETTING;
-//				depthoffield.aperture.value = apertureCAMSETTING;
-				ColorGrade.contrast.value = ContrastNewCAMSETTING;
-				ColorGrade.saturation.value = SaturationNewCAMSETTING;
-				ColorGrade.brightness.value = BrightnessNewCAMSETTING;
-				ColorGrade.temperature.value = temperatureNewCAMSETTING;
-				Camera.current.fieldOfView = CamFOVCAMSETTING;
-
-
-			}
-
-				////////////////////////////////////////////////
-
-
-
-				
+			
 				
 
 
-
-
-
-				Rect box = new Rect(RectposX, RectposY, Screen.width / 4,Screen.height/1.5f);
+				
 
 				skin.textField.margin.left = Screen.width / 12;
 				skin.textField.margin.right = Screen.width / 12;
@@ -960,13 +578,14 @@ namespace FrostyP_Game_Manager
 				GUILayout.Space(20);
 
 
-				
-				GUILayout.Label("PIPE Manager", Generalstyle);
+				//PIPE_Valve_Console_Client.GameManager.instance.FrostyCanvas.GetComponent<Text>().text = $"PIPE Manager - {PIPE_Valve_Console_Client.GameNetworking.instance.VERSIONNUMBER}";
+				GUILayout.Label($"PIPE Manager - {PIPE_Valve_Console_Client.GameNetworking.instance.VERSIONNUMBER}", Generalstyle);
 				GUILayout.Space(10);
 				GUILayout.Label("Use G to toggle this menu ", Generalstyle);
-				GUILayout.Label("Uses PIPE_Data/FrostyPGameManager/", Generalstyle);
+				
+
 				///// CONSOLE: when its attached in FrostyPgamemanager.Main it can be toggled with this, when toggled on it records to Desktop/Your_logs, spacebar to see it recording
-				consoleon = GUILayout.Toggle(consoleon, "Toggle Debugger on, SpaceBar to see, Streams to file on desktop");
+				consoleon = GUILayout.Toggle(consoleon, "Debug mode");
 				if (!this.gameObject.GetComponent<Consolelog>())
 				{
 					this.gameObject.AddComponent<Consolelog>().enabled = false;
@@ -985,6 +604,8 @@ namespace FrostyP_Game_Manager
 
 				GUILayout.Space(20);
 
+				
+
 				// parkbuilder tab
 				if(GUILayout.Button("Park Builder"))
                 {
@@ -992,7 +613,7 @@ namespace FrostyP_Game_Manager
 					OpenMenu = false;
                 }
 
-				// Texture tab
+				// Rider Setup Tab
 				TextureSettingsopen = GUILayout.Toggle(TextureSettingsopen, "Rider Setup");
                 if (TextureSettingsopen)
                 {
@@ -1001,6 +622,8 @@ namespace FrostyP_Game_Manager
 					PIPE_Valve_Console_Client.CharacterModding.instance.RiderTexturesOpen();
 					GUILayout.Space(20);
 				}
+
+				// Bmx Setup Tab
 				BMXSettingsopen = GUILayout.Toggle(BMXSettingsopen, "BMX Setup");
                 if (BMXSettingsopen)
                 {
@@ -1011,31 +634,144 @@ namespace FrostyP_Game_Manager
 				}
 
 
-				// online tab
-				Onlinesettingsopen = GUILayout.Toggle(Onlinesettingsopen,"Online");
-                if (Onlinesettingsopen)
-                {
-
-					if (PIPE_Valve_Console_Client.InGameUI.instance.OfflineMenu)
-					{
-						PIPE_Valve_Console_Client.InGameUI.instance.ClientsOfflineMenu();
-					}
-					if (PIPE_Valve_Console_Client.InGameUI.instance.OnlineMenu)
-					{
-					   PIPE_Valve_Console_Client.InGameUI.instance.ClientsOnlineMenu();
-					}
-                    if (PIPE_Valve_Console_Client.InGameUI.instance.Minigui)
-                    {
-						PIPE_Valve_Console_Client.InGameUI.instance.MiniGUI();
-                    }
-
-				}
-
 				// camera tab
 				camerasettingsopen = GUILayout.Toggle(camerasettingsopen, "Camera Options");
 				if (camerasettingsopen)
 				{
+                    //Camera
+                    ///////////////////////////////////////////////////////
+
+                    try
+                    {
+					volume = Camera.current.GetComponent<PostProcessVolume>();
+						
+                    }
+                    catch (UnityEngine.UnityException x)
+                    {
+						Debug.Log("PostProcess issue:   " + x);
+                    }
+
+
+
+					// if a volume is found, check for settings and add if not, then do update of setting values
+					if(volume != null)
+                    {
+					    volume.profile.TryGetSettings(out bloom);
+						volume.profile.TryGetSettings(out depthoffield);
+					    volume.profile.TryGetSettings(out ColorGrade);
+						volume.profile.TryGetSettings(out Vignette);
+						volume.profile.TryGetSettings(out Grain);
+						
+						if (!volume.profile.GetSetting<Bloom>())
+						{
+							bloom = volume.profile.AddSettings<Bloom>();
+						}
+                        else
+                        {
+							bloom = volume.profile.GetSetting<Bloom>();
+                        }
+
+					    if(!volume.profile.GetSetting<DepthOfField>())
+                    {
+						depthoffield = volume.profile.AddSettings<DepthOfField>();
+                    }
+						else
+						{
+							depthoffield = volume.profile.GetSetting<DepthOfField>();
+						}
+
+						if (!volume.profile.GetSetting<ColorGrading>())
+						{
+							ColorGrade = volume.profile.AddSettings<ColorGrading>();
+						}
+						else
+						{
+							ColorGrade = volume.profile.GetSetting<ColorGrading>();
+						}
+
+						if (!volume.profile.GetSetting<Vignette>())
+                        {
+							volume.profile.AddSettings<Vignette>();
+                        }
+						else
+						{
+							Vignette = volume.profile.GetSetting<Vignette>();
+						}
+
+						if (!volume.profile.GetSetting<Grain>())
+                        {
+							Grain = volume.profile.AddSettings<Grain>();
+                        }
+						else
+						{
+							Grain = volume.profile.GetSetting<Grain>();
+						}
+
+
+
+
+
+
+
+						// depth of field updating
+						depthoffield.enabled.value = true;
+					depthoffield.focusDistance.overrideState = true;
+					depthoffield.aperture.overrideState = true;
+					depthoffield.focusDistance.value = focusdistanceCAMSETTING;
+					depthoffield.aperture.value = apertureCAMSETTING;
+
+
+						// colorgrade updating
+					ColorGrade.enabled.value = true;
+					ColorGrade.contrast.overrideState = true;
+					ColorGrade.saturation.overrideState = true;
+					ColorGrade.brightness.overrideState = true;
+					ColorGrade.temperature.overrideState = true;
+					ColorGrade.contrast.value = ContrastNewCAMSETTING;
+					ColorGrade.saturation.value = SaturationNewCAMSETTING;
+					ColorGrade.brightness.value = BrightnessNewCAMSETTING;
+					ColorGrade.temperature.value = temperatureNewCAMSETTING;
+
+
+						// bloom updating
+					bloom.threshold.overrideState = true;
+					bloom.threshold.value = newbloomvalueCAMSETTING;
+					bloom.intensity.value = newbloomintvalueCAMSETTING;
+						
+						
+						// vignette updating
 					
+						Vignette.active = true;
+						Vignette.enabled.value = true;
+						Vignette.intensity.value = vignetteintensity;
+						Vignette.roundness.overrideState = true;
+						Vignette.roundness.value = VignetteRoundness;
+
+						// Grain updating
+
+						Grain.active = true;
+						Grain.enabled.value = true;
+						Grain.SetAllOverridesTo(true);
+						Grain.intensity.value = GrainIntensity;
+						Grain.lumContrib.value = GrainLightcontrib;
+						Grain.size.value = GrainSize;
+
+
+
+                    }
+					
+
+					// fov updating
+					Camera.current.fieldOfView = CamFOVCAMSETTING;
+
+
+
+
+					////////////////////////////////////////////////
+
+
+
+
 					GUILayout.Space(10);
 					GUILayout.Label(lastpresetselectedCAM + " Profile active");
 					GUILayout.Space(20);
@@ -1050,6 +786,11 @@ namespace FrostyP_Game_Manager
 						BrightnessNewCAMSETTING = Brightnesssaved;
 						SaturationNewCAMSETTING = Saturationsaved;
 						CamFOVCAMSETTING = Camfovsaved;
+						GrainIntensity = GrainIntensitysaved;
+						GrainLightcontrib = GrainLightcontribsaved;
+						GrainSize = GrainSizesaved;
+						vignetteintensity = vignetteintensitysaved;
+						VignetteRoundness = VignetteRoundnesssaved;
                     }
 
                     
@@ -1069,9 +810,25 @@ namespace FrostyP_Game_Manager
 					SaturationNewCAMSETTING = GUILayout.HorizontalSlider(SaturationNewCAMSETTING, -100, 50);
 					GUILayout.Label("Brightness (-30 - 30) = " + BrightnessNewCAMSETTING);
 					BrightnessNewCAMSETTING = GUILayout.HorizontalSlider(BrightnessNewCAMSETTING, -50, 50);
-					GUILayout.Label("Temperature (-70 - 70) = " + temperatureNewCAMSETTING);
-					temperatureNewCAMSETTING = GUILayout.HorizontalSlider(temperatureNewCAMSETTING, -70, 70);
-				GUILayout.Space(50);
+					GUILayout.Label("Temperature (-30 - 30) = " + temperatureNewCAMSETTING);
+					temperatureNewCAMSETTING = GUILayout.HorizontalSlider(temperatureNewCAMSETTING, -30, 30);
+
+					GUILayout.Label("Vignette Intensity (0 - 1) = " + vignetteintensity);
+					vignetteintensity = GUILayout.HorizontalSlider(vignetteintensity, 0, 1f);
+
+					GUILayout.Label("Vignette Roundness (0 - 1) = " + VignetteRoundness);
+					VignetteRoundness = GUILayout.HorizontalSlider(VignetteRoundness, 0, 1);
+
+					GUILayout.Label("Grain Intensity (0 - 1) = " + GrainIntensity);
+					GrainIntensity = GUILayout.HorizontalSlider(GrainIntensity, 0, 1);
+
+					GUILayout.Label("Grain Light contribution (0 - 1) = " + GrainLightcontrib);
+					GrainLightcontrib = GUILayout.HorizontalSlider(GrainLightcontrib, 0, 1);
+
+					GUILayout.Label("Grain Size (0 - 1) = " + GrainSize);
+					GrainSize = GUILayout.HorizontalSlider(GrainSize, 0, 1);
+
+					GUILayout.Space(50);
 
 					
 					
@@ -1219,20 +976,356 @@ namespace FrostyP_Game_Manager
 					}
 
 
-
+					GUILayout.Space(20);
 				}
 
 				// rider tab
 				if (arrayofhopsettings != null)
 				{
-					
+					Ridersettingsopen = GUILayout.Toggle(Ridersettingsopen,"Rider Options");
 
-
-					ForcesEditBool = GUILayout.Toggle(ForcesEditBool,"Rider Options");
-
-					if (ForcesEditBool)
+					if (Ridersettingsopen)
 					{
-						
+						if (arrayofhopsettings != null)
+						{
+							foreach (StateHopSetting set in arrayofhopsettings)
+							{
+								if (set.gameObject.name.Contains("Grounded"))
+								{
+
+									groundedsettings = set;
+								}
+								if (set.gameObject.name.Contains("Smith"))
+								{
+									Smithsettings = set;
+								}
+								if (set.gameObject.name.Contains("Feeble") && !set.gameObject.name.Contains("Pedal"))
+								{
+									Feeblesettings = set;
+								}
+								if (set.gameObject.name.Contains("Crook"))
+								{
+									Crooksettings = set;
+								}
+								if (set.gameObject.name.Contains("Ice"))
+								{
+									Icesettings = set;
+								}
+								if (set.gameObject.name.Contains("Tooth"))
+								{
+									Toothsettings = set;
+								}
+								if (set.gameObject.name.Contains("Crank"))
+								{
+									Cranksettings = set;
+								}
+								if (set.gameObject.name.Contains("Air"))
+								{
+									Airhopsettings = set;
+								}
+								if (set.gameObject.name.Contains("Lip"))
+								{
+									LipTrickhopsettings = set;
+								}
+								if (set.gameObject.name.Contains("Double"))
+								{
+									doublepegssettings = set;
+								}
+								if (set.gameObject.name.Contains("Manny"))
+								{
+									Mannyhopsettings = set;
+								}
+								if (set.gameObject.name.Contains("Nosey"))
+								{
+									Noseysettings = set;
+								}
+								if (set.gameObject.name.Contains("Pedal"))
+								{
+									Pedalfeeblesettings = set;
+								}
+								if (set.gameObject.name.Contains("UnLucky"))
+								{
+									unlucesettings = set;
+								}
+								if (set.gameObject.name.Contains("Lucky"))
+								{
+									lucesettings = set;
+								}
+
+							}
+						}
+
+
+
+
+
+
+						// if defaults have been saved, update forces to GUI slider values, if not Save them then mark bool true
+						if (havesavedhopsettings)
+						{
+							groundedsettings.nollieMinForce = nollieMin;
+							groundedsettings.nollieMaxForce = nollieMax;
+
+							groundedsettings.jHopMaxForce = hopMax;
+							groundedsettings.jHopMinForce = hopMin;
+
+
+
+							Smithsettings.jHopMaxForce = SmithhopMax;
+							Smithsettings.jHopMinForce = SmithhopMin;
+							Smithsettings.nollieMaxForce = SmithNollieMax;
+							Smithsettings.nollieMinForce = SmithNollieMin;
+
+							Icesettings.jHopMinForce = IcehopMin;
+							Icesettings.jHopMaxForce = IcehopMax;
+
+							Toothsettings.nollieMinForce = ToothNollieMin;
+							Toothsettings.nollieMaxForce = ToothNollieMax;
+
+							Feeblesettings.jHopMaxForce = FeeblehopMax;
+							Feeblesettings.jHopMinForce = FeeblehopMin;
+							Feeblesettings.nollieMaxForce = FeebleNollieMax;
+							Feeblesettings.nollieMinForce = FeebleNollieMin;
+
+							Crooksettings.jHopMaxForce = CrookhopMax;
+							Crooksettings.jHopMinForce = CrookhopMin;
+							Crooksettings.nollieMaxForce = CrookNollieMax;
+							Crooksettings.nollieMinForce = CrookNollieMin;
+
+							Cranksettings.jHopMaxForce = CrankhopMax;
+							Cranksettings.jHopMinForce = CrankhopMin;
+							Cranksettings.nollieMaxForce = CrankNollieMax;
+							Cranksettings.nollieMinForce = CrankNollieMin;
+
+
+							LipTrickhopsettings.jHopMaxForce = LipTrickhopMax;
+							LipTrickhopsettings.jHopMinForce = LipTrickhopMin;
+							LipTrickhopsettings.nollieMaxForce = LipTrickNollieMax;
+							LipTrickhopsettings.nollieMinForce = LipTrickNollieMin;
+
+							doublepegssettings.jHopMaxForce = PegshopMax;
+							doublepegssettings.jHopMinForce = PegshopMin;
+							doublepegssettings.nollieMaxForce = PegsNollieMax;
+							doublepegssettings.nollieMinForce = PegsNollieMin;
+
+							Mannyhopsettings.jHopMaxForce = MannyhopMax;
+							Mannyhopsettings.jHopMinForce = MannyhopMin;
+							Noseysettings.nollieMaxForce = NoseyNollieMax;
+							Noseysettings.nollieMinForce = NoseyNollieMin;
+
+							Pedalfeeblesettings.jHopMaxForce = PedalFeebshopMax;
+							Pedalfeeblesettings.jHopMinForce = PedalFeebshopMin;
+							Pedalfeeblesettings.nollieMaxForce = PedalFeebsNollieMax;
+							Pedalfeeblesettings.nollieMinForce = PedalFeebsNollieMin;
+
+							unlucesettings.jHopMaxForce = Unluc_ehopMax;
+							unlucesettings.jHopMinForce = Unluc_ehopMin;
+							unlucesettings.nollieMaxForce = Unluc_eNollieMax;
+							unlucesettings.nollieMinForce = Unluc_eNollieMin;
+
+							lucesettings.jHopMaxForce = LucehopMax;
+							lucesettings.jHopMinForce = LucehopMin;
+							lucesettings.nollieMaxForce = LuceNollieMax;
+							lucesettings.nollieMinForce = LuceNollieMin;
+
+							mannynoseyController.maxPos = MannySensitivityMax;
+							mannynoseyController.minPos = MannySensitivityMin;
+							mannynoseyController.holdTime = MannysensitivityThresholdMax;
+
+
+
+							mannystate.SetMaxMannyAngle(MaxMannyAngle, true);
+
+						}
+						else
+						{
+							nollieMind = groundedsettings.nollieMinForce;
+							nollieMaxd = groundedsettings.nollieMaxForce;
+
+							hopMaxd = groundedsettings.jHopMaxForce;
+							hopMind = groundedsettings.jHopMinForce;
+
+							SmithhopMaxd = Smithsettings.jHopMaxForce;
+							SmithhopMind = Smithsettings.jHopMinForce;
+							SmithNollieMaxd = Smithsettings.nollieMaxForce;
+							SmithNollieMind = Smithsettings.nollieMinForce;
+
+							IcehopMind = Icesettings.jHopMinForce;
+							IcehopMaxd = Icesettings.jHopMaxForce;
+
+							ToothNollieMind = Toothsettings.nollieMinForce;
+							ToothNollieMaxd = Toothsettings.nollieMaxForce;
+
+							FeeblehopMaxd = Feeblesettings.jHopMaxForce;
+							FeeblehopMind = Feeblesettings.jHopMinForce;
+							FeebleNollieMaxd = Feeblesettings.nollieMaxForce;
+							FeebleNollieMind = Feeblesettings.nollieMinForce;
+
+							CrookhopMaxd = Crooksettings.jHopMaxForce;
+							CrookhopMind = Crooksettings.jHopMinForce;
+							CrookNollieMaxd = Crooksettings.nollieMaxForce;
+							CrookNollieMind = Crooksettings.nollieMinForce;
+
+							CrankhopMaxd = Cranksettings.jHopMaxForce;
+							CrankhopMind = Cranksettings.jHopMinForce;
+							CrankNollieMaxd = Cranksettings.nollieMaxForce;
+							CrankNollieMind = Cranksettings.nollieMinForce;
+
+
+
+							LipTrickhopMaxd = LipTrickhopsettings.jHopMaxForce;
+							LipTrickhopMind = LipTrickhopsettings.jHopMinForce;
+							LipTrickNollieMaxd = LipTrickhopsettings.nollieMaxForce;
+							LipTrickNollieMind = LipTrickhopsettings.nollieMinForce;
+
+							PegshopMaxd = doublepegssettings.jHopMaxForce;
+							PegshopMind = doublepegssettings.jHopMinForce;
+							PegsNollieMaxd = doublepegssettings.nollieMaxForce;
+							PegsNollieMind = doublepegssettings.nollieMinForce;
+
+							MannyhopMaxd = Mannyhopsettings.jHopMaxForce;
+							MannyhopMind = Mannyhopsettings.jHopMinForce;
+
+							NoseyNollieMaxd = Noseysettings.nollieMaxForce;
+							NoseyNollieMind = Noseysettings.nollieMinForce;
+
+							PedalFeebshopMaxd = Pedalfeeblesettings.jHopMaxForce;
+							PedalFeebshopMind = Pedalfeeblesettings.jHopMinForce;
+							PedalFeebsNollieMaxd = Pedalfeeblesettings.nollieMaxForce;
+							PedalFeebsNollieMind = Pedalfeeblesettings.nollieMinForce;
+
+							Unluc_ehopMaxd = unlucesettings.jHopMaxForce;
+							Unluc_ehopMind = unlucesettings.jHopMinForce;
+							Unluc_eNollieMaxd = unlucesettings.nollieMaxForce;
+							Unluc_eNollieMind = unlucesettings.nollieMinForce;
+
+							LucehopMaxd = unlucesettings.jHopMaxForce;
+							LucehopMind = unlucesettings.jHopMinForce;
+							LuceNollieMaxd = unlucesettings.nollieMaxForce;
+							LuceNollieMind = unlucesettings.nollieMinForce;
+
+							MannySensitivityMaxd = mannynoseyController.maxPos;
+							MannySensitivityMind = mannynoseyController.minPos;
+							MannysensitivityThresholdMaxd = mannynoseyController.holdTime;
+
+
+
+							nollieMin = nollieMind;
+							nollieMax = nollieMaxd;
+							hopMin = hopMind;
+							hopMax = hopMaxd;
+							SmithhopMin = SmithhopMind;
+							SmithhopMax = SmithhopMaxd;
+							SmithNollieMin = SmithNollieMind;
+							SmithNollieMax = SmithNollieMaxd;
+							IcehopMin = IcehopMind;
+							IcehopMax = IcehopMaxd;
+							ToothNollieMin = ToothNollieMind;
+							ToothNollieMax = ToothNollieMaxd;
+
+
+							FeeblehopMax = FeeblehopMaxd;
+							FeeblehopMin = FeeblehopMind;
+							FeebleNollieMax = FeebleNollieMaxd;
+							FeebleNollieMin = FeebleNollieMind;
+							CrookhopMax = CrookhopMaxd;
+							CrookhopMin = CrookhopMind;
+							CrookNollieMax = CrookNollieMaxd;
+							CrookNollieMin = CrookNollieMind;
+							CrankhopMax = CrankhopMaxd;
+							CrankhopMin = CrankhopMind;
+							CrankNollieMax = CrankNollieMaxd;
+							CrankNollieMin = CrankNollieMind;
+
+							LipTrickhopMax = LipTrickhopMaxd;
+							LipTrickhopMin = LipTrickhopMind;
+							LipTrickNollieMax = LipTrickNollieMaxd;
+							LipTrickNollieMin = LipTrickNollieMind;
+							PegshopMax = PegshopMaxd;
+							PegshopMin = PegshopMind;
+							PegsNollieMax = PegsNollieMaxd;
+							PegsNollieMin = PegsNollieMind;
+							MannyhopMax = MannyhopMaxd;
+							MannyhopMin = MannyhopMind;
+							NoseyNollieMax = NoseyNollieMaxd;
+							NoseyNollieMin = NoseyNollieMind;
+							PedalFeebshopMax = PedalFeebshopMaxd;
+							PedalFeebshopMin = PedalFeebshopMind;
+							PedalFeebsNollieMax = PedalFeebsNollieMaxd;
+							PedalFeebsNollieMin = PedalFeebsNollieMind;
+							Unluc_ehopMax = Unluc_ehopMaxd;
+							Unluc_ehopMin = Unluc_ehopMind;
+							Unluc_eNollieMax = Unluc_eNollieMaxd;
+							Unluc_eNollieMin = Unluc_eNollieMind;
+							LucehopMax = LucehopMaxd;
+							LucehopMin = LucehopMind;
+							LuceNollieMax = LuceNollieMaxd;
+							LuceNollieMin = LuceNollieMind;
+							MannySensitivityMax = MannySensitivityMaxd;
+							MannySensitivityMin = MannySensitivityMind;
+							MannysensitivityThresholdMax = MannysensitivityThresholdMaxd;
+
+
+
+							havesavedhopsettings = true;
+						}
+
+
+
+
+						if (mannystate == null)
+						{
+							mannystate = UnityEngine.Component.FindObjectOfType<BMXS_PStates.MannyState>();
+
+						}
+						if (mannynoseyController == null)
+						{
+							mannynoseyController = UnityEngine.Component.FindObjectOfType<MannyNoseyPopInControl>();
+						}
+						if (marker == null)
+						{
+							marker = UnityEngine.Component.FindObjectsOfType<SessionMarker>()[0];
+							marker.OnSetAtMarker.AddListener(ResetFOV);
+						}
+						if (arrayofhopsettings == null)
+						{
+							arrayofhopsettings = UnityEngine.Component.FindObjectsOfType<StateHopSetting>();
+						}
+						if (pedalingmanager == null)
+						{
+							pedalingmanager = UnityEngine.Component.FindObjectOfType<Pedaling>();
+						}
+
+						//if default pedal force has been saved, update pedalforce to GUI sliders value, if not, Save them then mark bool true
+						if (havesavedpedalforce)
+						{
+							pedalingmanager.maxPedalVel = MaxPedalV;
+						}
+						else
+						{
+							MaxPedalVsaved = pedalingmanager.maxPedalVel;
+							MaxPedalV = MaxPedalVsaved;
+							havesavedpedalforce = true;
+						}
+
+
+
+
+
+
+
+
+
+						manager = UnityEngine.Component.FindObjectOfType<VehicleManager>();
+						currentvehicle = manager.currentVehicle;
+
+
+						Physics.gravity = Gravityvalue;
+
+
+
+
+
 
 						GUILayout.Space(30);
 						GUILayout.Label(lastpresetselected + " Profile active");
@@ -1462,7 +1555,7 @@ namespace FrostyP_Game_Manager
 							Gravityvalue.y = -12f;
 						}
 						GUILayout.Space(30);
-						GUILayout.Label("Max Velocity from pedalling alone = " + pedalingmanager.maxPedalVel.ToString());
+						GUILayout.Label("Max Velocity from pedalling = " + pedalingmanager.maxPedalVel.ToString());
 						MaxPedalV = Mathf.RoundToInt(GUILayout.HorizontalSlider(MaxPedalV, 5, 50));
 
 						GUILayout.Space(30);
@@ -1622,35 +1715,34 @@ namespace FrostyP_Game_Manager
 							GUILayout.Space(10);
 							MannysensitivityThresholdMax = GUILayout.HorizontalSlider(MannysensitivityThresholdMax, 0.01f, 0.5f);
 							GUILayout.Space(30);
-							GUILayout.Label("Max Manny Angle " + mannystate.maxMannyAngle);
-							GUILayout.Space(10);
-							MaxMannyAngle = GUILayout.HorizontalSlider(MaxMannyAngle, 30f, 100f);
+							//GUILayout.Label("Max Manny Angle " + mannystate.maxMannyAngle);
+							//GUILayout.Space(10);
+							//MaxMannyAngle = GUILayout.HorizontalSlider(MaxMannyAngle, 30f, 100f);
 						}
 
-
+						GUILayout.Space(30);
 
 					}
 
+				}
 
+				// online tab
+				Onlinesettingsopen = GUILayout.Toggle(Onlinesettingsopen,"Online");
+                if (Onlinesettingsopen)
+                {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+					if (PIPE_Valve_Console_Client.InGameUI.instance.OfflineMenu)
+					{
+						PIPE_Valve_Console_Client.InGameUI.instance.ClientsOfflineMenu();
+					}
+					if (PIPE_Valve_Console_Client.InGameUI.instance.OnlineMenu)
+					{
+					   PIPE_Valve_Console_Client.InGameUI.instance.ClientsOnlineMenu();
+					}
+                    if (PIPE_Valve_Console_Client.InGameUI.instance.Minigui)
+                    {
+						PIPE_Valve_Console_Client.InGameUI.instance.MiniGUI();
+                    }
 
 				}
 
@@ -1662,31 +1754,16 @@ namespace FrostyP_Game_Manager
 
 
 				GUILayout.Space(20);
-				if (GUILayout.Button("Exit"))
-				{
-					OpenMenu = false;
-				}
+				
 				GUILayout.Space(20);
 				GUILayout.EndScrollView();
-				//GUILayout.EndArea();
+				
 
 			}
 
 
 
-
-
-
-
-
-
-			mouseXlast = Input.mousePosition.x;
-			mouseYlast = Input.mousePosition.y;
-
 		}
-
-
-
 
 
 	}

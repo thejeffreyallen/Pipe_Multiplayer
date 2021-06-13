@@ -14,11 +14,15 @@ namespace FrostyP_Game_Manager
 	
     public class ParkBuilder : MonoBehaviour
     {
+
+		public static ParkBuilder instance;
+
+
 		GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
 		GUIStyle Generalstyle = new GUIStyle();
 
 		MGInputManager inputman;
-		ParkSaver Saver = new ParkSaver();
+		ParkSaveLoad _ParkSaveLoad = new ParkSaveLoad();
 
 		
 		Vector2 scrollPosition;
@@ -55,14 +59,22 @@ namespace FrostyP_Game_Manager
 				Slow.value = 2;
 				speeds.Add(Slow);
 
-				
-				
+				Speed Slower = new Speed();
+				Slower.name = "Slower";
+				Slower.value = 1;
+				speeds.Add(Slower);
+
+				Speed Slowest = new Speed();
+				Slowest.name = "Slowest";
+				Slowest.value = 0.5f;
+				speeds.Add(Slowest);
+
 
 			}
 
 			public int Change(int currentspeed)
             {
-                if(currentspeed == 3)
+                if(currentspeed == 5)
                 {
 
 					return 0;
@@ -86,7 +98,7 @@ namespace FrostyP_Game_Manager
 
 		}
 		int currentcamspeed = 0;
-		float Camdistance = 20;
+		float Camdistance = 10;
 		Camspeed camspeed;
 
 
@@ -96,23 +108,30 @@ namespace FrostyP_Game_Manager
 		
 		bool snappingtofloor = true;
 		bool placedonce = false;
-		bool Saveopen = false;
+		bool SaveLoadOpen = false;
 		bool switched;
 		bool Helpmenu;
-		bool Loadopen = false;
 		bool REgrabbed = false;
+		bool StreamingObjectData = false;
 		Vector3 regrabbed_pos;
 		Vector3 regrabbed_rot;
 
 
 
-		string AssetbundlesDirectory = Application.dataPath + "/FrostyPGameManager/ParkBuilder/Assetbundles";
-		string ParksDirectory= Application.dataPath + "/FrostyPGameManager/ParkBuilder/Parks/";
+		// Myobjects Menu
+		Vector2 MyobjectsScroll;
 
 
-		List<GameObject> itemsfound = new List<GameObject>();
-		List<GameObject> placedobjects = new List<GameObject>();
-		List<NetGameObject> Netobjectlist = new List<NetGameObject>();
+
+
+		public string AssetbundlesDirectory = Application.dataPath + "/FrostyPGameManager/ParkBuilder/Assetbundles/";
+		public string ParksDirectory = Application.dataPath + "/FrostyPGameManager/ParkBuilder/Parks/";
+
+
+		
+		public List<PlacedObject> placedobjects = new List<PlacedObject>();
+		public List<NetGameObject> NetgameObjects = new List<NetGameObject>();
+		
 		
 
 		Texture2D RedTex;
@@ -124,7 +143,7 @@ namespace FrostyP_Game_Manager
 		
 
 
-		GameObject Player;
+		public GameObject Player;
 		Camera buildercam;
 		GameObject camobj;
 		Vector3 camFarPos;
@@ -134,11 +153,38 @@ namespace FrostyP_Game_Manager
 		
 
 		public FileInfo[] availableassetbundles;
-		public List<AssetBundle> bundlesloaded;
+		public List<BundleData> bundlesloaded;
+
+
+		BundleData ActiveBundleData;
+		PlacedObject ActivePlacedObject;
+
+		// send
+		float KeepAlivetimer;
+
+
+
+		// SaveLoad Menu
+		public List<PlacedObject> ObjectstoSave = new List<PlacedObject>();
+		public List<string> CreatorsList = new List<string>();
+		bool Save_Load_Toggle = false;
+		string SaveloadMode;
+		Vector2 SaveloadScroll;
+		public bool ShowLoadedspot;
+		public SavedSpot ActiveSavedspot;
+		List<string> LoadedSpotCreators;
+		List<string> Loadedspotpackneeded;
+		
 
 
 		void Awake()
         {
+			instance = this;
+
+			
+				bundlesloaded = new List<BundleData>();
+			
+
 			// check both directories and create if needed
 			DirectoryInfo info = new DirectoryInfo(ParksDirectory);
 			if (!info.Exists)
@@ -154,6 +200,8 @@ namespace FrostyP_Game_Manager
 
 			camobj = new GameObject();
 			camobj.AddComponent<FMOD_Listener>();
+			buildercam = camobj.AddComponent<Camera>();
+			camobj.SetActive(false);
 			DontDestroyOnLoad(camobj);
 			// make ghost object that rotates to camera obj only on Y
 			controlobjforcam = new GameObject();
@@ -327,12 +375,11 @@ namespace FrostyP_Game_Manager
 			skin.horizontalSliderThumb.fixedHeight = 20;
 			skin.horizontalSliderThumb.hover.background = BlackTex;
 
-			skin.button.normal.textColor = Color.black;
-			skin.button.alignment = TextAnchor.MiddleCenter;
-			skin.scrollView.normal.background = GreenTex;
+			
+			//skin.scrollView.normal.background = GreenTex;
 			skin.verticalScrollbarThumb.normal.background = GreenTex;
 			skin.scrollView.alignment = TextAnchor.MiddleCenter;
-			skin.scrollView.fixedWidth = Screen.width / 4;
+			//skin.scrollView.fixedWidth = Screen.width / 4;
 
 
 
@@ -376,6 +423,23 @@ namespace FrostyP_Game_Manager
 				}
 
 
+				// send keepactive packet every 2 seconds to stop timeout on server
+				if (InGameUI.instance.Connected)
+				{
+					// keep connection active while no rider is streaming
+					if (KeepAlivetimer < 2)
+					{
+						KeepAlivetimer = KeepAlivetimer + Time.deltaTime;
+					}
+					else if (KeepAlivetimer >= 2)
+					{
+						ClientSend.KeepActive();
+						KeepAlivetimer = 0;
+					}
+
+
+				}
+
 
 			}
 
@@ -384,6 +448,34 @@ namespace FrostyP_Game_Manager
 		}
 
 
+		void FixedUpdate()
+        {
+            if (StreamingObjectData)
+            {
+                try
+                {
+					if(Activeobj != null && ActivePlacedObject != null)
+                    {
+
+				       ClientSend.ObjectTransformUpdate(ActivePlacedObject);
+
+                    }
+
+                }
+                catch (System.Exception x)
+                {
+					Debug.Log("stream object transform error   : " + x);
+
+                }
+                
+            }
+
+           
+
+
+
+
+        }
 
 
 
@@ -392,7 +484,39 @@ namespace FrostyP_Game_Manager
         {
 			if (openflag)
             {
+
+				// things that decide theyre own GUI layout ---===
 				
+				if (placedobjects.Count != 0)
+				{
+
+					MyObjectsMenu();
+				}
+
+
+                if (SaveLoadOpen)
+                {
+					SaveLoadMenu();
+					if(Save_Load_Toggle == false)
+                    {
+						SaveloadMode = "Save Mode";
+                    }
+                    else
+                    {
+						SaveloadMode = "Load Mode";
+                    }
+                }
+
+                if (ShowLoadedspot)
+                {
+					ShowLoadedSpot();
+                }
+
+
+
+				//--------------------------------------------
+
+
 			skin.textField.margin.left = Screen.width / 12;
 			skin.textField.margin.right = Screen.width / 12;
 			skin.button.margin.left = Screen.width / 12;
@@ -413,18 +537,13 @@ namespace FrostyP_Game_Manager
 
 				
 
-				if (placedobjects.Count != 0)
-				{
-
-					ShowCurrentBuild(SaveparkName);
-				}
 
 
-				// -------------------------------------------------------------------------------------------------------------------------      Actual GUI     -----------------------------------------------------------------------------------------------------------------
+				// -------------------------------------------------------------------------------------------------------------------------      Things contained in Primary GUI     -----------------------------------------------------------------------------------------------------------------
 
 				scrollPosition = GUILayout.BeginScrollView(scrollPosition, Generalstyle);
 				GUILayout.Space(10);
-				GUILayout.Label("Park Builder Menu *Limited Functionlity*", Generalstyle);
+				GUILayout.Label("Park Builder", Generalstyle);
 				
 				GUILayout.Space(10);
 				Helpmenu = GUILayout.Toggle(Helpmenu, " put my objects into parkbuilder? ");
@@ -436,7 +555,9 @@ namespace FrostyP_Game_Manager
 					GUILayout.Label(" but dont mark your scene as a bundle item, make each object in");
 					GUILayout.Label(" your a scene a prefab by dragging from hierarchy to assets,");
 					GUILayout.Label(" then mark each prefab as part of your assetbundle, build and");
-					GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show below");
+					GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show below.");
+					GUILayout.Label(" make your objects positions 0,0,0 and square so that theyre root");
+					GUILayout.Label(" position can be found again later");
 
 				}
 				if (camobj != null && Activeobj != null)
@@ -446,19 +567,50 @@ namespace FrostyP_Game_Manager
 					Controls();
 				}
 				GUILayout.Space(30);
-				GUILayout.Label("Movement Speed at " + currentcamspeed, Generalstyle);
-				GUILayout.Label("Placed objects : " + placedobjects.Count, Generalstyle);
-				snappingtofloor = GUILayout.Toggle(snappingtofloor, " Snapping to floor");
+				GUILayout.Label("Movement Speed at " + camspeed.speeds[currentcamspeed].name, Generalstyle);
 
-				if(Activeobj != null && !Activeobj.name.Contains("Pointer"))
-                {
-					if(GUILayout.Button("Destroy " + Activeobj.gameObject.name))
-					{
-						//Vector3 pos = Activeobj.transform.position;
-						//Vector3 rot = Activeobj.transform.eulerAngles;
-						REgrabbed = false;
-						Destroy(Activeobj);
+
+
+				if (GUILayout.Button("Clear All ") && placedobjects.Count>0)
+				{
+					Vector3 pos = new Vector3(0, 0, 0);
+                    for (int i = 0; i < placedobjects.Count; i++)
+                    {
+						if(placedobjects[i].ObjectId != 0)
+                        {
+						ClientSend.DestroyAnObject(placedobjects[i].ObjectId);
+                        }
+						Destroy(placedobjects[i].Object);
 						
+                    }
+					foreach(PlacedObject p in placedobjects)
+                    {
+					  foreach(PlacedObject m in ObjectstoSave.ToArray())
+                        {
+							if(p == m)
+                            {
+								ObjectstoSave.Remove(m);
+                            }
+                        }
+                    }
+					placedobjects.Clear();
+					if(Activeobj != null)
+                    {
+						pos = Activeobj.transform.position;
+						Destroy(Activeobj);
+                    }
+					Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+					Activeobj.transform.position = pos;
+				}
+
+
+
+
+				if (Activeobj != null && !Activeobj.name.Contains("Pointer"))
+                {
+					if(GUILayout.Button("Destroy " + Activeobj.gameObject.name.Replace("(Clone)","")))
+					{
+						DestroyObject();
 						
 						
                     }
@@ -470,52 +622,36 @@ namespace FrostyP_Game_Manager
 
 				// Save current objects
 				GUILayout.Space(10);
-				Saveopen = GUILayout.Toggle(Saveopen, "Toggle Save Menu");
-                if (Saveopen)
-                {
-					SaveparkName = GUILayout.TextField(SaveparkName);
-                    if(GUILayout.Button("Save")){
-
-						Saver.Save(Saver.GiveNamesAndTransformData(placedobjects), ParksDirectory + SaveparkName);
-
-
-                    }
-                }
-
-
-
-				// load a setup
-				GUILayout.Space(10);
-				Loadopen = GUILayout.Toggle(Loadopen, "Toggle Load Menu");
-				if (Loadopen)
-				{
-					DirectoryInfo info = new DirectoryInfo(ParksDirectory);
-					FileInfo[] files = info.GetFiles();
-
-                    foreach(FileInfo file in files)
-                    {
-						if(GUILayout.Button("Load "+ file.Name))
-						{
-							Saver.LoadObjectSetup(file.FullName);
-                        }
-                    }
-					GUILayout.Space(10);
-				}
+				SaveLoadOpen = GUILayout.Toggle(SaveLoadOpen, "Toggle Save/Load Menu");
+               
 
 				GUILayout.Space(10);
 
 
 
 
-
+				GUILayout.Label("Loadable bundles:");
 				// list Bundles found and give load button
 				foreach (FileInfo file in availableassetbundles)
                 {
+					bool loaded = false;
+					foreach(BundleData bun in bundlesloaded)
+                    {
+						if(bun.FileName == file.Name)
+                        {
+							loaded = true;
+                        }
+                    }
+
+                    if (!loaded)
+                    {
                     if (GUILayout.Button("Load now : " + file.Name))
                     {
 						GUILayout.Space(10);
 						AssetBundle bundle = AssetBundle.LoadFromFile(file.FullName);
-						bundlesloaded.Add(bundle);
+						bundlesloaded.Add(new BundleData(bundle,file.Name));
+
+                    }
 
                     }
 
@@ -527,18 +663,21 @@ namespace FrostyP_Game_Manager
 				if (bundlesloaded != null)
                 {
 					GUILayout.Label(" Loaded Assets: ");
-					GUILayout.Space(10);
-					foreach (AssetBundle bundle in bundlesloaded)
+					GUILayout.Space(20);
+					foreach (BundleData bundledata in bundlesloaded)
                     {
-
-						GameObject[] items = bundle.LoadAllAssets<GameObject>();
+						GUILayout.Label(bundledata.Bundle.name + " :");
+						GUILayout.Space(10);
+						GameObject[] items = bundledata.Bundle.LoadAllAssets<GameObject>();
 						foreach (GameObject item in items)
 						{
 							if (GUILayout.Button(item.name))
 							{
+								GameObject obj = bundledata.Bundle.LoadAsset(item.name) as GameObject;
+								Vector3 pos = new Vector3( Activeobj.transform.position.x, Activeobj.transform.position.y, Activeobj.transform.position.z);
 								Destroy(Activeobj.gameObject);
-								GameObject obj = bundle.LoadAsset(item.name) as GameObject;
-								TargetObjectandInstatiate(obj);
+								
+								SpawnNewObject(obj, bundledata, pos);
 							}
 						}
 					}
@@ -556,10 +695,9 @@ namespace FrostyP_Game_Manager
 				if (GUILayout.Button("Return to game"))
             {
 					Destroy(Activeobj);
-					buildercam.enabled = false;
-					camobj.GetComponent<FMOD_Listener>().enabled = false;
-				Player.SetActive(true);
-				openflag = false;
+					camobj.SetActive(false);
+				    Player.SetActive(true);
+				    openflag = false;
 					
 					
             }
@@ -570,6 +708,10 @@ namespace FrostyP_Game_Manager
 
         #region Functions
 
+
+
+
+
 	
 		/// <summary>
 		/// Call to open ParkBuilder
@@ -579,10 +721,11 @@ namespace FrostyP_Game_Manager
 			Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			Activeobj.name = "Pointer";
 			Activeobj.transform.position = _playerscurrentpos;
-			Player = UnityEngine.GameObject.Find("BMXS Player Components");
+			
+			Player = UnityEngine.Component.FindObjectOfType<PlayerInfo>().gameObject;
 			Player.SetActive(false);
 			openflag = true;
-			bundlesloaded = new List<AssetBundle>();
+			
 
 			if (inputman == null)
 			{
@@ -590,16 +733,11 @@ namespace FrostyP_Game_Manager
 
 			}
 
-			if (buildercam != null)
-			{
-				buildercam.enabled = true;
-				buildercam.transform.position = _playerscurrentpos + Vector3.back * 5;
-			}
 
-			if (camobj == null)
-			{
-				camobj = new GameObject();
-			}
+			    camobj.SetActive(true);
+				camobj.transform.position = _playerscurrentpos + (Vector3.back * 5);
+			
+
 			if(buildercam == null)
             {
 				
@@ -636,29 +774,56 @@ namespace FrostyP_Game_Manager
 
 
 
-		// called by clicking a button, button sends the gameobject its refering to
-		void TargetObjectandInstatiate(GameObject obj)
+		// called by clicking a button
+		void SpawnNewObject(GameObject obj, BundleData _bunddata, Vector3 pos)
         {
-			
+			ActiveBundleData = _bunddata;
 			Activeobj = GameObject.Instantiate(obj);
-			
-        }
+			Activeobj.transform.position = pos;
+			Activeobj.name.Replace("(Clone)", "");
+			if (obj.GetComponent<Rigidbody>())
+			{
+				obj.layer = 25;
+				obj.GetComponent<Rigidbody>().isKinematic = true;
+			}
+
+		}
 
 
 
 		/// <summary>
-		/// kills activeobj and makes given obj the target
+		/// kills activeobj and makes given placed obj the target
 		/// </summary>
 		/// <param name="obj"></param>
-		void TargetPlacedObject(GameObject obj)
+		void TargetPlacedObject(PlacedObject _placedobj)
         {
 			if(Activeobj != null)
             {
 				Destroy(Activeobj);
             }
-				Activeobj = obj;
+				Activeobj = _placedobj.Object;
+			ActiveBundleData = _placedobj.BundleData;
+			ActivePlacedObject = _placedobj;
 
-        }
+			foreach(NetGameObject n in NetgameObjects)
+            {
+				if(n.ObjectID == _placedobj.ObjectId)
+                {
+                    // move on net
+                    if (InGameUI.instance.Connected)
+                    {
+						StreamingObjectData = true;
+                    }
+
+                }
+            }
+
+
+		}
+
+
+
+
 
 
 
@@ -694,8 +859,17 @@ namespace FrostyP_Game_Manager
 				MoveObject();
 				CamFollow();
 
-				camobj.transform.RotateAround(Activeobj.transform.position, Vector3.up, MGInputManager.RStickX());
-				camobj.transform.RotateAround(Activeobj.transform.position, camobj.transform.right, MGInputManager.RStickY());
+				float speed = 40;
+				if(MGInputManager.RStickX()>0.2f | MGInputManager.RStickX() < -0.2f)
+                {
+				camobj.transform.RotateAround(Activeobj.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed);
+
+                }
+
+				if (MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
+				{
+					camobj.transform.RotateAround(Activeobj.transform.position, camobj.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed);
+				}
 
 
 
@@ -745,8 +919,8 @@ namespace FrostyP_Game_Manager
 
 				}
 
-				Camdistance = Mathf.Clamp(Camdistance, 10, 100);
-				Camdistance = Mathf.Lerp(Camdistance, Camdistance + (-MGInputManager.RStickY()), 1);
+				Camdistance = Mathf.Clamp(Camdistance, 5, 100);
+				Camdistance = Mathf.Lerp(Camdistance, Camdistance + (-MGInputManager.RStickY()), 15 * Time.fixedDeltaTime);
 
 			}
 
@@ -754,10 +928,10 @@ namespace FrostyP_Game_Manager
 			// if R Trigger is on
 			if (MGInputManager.RTrigger() > 0.4 && MGInputManager.LTrigger() < 0.2f)
 			{
-				GUILayout.Label("Fine Tune Rotate Object -- Lstick to rotate Y, Rstick to rotate Z ");
+				GUILayout.Label("Fine Tune Rotate Object -- Lstick to rotate Y, Rstick to rotate Z and X ");
 
 				// fine tuning rotate
-				Activeobj.transform.Rotate(0, MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.RStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
+				Activeobj.transform.Rotate(MGInputManager.RStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, -MGInputManager.RStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
 
 
 			}
@@ -794,10 +968,71 @@ namespace FrostyP_Game_Manager
 
 
 
+		void DestroyObject()
+        {
+			Vector3 pos = Activeobj.transform.position;
+			StreamingObjectData = false;
+
+			if(ActivePlacedObject.ObjectId != 0 && InGameUI.instance.Connected)
+            {
+
+			ClientSend.DestroyAnObject(ActivePlacedObject.ObjectId);
+
+            }
+			NetGameObject todel = null;
+			// find corresponding netgameobject and remove
+			foreach (NetGameObject n in NetgameObjects)
+			{
+				if (n.ObjectID == ActivePlacedObject.ObjectId)
+				{
+					todel = n;
+
+				}
+			}
+
+			if (todel != null)
+			{
+				NetgameObjects.Remove(todel);
+			}
+
+
+			REgrabbed = false;
+			Destroy(Activeobj);
+			if (ActivePlacedObject != null)
+			{
+				placedobjects.Remove(ActivePlacedObject);
+			}
+			ActiveBundleData = null;
+
+			Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			Activeobj.transform.position = pos;
+			PlacedObject o = null;
+			foreach(PlacedObject p in ObjectstoSave)
+            {
+				if(p == ActivePlacedObject)
+                {
+					o = p;
+                }
+            }
+
+            if (o != null)
+            {
+				ObjectstoSave.Remove(o);
+            }
+
+		}
+
+
 
 		// instantiates a clone of current object, adds PLACED to its name for later reference then re-targets activeobj to the live version
 		void PlaceObject()
         {
+            if (!Activeobj.name.Contains("Pointer"))
+            {
+			StreamingObjectData = false;
+
+            if (!REgrabbed)
+            {
 			GameObject obj = GameObject.Instantiate(UnityEngine.GameObject.Find(Activeobj.name));
 			//obj.transform.DetachChildren();
             if (obj.GetComponent<Rigidbody>())
@@ -807,18 +1042,58 @@ namespace FrostyP_Game_Manager
             }
 
 
-			obj.name = Activeobj.gameObject.name + " PLACED";
+			obj.name.Replace("(Clone)", "");
 			obj.transform.position = Activeobj.transform.position;
 			obj.transform.rotation = Activeobj.transform.rotation;
-			placedobjects.Add(obj);
+				DontDestroyOnLoad(obj);
+				PlacedObject _new = new PlacedObject(obj, ActiveBundleData);
+
+            try
+            {
+            // send to server if online
+				int ID = GiveUniqueNumber();
+				_new.ObjectId = ID;
+
+				NetGameObject _newobj = new NetGameObject(Activeobj.name.Replace("(Clone)",""), ActiveBundleData.FileName, ActiveBundleData.Bundle.name, Activeobj.transform.eulerAngles, Activeobj.transform.position, Activeobj.transform.localScale, false, ID, obj);
+				NetgameObjects.Add(_newobj);
+
+            if (InGameUI.instance.Connected && NetgameObjects.Count < 10)
+            {
+				ClientSend.SpawnObjectOnServer(_newobj);
+			
+
+			}
+
+
+            }
+            catch (UnityException x)
+            {
+				Debug.Log(x);
+            }
+
+
+			placedobjects.Add(_new);
 			
 			placedonce = true;
-			//Netobjectlist.Add(new NetGameObject(Activeobj.name,))
-            // send to server if online
-            if (InGameUI.instance.Connected)
-            {
-			
+
             }
+            if (REgrabbed)
+            {
+				//GameObject g = Instantiate(GameObject.Find(Activeobj.name));
+				REgrabbed = false;
+				
+				Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+					Activeobj.name = "Pointer";
+				Activeobj.transform.position = ActivePlacedObject.Object.transform.position;
+				ActiveBundleData = null;
+				ActivePlacedObject = null;
+				placedonce = true;
+            }
+
+
+            }
+
+
         }
 
 
@@ -889,55 +1164,487 @@ namespace FrostyP_Game_Manager
         }
 
 
-		void ShowCurrentBuild(string Buildname)
-        {
-			GameObject g = null;
-			bool clicked = false;
-			GUILayout.Space(50);
-			GUILayout.Label("Placed Objects:");
-			GUILayout.Space(20);
-			foreach(GameObject obj in placedobjects)
-            {
-                if (GUILayout.Button(obj.name))
-                {
-					
-					regrabbed_pos = obj.transform.position;
-					regrabbed_rot = obj.transform.eulerAngles;
-					REgrabbed = true;
-					g = obj;
-					clicked = true;
-					
-                }
-
-            }
-
-            if (clicked && g != null)
-            {
-				placedobjects.Remove(g);
-				TargetPlacedObject(g);
-			}
-
-        }
-
-
 		void ReplaceOnBButton()
         {
             if (MGInputManager.B_Down())
             {
+				
 				Activeobj.transform.position = regrabbed_pos;
 				Activeobj.transform.eulerAngles = regrabbed_rot;
+				StreamingObjectData = false;
+				
 				Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+				Activeobj.name = "Pointer";
+				Activeobj.transform.position = regrabbed_pos;
 			REgrabbed = false;
             }
-            if (MGInputManager.A_Down())
-            {
-				REgrabbed = false;
-            }
+            
 
         }
 
         #endregion
 
+
+
+
+		int GiveUniqueNumber()
+        {
+			int Id = 0;
+			bool matched = false;
+			while(Id == 0)
+            {
+				int num;
+				num = Mathf.RoundToInt(Random.Range(1, 500));
+				foreach(NetGameObject obj in NetgameObjects)
+                {
+					if(num == obj.ObjectID)
+                    {
+						matched = true;
+                    }
+                }
+
+                if (!matched)
+                {
+					Id = num;
+                }
+            }
+
+
+
+			return Id;
+        }
+
+
+
+
+
+
+		void MyObjectsMenu()
+        {
+			Rect box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6f, Screen.height / 3));
+			GUI.skin = skin;
+			GUILayout.BeginArea(box);
+			GUILayout.Label($"My Objects: {placedobjects.Count} placed", Generalstyle);
+
+
+			MyobjectsScroll = GUILayout.BeginScrollView(MyobjectsScroll);
+
+			GUILayout.Space(20);
+			foreach(PlacedObject obj in placedobjects)
+            {
+
+				// pick up object, remember where it was, replace on B, let go with A
+                if (GUILayout.Button(obj.Object.name.Replace("(Clone)","")))
+                {
+                    if (!REgrabbed)
+                    {
+					regrabbed_pos = obj.Object.transform.position;
+					regrabbed_rot = obj.Object.transform.eulerAngles;
+					REgrabbed = true;
+
+					TargetPlacedObject(obj);
+
+                    }
+
+                }
+				GUILayout.Space(5);
+
+
+
+
+            }
+
+			GUILayout.EndScrollView();
+			GUILayout.EndArea();
+           
+
+        }
+
+
+
+
+
+		void SaveLoadMenu()
+        {
+			Rect box = new Rect(new Vector2(Screen.width / 2 - 10, Screen.height / 1.7f), new Vector2(Screen.width / 2f, Screen.height / 2));
+			GUI.skin = skin;
+			GUILayout.BeginArea(box);
+			Save_Load_Toggle = GUILayout.Toggle(Save_Load_Toggle, $"{SaveloadMode}");
+			GUILayout.Space(15);
+			// Load Mode
+			if (Save_Load_Toggle)
+            {
+				SaveloadScroll = GUILayout.BeginScrollView(SaveloadScroll);
+				foreach(FileInfo file in new DirectoryInfo(ParksDirectory).GetFiles())
+                {
+                    if(GUILayout.Button($"{file.Name}"))
+					{
+						_ParkSaveLoad.LoadSpot($"{file.FullName}");
+                    }
+                }
+				GUILayout.EndScrollView();
+			}
+
+			// Save Mode
+            if (!Save_Load_Toggle)
+            {
+			GUILayout.Label($"{ObjectstoSave.Count} placed in Save List", Generalstyle);
+				GUILayout.Space(5);
+				SaveparkName = GUILayout.TextField(SaveparkName);
+				GUILayout.Space(5);
+				if (GUILayout.Button("Save Spot"))
+                {
+					foreach(PlacedObject _p in ObjectstoSave)
+                    {
+						if(_p.ObjectId != 0 && _p.OwnerID!=0)
+                        {
+						bool gotname = false;
+							foreach(string _s in CreatorsList)
+                            {
+								if(_s == GameManager.Players[_p.OwnerID].username)
+                                {
+									gotname = true;
+                                }
+                            }
+
+                            if (!gotname)
+                            {
+								CreatorsList.Add(GameManager.Players[_p.OwnerID].username);
+                            }
+
+
+                        }
+
+						if(_p.OwnerID == 0)
+                        {
+							bool gotname = false;
+							foreach (string _s in CreatorsList)
+							{
+								if (_s == InGameUI.instance.Username)
+								{
+									gotname = true;
+								}
+							}
+
+							if (!gotname)
+							{
+								CreatorsList.Add(InGameUI.instance.Username);
+							}
+
+
+						}
+
+					}
+					_ParkSaveLoad.SaveSpot(ObjectstoSave, SaveparkName, CreatorsList);
+                }
+
+				SaveloadScroll = GUILayout.BeginScrollView(SaveloadScroll);
+
+				GUILayout.Space(5);
+				GUILayout.Label("My Objects");
+				GUILayout.Space(5);
+				foreach (PlacedObject myobj in placedobjects)
+                {
+					bool found = false;
+					foreach(PlacedObject alreadyin in ObjectstoSave)
+                    {
+						if(alreadyin == myobj)
+                        {
+							found = true;
+                        }
+                    }
+                    if (!found)
+                    {
+                        if (GUILayout.Button($"Add {myobj.Object.name.Replace("(Clone)","")}"))
+                        {
+							
+							ObjectstoSave.Add(myobj);
+							
+                        }
+                    }
+                    if (found)
+                    {
+						if (GUILayout.Button($"Remove {myobj.Object.name.Replace("(Clone)", "")}"))
+						{
+							ObjectstoSave.Remove(myobj);
+							
+						}
+
+					}
+
+					GUILayout.Space(5);
+
+				}
+				GUILayout.Space(15);
+				if (InGameUI.instance.Connected)
+                {
+				foreach(RemotePlayer player in GameManager.Players.Values)
+                {
+						PlacedObject _foundobj = null;
+					GUILayout.Space(5);
+					GUILayout.Label($"{player.username}'s Objects");
+					foreach(NetGameObject rmObj in GameManager.PlayersObjects[player.id])
+                    {
+						PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile));
+							_RMPlacedObject.ObjectId = rmObj.ObjectID;
+							_RMPlacedObject.OwnerID = rmObj.OwnerID;
+						bool found = false;
+						foreach (PlacedObject alreadyin in ObjectstoSave.ToArray())
+						{
+							if (alreadyin.ObjectId == rmObj.ObjectID && alreadyin.OwnerID == rmObj.OwnerID)
+							{
+									_foundobj = alreadyin;
+									found = true;
+							}
+						}
+
+
+						if (!found)
+						{
+							if (GUILayout.Button($"Add {_RMPlacedObject.Object.name.Replace("(Clone)", "")}"))
+							{
+								ObjectstoSave.Add(_RMPlacedObject);
+							}
+						}
+						if (found)
+						{
+							if (GUILayout.Button($"Remove {_RMPlacedObject.Object.name.Replace("(Clone)", "")}"))
+							{
+								ObjectstoSave.Remove(_foundobj);
+							}
+
+						}
+
+
+					}
+					GUILayout.Space(5);
+				}
+
+                }
+
+			GUILayout.EndScrollView();
+
+
+            }
+
+
+
+
+
+			GUILayout.EndArea();
+		}
+
+
+
+	   
+		public void LoadedSpotSetup(SavedSpot _Spot)
+        {
+			
+			foreach (SavedGameObject _savedObj in _Spot.Objects)
+            {
+				bool found = false;
+				Debug.Log(_savedObj.nameofGameObject + ":");
+				// check loaded bundles
+				foreach(AssetBundle asbun in AssetBundle.GetAllLoadedAssetBundles())
+                {
+					if (asbun.name == _savedObj.AssetBundleName)
+					{
+						GameObject _thisobj = Instantiate(asbun.LoadAsset(_savedObj.nameofGameObject)) as GameObject;
+						_thisobj.transform.position = new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]);
+						_thisobj.transform.eulerAngles = new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]);
+						if (_thisobj.GetComponent<Rigidbody>())
+						{
+							_thisobj.layer = 25;
+							_thisobj.GetComponent<Rigidbody>().isKinematic = false;
+						}
+
+
+						_thisobj.name.Replace("(Clone)", "");
+						DontDestroyOnLoad(_thisobj);
+						PlacedObject _new = new PlacedObject(_thisobj, new BundleData(asbun, _savedObj.FileName));
+
+						if (InGameUI.instance.Connected)
+						{
+						
+								// send to server if online
+								int ID = GiveUniqueNumber();
+								_new.ObjectId = ID;
+
+								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject,_savedObj.FileName,_savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]),_thisobj.transform.localScale, false, ID, _thisobj);
+								NetgameObjects.Add(_newobj);
+
+								if (InGameUI.instance.Connected && NetgameObjects.Count < 10)
+								{
+									ClientSend.SpawnObjectOnServer(_newobj);
+
+
+								}
+
+							
+						}
+
+
+						found = true;
+						placedobjects.Add(_new);
+					}
+                }
+
+
+                // if not returned, check file directory
+                if (!found)
+                {
+				foreach(FileInfo file in new DirectoryInfo(AssetbundlesDirectory).GetFiles())
+                {
+					if(file.Name == _savedObj.FileName)
+                    {
+						AssetBundle asbun = AssetBundle.LoadFromFile(file.FullName);
+							bundlesloaded.Add(new BundleData(asbun, file.Name));
+						GameObject _thisobj = Instantiate(asbun.LoadAsset(_savedObj.nameofGameObject)) as GameObject;
+						_thisobj.transform.position = new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]);
+						_thisobj.transform.eulerAngles = new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]);
+						if (_thisobj.GetComponent<Rigidbody>())
+						{
+							_thisobj.layer = 25;
+							_thisobj.GetComponent<Rigidbody>().isKinematic = false;
+						}
+
+
+						_thisobj.name.Replace("(Clone)", "");
+						DontDestroyOnLoad(_thisobj);
+
+							PlacedObject _new = new PlacedObject(_thisobj, new BundleData(asbun, _savedObj.FileName));
+
+							if (InGameUI.instance.Connected)
+							{
+
+								// send to server if online
+								int ID = GiveUniqueNumber();
+								_new.ObjectId = ID;
+
+								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject, _savedObj.FileName, _savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]), _thisobj.transform.localScale, false, ID, _thisobj);
+								NetgameObjects.Add(_newobj);
+
+								if (InGameUI.instance.Connected && NetgameObjects.Count < 10)
+								{
+									ClientSend.SpawnObjectOnServer(_newobj);
+
+
+								}
+
+
+							}
+
+
+
+							placedobjects.Add(_new);
+
+						
+
+					}
+                }
+
+                }
+
+            }
+
+
+
+        }
+
+
+		public void LoadedSpotReceiveFromFile(SavedSpot _spot)
+        {
+			ActiveSavedspot = _spot;
+			LoadedSpotCreators = new List<string>();
+			Loadedspotpackneeded = new List<string>();
+			for (int i = 0; i < _spot.Creators.Length; i++)
+			{
+				LoadedSpotCreators.Add(_spot.Creators[i]);
+			}
+
+			foreach(SavedGameObject ob in _spot.Objects)
+            {
+				bool found = false;
+				foreach(string s in Loadedspotpackneeded)
+                {
+				if(ob.AssetBundleName == s)
+                    {
+						found = true;
+                    }
+
+                }
+
+                if (!found)
+                {
+					Loadedspotpackneeded.Add(ob.AssetBundleName);
+                }
+
+            }
+
+
+			ShowLoadedspot = true;
+        }
+
+
+		public void ShowLoadedSpot()
+        {
+			if(ActiveSavedspot != null)
+            {
+				Rect box = new Rect(new Vector2(Screen.width / 3, Screen.height / 4), new Vector2(Screen.width / 3f, Screen.height / 2));
+
+				GUIStyle BackG = new GUIStyle();
+				BackG.alignment = TextAnchor.MiddleCenter;
+				BackG.padding = new RectOffset(5, 5, 5, 5);
+				BackG.normal.background = whiteTex;
+				BackG.normal.textColor = Color.black;
+				
+				
+				
+
+				GUIStyle buttonsstyle = new GUIStyle();
+				buttonsstyle.alignment = TextAnchor.MiddleCenter;
+				buttonsstyle.normal.textColor = Color.grey;
+				buttonsstyle.hover.textColor = Color.white;
+				buttonsstyle.normal.background = whiteTex;
+				buttonsstyle.hover.background = GreenTex;
+				buttonsstyle.fontStyle = FontStyle.Bold;
+
+
+				GUILayout.BeginArea(box,BackG);
+                if (GUILayout.Button("Setup",buttonsstyle))
+                {
+					LoadedSpotSetup(ActiveSavedspot);
+					ShowLoadedspot = false;
+                }
+				if (GUILayout.Button("Close",buttonsstyle))
+				{
+					ActiveSavedspot = null;
+					LoadedSpotCreators = null;
+					Loadedspotpackneeded = null;
+					ShowLoadedspot = false;
+				}
+				GUILayout.Space(20);
+
+				GUILayout.Label(ActiveSavedspot.NameOfSpot);
+				GUILayout.Label($"Built by: ", BackG);
+				foreach(string c in LoadedSpotCreators)
+                {
+					GUILayout.Label(c, buttonsstyle);
+                }
+				GUILayout.Label($"For map: {ActiveSavedspot.MapName}", BackG);
+				GUILayout.Label($"Object count: {ActiveSavedspot.Objects.Count}", BackG);
+				GUILayout.Label($"Packs needed:", BackG);
+				foreach(string need in Loadedspotpackneeded)
+                {
+					GUILayout.Label(need, buttonsstyle);
+                }
+
+				GUILayout.EndArea();
+			}
+        }
+
+
+		
 
 
     }
@@ -955,8 +1662,12 @@ namespace FrostyP_Game_Manager
 		public Vector3 Position;
 		public Vector3 Scale;
 		public bool IsPhysics;
+		public GameObject _Gameobject = null;
+		public int ObjectID;
+		public AssetBundle AssetBundle;
+		public uint OwnerID;
 
-		public NetGameObject(string _nameofobject,string _nameoffile, string _nameofassetbundle,Vector3 _rotation,Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled)
+		public NetGameObject(string _nameofobject,string _nameoffile, string _nameofassetbundle,Vector3 _rotation,Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled, int objectid, GameObject GO)
         {
 			NameofObject = _nameofobject;
 			NameOfFile = _nameoffile;
@@ -965,12 +1676,57 @@ namespace FrostyP_Game_Manager
 			Position = _position;
 			Scale = _scale;
 			IsPhysics = _IsPhysicsenabled;
+			_Gameobject = GO;
+			ObjectID = objectid;
 
         }
+
+		
 
 
     }
 
+
+	public class BundleData
+    {
+		
+		public AssetBundle Bundle;
+		/// <summary>
+		/// file no with no path
+		/// </summary>
+		public string FileName;
+		/// <summary>
+		/// Full path to file
+		/// </summary>
+		public string FullFileName;
+
+
+		public BundleData(AssetBundle _bundle, string _filename)
+        {
+			Bundle = _bundle;
+			FileName = _filename;
+			
+
+        }
+
+
+
+    }
+
+		public class PlacedObject
+        {
+			public GameObject Object;
+			public BundleData BundleData;
+		    public int ObjectId = 0;
+		    public uint OwnerID = 0;
+
+			public PlacedObject(GameObject GO,BundleData Bundata)
+            {
+				Object = GO;
+				BundleData = Bundata;
+            }
+
+        }
 
 
 

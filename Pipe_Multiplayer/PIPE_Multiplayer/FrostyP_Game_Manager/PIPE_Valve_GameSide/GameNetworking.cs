@@ -17,7 +17,7 @@ namespace PIPE_Valve_Console_Client
     public class GameNetworking
     {
 
-		public float VERSIONNUMBER { get; } = 2.1f;
+		public float VERSIONNUMBER { get; } = 2.12f;
 
 
 		// this class accessable anywhere
@@ -39,6 +39,8 @@ namespace PIPE_Valve_Console_Client
 		public string FrostyIP = "";
 		public int frostyport = 4130;
 
+
+		
 
 		/// <summary>
 		/// Contains callbacks that happen on state change and other stuff
@@ -118,6 +120,10 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.ReceiveSetupAllOnlinePlayers, ClientHandle.SetupAllOnlinePlayers},
 				{ (int)ServerPacket.ReceiveMapName, ClientHandle.ReceiveMapname},
 				{ (int)ServerPacket.disconnectme, ClientHandle.Disconnectme},
+				{ (int)ServerPacket.Logingood, ClientHandle.LoginGood},
+				{ (int)ServerPacket.SpawnAnObjectReceive, ClientHandle.SpawnAnObjectReceive},
+				{ (int)ServerPacket.DestroyAnObject, ClientHandle.DestroyAnObject},
+				{ (int)ServerPacket.MoveAnObject, ClientHandle.MoveAnObject},
 
 
 			};
@@ -127,32 +133,7 @@ namespace PIPE_Valve_Console_Client
 
 
 			
-			status = (ref StatusInfo info) => {
-				switch (info.connectionInfo.state)
-				{
-					case ConnectionState.None:
-						break;
-
-					case ConnectionState.Connected:
-						SendToUnityThread.instance.ExecuteOnMainThread(() =>
-						{
-							InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Connected To Server", (int)MessageColour.System, 1));
-						});
-						break;
-
-					case ConnectionState.ClosedByPeer:
-					case ConnectionState.ProblemDetectedLocally:
-						client.CloseConnection(connection);
-						SendToUnityThread.instance.ExecuteOnMainThread(() =>
-						{
-							InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Disconnected from Server", (int)MessageColour.System, 1));
-						});
-						break;
-				}
-			};
-
-			//Debug.Log("GameNetworking Startup Complete");
-
+			
 		}
 
 
@@ -165,28 +146,19 @@ namespace PIPE_Valve_Console_Client
 		public void Run()
         {
 			
-				//client.RunCallbacks(); //=====================================================================    this will provide callbacks about connection, disconnection, data about current
-				//GC.KeepAlive(status);
                 
 
-#if VALVESOCKETS_SPAN
-	MessageCallback message = (in NetworkingMessage netMessage) => {
-		Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
-	};
-#else
-
-#endif
-
-
-#if VALVESOCKETS_SPAN
-		client.ReceiveMessagesOnConnection(connection, message, 20);
-#else
+			// create new message array each loop
 			netMessages = new NetworkingMessage[maxMessages];
 
-			// Do incoming on Server thread, send to unity
+
+
+
+
+			// Do incoming receive of messages on Server thread, send each to Unity thread
 			int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
 			
-				// if theres messages, send Back to Unity Thread for processing, neccessary for anything that uses Untiy API even debug.log for some reason, maybe because its outside assemblyC
+				
 				if (netMessagesCount > 0)
 				{
 
@@ -207,14 +179,14 @@ namespace PIPE_Valve_Console_Client
 						 {
 							int _packetId = _packet.ReadInt();
 							
-								packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
+								packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet, see Packet class on both server and game side to find codes, see Start() for setup of Gameside Codes
 						 }
 
 					
 				       });
 
 
-						//Debug.Log("Message received from server - Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
+						
 
 						netMessage.Destroy();
 					}
@@ -226,8 +198,8 @@ namespace PIPE_Valve_Console_Client
 
 
 
-#endif
 
+		 // do connection status on tickrate to log to IngameGUI info about ping, connection state etc, alternative to client.runcallbacks()
 			ConnectionStatus();
 
 			
@@ -297,7 +269,9 @@ namespace PIPE_Valve_Console_Client
 		}
 
 
-
+		/// <summary>
+		/// Uses DNS
+		/// </summary>
 		public void ConnectFrosty()
 		{
 			try
@@ -418,18 +392,22 @@ namespace PIPE_Valve_Console_Client
 				InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server thread Started up", 1, 0));
 			});
 
+
+
+
 			watch = new Stopwatch();
 			watch.Start();
-			// while running, update at tick rate
-			// while running, update at tick rate
+			
+		
 			while (ServerLoopIsRunning)
 			{
-				watch.Reset(); watch.Start();
+			 
 
 
 				// this is the fixedupdate of server thread
 				try
 				{
+					
 					ServerUpdate.Update();
 				}
 				catch (System.Exception x)
@@ -437,13 +415,16 @@ namespace PIPE_Valve_Console_Client
 					SendToUnityThread.instance.ExecuteOnMainThread(() =>
 					{
 						UnityEngine.Debug.Log("Server update issue : " + x);
-						InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server conflict", 1, 0));
+						//InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server conflict", 1, 0));
 					});
 
 				}
 				if (Constants.MSPerTick - (int)watch.ElapsedMilliseconds < 100 && Constants.MSPerTick - (int)watch.ElapsedMilliseconds > 0)
 				{
+					
+
 					Thread.Sleep(Constants.MSPerTick - (int)watch.ElapsedMilliseconds);
+					watch.Reset();
 				}
 				else
 				{
@@ -463,6 +444,7 @@ namespace PIPE_Valve_Console_Client
 
 
 			watch.Reset();
+			watch.Stop();
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
 				UnityEngine.Debug.Log("Thread Ended");
@@ -471,6 +453,7 @@ namespace PIPE_Valve_Console_Client
 		}
 
 
+		// Data about the connection to Server, called on tick
 		public void ConnectionStatus()
         {
 			ConnectionStatus constat = new ConnectionStatus();
@@ -495,13 +478,15 @@ namespace PIPE_Valve_Console_Client
 				}
             }
 
+
+
+			// if there is a connection and were in online mode, log data
 			if(InGameUI.instance.Connected && constat.state == Valve.Sockets.ConnectionState.Connected)
             {
 				InGameUI.instance.Ping = constat.ping;
-				//InGameUI.instance.Outbytespersec = constat.outBytesPerSecond;
-				//InGameUI.instance.InBytespersec = constat.inBytesPerSecond;
+				InGameUI.instance.Pendingreliable = constat.pendingReliable;
+				InGameUI.instance.Pendingunreliable = constat.pendingUnreliable;
 				
-				//InGameUI.instance.SendBytesPersec = constat.sendRateBytesPerSecond;
             }
 
 

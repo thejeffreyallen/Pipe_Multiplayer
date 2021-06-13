@@ -1,10 +1,15 @@
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE_Valve_Online_Server.exe.config
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE_Valve_Online_Server.exe
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE_Valve_Online_Server.pdb
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\System.Numerics.Vectors.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\Valve.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\Valve.pdb
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.csproj.CoreCompileInputs.cache
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.csproj.CopyComplete
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.exe
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE Server GUI.dll
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE Server GUI.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE Server GUI.dll.config
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE Server GUI.exe.config
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE_Valve_Online_Server.exe.config
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Debug\PIPE_Valve_Online_Server.exe
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.exe
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Debug\PIPE_Valve_Online_Server.csprojAssemblyReference.cache

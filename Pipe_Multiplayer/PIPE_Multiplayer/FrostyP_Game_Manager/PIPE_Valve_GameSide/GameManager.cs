@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using FrostyP_Game_Manager;
 
 namespace PIPE_Valve_Console_Client
 {
@@ -22,13 +23,18 @@ namespace PIPE_Valve_Console_Client
         public static Dictionary<uint, List<TextureInfo>> Bikenormalinfos;
         public static Dictionary<uint, List<TextureInfo>> RiderTexinfos;
 
+        public static Dictionary<uint, List<FrostyP_Game_Manager.NetGameObject>> PlayersObjects;
+
+      
+
+        // FrostyMultiplayerAssets Bundle
+        GameObject Prefab;
+        public GameObject wheelcolliderobj;
+        public AssetBundle FrostyAssets;
+        //public GameObject FrostyCanvas;
       
 
 
-        GameObject Prefab;
-        public GameObject wheelcolliderobj;
-
-        public AssetBundle FrostyAssets;
 
         // found riders in Custom Players
         public string riderdirectory = Application.dataPath + "/Custom Players/";
@@ -45,6 +51,10 @@ namespace PIPE_Valve_Console_Client
             patcha = new GameObject();
             patcha.AddComponent<PatchaMapImporter.PatchaMapImporter>();
             mapImporter = patcha.GetComponent<PatchaMapImporter.PatchaMapImporter>();
+
+
+           
+          
         }
 
         // Use this for initialization
@@ -52,6 +62,9 @@ namespace PIPE_Valve_Console_Client
         {
             _charactermod = gameObject.GetComponent<CharacterModding>();
            
+            _localplayer = gameObject.GetComponent<LocalPlayer>();
+
+
             Players = new Dictionary<uint, RemotePlayer>();
             PlayersColours = new Dictionary<uint, List<Vector3>>();
             PlayersSmooths = new Dictionary<uint, List<float>>();
@@ -59,11 +72,18 @@ namespace PIPE_Valve_Console_Client
             BikeTexinfos = new Dictionary<uint, List<TextureInfo>>();
             Bikenormalinfos = new Dictionary<uint, List<TextureInfo>>();
             RiderTexinfos = new Dictionary<uint, List<TextureInfo>>();
+            PlayersObjects = new Dictionary<uint, List<FrostyP_Game_Manager.NetGameObject>>();
+
+
+
+
+
             FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
             Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
-            wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
             Prefab.AddComponent<RemotePlayer>();
-            _localplayer = gameObject.GetComponent<LocalPlayer>();
+            wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
+           // FrostyCanvas = Instantiate(FrostyAssets.LoadAsset("FrostyCanvas") as GameObject);
+          
         }
 
         public Dictionary<uint, RemotePlayer> GetPlayers() {
@@ -92,9 +112,23 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public void SpawnOnMyGame(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, List<TextureInfo> BmxInfos, List<Vector3> Bikecolours, List<float> bikesmooths,List<float> bikemetts, string Currentmap, List<TextureInfo> Riderinfos, List<TextureInfo> Bmxnormalinfos)
+        public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, List<TextureInfo> BmxInfos, List<Vector3> Bikecolours, List<float> bikesmooths,List<float> bikemetts, string Currentmap, List<TextureInfo> Riderinfos, List<TextureInfo> Bmxnormalinfos)
         {
             Debug.Log($"Spawning : {_username} as {currentmodel}, bundlename: {modelbundlename}, bmxinfos count: {BmxInfos.Count}, Riderinfos count: {Riderinfos.Count}, Id: {_id}, bmxnormalcount: {Bmxnormalinfos.Count}");
+
+            foreach(RemotePlayer player in Players.Values)
+            {
+               if(player.id == _id)
+                {
+                    // player already exists, clean out first
+                    CleanUpOldPlayer(_id);
+
+                }
+            }
+            
+
+
+
                     GameObject New = GameObject.Instantiate(Prefab);
                     RemotePlayer r = New.GetComponent<RemotePlayer>();
                     Players.Add(_id, r);
@@ -108,19 +142,91 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            PlayersColours.Add(_id, Bikecolours);
+                    PlayersColours.Add(_id, Bikecolours);
                     PlayersSmooths.Add(_id, bikesmooths);
                     BikeTexinfos.Add(_id,BmxInfos);
                     Bikenormalinfos.Add(_id, Bmxnormalinfos);
                     RiderTexinfos.Add(_id, Riderinfos);
                     PlayersMetals.Add(_id, bikemetts);
+                    PlayersObjects.Add(_id, new List<NetGameObject>());
 
-
-                
-            
+           
 
                     DontDestroyOnLoad(New);
-            Debug.Log("Spawn finished");
+                    Debug.Log("Spawn finished");
+
+        }
+
+
+
+        public void SpawnObject(uint OwnerID, NetGameObject _netobj)
+        {
+           // check object doesnt exist already using objects unique id
+
+            if(PlayersObjects[OwnerID] != null)
+            {
+            foreach(NetGameObject n in PlayersObjects[OwnerID])
+            {
+                if(n.ObjectID == _netobj.ObjectID)
+                {
+                        InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Duplicate spawn attempt {_netobj.NameofObject} from package {_netobj.NameOfFile} for {Players[OwnerID].username}, object wont be spawned", (int)MessageColour.Server, 0));
+                        return;
+                }
+            }
+
+            }
+
+            // check if objects bundle is loaded on this machine, if not look for filename and load bundle, if not, tell user what they need
+            
+            foreach(AssetBundle A in AssetBundle.GetAllLoadedAssetBundles())
+            {
+                if(A.name == _netobj.NameofAssetBundle)
+                {
+                    GameObject _newobj = Instantiate(A.LoadAsset(_netobj.NameofObject)) as GameObject;
+                    _newobj.transform.position = _netobj.Position;
+                    _newobj.transform.eulerAngles = _netobj.Rotation;
+                    
+                    _netobj._Gameobject = _newobj;
+                    _netobj.AssetBundle = A;
+                    DontDestroyOnLoad(_newobj);
+                    GameManager.PlayersObjects[OwnerID].Add(_netobj);
+                    return;
+                }
+            }
+
+            foreach(FileInfo file in new DirectoryInfo(ParkBuilder.instance.AssetbundlesDirectory).GetFiles())
+            {
+                if(file.Name == _netobj.NameOfFile)
+                {
+                   AssetBundle newbundle = AssetBundle.LoadFromFile(file.FullName);
+                    GameObject _newobj = Instantiate(newbundle.LoadAsset(_netobj.NameofObject)) as GameObject;
+
+                    _newobj.transform.position = _netobj.Position;
+                    _newobj.transform.eulerAngles = _netobj.Rotation;
+
+                    _netobj._Gameobject = _newobj;
+                    _netobj.AssetBundle = newbundle;
+                    DontDestroyOnLoad(_newobj);
+                    GameManager.PlayersObjects[OwnerID].Add(_netobj);
+                    ParkBuilder.instance.bundlesloaded.Add(new BundleData(newbundle, file.Name));
+                    return;
+                }
+            }
+
+            // failed to find object, inform user what package is missing and clean up, resolve with server
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to spawn object {_netobj.NameofObject} from package {_netobj.NameOfFile} for {Players[OwnerID].username}, object wont be spawned", (int)MessageColour.Server, 0));
+
+
+        }
+
+
+        public void MoveObject(NetGameObject _netobj, Vector3 pos, Vector3 rot, Vector3 scale)
+        {
+            GameObject Obj = _netobj._Gameobject;
+
+            Obj.transform.position = Vector3.MoveTowards(Obj.transform.position, pos, Vector3.Distance(Obj.transform.position, pos));
+            Obj.transform.eulerAngles = Vector3.MoveTowards(Obj.transform.eulerAngles, rot, Vector3.Distance(Obj.transform.eulerAngles, rot));
+            Obj.transform.localScale = Vector3.MoveTowards(Obj.transform.localScale, scale, Vector3.Distance(Obj.transform.localScale, scale));
 
         }
 
@@ -319,11 +425,81 @@ namespace PIPE_Valve_Console_Client
 
 
 
+        public void CleanUpOldPlayer(uint _id)
+        {
+            try
+            {
+                if(Players[_id].RiderModel != null)
+                {
+                    Destroy(Players[_id].RiderModel);
+                }
+                if (Players[_id].Audio != null)
+                {
+                    Destroy(Players[_id].Audio);
+                }
+                if (Players[_id].BMX != null)
+                {
+                    Destroy(Players[_id].BMX);
+                }
+                if (Players[_id].nameSign != null)
+                {
+                    Destroy(Players[_id].nameSign);
+                }
+                    Destroy(Players[_id].gameObject);
 
+                if (PlayersColours[_id] != null)
+                {
+                    PlayersColours.Remove(_id);
+                }
+                if (PlayersSmooths[_id] != null)
+                {
+                   PlayersSmooths.Remove(_id);
+                }
+                if (PlayersMetals[_id] != null)
+                {
+                    PlayersMetals.Remove(_id);
+                }
+                if (RiderTexinfos[_id] != null)
+                {
+                    RiderTexinfos.Remove(_id);
+                }
+                if (BikeTexinfos[_id] != null)
+                {
+                    BikeTexinfos.Remove(_id);
+                }
+                if (Bikenormalinfos[_id] != null)
+                {
+                    Bikenormalinfos.Remove(_id);
+                }
+                if (PlayersObjects[_id].Count > 0)
+                {
+                    foreach (NetGameObject n in PlayersObjects[_id])
+                    {
+                        if (n._Gameobject != null)
+                        {
+                            Destroy(n._Gameobject);
+                        }
+                    }
+
+                }
+                if (PlayersObjects[_id] != null)
+                {
+                    PlayersObjects.Remove(_id);
+                }
+
+            }
+            catch (System.Exception x)
+            {
+
+            }
+
+
+
+        }
         
 
 
-
+       
        
     }
 }

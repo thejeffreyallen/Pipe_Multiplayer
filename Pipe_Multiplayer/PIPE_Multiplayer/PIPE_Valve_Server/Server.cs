@@ -10,6 +10,7 @@ using System.Net;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace PIPE_Valve_Online_Server
 {
@@ -19,29 +20,46 @@ namespace PIPE_Valve_Online_Server
     /// </summary>
     static class Server
     {
-		#region Variables_Held_Here
+		#region Servers data
 
 		
-		public static float VERSIONNUMBER { get;} = 2.1f;
+		public static float VERSIONNUMBER { get;} = 2.12f;
 
+
+		public static List<BanProfile> BanProfiles = new List<BanProfile>();
+		
 
 		/// <summary>
-		/// to be used for encryption/decryption mostly for authentication
+		/// Timers linked to connection ID, every message received resets the timer related to the sender of the message, 60second timeout will close the connection
 		/// </summary>
-        private static Aes aes;
+		public static Dictionary<uint, Stopwatch> TimeoutWatches = new Dictionary<uint, Stopwatch>();
+
+
+		
+
+
 		/// <summary>
-		/// Switch For 
+		/// Switch For main thread loop
 		/// </summary>
 		static bool isRunning = true;
+
+
 		public static int MaxPlayers;
+
+
 		/// <summary>
 		/// Internal Callbacks etc with info about connection
 		/// </summary>
 		public static NetworkingUtils utils;
+
+
+
 		/// <summary>
 		/// Actual Socket that sends and receives
 		/// </summary>
 		public static NetworkingSockets server;
+
+
         // connected clients
 		private static uint pollGroup;
 
@@ -56,6 +74,8 @@ namespace PIPE_Valve_Online_Server
 		/// <param name="_fromClient"></param>
 		/// <param name="_packet"></param>
 		public delegate void PacketHandler(uint _fromClient, Packet _packet);
+
+
 		/// <summary>
 		/// PacketHandlers linked with an Int key, incoming messages fire PacketHandlers[packetcode] which is a function that takes in uint(from connection) and Packet(received bytes)
 		/// </summary>
@@ -99,8 +119,21 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.ReceiveQuickBikeUpdate,ServersHandles.BikeDataQuickUpdate },
 				{ (int)ClientPackets.ReceiveQuickRiderUpdate,ServersHandles.RiderQuickUpdate },
 				{ (int)ClientPackets.ReceiveMapname,ServersHandles.ReceiveMapname},
+				{ (int)ClientPackets.ReceiveBootPlayer,ServersHandles.AdminBootPlayer},
+				{ (int)ClientPackets.AdminLogin,ServersHandles.ReceiveAdminlogin},
+				{ (int)ClientPackets.SpawnNewObjectreceive,ServersHandles.SpawnNewObject},
+				{ (int)ClientPackets.DestroyAnObject,ServersHandles.DestroyObject},
+				{ (int)ClientPackets.MoveAnObject,ServersHandles.MoveObject},
+				{ (int)ClientPackets.Turnmeon,ServersHandles.TurnPlayerOn},
+				{ (int)ClientPackets.Turnmeoff,ServersHandles.TurnPlayerOff},
+				{ (int)ClientPackets.VoteToRemoveObject,ServersHandles.VoteToRemoveObject},
+				{ (int)ClientPackets.KeepAlive,ServersHandles.KeepAlive},
+				{ (int)ClientPackets.AdminRemoveObject,ServersHandles.AdminRemoveObject},
+
 
 			};
+
+
 
 			
 
@@ -168,14 +201,14 @@ namespace PIPE_Valve_Online_Server
 
 					case ConnectionState.ClosedByPeer:
 					case ConnectionState.ProblemDetectedLocally:
-						server.CloseConnection(info.connection);
-						server.FlushMessagesOnConnection(info.connection);
+						
 						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
-
-						
-						
+						DisconnectPlayerAndCleanUp(info.connection);
 						ServerSend.DisconnectTellAll(info.connection);
+
 						break;
+						
+						
 
 
 				}
@@ -199,15 +232,11 @@ namespace PIPE_Valve_Online_Server
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#if VALVESOCKETS_SPAN
-	 MessageCallback message = (in NetworkingMessage netMessage) => {
-		Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
-	};
-#else
+
 			const int maxMessages = 256;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
-#endif
+
 
 			// Server Loop
 			while (isRunning)
@@ -215,13 +244,10 @@ namespace PIPE_Valve_Online_Server
 
 			
 
-#if VALVESOCKETS_SPAN
-		//server.ReceiveMessagesOnPollGroup(pollGroup, message, 20);
-#else
+
 				if (server != null) GC.KeepAlive(server);
 
-				// process Incoming Data by reading int from byte[] and sending to function that corresponds to the int
-
+				
 				server.RunCallbacks();
 				int netMessagesCount = server.ReceiveMessagesOnPollGroup(pollGroup, netMessages, maxMessages);
 					
@@ -246,10 +272,26 @@ namespace PIPE_Valve_Online_Server
 								uint from = netMessage.connection;
 
 								packetHandlers[code](from, _packet);
+
+							foreach(uint watch in TimeoutWatches.Keys)
+                            {
+                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 15)
+                                {
+									Console.WriteLine("Watch Error, Timeout watch reached 15 seconds");
+									
+
+
+                                }
+
+								if(watch == from)
+                                {
+							       TimeoutWatches[from].Reset();
+								   TimeoutWatches[from].Start();
+
+                                }
+                            }
+
 							}
-
-
-							//Console.WriteLine("Message received from - ID: " + netMessage.connection + ", Channel ID: " + netMessage.channel + ", Data length: " + netMessage.length);
 
 
 
@@ -257,10 +299,10 @@ namespace PIPE_Valve_Online_Server
 						}
 
 				}
-					
-					
-					
-#endif
+
+				TimeoutCheck();
+				BanReleaseCheck();
+
 				Thread.Sleep(Constants.MSPerTick);
 				
 			}
@@ -289,16 +331,31 @@ namespace PIPE_Valve_Online_Server
 			
 			if(Players.Values.Count < MaxPlayers)
             {
-				foreach(string ip in ServerData.BannedIps.Values)
+				foreach(BanProfile ban in BanProfiles)
                 {
-					if (ip == info.connectionInfo.address.GetIP())
+					if (ban.IP == info.connectionInfo.address.GetIP())
                     {
 						server.CloseConnection(info.connection);
 						
 						Console.WriteLine($"refused a connection due to Ban: {info.connectionInfo.address.GetIP()}");
 						return;
                     }
-                }
+					if (ban.ConnId == info.connection)
+					{
+						server.CloseConnection(info.connection);
+
+						Console.WriteLine($"refused a connection due to Ban: {info.connection}");
+						return;
+					}
+
+
+				}
+				
+
+
+
+
+
 
 			server.AcceptConnection(info.connection);
 			server.SetConnectionPollGroup(pollGroup, info.connection);
@@ -312,13 +369,13 @@ namespace PIPE_Valve_Online_Server
 		}
 
 
-		public static void CheckForTextureFiles(List<TextureInfo> listoffilenames, uint _fromclient)
+		public static void CheckForTextureFiles(List<PlayerTextureInfo> listoffilenames, uint _fromclient)
         {
 			DirectoryInfo info = new DirectoryInfo(TexturesDir);
 			FileInfo[] files = info.GetFiles();
 			List<string> Unfound = new List<string>();
 
-			foreach (TextureInfo s in listoffilenames)
+			foreach (PlayerTextureInfo s in listoffilenames)
 			{
 				if(s.Nameoftexture != "e" && s.Nameoftexture != "" && s.Nameoftexture != " ")
                 {
@@ -410,37 +467,83 @@ namespace PIPE_Valve_Online_Server
         }
 		
 
-
-        #region Functions_Fired_By_Servers_GUI
-        private static void BanAPlayer(uint Playersconnection, string username)
+		public static void TimeoutCheck()
         {
-			foreach(Player p in Players.Values)
+			foreach(Player _player in Players.Values.ToList())
             {
-				if(p.clientID == Playersconnection)
+				bool foundwatch = false;
+				foreach(uint key in TimeoutWatches.Keys.ToList())
                 {
-					// send message to disconnect client
-					// grab ip,
-					
+					if(_player.RiderID == key)
+                    {
+						foundwatch = true;
+                        if (TimeoutWatches[key].Elapsed.TotalSeconds > 30f)
+                        {
+                            try
+                            {
+								
+								ServerSend.DisconnectPlayer("Timeout", key);
+								Console.WriteLine("Player timeout");
+								TimeoutWatches[key].Reset();
+								TimeoutWatches[key].Stop();
 
-
-					server.CloseConnection(Playersconnection);
+							}
+                            catch (Exception x)
+                            {
+								Console.WriteLine($"Error closing connection from timeout : {x}");
+                            }
+                        }
+                    }
+                }
+                if (!foundwatch)
+                {
+					Console.WriteLine("Player with no Watch");
                 }
             }
         }
 
-		private static void RemoveBan(string username, string Ipaddress)
-        {
 
+		public static void DisconnectPlayerAndCleanUp(uint ClientThatDisconnected)
+        {
+			server.CloseConnection(ClientThatDisconnected);
+			server.FlushMessagesOnConnection(ClientThatDisconnected);
+
+
+			foreach (Player p in Server.Players.Values.ToList())
+			{
+				if (p.RiderID == ClientThatDisconnected)
+				{
+					Server.Players.Remove(ClientThatDisconnected);
+
+				}
+			}
+
+
+			foreach (uint watch in Server.TimeoutWatches.Keys.ToList())
+			{
+				if (watch == ClientThatDisconnected)
+				{
+					Server.TimeoutWatches[ClientThatDisconnected].Stop();
+					Server.TimeoutWatches.Remove(ClientThatDisconnected);
+
+				}
+			}
+		}
+
+        
+		public static void BanReleaseCheck()
+        {
+			foreach(BanProfile ban in BanProfiles.ToList())
+            {
+				if(DateTime.Now >= ban.Timeofbanrelease)
+                {
+					BanProfiles.Remove(ban);
+					Console.WriteLine($"Ban Removed for {ban.Username}");
+                }
+            }
         }
 
-		private static void ChangeUsername(string old, string _new)
-        {
 
-        }
-
-
-
-        #endregion
     }
 
 	/// <summary>

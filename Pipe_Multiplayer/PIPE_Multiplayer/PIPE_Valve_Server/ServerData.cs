@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 
 namespace PIPE_Valve_Online_Server
@@ -18,22 +19,84 @@ namespace PIPE_Valve_Online_Server
         /// </summary>
         static Dictionary<int,TextureSegment> temporarybyteslist = new Dictionary<int, TextureSegment>();
 
-        static List<string> names = new List<string>();
+        static List<string> IncomingTextureNames = new List<string>();
 
         public static string Rootdir = Assembly.GetExecutingAssembly().Location.Replace(".exe", "") + "/Game Data/";
         public static string TexturesDir = Rootdir + "Textures/";
-        /// <summary>
-        /// username and associated IP
-        /// </summary>
-        public static Dictionary<string, string> BannedIps = new Dictionary<string, string>();
+
+
+        
+        
+        
+        public static List<string> BannedWords = new List<string>();
+        public static List<string> BanMessageAlternates = new List<string>();
+
+        public static string AdminPassword = "DaveMirra";
+
+        
+      
+
+
+
 
        static int received = 0;
 
 
-        public static void LoadFiles()
+        /// <summary>
+        /// Load servers saved data
+        /// </summary>
+        public static void LoadData()
         {
+            BannedWords = new List<string>
+            {
+                   {"gay"},
+                   {"homo"},
+                    {"queer"},
+                     {"cunt"},
+                      {"nigga"},
+                       {"paki"},
+                        {"bitch"},
+                         {"niga" },
+                          {"nga" },
+                          {"ngga" },
+                           {"btch" },
+                            {"fuck" },
+                             {"fck" },
+                             {"prick"},
+
+            };
+
+            BanMessageAlternates = new List<string>
+            {
+                {"I admire you all" },
+                {"You guys are Awesome" },
+                {"Lets Session!" },
+               
+            };
+
+
+
+
+            if (!Directory.Exists(Rootdir))
+            {
+                Directory.CreateDirectory(Rootdir);
+            }
+
+            
 
         }
+
+
+        public static void BanPlayer(string _username, string IP, uint connid, int mins)
+        {
+            DateTime Time_of_release = DateTime.Now.AddMinutes(mins);
+
+            Server.BanProfiles.Add(new BanProfile(IP, _username, connid, Time_of_release));
+
+
+        }
+
+
 
 
 
@@ -43,7 +106,7 @@ namespace PIPE_Valve_Online_Server
            // store
                 
                 temporarybyteslist.Add(temporarybyteslist.Count, new TextureSegment(bytes, name, segmentcount, this_segment_no));
-                names.Add(name);
+                IncomingTextureNames.Add(name);
 
 
             // check if im the last segment of my group
@@ -107,7 +170,7 @@ namespace PIPE_Valve_Online_Server
 
                
                 temporarybyteslist.Clear();
-                names.Clear();
+                IncomingTextureNames.Clear();
             }
             
 
@@ -115,12 +178,12 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-        // populate on startup
-
-        // add to or remove via console
+       
 
 
 
+
+    }
 
         /// <summary>
         /// Used for storing a segment of a textures byte array until all have been received
@@ -146,5 +209,33 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-    }
+
+
+
+
+        [Serializable]
+        public class BanProfile
+        {
+           public string IP;
+           public string Username;
+           public uint ConnId;
+           public DateTime Timeofbanrelease;
+
+
+            public BanProfile(string ip, string username, uint conid, DateTime timeofrelease)
+            {
+                IP = ip;
+                Username = username;
+                ConnId = conid;
+            Timeofbanrelease = timeofrelease;
+            }
+
+
+        }
+
+
+
+
+
+
 }
