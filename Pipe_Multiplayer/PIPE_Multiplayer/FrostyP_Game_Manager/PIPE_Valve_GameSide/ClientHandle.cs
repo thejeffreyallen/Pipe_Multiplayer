@@ -412,6 +412,8 @@ namespace PIPE_Valve_Console_Client
 
         public static void PlayerDisconnected(Packet _packet)
         {
+            try
+            {
             GameObject todelete = null;
             RemotePlayer toremove = null;
 
@@ -528,6 +530,12 @@ namespace PIPE_Valve_Console_Client
                 {
                     Debug.Log(x);
                 }
+            }
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("error with playerdisconnected: " + x);
             }
 
 

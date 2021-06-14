@@ -986,6 +986,8 @@ namespace FrostyP_Game_Manager
 
 					if (Ridersettingsopen)
 					{
+                        try
+                        {
 						if (arrayofhopsettings != null)
 						{
 							foreach (StateHopSetting set in arrayofhopsettings)
@@ -1721,6 +1723,14 @@ namespace FrostyP_Game_Manager
 						}
 
 						GUILayout.Space(30);
+
+
+                        }
+                        catch (UnityException x)
+                        {
+							Debug.Log("Rider Options error  : " + x);
+                        }
+
 
 					}
 

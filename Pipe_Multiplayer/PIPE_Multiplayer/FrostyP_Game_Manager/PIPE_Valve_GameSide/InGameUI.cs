@@ -64,6 +64,7 @@ namespace PIPE_Valve_Console_Client
 
         // live riders
         Vector2 liveridersscroll;
+        Rect LiveRiderBox;
 
         // Messages
         Vector2 Messagesscroll;
@@ -439,13 +440,16 @@ namespace PIPE_Valve_Console_Client
 
 
         void OnGUI()
+
         {
+            try
+            {
             if (Minigui)
             {
                 MiniGUI();
             }
 
-            if(OnlineMenu && Connected && !Minigui && FrostyPGamemanager.instance.OpenMenu)
+            if(OnlineMenu && !Minigui && FrostyPGamemanager.instance.OpenMenu)
             {
                 LiveRiders();
                 MessagesShow();
@@ -456,6 +460,12 @@ namespace PIPE_Valve_Console_Client
                 ShowRiderInfo();
             }
 
+            }
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("ingameui error: " + x);
             }
 
         }
@@ -624,7 +634,10 @@ namespace PIPE_Valve_Console_Client
             desiredport = GUILayout.TextField(desiredport);
             if(desiredport != "")
             {
-            GameNetworking.instance.port = int.Parse(desiredport);
+                if (int.TryParse(desiredport, out int result) == true)
+                {
+                    GameNetworking.instance.port = result;
+                }
             }
             GUILayout.Space(5);
 
@@ -1003,7 +1016,8 @@ namespace PIPE_Valve_Console_Client
             GUI.skin = skin;
             if(IdofRidertoshow != 0)
             {
-
+                try
+                {
                 foreach(RemotePlayer r in GameManager.Players.Values)
                 {
                     if(r.id == IdofRidertoshow)
@@ -1092,6 +1106,12 @@ namespace PIPE_Valve_Console_Client
                     }
 
                 }
+
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Showriderinfo Error : " + x);
+                }
               
 
             }
@@ -1101,20 +1121,38 @@ namespace PIPE_Valve_Console_Client
 
         public void LiveRiders()
         {
-            Rect box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6.5f, Screen.height/3));
+            try
+            {
+            LiveRiderBox = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6.5f, Screen.height/3));
             GUI.skin = skin;
-            GUILayout.BeginArea(box);
-            liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
+            GUILayout.BeginArea(LiveRiderBox);
             GUILayout.Label("Live Rider list:", Generalstyle);
+            liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
+            if (GameManager.Players.Count > 0)
+            {
             foreach (RemotePlayer r in GameManager.Players.Values)
             {
+                try
+                {
                 GUIStyle Playernamestyle = new GUIStyle();
 
                 Playernamestyle.alignment = TextAnchor.MiddleCenter;
                 Playernamestyle.fontStyle = FontStyle.Bold;
                 Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
                 Playernamestyle.normal.background = TransTex;
-                Playernamestyle.normal.textColor = r.tm.color;
+                        try
+                        {
+                            if(r.tm != null)
+                            {
+                              Playernamestyle.normal.textColor = r.tm.color;
+
+                            }
+
+                        }
+                        catch (Exception x)
+                        {
+                            Playernamestyle.normal.textColor = Color.black;
+                        }
                 Playernamestyle.hover.textColor = Color.green;
                 Playernamestyle.hover.background = whiteTex;
 
@@ -1124,10 +1162,24 @@ namespace PIPE_Valve_Console_Client
                     RiderInfoMenuOpen = true;
                 }
 
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Live Rider issue : " + x);
+                }
+
+            }
+
             }
             GUILayout.EndScrollView();
             GUILayout.EndArea();
 
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("Live Riders Show Error : " + x);
+            }
             GUILayout.Space(50);
         }
 
@@ -1143,8 +1195,9 @@ namespace PIPE_Valve_Console_Client
             Rect _box = new Rect(new Vector2(Screen.width / 2, Screen.height / 1.9f), new Vector2(Screen.width / 2, Screen.height / 3));
             GUILayout.BeginArea(_box);
             Messagesscroll = GUILayout.BeginScrollView(Messagesscroll);
-            
 
+            if (Messages.Count > 0)
+            {
             foreach (TextMessage mess in Messages)
             {
                 GUIStyle style = new GUIStyle();
@@ -1174,6 +1227,8 @@ namespace PIPE_Valve_Console_Client
                 
             }
 
+
+            }
 
 
             GUILayout.EndScrollView();

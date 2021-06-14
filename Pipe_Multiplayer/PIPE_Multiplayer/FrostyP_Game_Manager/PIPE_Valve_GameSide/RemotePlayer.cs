@@ -89,13 +89,25 @@ namespace PIPE_Valve_Console_Client
         // Call initiation once on start, inititation to reoccur until resolved
         private void Start()
         {
-            bool builderopen = FrostyP_Game_Manager.ParkBuilder.instance.openflag;
+            bool builderopen = false;
+            try
+            {
+            builderopen = FrostyP_Game_Manager.ParkBuilder.instance.openflag;
 
             if (builderopen)
             {
                 FrostyP_Game_Manager.ParkBuilder.instance.Player.SetActive(true);
             }
 
+            }
+            catch (Exception x)
+            {
+
+            }
+
+
+            try
+            {
             Initialize();
             RiderModel.name = "Model " + id;
             BMX.name = "BMX " + id;
@@ -142,6 +154,12 @@ namespace PIPE_Valve_Console_Client
 
             
             MasterActive = true;
+
+            }
+            catch (Exception x)
+            {
+
+            }
 
             if (builderopen)
             {
@@ -294,7 +312,7 @@ namespace PIPE_Valve_Console_Client
         // Called by DecideRider if Currentmodelname is Daryien
         private GameObject DaryienSetup()
         {
-            GameObject daz = GameObject.Instantiate(Component.FindObjectOfType<SkeletonReferenceValue>().gameObject);
+            GameObject daz = GameObject.Instantiate(UnityEngine.GameObject.Find("Daryien")) as GameObject;
 
             // make sure meshes are active, pipeworks PI keeps daryien but turns off all his meshes, then tracks new models to daryiens bones
             foreach(Transform t in daz.GetComponentsInChildren<Transform>(true))
@@ -485,8 +503,10 @@ namespace PIPE_Valve_Console_Client
                     r.isKinematic = true;
                 }
 
-
+                if (!RiderModel.GetComponent<Rigidbody>())
+                {
                 Rider_RB = RiderModel.AddComponent<Rigidbody>();
+                }
                 Rider_RB.isKinematic = true;
 
                 SphereCollider spherehead = RiderModel.transform.FindDeepChild("mixamorig:Head").gameObject.AddComponent<SphereCollider>();
@@ -494,8 +514,11 @@ namespace PIPE_Valve_Console_Client
                 spherehead.center = new Vector3(0, 0.1f, 0.03f);
                 spherehead.transform.localPosition = new Vector3(0, 0.1028246f, 0.0511784f);
 
-
+                if (!BMX.GetComponent<Rigidbody>())
+                {
                 BMX_RB = BMX.AddComponent<Rigidbody>();
+
+                }
                 BMX_RB.isKinematic = true;
 
 

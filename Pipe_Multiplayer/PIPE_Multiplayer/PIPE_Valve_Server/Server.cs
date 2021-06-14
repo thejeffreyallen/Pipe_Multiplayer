@@ -23,7 +23,7 @@ namespace PIPE_Valve_Online_Server
 		#region Servers data
 
 		
-		public static float VERSIONNUMBER { get;} = 2.12f;
+		public static float VERSIONNUMBER { get;} = 2.13f;
 
 
 		public static List<BanProfile> BanProfiles = new List<BanProfile>();
@@ -203,8 +203,8 @@ namespace PIPE_Valve_Online_Server
 					case ConnectionState.ProblemDetectedLocally:
 						
 						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
-						DisconnectPlayerAndCleanUp(info.connection);
 						ServerSend.DisconnectTellAll(info.connection);
+						DisconnectPlayerAndCleanUp(info.connection);
 
 						break;
 						
@@ -275,13 +275,14 @@ namespace PIPE_Valve_Online_Server
 
 							foreach(uint watch in TimeoutWatches.Keys)
                             {
-                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 15)
+                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 40)
                                 {
 									Console.WriteLine("Watch Error, Timeout watch reached 15 seconds");
-									
+									TimeoutWatches[watch].Reset();
 
 
-                                }
+
+								}
 
 								if(watch == from)
                                 {

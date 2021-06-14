@@ -17,7 +17,7 @@ namespace PIPE_Valve_Console_Client
     public class GameNetworking
     {
 
-		public float VERSIONNUMBER { get; } = 2.12f;
+		public float VERSIONNUMBER { get; } = 2.13f;
 
 
 		// this class accessable anywhere

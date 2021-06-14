@@ -450,7 +450,10 @@ namespace PIPE_Valve_Online_Server
         /// <param name="ClientThatDisconnected"></param>
         public static void DisconnectTellAll(uint ClientThatDisconnected)
         {
-
+            try
+            {
+            if(Server.Players[ClientThatDisconnected]!= null)
+            {
             using (Packet _packet = new Packet((int)ServerPacket.DisconnectedPlayer))
             {
                 _packet.Write(ClientThatDisconnected);
@@ -463,6 +466,15 @@ namespace PIPE_Valve_Online_Server
                     Console.WriteLine("Failed Disconnect tell all, player just left? : " + X);
                 }
             }
+
+            }
+
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine($"No players informed");
+            }
+
 
 
         }
