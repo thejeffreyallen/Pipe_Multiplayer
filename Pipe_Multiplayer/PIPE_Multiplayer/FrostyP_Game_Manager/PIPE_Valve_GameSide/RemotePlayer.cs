@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-
 namespace PIPE_Valve_Console_Client
 {
     /// <summary>
@@ -54,6 +53,9 @@ namespace PIPE_Valve_Console_Client
         public bool PlayerObjectsVisible = true;
         public bool PlayerIsVisible = true;
 
+        public RemotePartMaster partMaster;
+        public RemoteBrakesManager brakesManager;
+
 
         void Awake()
         {
@@ -76,7 +78,6 @@ namespace PIPE_Valve_Console_Client
             Initialize();
             RiderModel.name = "Model " + id;
             BMX.name = "BMX " + id;
-           
             DontDestroyOnLoad(BMX);
             DontDestroyOnLoad(RiderModel);
             
@@ -127,20 +128,21 @@ namespace PIPE_Valve_Console_Client
 
             try
             {
-            // decifer the rider and bmx specifics needed especially for daryien and bike colours
-            
-            RiderModel = DecideRider(CurrentModelName);
+                // decifer the rider and bmx specifics needed especially for daryien and bike colours
+
+                RiderModel = DecideRider(CurrentModelName);
                 RiderModel.name = (username + " " + id).ToString();
-            // Add Audio Component
-            Audio = gameObject.AddComponent<RemotePlayerAudio>();
-            Audio.Rider = RiderModel;
-            Audio.player = this;
+                // Add Audio Component
+                Audio = gameObject.AddComponent<RemotePlayerAudio>();
+                Audio.Rider = RiderModel;
+                Audio.player = this;
 
-            BMX = GameManager.GetNewBMX();
-                BMX.name = "BMX " + id; 
-
+                BMX = GameManager.GetNewBMX();
+                BMX.name = "BMX " + id;
+                partMaster = new RemotePartMaster(BMX); // initialize the part master part list.
             }
-            catch(Exception x)
+
+            catch (Exception x)
             {
                 Debug.Log($"RemotePlayer.Initialize error: {x}");
             }
@@ -609,7 +611,7 @@ namespace PIPE_Valve_Console_Client
             try
             {
             // do garage setup
-            GameManager.DoGarageSetup(BMX, Gear.GarageSave);
+            GameManager.DoGarageSetup(this, Gear.GarageSave);
 
             }
             catch (Exception x )

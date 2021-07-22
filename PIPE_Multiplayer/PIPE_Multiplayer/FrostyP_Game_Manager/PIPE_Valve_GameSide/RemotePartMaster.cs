@@ -32,7 +32,6 @@ public class RemotePartMaster : MonoBehaviour
         }
     }
 
-    public static RemotePartMaster instance;
     public Dictionary<int, GameObject> partList;
     public Dictionary<int, TransformData> origTrans;
     public bool isDone = false;
@@ -99,11 +98,12 @@ public class RemotePartMaster : MonoBehaviour
     GameObject frontHubGuard;
     GameObject rearHubGuard;
 
+        public RemotePartMaster(GameObject bmx) {
+            InitPartList(bmx);
+        }
    
     void Awake()
     {
-        instance = this;
-        //InitPartList();
         origTrans = new Dictionary<int, TransformData>();
     }
 
@@ -114,21 +114,21 @@ public class RemotePartMaster : MonoBehaviour
         accFront.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         accFront.AddComponent<MeshRenderer>();
         accFront.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
-        accFront = Instantiate(accFront, RemotePartMaster.instance.GetPart(RemotePartMaster.instance.frontSpokes).transform);
+        accFront = Instantiate(accFront, GetPart(frontSpokes).transform);
 
         accRear = new GameObject("RearAccessory");
         accRear.AddComponent<MeshFilter>();
         accRear.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         accRear.AddComponent<MeshRenderer>();
         accRear.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
-        accRear = Instantiate(accRear, RemotePartMaster.instance.GetPart(RemotePartMaster.instance.rearSpokes).transform);
+        accRear = Instantiate(accRear, GetPart(rearSpokes).transform);
 
         barAccessory = new GameObject("barAccessory");
         barAccessory.AddComponent<MeshFilter>();
         barAccessory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         barAccessory.AddComponent<MeshRenderer>();
         barAccessory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        barAccessory = Instantiate(barAccessory, RemotePartMaster.instance.GetPart(RemotePartMaster.instance.bars).transform);
+        barAccessory = Instantiate(barAccessory, GetPart(bars).transform);
 
         frameAccesory = new GameObject("frameAccesory");
         frameAccesory.AddComponent<MeshFilter>();
@@ -142,14 +142,14 @@ public class RemotePartMaster : MonoBehaviour
         frontHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         frontHubGuard.AddComponent<MeshRenderer>();
         frontHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        frontHubGuard = Instantiate(frontHubGuard, RemotePartMaster.instance.GetPart(RemotePartMaster.instance.frontPegs).transform);
+        frontHubGuard = Instantiate(frontHubGuard, GetPart(frontPegs).transform);
 
         rearHubGuard = new GameObject("rearHubGuard");
         rearHubGuard.AddComponent<MeshFilter>();
         rearHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         rearHubGuard.AddComponent<MeshRenderer>();
         rearHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        rearHubGuard = Instantiate(rearHubGuard, RemotePartMaster.instance.GetPart(RemotePartMaster.instance.rearPegs).transform);
+        rearHubGuard = Instantiate(rearHubGuard, GetPart(rearPegs).transform);
 
         partList.Add(frontAcc, accFront);
         partList.Add(rearAcc, accRear);
@@ -168,8 +168,19 @@ public class RemotePartMaster : MonoBehaviour
         }
     }
 
-   
-    public void InitPartList(GameObject bmx)
+
+        public void SetMaterialData(int key, float glossiness, float glossMapScale)
+        {
+            Material material = GetMaterial(key);
+            if (material == null)
+                return;
+            material.SetFloat("_Glossiness", glossiness);
+            material.SetFloat("_GlossMapScale", glossMapScale);
+            SetMaterial(key, material);
+        }
+
+
+        public void InitPartList(GameObject bmx)
     {
         string errorPath = Application.dataPath + "//GarageContent/GarageErrorLog.txt";
         try
@@ -588,14 +599,21 @@ public class RemotePartMaster : MonoBehaviour
         }
     }
 
-    public void AddCollision()
-    {
-        foreach (int key in ColourSetter.instance.GetActivePartList())
+        public void SetColor(int key, Color c)
         {
-            AddCollision(key);
+            switch (key)
+            {
+                case -1:
+                    GetMaterials(frontTire)[1].color = c;
+                    return;
+                case -2:
+                    GetMaterials(rearTire)[1].color = c;
+                    return;
+            }
+            if (key >= 0 && key < 54)
+                GetMaterial(key).color = c;
         }
     }
-}
 
 }
 

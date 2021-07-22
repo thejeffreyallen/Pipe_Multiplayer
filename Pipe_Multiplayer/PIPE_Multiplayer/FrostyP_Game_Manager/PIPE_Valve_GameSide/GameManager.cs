@@ -5,7 +5,7 @@ using FrostyP_Game_Manager;
 using System.Reflection;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using PIPE_Valve_Gameside;
 
 namespace PIPE_Valve_Console_Client
 {
@@ -522,7 +522,7 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        public static GameObject DoGarageSetup(GameObject bmx, byte[] _savelist)
+        public static void DoGarageSetup(RemotePlayer player, byte[] _savelist)
         {
             Debug.Log("Garage Setup on remote bike..");
             SaveList list;
@@ -532,25 +532,8 @@ namespace PIPE_Valve_Console_Client
               list = new BinaryFormatter().Deserialize(ms) as SaveList;
                 
             }
-
-            // apply all
-            BikeLoadOut BLO = bmx.GetComponentInChildren<BikeLoadOut>();
-
-            bmx.transform.localScale = new Vector3(list.bikeScale, list.bikeScale, list.bikeScale);
-            BLO.SetBackTireFatness(list.rearTireWidth);
-            BLO.SetFrontTireFatness(list.frontTireWidth);
-            BLO.seatApplyMod.SetSeatAnglePerc(list.seatAngle);
-            BLO.SetSeatHeight(list.seatHeight);
-            BLO.SetBarsAngle(list.barsAngle);
-            BLO.barsApplyMod.SetFlanges(list.flanges);
-            for (int i = 0; i < list.partColors.Count; i++)
-            {
-                BLO.SetColor(new Color(list.partColors[i].r, list.partColors[i].g, list.partColors[i].b, list.partColors[i].a), list.partColors[i].partNum);
-            }
-
-
+            RemoteLoadManager.instance.Load(player, list); // Where the magic happens
             Debug.Log("Garage Setup complete");
-            return bmx;
         }
 
         public static Texture2D GetTexture(int filetype, string name)

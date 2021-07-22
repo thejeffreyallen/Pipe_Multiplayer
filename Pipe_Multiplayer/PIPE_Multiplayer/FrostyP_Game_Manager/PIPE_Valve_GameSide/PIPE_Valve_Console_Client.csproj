@@ -133,6 +133,10 @@
     <Reference Include="UnityEngine.UnityWebRequestTextureModule">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Pipe1.9.9\3099592\PIPE_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityModManager">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>
     </Reference>
@@ -152,6 +156,8 @@
     <Compile Include="Half.cs" />
     <Compile Include="HalfHelper.cs" />
     <Compile Include="PlayerSaveData.cs" />
+    <Compile Include="RemoteBrakeManager.cs" />
+    <Compile Include="RemoteLoadManager.cs" />
     <Compile Include="RemotePartMaster.cs" />
     <Compile Include="RiderSaveData.cs" />
     <Compile Include="NetworkThread.cs" />
