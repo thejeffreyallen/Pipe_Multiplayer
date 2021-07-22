@@ -66,6 +66,10 @@
     <Reference Include="UnityEngine.AIModule">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.AIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
@@ -95,7 +99,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CameraSettings.cs" />
     <Compile Include="Consolelog.cs" />
+    <Compile Include="ReplayMode.cs" />
+    <Compile Include="RiderPhysics.cs" />
     <Compile Include="SavedGameObject.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="FrostyPGamemanager.cs" />
@@ -105,6 +112,7 @@
     <Compile Include="SavedSpot.cs" />
     <Compile Include="SaveLoadFrostyPManagersettings.cs" />
     <Compile Include="ParkSaveLoad.cs" />
+    <Compile Include="Teleport.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="PIPE_Valve_GameSide\PIPE_Valve_Console_Client.csproj">

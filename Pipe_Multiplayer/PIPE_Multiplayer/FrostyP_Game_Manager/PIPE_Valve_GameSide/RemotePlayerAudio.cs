@@ -10,6 +10,7 @@ namespace PIPE_Valve_Console_Client
     {
         // Daryien object, needed to determine 3d attributes of sounds
         public GameObject Rider;
+        public RemotePlayer player;
 
         // list of updates that come in through Clienthandle.ReceiveAudioForAPlayer
         public List<AudioStateUpdate> IncomingRiserUpdates;
@@ -93,6 +94,10 @@ namespace PIPE_Valve_Console_Client
        
         void Update()
         {
+
+            if (player.MasterActive)
+            {
+
             if(Rider == null)
             {
                 if (gameObject.GetComponent<RemotePlayer>().RiderModel)
@@ -150,6 +155,8 @@ namespace PIPE_Valve_Console_Client
              }  
 
             
+
+            }
           
 
                 

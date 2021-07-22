@@ -20,6 +20,8 @@ namespace FrostyP_Game_Manager
 
 		GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
 		GUIStyle Generalstyle = new GUIStyle();
+		GUIStyle Myobjectstyle = new GUIStyle();
+		GUIStyle Myobjectstyle1 = new GUIStyle();
 
 		MGInputManager inputman;
 		ParkSaveLoad _ParkSaveLoad = new ParkSaveLoad();
@@ -105,12 +107,13 @@ namespace FrostyP_Game_Manager
 		string SaveparkName = "Default name park";
 
 		public bool openflag = false;
-		
 		bool snappingtofloor = true;
-		bool placedonce = false;
 		bool SaveLoadOpen = false;
-		bool switched;
 		bool Helpmenu;
+		bool controlmenu;
+		bool objectswindow;
+		bool objectsloadtoggle;
+		string objectsloaddisplay;
 		bool REgrabbed = false;
 		bool StreamingObjectData = false;
 		Vector3 regrabbed_pos;
@@ -143,7 +146,7 @@ namespace FrostyP_Game_Manager
 		
 
 
-		public GameObject Player;
+		
 		Camera buildercam;
 		GameObject camobj;
 		Vector3 camFarPos;
@@ -159,17 +162,16 @@ namespace FrostyP_Game_Manager
 		BundleData ActiveBundleData;
 		PlacedObject ActivePlacedObject;
 
-		// send
-		float KeepAlivetimer;
-
-
-
+		
 		// SaveLoad Menu
 		public List<PlacedObject> ObjectstoSave = new List<PlacedObject>();
 		public List<string> CreatorsList = new List<string>();
 		bool Save_Load_Toggle = false;
 		string SaveloadMode;
+		Vector2 objectsscroll;
 		Vector2 SaveloadScroll;
+		Vector2 MyObjectsSaveScroll;
+		Vector2 OtherPlayersScroll;
 		public bool ShowLoadedspot;
 		public SavedSpot ActiveSavedspot;
 		List<string> LoadedSpotCreators;
@@ -198,9 +200,9 @@ namespace FrostyP_Game_Manager
 			}
 
 
-			camobj = new GameObject();
-			camobj.AddComponent<FMOD_Listener>();
-			buildercam = camobj.AddComponent<Camera>();
+			camobj = Instantiate(Camera.main.gameObject);
+			//camobj.AddComponent<FMOD_Listener>();
+			buildercam = camobj.GetComponent<Camera>();
 			camobj.SetActive(false);
 			DontDestroyOnLoad(camobj);
 			// make ghost object that rotates to camera obj only on Y
@@ -312,87 +314,24 @@ namespace FrostyP_Game_Manager
 
 
 
-
-
-			Generalstyle.normal.background = whiteTex;
-			Generalstyle.normal.textColor = Color.black;
-
-			Generalstyle.alignment = TextAnchor.MiddleCenter;
-			Generalstyle.fontStyle = FontStyle.Bold;
-			//Generalstyle.fontSize = 16;
-			//Generalstyle.border.left = 5;
-			//Generalstyle.border.right = 5;
-			//Generalstyle.margin.left = 5;
-			//Generalstyle.margin.right = 5;
-
-			skin.label.normal.textColor = Color.black;
-			skin.label.fontSize = 15;
-			skin.label.fontStyle = FontStyle.Bold;
-			skin.label.alignment = TextAnchor.MiddleCenter;
-			skin.label.normal.background = TransTex;
-
-
-
-			skin.textField.alignment = TextAnchor.MiddleCenter;
-			skin.textField.normal.textColor = Color.red;
-			skin.textField.normal.background = GreyTex;
-			skin.textField.focused.background = BlackTex;
-			skin.textField.focused.textColor = Color.white;
-			skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
-
-
-
-			skin.button.normal.textColor = Color.black;
-			skin.button.alignment = TextAnchor.MiddleCenter;
-			skin.button.normal.background = GreenTex;
-			skin.button.onNormal.background = GreyTex;
-			skin.button.onNormal.textColor = Color.red;
-			skin.button.onHover.background = GreenTex;
-			skin.button.hover.textColor = Color.green;
-			skin.button.normal.background.wrapMode = TextureWrapMode.Clamp;
-			skin.button.hover.background = GreyTex;
-
-
-
-			skin.toggle.normal.textColor = Color.black;
-			skin.toggle.alignment = TextAnchor.MiddleCenter;
-			skin.toggle.normal.background = GreenTex;
-			skin.toggle.onNormal.background = GreyTex;
-			skin.toggle.onNormal.textColor = Color.black;
-			skin.toggle.onHover.background = GreenTex;
-			skin.toggle.hover.textColor = Color.green;
-			skin.toggle.normal.background.wrapMode = TextureWrapMode.Clamp;
-			skin.toggle.hover.background = GreyTex;
-
-
-			skin.horizontalSlider.alignment = TextAnchor.MiddleCenter;
-			skin.horizontalSlider.normal.textColor = Color.black;
-			skin.horizontalSlider.normal.background = GreyTex;
-			skin.horizontalSliderThumb.normal.background = GreenTex;
-			skin.horizontalSliderThumb.normal.background.wrapMode = TextureWrapMode.Clamp;
-			skin.horizontalSliderThumb.normal.textColor = Color.white;
-			skin.horizontalSliderThumb.fixedWidth = 20;
-			skin.horizontalSliderThumb.fixedHeight = 20;
-			skin.horizontalSliderThumb.hover.background = BlackTex;
+			SetupGuis();
 
 			
-			//skin.scrollView.normal.background = GreenTex;
-			skin.verticalScrollbarThumb.normal.background = GreenTex;
-			skin.scrollView.alignment = TextAnchor.MiddleCenter;
-			//skin.scrollView.fixedWidth = Screen.width / 4;
-
+			
 
 
 		}
 
         // Update is called once per frame
-        void Update()
+        void LateUpdate()
         {
 
             if (openflag)
             {
 
-                if (REgrabbed && Activeobj != null)
+				Controls();
+
+				if (REgrabbed && Activeobj != null)
                 {
 					ReplaceOnBButton();
                 }
@@ -404,15 +343,7 @@ namespace FrostyP_Game_Manager
 				// check everything is there, if not load/find it/turn it on, destroying activeobj will always result in it being re-instatiated as pointer object
 				
 				
-				if (buildercam == null && camobj != null)
-				{
-					buildercam = camobj.AddComponent<Camera>();
-					camobj.AddComponent<FMOD_Listener>();
-					buildercam.transform.position = Camera.current.transform.position;
-					buildercam.transform.rotation = Camera.current.transform.rotation;
-					
-					buildercam.enabled = true;
-				}
+				
 				
 				
 				if (Activeobj != null)
@@ -426,17 +357,7 @@ namespace FrostyP_Game_Manager
 				// send keepactive packet every 2 seconds to stop timeout on server
 				if (InGameUI.instance.Connected)
 				{
-					// keep connection active while no rider is streaming
-					if (KeepAlivetimer < 2)
-					{
-						KeepAlivetimer = KeepAlivetimer + Time.deltaTime;
-					}
-					else if (KeepAlivetimer >= 2)
-					{
-						ClientSend.KeepActive();
-						KeepAlivetimer = 0;
-					}
-
+					GameManager.KeepNetworkActive();
 
 				}
 
@@ -450,7 +371,7 @@ namespace FrostyP_Game_Manager
 
 		void FixedUpdate()
         {
-            if (StreamingObjectData)
+            if (StreamingObjectData && InGameUI.instance.Connected)
             {
                 try
                 {
@@ -482,16 +403,17 @@ namespace FrostyP_Game_Manager
 
         void OnGUI()
         {
-			if (openflag)
+            try
             {
+			  if (openflag)
+              {
+				GUI.skin = skin;
 
-				// things that decide theyre own GUI layout ---===
 				
-				if (placedobjects.Count != 0)
-				{
-
-					MyObjectsMenu();
-				}
+				
+				
+			    MyObjectsMenu();
+				
 
 
                 if (SaveLoadOpen)
@@ -517,25 +439,6 @@ namespace FrostyP_Game_Manager
 				//--------------------------------------------
 
 
-			skin.textField.margin.left = Screen.width / 12;
-			skin.textField.margin.right = Screen.width / 12;
-			skin.button.margin.left = Screen.width / 12;
-			skin.button.margin.right = Screen.width / 12;
-			skin.toggle.margin.left = Screen.width / 12;
-			skin.toggle.margin.right = Screen.width / 12;
-			skin.horizontalSlider.margin.left = Screen.width / 16;
-			skin.horizontalSlider.margin.right = Screen.width / 16;
-			skin.label.padding.right = 10;
-			//skin.label.margin.left = Screen.width / 10;
-			//skin.label.margin.right = Screen.width / 10;
-
-
-			GUI.skin = skin;
-
-
-
-
-				
 
 
 
@@ -546,26 +449,33 @@ namespace FrostyP_Game_Manager
 				GUILayout.Label("Park Builder", Generalstyle);
 				
 				GUILayout.Space(10);
-				Helpmenu = GUILayout.Toggle(Helpmenu, " put my objects into parkbuilder? ");
+				Helpmenu = GUILayout.Toggle(Helpmenu, " Help ");
                 if (Helpmenu)
                 {
 					GUILayout.Label(" parkbuilder will recognise and load any Assetbundles that");
 					GUILayout.Label(" do not contain Scenes. To do this follow the steps");
 					GUILayout.Label(" for creating a map, using the mapscript that creates bundles,");
 					GUILayout.Label(" but dont mark your scene as a bundle item, make each object in");
-					GUILayout.Label(" your a scene a prefab by dragging from hierarchy to assets,");
-					GUILayout.Label(" then mark each prefab as part of your assetbundle, build and");
+					GUILayout.Label(" your scene a prefab by dragging from hierarchy to assets,");
+					GUILayout.Label(" then mark each prefab as part of your assetbundle, build bundle and");
 					GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show below.");
 					GUILayout.Label(" make your objects positions 0,0,0 and square so that theyre root");
 					GUILayout.Label(" position can be found again later");
 
 				}
-				if (camobj != null && Activeobj != null)
-				{
-					GUILayout.Space(10);
-					GUILayout.Label(" Controls: ");
-					Controls();
-				}
+				
+			    GUILayout.Space(10);
+				controlmenu = GUILayout.Toggle(controlmenu,"Controls:");
+                    if (controlmenu)
+                    {
+						GUILayout.Label("A to Place : B to Replace : Y to change speed");
+						GUILayout.Label("LB/RB to Spin");
+						GUILayout.Label("Hold LT for height and Cam distance");
+						GUILayout.Label("Hold RT for Fine Rotate");
+						GUILayout.Label("LStick click to Reset");
+					}
+					
+				
 				GUILayout.Space(30);
 				GUILayout.Label("Movement Speed at " + camspeed.speeds[currentcamspeed].name, Generalstyle);
 
@@ -606,13 +516,15 @@ namespace FrostyP_Game_Manager
 
 
 
-				if (Activeobj != null && !Activeobj.name.Contains("Pointer"))
+				if (Activeobj != null)
                 {
-					if(GUILayout.Button("Destroy " + Activeobj.gameObject.name.Replace("(Clone)","")))
-					{
+                    if (!Activeobj.name.Contains("Pointer"))
+                    {
+					  if(GUILayout.Button("Destroy " + Activeobj.gameObject.name.Replace("(Clone)","")))
+					  {
 						DestroyObject();
 						
-						
+                      }
                     }
                 }
 
@@ -623,90 +535,35 @@ namespace FrostyP_Game_Manager
 				// Save current objects
 				GUILayout.Space(10);
 				SaveLoadOpen = GUILayout.Toggle(SaveLoadOpen, "Toggle Save/Load Menu");
-               
-
-				GUILayout.Space(10);
-
-
-
-
-				GUILayout.Label("Loadable bundles:");
-				// list Bundles found and give load button
-				foreach (FileInfo file in availableassetbundles)
-                {
-					bool loaded = false;
-					foreach(BundleData bun in bundlesloaded)
-                    {
-						if(bun.FileName == file.Name)
-                        {
-							loaded = true;
-                        }
-                    }
-
-                    if (!loaded)
-                    {
-                    if (GUILayout.Button("Load now : " + file.Name))
-                    {
-						GUILayout.Space(10);
-						AssetBundle bundle = AssetBundle.LoadFromFile(file.FullName);
-						bundlesloaded.Add(new BundleData(bundle,file.Name));
-
-                    }
-
-                    }
-
+					objectswindow = GUILayout.Toggle(objectswindow, "Objects");
                     
-                }
-
-				GUILayout.Space(20);
-
-				if (bundlesloaded != null)
-                {
-					GUILayout.Label(" Loaded Assets: ");
-					GUILayout.Space(20);
-					foreach (BundleData bundledata in bundlesloaded)
-                    {
-						GUILayout.Label(bundledata.Bundle.name + " :");
-						GUILayout.Space(10);
-						GameObject[] items = bundledata.Bundle.LoadAllAssets<GameObject>();
-						foreach (GameObject item in items)
-						{
-							if (GUILayout.Button(item.name))
-							{
-								GameObject obj = bundledata.Bundle.LoadAsset(item.name) as GameObject;
-								Vector3 pos = new Vector3( Activeobj.transform.position.x, Activeobj.transform.position.y, Activeobj.transform.position.z);
-								Destroy(Activeobj.gameObject);
-								
-								SpawnNewObject(obj, bundledata, pos);
-							}
-						}
-					}
-                }
-
-
-
-
-
-
-
+				
 
 
 				GUILayout.Space(20);
 				if (GUILayout.Button("Return to game"))
-            {
-					Destroy(Activeobj);
-					camobj.SetActive(false);
-				    Player.SetActive(true);
-				    openflag = false;
-					
-					
-            }
+                {
+				Close();
+				}
 
-			GUILayout.EndScrollView();
+			   GUILayout.EndScrollView();
+
+
+					if (objectswindow)
+					{
+						ObjectsWindowShow();
+					}
+
+		      }
+
+            }
+			catch(UnityException x)
+            {
+				Debug.Log($"ParkBuilder GUI error : " + x);
             }
         }
 
-        #region Functions
+      
 
 
 
@@ -721,9 +578,8 @@ namespace FrostyP_Game_Manager
 			Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			Activeobj.name = "Pointer";
 			Activeobj.transform.position = _playerscurrentpos;
-			
-			Player = UnityEngine.Component.FindObjectOfType<PlayerInfo>().gameObject;
-			Player.SetActive(false);
+
+			GameManager.TogglePlayerComponents(false);
 			openflag = true;
 			
 
@@ -752,7 +608,15 @@ namespace FrostyP_Game_Manager
 
 		}
 
-
+		public void Close()
+        {
+			GameManager.TogglePlayerComponents(true);
+			Component.FindObjectOfType<SessionMarker>().ResetPlayerAtMarker();
+			Destroy(Activeobj);
+			camobj.SetActive(false);
+			openflag = false;
+			FrostyPGamemanager.instance.OpenMenu = true;
+		}
 
 
         /// <summary>
@@ -777,8 +641,10 @@ namespace FrostyP_Game_Manager
 		// called by clicking a button
 		void SpawnNewObject(GameObject obj, BundleData _bunddata, Vector3 pos)
         {
-			ActiveBundleData = _bunddata;
+            try
+            {
 			Activeobj = GameObject.Instantiate(obj);
+			ActiveBundleData = _bunddata;
 			Activeobj.transform.position = pos;
 			Activeobj.name.Replace("(Clone)", "");
 			if (obj.GetComponent<Rigidbody>())
@@ -787,6 +653,12 @@ namespace FrostyP_Game_Manager
 				obj.GetComponent<Rigidbody>().isKinematic = true;
 			}
 
+
+            }
+            catch (UnityException x)
+            {
+				Debug.Log(x);
+            }
 		}
 
 
@@ -822,7 +694,85 @@ namespace FrostyP_Game_Manager
 		}
 
 
+		void ObjectsWindowShow()
+        {
+			GUILayout.BeginArea(new Rect(new Vector2(Screen.width/3,150), new Vector2(Screen.width/3,Screen.height - 300)),InGameUI.BoxStyle);
+			objectsloadtoggle = GUILayout.Toggle(objectsloadtoggle, objectsloaddisplay);
+			GUILayout.Space(10);
+			objectsscroll = GUILayout.BeginScrollView(objectsscroll);
 
+            if (objectsloadtoggle)
+            {
+				objectsloaddisplay = "Load Bundles";
+
+			GUILayout.Label("Loadable bundles:");
+			// list Bundles found and give load button
+			foreach (FileInfo file in availableassetbundles)
+			{
+				bool loaded = false;
+				foreach (BundleData bun in bundlesloaded)
+				{
+					if (bun.FileName == file.Name)
+					{
+						loaded = true;
+					}
+				}
+
+				if (!loaded)
+				{
+					if (GUILayout.Button("Load now : " + file.Name))
+					{
+						GUILayout.Space(10);
+						AssetBundle bundle = AssetBundle.LoadFromFile(file.FullName);
+						bundlesloaded.Add(new BundleData(bundle, file.Name));
+
+					}
+
+				}
+
+
+			}
+
+            }
+            else
+            {
+				objectsloaddisplay = "Spawn Asset";
+
+				GUILayout.Space(20);
+
+			if (bundlesloaded != null)
+			{
+				foreach (BundleData bundledata in bundlesloaded)
+				{
+					GUILayout.Label(bundledata.Bundle.name + " :");
+					GUILayout.Space(10);
+					GameObject[] items = bundledata.Bundle.LoadAllAssets<GameObject>();
+					foreach (GameObject item in items)
+					{
+						if (GUILayout.Button(item.name))
+						{
+							GameObject obj = bundledata.Bundle.LoadAsset(item.name) as GameObject;
+							Vector3 pos = new Vector3(Activeobj.transform.position.x, Activeobj.transform.position.y, Activeobj.transform.position.z);
+							Destroy(Activeobj.gameObject);
+
+							SpawnNewObject(obj, bundledata, pos);
+						}
+					}
+				}
+			}
+
+
+
+            }
+
+
+
+
+
+
+			GUILayout.EndScrollView();
+			GUILayout.EndArea();
+        }
 
 
 
@@ -846,11 +796,11 @@ namespace FrostyP_Game_Manager
 			// if L trigger is off, Lstick moves object
 			if (MGInputManager.LTrigger() < 0.2f && MGInputManager.RTrigger() < 0.2f)
 			{
-				GUILayout.Space(20);
-				GUILayout.Label("L Stick to move, Rstick to rotate cam around object, A to place - Y to change speed");
-				GUILayout.Space(10);
-				GUILayout.Label(" RB an LB to spin object 45 - Lstick click to reset rotation");
-				GUILayout.Label(" RT or LT For other functions");
+				//GUILayout.Space(20);
+				//GUILayout.Label("L Stick to move, Rstick to rotate cam around object, A to place - Y to change speed");
+				//GUILayout.Space(10);
+				//GUILayout.Label(" RB an LB to spin object 45 - Lstick click to reset rotation");
+				//GUILayout.Label(" RT or LT For other functions");
 
 
 
@@ -900,7 +850,7 @@ namespace FrostyP_Game_Manager
 			// if Ltrigger is on, Lstick moves object up and down
 			if (MGInputManager.LTrigger() > 0.4f && MGInputManager.RTrigger() < 0.2f)
 			{
-				GUILayout.Label("L Stick for Height adjust, Rstick for pan in/out");
+				//GUILayout.Label("L Stick for Height adjust, Rstick for pan in/out");
 				Activeobj.transform.position = Activeobj.transform.position + controlobjforcam.transform.up * MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value;
 
 
@@ -928,7 +878,7 @@ namespace FrostyP_Game_Manager
 			// if R Trigger is on
 			if (MGInputManager.RTrigger() > 0.4 && MGInputManager.LTrigger() < 0.2f)
 			{
-				GUILayout.Label("Fine Tune Rotate Object -- Lstick to rotate Y, Rstick to rotate Z and X ");
+				//GUILayout.Label("Fine Tune Rotate Object -- Lstick to rotate Y, Rstick to rotate Z and X ");
 
 				// fine tuning rotate
 				Activeobj.transform.Rotate(MGInputManager.RStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, -MGInputManager.RStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
@@ -938,25 +888,17 @@ namespace FrostyP_Game_Manager
 
 
 
-			if (MGInputManager.LTrigger() < 0.2f && Activeobj != null && MGInputManager.A_Down() && placedonce == false)
+			if (MGInputManager.LTrigger() < 0.2f && Activeobj != null && MGInputManager.A_Down())
 			{
 				PlaceObject();
 			}
-			if (MGInputManager.A_Up())
-			{
-				placedonce = false;
-			}
+			
 
-			if (MGInputManager.Y_Down() && switched == false)
+			if (MGInputManager.Y_Down())
 			{
-
 				currentcamspeed = camspeed.Change(currentcamspeed);
-				switched = true;
 			}
-			if (MGInputManager.Y_Up())
-			{
-				switched = false;
-			}
+			
 
 
 
@@ -1027,13 +969,16 @@ namespace FrostyP_Game_Manager
 		// instantiates a clone of current object, adds PLACED to its name for later reference then re-targets activeobj to the live version
 		void PlaceObject()
         {
-            if (!Activeobj.name.Contains("Pointer"))
+            try
+            {
+              if (!Activeobj.name.Contains("Pointer"))
             {
 			StreamingObjectData = false;
 
             if (!REgrabbed)
             {
-			GameObject obj = GameObject.Instantiate(UnityEngine.GameObject.Find(Activeobj.name));
+						
+			         GameObject obj = GameObject.Instantiate(ActiveBundleData.Bundle.LoadAsset(Activeobj.name.Replace("(Clone)", ""))) as GameObject;
 			//obj.transform.DetachChildren();
             if (obj.GetComponent<Rigidbody>())
             {
@@ -1074,7 +1019,7 @@ namespace FrostyP_Game_Manager
 
 			placedobjects.Add(_new);
 			
-			placedonce = true;
+			
 
             }
             if (REgrabbed)
@@ -1087,10 +1032,16 @@ namespace FrostyP_Game_Manager
 				Activeobj.transform.position = ActivePlacedObject.Object.transform.position;
 				ActiveBundleData = null;
 				ActivePlacedObject = null;
-				placedonce = true;
+				
             }
 
 
+            }
+
+            }
+            catch (UnityException x)
+            {
+				Debug.Log(x + " : " + x.TargetSite);
             }
 
 
@@ -1182,8 +1133,7 @@ namespace FrostyP_Game_Manager
 
         }
 
-        #endregion
-
+ 
 
 
 
@@ -1214,27 +1164,22 @@ namespace FrostyP_Game_Manager
 			return Id;
         }
 
-
-
-
-
-
 		void MyObjectsMenu()
         {
-			Rect box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6f, Screen.height / 3));
-			GUI.skin = skin;
+			Rect box = new Rect(new Vector2(Screen.width / 6 * 5 - 10, Screen.height / 12), new Vector2(Screen.width / 6f, Screen.height / 3));
+			
 			GUILayout.BeginArea(box);
-			GUILayout.Label($"My Objects: {placedobjects.Count} placed", Generalstyle);
+			GUILayout.Label($"My Objects: {placedobjects.Count} placed",Generalstyle);
 
 
 			MyobjectsScroll = GUILayout.BeginScrollView(MyobjectsScroll);
 
 			GUILayout.Space(20);
-			foreach(PlacedObject obj in placedobjects)
+			foreach(PlacedObject obj in placedobjects.ToArray())
             {
 
 				// pick up object, remember where it was, replace on B, let go with A
-                if (GUILayout.Button(obj.Object.name.Replace("(Clone)","")))
+                if (GUILayout.Button(obj.Object.name.Replace("(Clone)","") + $" Id: {obj.ObjectId}",Myobjectstyle))
                 {
                     if (!REgrabbed)
                     {
@@ -1260,27 +1205,27 @@ namespace FrostyP_Game_Manager
 
         }
 
-
-
-
-
 		void SaveLoadMenu()
         {
-			Rect box = new Rect(new Vector2(Screen.width / 2 - 10, Screen.height / 1.7f), new Vector2(Screen.width / 2f, Screen.height / 2));
-			GUI.skin = skin;
-			GUILayout.BeginArea(box);
+
+			Rect box = new Rect(new Vector2(Screen.width /3, 20f), new Vector2(Screen.width / 3f, Screen.height - 100));
+			
+			GUILayout.BeginArea(box,InGameUI.BoxStyle);
 			Save_Load_Toggle = GUILayout.Toggle(Save_Load_Toggle, $"{SaveloadMode}");
 			GUILayout.Space(15);
+			
 			// Load Mode
 			if (Save_Load_Toggle)
             {
 				SaveloadScroll = GUILayout.BeginScrollView(SaveloadScroll);
-				foreach(FileInfo file in new DirectoryInfo(ParksDirectory).GetFiles())
+				GUILayout.Space(10);
+				foreach (FileInfo file in new DirectoryInfo(ParksDirectory).GetFiles())
                 {
                     if(GUILayout.Button($"{file.Name}"))
 					{
 						_ParkSaveLoad.LoadSpot($"{file.FullName}");
                     }
+					GUILayout.Space(10);
                 }
 				GUILayout.EndScrollView();
 			}
@@ -1288,10 +1233,13 @@ namespace FrostyP_Game_Manager
 			// Save Mode
             if (!Save_Load_Toggle)
             {
-			GUILayout.Label($"{ObjectstoSave.Count} placed in Save List", Generalstyle);
-				GUILayout.Space(5);
+				
+
+				GUILayout.BeginHorizontal();
+			GUILayout.Label($"{ObjectstoSave.Count} placed in Save List");
+				//GUILayout.Space(5);
 				SaveparkName = GUILayout.TextField(SaveparkName);
-				GUILayout.Space(5);
+				//GUILayout.Space(5);
 				if (GUILayout.Button("Save Spot"))
                 {
 					foreach(PlacedObject _p in ObjectstoSave)
@@ -1337,13 +1285,118 @@ namespace FrostyP_Game_Manager
 					}
 					_ParkSaveLoad.SaveSpot(ObjectstoSave, SaveparkName, CreatorsList);
                 }
+				GUILayout.EndHorizontal();
+				GUILayout.Space(15);
+				GUILayout.BeginHorizontal();
+				if (GUILayout.Button("Add all My Objects"))
+				{
+					foreach (PlacedObject myobj in placedobjects)
+					{
+						bool found = false;
+						foreach (PlacedObject alreadyin in ObjectstoSave)
+						{
+							if (alreadyin == myobj)
+							{
+								found = true;
+							}
+						}
+						if (!found)
+						{
+							ObjectstoSave.Add(myobj);
+						}
 
-				SaveloadScroll = GUILayout.BeginScrollView(SaveloadScroll);
 
+					}
+				}
+				if (GUILayout.Button("Add Everything"))
+				{
+					foreach (PlacedObject myobj in placedobjects)
+					{
+						bool found = false;
+						foreach (PlacedObject alreadyin in ObjectstoSave)
+						{
+							if (alreadyin == myobj)
+							{
+								found = true;
+							}
+						}
+						if (!found)
+						{
+							ObjectstoSave.Add(myobj);
+						}
+
+
+					}
+
+
+                    if (InGameUI.instance.Connected)
+                    {
+
+					foreach (RemotePlayer player in GameManager.Players.Values)
+					{
+						
+						
+						foreach (NetGameObject rmObj in player.Objects)
+						{
+							PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile));
+							_RMPlacedObject.ObjectId = rmObj.ObjectID;
+							_RMPlacedObject.OwnerID = rmObj.OwnerID;
+							bool found = false;
+							foreach (PlacedObject alreadyin in ObjectstoSave.ToArray())
+							{
+								if (alreadyin.ObjectId == rmObj.ObjectID && alreadyin.OwnerID == rmObj.OwnerID)
+								{
+									found = true;
+								}
+							}
+
+
+							if (!found)
+							{
+								ObjectstoSave.Add(_RMPlacedObject);
+							}
+							
+
+
+						}
+						
+					}
+
+
+
+                    }
+
+
+				}
+				GUILayout.Space(10);
+				if (GUILayout.Button("Remove All of My Objects"))
+				{
+					foreach (PlacedObject myobj in placedobjects)
+					{
+						
+						foreach (PlacedObject alreadyin in ObjectstoSave.ToArray())
+						{
+							if (alreadyin == myobj)
+							{
+								ObjectstoSave.Remove(alreadyin);
+							}
+						}
+						
+
+					}
+
+				}
+				if (GUILayout.Button("Remove Everything"))
+				{
+					ObjectstoSave.Clear();
+				}
+				GUILayout.EndHorizontal();
 				GUILayout.Space(5);
 				GUILayout.Label("My Objects");
 				GUILayout.Space(5);
-				foreach (PlacedObject myobj in placedobjects)
+				MyObjectsSaveScroll = GUILayout.BeginScrollView(MyObjectsSaveScroll,InGameUI.BoxStyle);
+				
+				foreach (PlacedObject myobj in placedobjects.ToArray())
                 {
 					bool found = false;
 					foreach(PlacedObject alreadyin in ObjectstoSave)
@@ -1355,7 +1408,7 @@ namespace FrostyP_Game_Manager
                     }
                     if (!found)
                     {
-                        if (GUILayout.Button($"Add {myobj.Object.name.Replace("(Clone)","")}"))
+                        if (GUILayout.Button($"Add {myobj.Object.name.Replace("(Clone)","")}: ID:{myobj.ObjectId}"))
                         {
 							
 							ObjectstoSave.Add(myobj);
@@ -1364,7 +1417,7 @@ namespace FrostyP_Game_Manager
                     }
                     if (found)
                     {
-						if (GUILayout.Button($"Remove {myobj.Object.name.Replace("(Clone)", "")}"))
+						if (GUILayout.Button($"Remove {myobj.Object.name.Replace("(Clone)", "")}: ID:{myobj.ObjectId}"))
 						{
 							ObjectstoSave.Remove(myobj);
 							
@@ -1376,6 +1429,12 @@ namespace FrostyP_Game_Manager
 
 				}
 				GUILayout.Space(15);
+			    GUILayout.EndScrollView();
+				
+
+				GUILayout.Space(15);
+				GUILayout.Label("Online Players:");
+				OtherPlayersScroll = GUILayout.BeginScrollView(OtherPlayersScroll, InGameUI.BoxStyle);
 				if (InGameUI.instance.Connected)
                 {
 				foreach(RemotePlayer player in GameManager.Players.Values)
@@ -1383,7 +1442,7 @@ namespace FrostyP_Game_Manager
 						PlacedObject _foundobj = null;
 					GUILayout.Space(5);
 					GUILayout.Label($"{player.username}'s Objects");
-					foreach(NetGameObject rmObj in GameManager.PlayersObjects[player.id])
+					foreach(NetGameObject rmObj in player.Objects.ToArray())
                     {
 						PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile));
 							_RMPlacedObject.ObjectId = rmObj.ObjectID;
@@ -1421,22 +1480,15 @@ namespace FrostyP_Game_Manager
 				}
 
                 }
+				GUILayout.EndScrollView();
 
-			GUILayout.EndScrollView();
-
-
+				GUILayout.Space(15);
             }
-
-
-
 
 
 			GUILayout.EndArea();
 		}
 
-
-
-	   
 		public void LoadedSpotSetup(SavedSpot _Spot)
         {
 			
@@ -1643,11 +1695,97 @@ namespace FrostyP_Game_Manager
 			}
         }
 
-
+		public void PopUpMessage(string message)
+        {
+			// add to pop up message list
+        }
 		
 
 
-    }
+		void SetupGuis()
+        {
+			
+
+			
+
+			Myobjectstyle.hover.background = GreenTex;
+			Myobjectstyle.normal.textColor = Color.black;
+			Myobjectstyle.normal.background = whiteTex;
+			Myobjectstyle.alignment = TextAnchor.MiddleCenter;
+
+
+
+			Generalstyle.normal.background = whiteTex;
+			Generalstyle.normal.textColor = Color.black;
+			Generalstyle.alignment = TextAnchor.MiddleCenter;
+			Generalstyle.fontStyle = FontStyle.Bold;
+			
+
+			skin.label.normal.textColor = Color.black;
+			skin.label.fontSize = 12;
+			skin.label.fontStyle = FontStyle.Bold;
+			skin.label.alignment = TextAnchor.MiddleCenter;
+			skin.label.normal.background = TransTex;
+
+			skin.textField.alignment = TextAnchor.MiddleCenter;
+			skin.textField.normal.textColor = Color.red;
+			skin.textField.normal.background = Texture2D.whiteTexture;
+			skin.textField.focused.background = BlackTex;
+			skin.textField.focused.textColor = Color.white;
+			skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 12);
+
+			skin.button.normal.textColor = Color.black;
+			skin.button.alignment = TextAnchor.MiddleCenter;
+			skin.button.normal.background = GreenTex;
+			skin.button.onNormal.background = GreyTex;
+			skin.button.onNormal.textColor = Color.red;
+			skin.button.onHover.background = GreenTex;
+			skin.button.hover.textColor = Color.green;
+			skin.button.normal.background.wrapMode = TextureWrapMode.Clamp;
+			skin.button.hover.background = GreyTex;
+
+			skin.toggle.normal.textColor = Color.black;
+			skin.toggle.alignment = TextAnchor.MiddleCenter;
+			skin.toggle.normal.background = GreenTex;
+			skin.toggle.onNormal.background = GreyTex;
+			skin.toggle.onNormal.textColor = Color.black;
+			skin.toggle.onHover.background = GreenTex;
+			skin.toggle.hover.textColor = Color.green;
+			skin.toggle.normal.background.wrapMode = TextureWrapMode.Clamp;
+			skin.toggle.hover.background = GreyTex;
+
+			skin.horizontalSlider.alignment = TextAnchor.MiddleCenter;
+			skin.horizontalSlider.normal.textColor = Color.black;
+			skin.horizontalSlider.normal.background = GreyTex;
+			skin.horizontalSliderThumb.normal.background = GreenTex;
+			skin.horizontalSliderThumb.normal.background.wrapMode = TextureWrapMode.Clamp;
+			skin.horizontalSliderThumb.normal.textColor = Color.white;
+			skin.horizontalSliderThumb.fixedWidth = 20;
+			skin.horizontalSliderThumb.fixedHeight = 20;
+			skin.horizontalSliderThumb.hover.background = BlackTex;
+
+			//skin.scrollView.normal.background = GreenTex;
+			skin.verticalScrollbarThumb.normal.background = GreenTex;
+			skin.verticalScrollbarThumb.alignment = TextAnchor.MiddleRight;
+			skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;
+			skin.verticalScrollbar.normal.background = GreyTex;
+			skin.scrollView.alignment = TextAnchor.MiddleCenter;
+			skin.scrollView.padding = new RectOffset(15, 15, 5, 5);
+			//skin.scrollView.fixedWidth = Screen.width / 4;
+			skin.scrollView.normal.background = whiteTex;
+			skin.scrollView.stretchHeight = true;
+			skin.scrollView.stretchWidth = true;
+
+			
+
+
+
+		}
+
+
+
+
+	}
 
 
 	/// <summary>

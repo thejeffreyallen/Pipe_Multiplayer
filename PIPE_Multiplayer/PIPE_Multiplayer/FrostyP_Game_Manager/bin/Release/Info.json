@@ -1,9 +1,9 @@
 {
   "Id": "FrostyPGamemanager",
-  "DisplayName": "FrostyPGamemanager",
+  "DisplayName": "FrostyP Gamemanager",
   "Author": "Frosty P",
-  "Version": "1.0",
-  "ManagerVersion": "0.12.3",
+  "Version": "2.14",
+  "ManagerVersion": "0.20.0",
   "AssemblyName": "FrostyP_Game_Manager.dll",
   "EntryMethod": "FrostyP_Game_Manager.Main.Load"
 }

@@ -53,7 +53,7 @@ namespace FrostyP_Game_Manager
 
             if (File.Exists(ParkBuilder.instance.ParksDirectory + Filename))
             {
-               stream = File.OpenWrite(Filename);
+               stream = File.OpenWrite(ParkBuilder.instance.ParksDirectory + Filename);
             }
             else
             {

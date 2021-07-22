@@ -13,13 +13,18 @@ namespace PIPE_Valve_Console_Client
     {
         public static float PosMult = 4500;
         public static float Rotmult = 80;
+
+
+        
+
+
         
         private static void SendToServer(byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
             
             SendToServerThread.ExecuteOnMainThread(() =>
             {
-                GameNetworking.instance.client.SendMessageToConnection(GameNetworking.instance.connection, bytes, sendflag);
+                GameNetworking.instance.Socket.SendMessageToConnection(GameNetworking.instance.ServerConnection, bytes, sendflag);
             });
            
            
@@ -45,8 +50,8 @@ namespace PIPE_Valve_Console_Client
                 {
 
                     _packet.Write(InGameUI.instance.Username);
-                    _packet.Write(InGameUI.instance._localplayer.RiderModelname);
-                    _packet.Write(InGameUI.instance._localplayer.RiderModelBundleName);
+                    _packet.Write(InGameUI.instance.LocalPlayer.RiderModelname);
+                    _packet.Write(InGameUI.instance.LocalPlayer.RiderModelBundleName);
                     _packet.Write(GameManager.instance.MycurrentLevel);
                     _packet.Write(GameNetworking.instance.VERSIONNUMBER);
 
@@ -68,64 +73,37 @@ namespace PIPE_Valve_Console_Client
         /// <param name="_RiderTexnames"></param>
         /// <param name="bikemetallics"></param>
         /// <param name="bikenormalnames"></param>
-        public static void SendAllParts(List<Vector3> Bikecolours, List<float> BikeSmooths, List<TextureInfo> _BikeTexname, List<TextureInfo> _RiderTexnames, List<float> bikemetallics, List<TextureInfo> bikenormalnames)
+        public static void SendAllParts(GearUpdate FullGear)
         {
             using(Packet _packet = new Packet((int)ClientPackets.SendAllParts))
             {
-                _packet.Write(Bikecolours.Count);
-                for (int i = 0; i < Bikecolours.Count; i++)
+                // rider
+                if(LocalPlayer.instance.RiderModelname == "Daryien")
                 {
-                _packet.Write(Bikecolours[i]);
-                }
 
-
-                _packet.Write(BikeSmooths.Count);
-                for (int i = 0; i < BikeSmooths.Count; i++)
+                _packet.Write(FullGear.RiderTextures.Count);
+                if (FullGear.RiderTextures.Count > 0)
                 {
-                    _packet.Write(BikeSmooths[i]);
-                }
-
-
-                _packet.Write(bikemetallics.Count);
-                for (int i = 0; i < bikemetallics.Count; i++)
+                for (int i = 0; i < FullGear.RiderTextures.Count; i++)
                 {
-                    _packet.Write(bikemetallics[i]);
-                }
-
-
-                _packet.Write(_BikeTexname.Count);
-                for (int i = 0; i < _BikeTexname.Count; i++)
-                {
-                    _packet.Write(_BikeTexname[i].Nameoftexture);
-                    _packet.Write(_BikeTexname[i].NameofparentGameObject);
-
-                }
-
-
-                _packet.Write(_RiderTexnames.Count);
-                if (_RiderTexnames.Count > 0)
-                {
-                for (int i = 0; i < _RiderTexnames.Count; i++)
-                {
-                    _packet.Write(_RiderTexnames[i].Nameoftexture);
-                    _packet.Write(_RiderTexnames[i].NameofparentGameObject);
+                    _packet.Write(FullGear.RiderTextures[i].Nameoftexture);
+                    _packet.Write(FullGear.RiderTextures[i].NameofparentGameObject);
+                    _packet.Write(FullGear.RiderTextures[i].Matnum);
                 }
 
                 }
 
 
-                _packet.Write(bikenormalnames.Count);
-                if(bikenormalnames.Count > 0)
-                {
-                    for (int i = 0; i < bikenormalnames.Count; i++)
-                    {
-                        _packet.Write(bikenormalnames[i].Nameoftexture);
-                        _packet.Write(bikenormalnames[i].NameofparentGameObject);
-
-                    }
                 }
 
-                
+
+                // Garage
+                _packet.Write(FullGear.GarageSave.Length);
+                _packet.Write(FullGear.GarageSave);
+
+
+
+
 
                 _packet.Write(FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count);
 
@@ -148,10 +126,10 @@ namespace PIPE_Valve_Console_Client
                 }
 
 
-                Debug.Log($"Send all parts: biketexnames count: {_BikeTexname.Count}, Ridertexname count: {_RiderTexnames.Count}, Bikenormal count: {bikenormalnames.Count}, Object count: {FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count}");
                
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                GameManager.instance._localplayer.ServerActive = true;
+                Debug.Log($"Sent all gear and {FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count} objects");
+                LocalPlayer.instance.ServerActive = true;
             }
 
         }
@@ -200,7 +178,7 @@ namespace PIPE_Valve_Console_Client
 
                 }
 
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
 
             }
 
@@ -209,120 +187,67 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public static void SendDaryienTexNames()
+
+        
+        public static void SendFileSegment(FileSegment FileSegment)
         {
-           
-
-                using (Packet _packet = new Packet((int)ClientPackets.SendTextureNames))
+            
+                using (Packet _packet = new Packet((int)ClientPackets.SendFileSegment))
                 {
-                if (GameManager.instance._localplayer == null) {
-                    Debug.Log("GameManager.instance._localplayer == null");
-                }
-                if (GameManager.instance._localplayer.RiderTextureInfoList == null)
-                {
-                    Debug.Log("GameManager.instance._localplayer.RiderTextureInfoList == null");
-                }
-                // write amount of names in list
-                _packet.Write(GameManager.instance._localplayer.RiderTextureInfoList.Count);
+                    _packet.Write(FileSegment.NameofFile);
+                    _packet.Write(FileSegment.segment_count);
+                    _packet.Write(FileSegment.this_segment_num);
+                    _packet.Write(FileSegment.segment.Length);
+                    _packet.Write(FileSegment.segment);
+                    _packet.Write(FileSegment.FileType);
+                    _packet.Write(FileSegment.ByteCount);
 
-                    // write each name
-                    foreach (TextureInfo s in GameManager.instance._localplayer.RiderTextureInfoList)
-                    {
-                    _packet.Write(s.Nameoftexture);
-                    _packet.Write(s.NameofparentGameObject);
-                    }
                     SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
 
                 }
-           
-        }
 
+                Debug.Log($"packet {FileSegment.this_segment_num} of {FileSegment.segment_count} outgoing");
+
+
+            
+
+
+        }
         
-        public static void SendTextures(List<Texture2D> texs)
+        /// <summary>
+        /// A packet from server triggers this giving list of filenames it doesnt have
+        /// </summary>
+        /// <param name="unfound"></param>
+        public static void RequestFile(string unfound, int filetype, List<int> _packetsihave)
         {
-            
-           
-
-            // For each image, split up and send each segment with a segment number, its total num of segments, tex name, segment length and segment
-            foreach (Texture2D tex in texs)
+            using(Packet _packet = new Packet((int)ClientPackets.RequestFileFromServer))
             {
-                byte[] bytesofimage = new byte[1];
-                try
+                _packet.Write(filetype);
+                _packet.Write(unfound);
+                _packet.Write(_packetsihave.Count);
+                for (int i = 0; i < _packetsihave.Count; i++)
                 {
-                 bytesofimage = ByteMaker.Image(tex);
+                    _packet.Write(_packetsihave[i]);
                 }
-                catch(Exception x)
-                {
-                    Debug.Log(x);
-                }
-                if(bytesofimage.Length<2)
-                {
-                    try
-                    {
-                        bytesofimage = tex.GetRawTextureData();
-                    }
-                    catch (Exception x)
-                    {
-                        Debug.Log(x);
-                    }
-
-                }
-
-                if (bytesofimage.Length < 2)
-                {
-                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Texture requested is incompatible with encoder,", (int)MessageColour.Server, 0));
-                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"try uncompressing {tex.name}", (int)MessageColour.Server, 0));
-                    return;
-                }
-
-
-
-
-               
-                int sizeofbytes = bytesofimage.Length;
-                int currentpos = 0;
-                int n = sizeofbytes / 3000;
-                int a = (n / 10) * 10;
-                int b = a + 10;
-                int divider = 10;
-
-                /*
-                for (int i = 0; i < divider; i++)
-                {
-                    byte[] segment = new byte[sizeofbytes/divider];
-
-                    for (int _i = 0; _i < bytesofimage.Length/divider; _i++)
-                    {
-                    segment[_i] = bytesofimage[currentpos];
-                    currentpos++;
-
-                    }
-
-                    using(Packet _packet = new Packet((int)ClientPackets.SendTexture))
-                    {
-                        _packet.Write(i);
-                        _packet.Write(divider);
-                        _packet.Write(segment.Length);
-                        _packet.Write(tex.name);
-                        _packet.Write(segment);
-                
-                       // SendToServer(GameNetworking.instance.connection, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                        //InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"sent: {i} of {divider} packets at {segment.Length}", (int)MessageColour.Server, 0));
-                    }
-                }
-
-                */
+            
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
-               
-
-
-
-            
-              
-            
-            // Texture needs to be read/write enabled
         }
-        
+
+
+
+        public static void FileStatus(string name, int filetype, int Status)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.FileStatus))
+            {
+                _packet.Write(name);
+                _packet.Write(filetype);
+                _packet.Write(Status);
+
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
+
 
 
         public static void SendAudioUpdate(List<AudioStateUpdate> updates, int code)
@@ -389,105 +314,45 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-        /// <summary>
-        /// Called by User click
-        /// </summary>
-        /// <param name="Colours"></param>
-        /// <param name="Smooths"></param>
-        /// <param name="Metallics"></param>
-        /// <param name="Texnames"></param>
-        public static void SendQuickBikeUpdate(List<Vector3> Colours, List<float> Smooths, List<float> Metallics, List<TextureInfo> Texnames, List<TextureInfo> bikenormalsinfo)
+       
+        public static void SendGearUpdate(GearUpdate gear)
         {
-            using (Packet _packet = new Packet((int)ClientPackets.QuickBikeUpdate))
+            using (Packet _packet = new Packet((int)ClientPackets.GearUpdate))
             {
-                _packet.Write(Colours.Count);
-                for (int i = 0; i < Colours.Count; i++)
+                _packet.Write(gear.isRiderUpdate);
+                // rider
+                if (gear.isRiderUpdate)
                 {
-                    _packet.Write(Colours[i]);
-                }
-                _packet.Write(Smooths.Count);
-                for (int i = 0; i < Smooths.Count; i++)
+                _packet.Write(gear.RiderTextures.Count);
+                if (gear.RiderTextures.Count > 0)
                 {
-                    _packet.Write(Smooths[i]);
-                }
-                 _packet.Write(Metallics.Count);
-                for (int i = 0; i < Metallics.Count; i++)
-                {
-                    _packet.Write(Metallics[i]);
-                }
-
-                _packet.Write(Texnames.Count);
-                if (Texnames.Count > 0)
-                {
-                for (int i = 0; i < Texnames.Count; i++)
-                {
-                    _packet.Write(Texnames[i].Nameoftexture);
-                    _packet.Write(Texnames[i].NameofparentGameObject);
-                }
-                }
-
-
-                _packet.Write(bikenormalsinfo.Count);
-                if (bikenormalsinfo.Count > 0)
-                {
-                    for (int i = 0; i < bikenormalsinfo.Count; i++)
+                    for (int i = 0; i < gear.RiderTextures.Count; i++)
                     {
-                        _packet.Write(bikenormalsinfo[i].Nameoftexture);
-                        _packet.Write(bikenormalsinfo[i].NameofparentGameObject);
+                        _packet.Write(gear.RiderTextures[i].Nameoftexture);
+                        _packet.Write(gear.RiderTextures[i].NameofparentGameObject);
+                        _packet.Write(gear.RiderTextures[i].Matnum);
                     }
+
                 }
 
-
-
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-            }
-
-        }
-
-        /// <summary>
-        /// Called by user click
-        /// </summary>
-        /// <param name="texnames"></param>
-        public static void SendQuickRiderUpdate(List<TextureInfo> texnames)
-        {
-            using(Packet _packet = new Packet((int)ClientPackets.QuickRiderUpdate))
-            {
-                _packet.Write(texnames.Count);
-                foreach(TextureInfo info in texnames)
+                }
+                else
                 {
-                    _packet.Write(info.Nameoftexture);
-                    _packet.Write(info.NameofparentGameObject);
+                    //bike
+
+
                 }
 
 
+                
+
+
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
         }
 
 
-        /// <summary>
-        /// A packet from server triggers this giving list of filenames it doesnt have
-        /// </summary>
-        /// <param name="unfound"></param>
-        public static void RequestTextures(List<string> unfound)
-        {
-            using(Packet _packet = new Packet((int)ClientPackets.RequestforTex))
-            {
-                _packet.Write(unfound.Count);
-            foreach(string t in unfound)
-            {
-              _packet.Write(t);
-
-            }
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-            }
-        }
-
-        /// <summary>
-        /// called by user click or map change
-        /// </summary>
-        /// <param name="name"></param>
         public static void SendMapName(string name)
         {
             using (Packet _packet = new Packet((int)ClientPackets.SendMapName))
@@ -617,9 +482,13 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-
-
-
+        public static void AdminLogOut()
+        {
+            using(Packet _packet = new Packet((int)ClientPackets.LogOut))
+            {
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
 
         public static void AdminRemoveObject(uint _owner, int ObjectID)
         {

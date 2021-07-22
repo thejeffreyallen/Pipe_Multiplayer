@@ -13,17 +13,15 @@ namespace PIPE_Valve_Console_Client
     public enum ServerPacket : byte
     {
         Welcome = 1,
-        SetupAPlayer = 2,
-        RequestTexNames = 3,
-        requestTextures = 4,
-        ReceiveTransformUpdate = 5,
-        ReceiveTextureforPlayer = 6,
-        DisconnectedPlayer = 7,
-        ReceiveAudioForPlayer = 8,
+        SetupAPlayer,
+        requestTextures,
+        ReceiveTransformUpdate,
+        SendTexturetoplayer,
+        DisconnectedPlayer,
+        ReceiveAudioForPlayer,
         IncomingTextMessage,
         RequestForAllParts,
-        BikeQuickUpdate,
-        RiderQuickUpdate,
+        GearUpdate,
         ReceiveSetupAllOnlinePlayers,
         ReceiveMapName,
         disconnectme,
@@ -31,6 +29,9 @@ namespace PIPE_Valve_Console_Client
         SpawnAnObjectReceive,
         DestroyAnObject,
         MoveAnObject,
+        FileStatus,
+        Update,
+        AdminStream,
 
 
 
@@ -44,14 +45,11 @@ namespace PIPE_Valve_Console_Client
         WelcomeReceived = 1,
         SendAllParts,
         TransformUpdate,
-        SendTextureNames,
-        ReceiveTexturenames,
-        SendTexture,
+        SendFileSegment,
+        RequestFileFromServer,
         SendAudioUpdate,
         SendTextMessage,
-        RequestforTex,
-        QuickBikeUpdate,
-        QuickRiderUpdate,
+        GearUpdate,
         SendMapName,
         SendBootPlayer,
         AdminModeOn,
@@ -63,6 +61,8 @@ namespace PIPE_Valve_Console_Client
         VoteToRemoveObject,
         KeepActive,
         AdminRemoveObject,
+        FileStatus,
+        LogOut,
 
     }
 

@@ -16,7 +16,6 @@ namespace FrostyP_Game_Manager
 
         public static string modId;
         static GameObject GamemanOBJ;
-        static GameObject FNetOBJ;
         public static GameNetworking Network;
 
 
@@ -99,28 +98,26 @@ namespace FrostyP_Game_Manager
 
 
             GamemanOBJ = new GameObject("FrostyGameManager");
-            GamemanOBJ.AddComponent<FrostyPGamemanager>().Onlineobj = FNetOBJ = new GameObject("FNET");
+            GamemanOBJ.AddComponent<InGameUI>();
             GamemanOBJ.AddComponent<ParkBuilder>();
-           
+            GamemanOBJ.AddComponent<ReplayMode>();
+            GamemanOBJ.AddComponent<CameraSettings>();
+            GamemanOBJ.AddComponent<RiderPhysics>();
+            GamemanOBJ.AddComponent<FrostyPGamemanager>();
+            GamemanOBJ.AddComponent<Teleport>();
 
-
-            
-           
-            FNetOBJ.AddComponent<GameManager>();
-            FNetOBJ.AddComponent<InGameUI>();
-            FNetOBJ.AddComponent<LocalPlayer>();
-            FNetOBJ.AddComponent<SendToUnityThread>();
-            FNetOBJ.AddComponent<BMXNetLoadout>();
-            FNetOBJ.AddComponent<CharacterModding>();
+            GamemanOBJ.AddComponent<GameManager>();
+            GamemanOBJ.AddComponent<LocalPlayer>();
+            GamemanOBJ.AddComponent<SendToUnityThread>();
+            GamemanOBJ.AddComponent<CharacterModding>();
+            GamemanOBJ.AddComponent<RemotePartMaster>();
          
-            UnityEngine.Object.DontDestroyOnLoad(FNetOBJ);
-
             Network = new GameNetworking();
             Network.Start();
 
 
 
-            UnityEngine.Object.DontDestroyOnLoad(GamemanOBJ);
+           Object.DontDestroyOnLoad(GamemanOBJ);
 
 
 

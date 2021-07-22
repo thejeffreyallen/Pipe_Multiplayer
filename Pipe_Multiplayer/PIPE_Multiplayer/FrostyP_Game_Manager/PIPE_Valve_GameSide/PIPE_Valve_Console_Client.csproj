@@ -69,6 +69,10 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="BikeWorkshopMenu, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\TheGarage\Garage\BikeMenu UnityProj\BikeMenu UnityProj\obj\Release\BikeWorkshopMenu.dll</HintPath>
+    </Reference>
     <Reference Include="com.unity.postprocessing.Runtime">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\com.unity.postprocessing.Runtime.dll</HintPath>
     </Reference>
@@ -138,20 +142,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioStateUpdate.cs" />
-    <Compile Include="BMXNetLoadout.cs" />
     <Compile Include="BMXSaveData.cs" />
-    <Compile Include="ByteMaker.cs" />
     <Compile Include="CharacterModding.cs" />
     <Compile Include="ClientHandle.cs" />
     <Compile Include="ClientSend.cs" />
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="GameData.cs" />
+    <Compile Include="FileSyncing.cs" />
     <Compile Include="Half.cs" />
     <Compile Include="HalfHelper.cs" />
     <Compile Include="PlayerSaveData.cs" />
+    <Compile Include="RemotePartMaster.cs" />
     <Compile Include="RiderSaveData.cs" />
-    <Compile Include="ServerUpdate.cs" />
+    <Compile Include="NetworkThread.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="InGameUI.cs" />
     <Compile Include="LocalPlayer.cs" />
@@ -164,10 +167,14 @@
     <Compile Include="RemotePlayerAudio.cs" />
     <Compile Include="SendToUnityThread.cs" />
     <Compile Include="SendToServerThread.cs" />
+    <Compile Include="TempFile.cs" />
     <Compile Include="TextMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

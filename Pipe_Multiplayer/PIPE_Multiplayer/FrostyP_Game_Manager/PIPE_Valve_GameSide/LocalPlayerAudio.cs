@@ -25,9 +25,9 @@ namespace PIPE_Valve_Console_Client
         public GameObject Riderroot;
 
         // just used to flick through them
-        private FmodRiserByVel[] FindRisers;
+        private FmodRiserByVel[] Risers;
 
-        private FmodSoundLauncher Launcher;
+        private FmodSoundLauncher OneShotter;
         private FMOD.Studio.EventDescription Description;
         private string LastSoundPath = "";
         private string ThisSoundpath;
@@ -39,6 +39,7 @@ namespace PIPE_Valve_Console_Client
         /// last recorded state, only send if state has changed
         /// </summary>
         private int[] laststates;
+        private Dictionary<string, float> PlayThresholds = new Dictionary<string, float>();
 
 
 
@@ -59,11 +60,14 @@ namespace PIPE_Valve_Console_Client
 
 
             // grab risers and add to list
-            FindRisers = Riderroot.transform.parent.parent.parent.gameObject.GetComponentsInChildren<FmodRiserByVel>();
-            Launcher = Riderroot.transform.parent.parent.parent.gameObject.GetComponentInChildren<FmodSoundLauncher>();
-            laststates = new int[FindRisers.Length];
+            Risers = Riderroot.transform.parent.parent.parent.gameObject.GetComponentsInChildren<FmodRiserByVel>();
+            OneShotter = Riderroot.transform.parent.parent.parent.gameObject.GetComponentInChildren<FmodSoundLauncher>();
+            laststates = new int[Risers.Length];
 
-
+            foreach(FmodRiserByVel v in Risers)
+            {
+                PlayThresholds.Add(v.name, 0);
+            }
 
 
 
@@ -86,9 +90,9 @@ namespace PIPE_Valve_Console_Client
             if (InGameUI.instance.Connected && Mylocalplayer.ServerActive)
             {
                 // take care of all FMODbyRiserVel's in Bmx
-                for (int i = 0; i < FindRisers.Length; i++)
+                for (int i = 0; i < Risers.Length; i++)
                 {
-                    FindRisers[i].sound.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE st);
+                    Risers[i].sound.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE st);
 
                     // if both the current state and last sent state are not STOPPED, carry on
                     if (((int)st != 2 && laststates[i] != 2))
@@ -97,31 +101,31 @@ namespace PIPE_Valve_Console_Client
                         if (st == FMOD.Studio.PLAYBACK_STATE.PLAYING)
                         {
                             // Debug.Log("Playing" + FindRisers[i].gameObject.name);
-                            StateHandlers[0](0, FindRisers[i]);
+                            StateHandlers[0](0, Risers[i]);
                         }
                         //send update and tell to start
                         if (st == FMOD.Studio.PLAYBACK_STATE.STARTING)
                         {
                             //  Debug.Log("starting" + FindRisers[i].gameObject.name);
-                            StateHandlers[3](3, FindRisers[i]);
+                            StateHandlers[3](3, Risers[i]);
                         }
                         // send just this info
                         if (st == FMOD.Studio.PLAYBACK_STATE.STOPPED)
                         {
                             // Debug.Log("stopped" + FindRisers[i].gameObject.name);
-                            StateHandlers[2](2, FindRisers[i]);
+                            StateHandlers[2](2, Risers[i]);
                         }
                         // send update and tell to stop
                         if (st == FMOD.Studio.PLAYBACK_STATE.STOPPING)
                         {
                             // Debug.Log("stopping" + FindRisers[i].gameObject.name);
-                            StateHandlers[4](4, FindRisers[i]);
+                            StateHandlers[4](4, Risers[i]);
                         }
                         // paused? dont think that used, if so paused = sustaining, stopping and playing at once so will need more checks on all above
                         if (st == FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
                         {
                             // Debug.Log("sustaining" + FindRisers[i].gameObject.name);
-                            StateHandlers[1](1, FindRisers[i]);
+                            StateHandlers[1](1, Risers[i]);
                         }
 
                     }
@@ -135,25 +139,31 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                // take care of the FMODSoundLauncher, currently wont play send off a sound with the same path twice, maybe limited
-                if (Launcher != null)
+                // take care of the FMODSoundLauncher
+                if (OneShotter != null)
                 {
-                    if (Launcher.CurrentEvent.isValid())
+                    if (OneShotter.CurrentEvent.isValid())
                     {
-                        Launcher.CurrentEvent.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE state);
-                        Launcher.CurrentEvent.getDescription(out Description);
+                        OneShotter.CurrentEvent.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE state);
+                        OneShotter.CurrentEvent.getDescription(out Description);
                         Description.getPath(out ThisSoundpath);
 
-                        if (!ThisSoundpath.Contains("Character Sounds"))
+                        if (!ThisSoundpath.Contains("UI"))
                         {
-                        if (state == FMOD.Studio.PLAYBACK_STATE.STARTING)
+                        if (state == FMOD.Studio.PLAYBACK_STATE.STARTING | state == FMOD.Studio.PLAYBACK_STATE.PLAYING)
                         {
-                            LastOneShotEvent = Launcher.CurrentEvent;
                             // process this event
-                            Launcher.CurrentEvent.getVolume(out float volume, out float finalvol);
+                            OneShotter.CurrentEvent.getVolume(out float volume, out float finalvol);
+
+                                if(ThisSoundpath != LastSoundPath)
+                                {
+                                 OneShotUpdates.Add(new AudioStateUpdate(finalvol, ThisSoundpath));
+
+                                }
 
 
-                            OneShotUpdates.Add(new AudioStateUpdate(finalvol, ThisSoundpath));
+
+                            LastOneShotEvent = OneShotter.CurrentEvent;
                             LastSoundPath = ThisSoundpath;
                         }
 
@@ -190,7 +200,19 @@ namespace PIPE_Valve_Console_Client
 
 
 
+           private bool PlayThreshold(string name, float finalvol)
+           {
+              if(PlayThresholds[name] - finalvol > 0.1f | (PlayThresholds[name] - finalvol < -0.1f))
+              {
+                return true;
 
+              }
+              else
+              {
+                return false;
+              }
+
+           }
           
 
 
@@ -203,8 +225,12 @@ namespace PIPE_Valve_Console_Client
                 Vel.getValue(out float _Vel);
                 string soundname = riser.gameObject.name;
                 AudioStateUpdate update = new AudioStateUpdate(finalvol, finalpitch, state, soundname, _Vel);
-           
-                RisersStateUpdate.Add(update);
+
+                 if (PlayThreshold(riser.name,finalvol))
+                 {
+                    RisersStateUpdate.Add(update);
+
+                 }
             
 
             }

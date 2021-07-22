@@ -124,20 +124,7 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        /// <summary>
-        /// Request a list of texture names from rider and bike to check server has them
-        /// </summary>
-        /// <param name="ClientId"></param>
-        public static void RequestTexturenames(uint ClientId)
-        {
-            using(Packet _packet = new Packet((int)ServerPacket.RequestTexNames))
-            {
-                // giving packetcode is enough to trigger clienthandle
-
-                SendtoOne(ClientId, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-            }
-        }
-
+       
 
         public static void RequestAllParts(uint Clientid)
         {
@@ -150,27 +137,67 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        /// <summary>
-        /// Request a list of textures by name
-        /// </summary>
-        /// <param name="Clientid"></param>
-        /// <param name="names"></param>
-        public static void RequestTextures(uint Clientid, List<string> names)
+       
+        public static void RequestFile(uint Clientid, string name, int _filetype, List<int> _packetsihave)
         {
-            using(Packet _packet = new Packet((int)ServerPacket.requestTextures))
+            // send request to client
+            using(Packet _packet = new Packet((int)ServerPacket.RequestFile))
             {
-                _packet.Write(names.Count);
-
-                foreach (string s in names)
+                _packet.Write(_filetype);
+                _packet.Write(name);
+                _packet.Write(_packetsihave.Count);
+                for (int i = 0; i < _packetsihave.Count; i++)
                 {
-                    _packet.Write(s);
+                    _packet.Write(_packetsihave[i]);
                 }
-                //SendtoOne(Clientid, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+
+
+                SendtoOne(Clientid, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
+
+            // if index exists, add id to ReceivingFrom, else create request index
+            foreach(SendReceiveIndex sr in ServerData.IncomingIndexes)
+            {
+                if(sr.NameOfFile == name)
+                {
+                    bool playerlogged = false;
+                    foreach(int play in sr.PlayersRequestedFrom)
+                    {
+                        if(play == Clientid)
+                        {
+                            playerlogged = true;
+                        }
+                        
+                    }
+                    if (!playerlogged)
+                    {
+                        sr.PlayersRequestedFrom.Add(Clientid);
+                    }
+
+                    return;
+                }
+            }
+
+            SendReceiveIndex Index = new SendReceiveIndex(name, _filetype);
+            Index.PacketNumbersStored = _packetsihave;
+            Index.PlayersRequestedFrom.Add(Clientid);
+            ServerData.IncomingIndexes.Add(Index);
 
         }
 
 
+       
+        public static void FileStatus(uint _player, string name, int filetype, int Status)
+        {
+            using (Packet _packet = new Packet((int)ServerPacket.FileStatus))
+            {
+                _packet.Write(name);
+                _packet.Write(filetype);
+                _packet.Write(Status);
+
+                SendtoOne(_player,_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
 
 
 
@@ -194,71 +221,28 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_player.Ridermodelbundlename);
                 _packet.Write(_player.MapName);
 
+                if(_player.Ridermodel == "Daryien")
+                {
+                _packet.Write(_player.Gear.RiderTextures.Count);
+                if (_player.Gear.RiderTextures.Count > 0)
+                {
+                    for (int i = 0; i < _player.Gear.RiderTextures.Count; i++)
+                    {
+                        _packet.Write(_player.Gear.RiderTextures[i].Nameoftexture);
+                        _packet.Write(_player.Gear.RiderTextures[i].NameofparentGameObject);
+                        _packet.Write(_player.Gear.RiderTextures[i].Matnum);
+                    }
+                }
 
-               
-                _packet.Write(_player.Loadout.FrameColour);
-                _packet.Write(_player.Loadout.ForksColour);
-                _packet.Write(_player.Loadout.BarsColour);
-                _packet.Write(_player.Loadout.SeatColour);
-                _packet.Write(_player.Loadout.FTireColour);
-                _packet.Write(_player.Loadout.RTireColour);
-                _packet.Write(_player.Loadout.FTireSideColour);
-                _packet.Write(_player.Loadout.RTireSideColour);
-
-                _packet.Write(_player.Loadout.StemColour);
-                _packet.Write(_player.Loadout.FRimColour);
-                _packet.Write(_player.Loadout.RRimColour);
-
-
+                }
 
 
-
-
-                _packet.Write(_player.Loadout.FrameSmooth);
-                _packet.Write(_player.Loadout.ForksSmooth);
-                _packet.Write(_player.Loadout.SeatSmooth);
-                _packet.Write(_player.Loadout.BarsSmooth);
-
-                _packet.Write(_player.Loadout.StemSmooth);
-                _packet.Write(_player.Loadout.FRimSmooth);
-                _packet.Write(_player.Loadout.RRimSmooth);
-
+                // garage
+                _packet.Write(_player.Gear.Garagesave.Length);
+                _packet.Write(_player.Gear.Garagesave);
 
 
                
-
-
-                _packet.Write(_player.Loadout.FrameMetallic);
-                _packet.Write(_player.Loadout.ForksMetallic);
-                _packet.Write(_player.Loadout.BarsMetallic);
-                _packet.Write(_player.Loadout.StemMetallic);
-                _packet.Write(_player.Loadout.FrimMetallic);
-                _packet.Write(_player.Loadout.RrimMetallic);
-
-
-
-                _packet.Write(_player.Loadout.RiderTextureInfos.Count);
-                foreach(PlayerTextureInfo t in _player.Loadout.RiderTextureInfos)
-                {
-                    _packet.Write(t.Nameoftexture);
-                    _packet.Write(t.NameofparentGameObject);
-                    Console.WriteLine($"Packing {t.Nameoftexture} and {t.NameofparentGameObject}");
-                }
-
-                _packet.Write(_player.Loadout.BMXTextureInfos.Count);
-                foreach(PlayerTextureInfo binfo in _player.Loadout.BMXTextureInfos)
-                {
-                    _packet.Write(binfo.Nameoftexture);
-                    _packet.Write(binfo.NameofparentGameObject);
-                }
-
-                _packet.Write(_player.Loadout.BMXNormalTexInfos.Count);
-                foreach (PlayerTextureInfo binfo in _player.Loadout.BMXNormalTexInfos)
-                {
-                    _packet.Write(binfo.Nameoftexture);
-                    _packet.Write(binfo.NameofparentGameObject);
-                }
-
 
 
                 try
@@ -309,72 +293,24 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(_player.MapName);
 
 
-
-                            _packet.Write(_player.Loadout.FrameColour);
-                            _packet.Write(_player.Loadout.ForksColour);
-                            _packet.Write(_player.Loadout.BarsColour);
-                            _packet.Write(_player.Loadout.SeatColour);
-                            _packet.Write(_player.Loadout.FTireColour);
-                            _packet.Write(_player.Loadout.RTireColour);
-                            _packet.Write(_player.Loadout.FTireSideColour);
-                            _packet.Write(_player.Loadout.RTireSideColour);
-
-                            _packet.Write(_player.Loadout.StemColour);
-                            _packet.Write(_player.Loadout.FRimColour);
-                            _packet.Write(_player.Loadout.RRimColour);
-
-
-
-
-
-
-                            _packet.Write(_player.Loadout.FrameSmooth);
-                            _packet.Write(_player.Loadout.ForksSmooth);
-                            _packet.Write(_player.Loadout.SeatSmooth);
-                            _packet.Write(_player.Loadout.BarsSmooth);
-
-                            _packet.Write(_player.Loadout.StemSmooth);
-                            _packet.Write(_player.Loadout.FRimSmooth);
-                            _packet.Write(_player.Loadout.RRimSmooth);
-
-
-
-
-
-
-                            _packet.Write(_player.Loadout.FrameMetallic);
-                            _packet.Write(_player.Loadout.ForksMetallic);
-                            _packet.Write(_player.Loadout.BarsMetallic);
-                            _packet.Write(_player.Loadout.StemMetallic);
-                            _packet.Write(_player.Loadout.FrimMetallic);
-                            _packet.Write(_player.Loadout.RrimMetallic);
-
-
-
-                            _packet.Write(_player.Loadout.RiderTextureInfos.Count);
-                            foreach (PlayerTextureInfo t in _player.Loadout.RiderTextureInfos)
+                            if(_player.Ridermodel == "Daryien")
                             {
-                                _packet.Write(t.Nameoftexture);
-                                _packet.Write(t.NameofparentGameObject);
-                               
+                            _packet.Write(_player.Gear.RiderTextures.Count);
+                            if (_player.Gear.RiderTextures.Count > 0)
+                            {
+                                for (int i = 0; i < _player.Gear.RiderTextures.Count; i++)
+                                {
+                                    _packet.Write(_player.Gear.RiderTextures[i].Nameoftexture);
+                                    _packet.Write(_player.Gear.RiderTextures[i].NameofparentGameObject);
+                                    _packet.Write(_player.Gear.RiderTextures[i].Matnum);
+                                }
                             }
 
-                            _packet.Write(_player.Loadout.BMXTextureInfos.Count);
-                            foreach (PlayerTextureInfo binfo in _player.Loadout.BMXTextureInfos)
-                            {
-                                _packet.Write(binfo.Nameoftexture);
-                                _packet.Write(binfo.NameofparentGameObject);
-                               
                             }
 
-                            _packet.Write(_player.Loadout.BMXNormalTexInfos.Count);
-                            foreach (PlayerTextureInfo binfo in _player.Loadout.BMXNormalTexInfos)
-                            {
-                                _packet.Write(binfo.Nameoftexture);
-                                _packet.Write(binfo.NameofparentGameObject);
-                            }
-
-
+                            // garage
+                            _packet.Write(_player.Gear.Garagesave.Length);
+                            _packet.Write(_player.Gear.Garagesave);
 
 
                         }
@@ -543,64 +479,29 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        public static void SendTextures(uint _toplayer, List<string> names)
+        public static void SendFileSegment(FileSegment segment)
         {
-            List<byte[]> images = new List<byte[]>();
-
-            // get all images
-            List<TextureBytes> infos = Server.GiveTexturesFromDirectory(names);
-
-
-            if (infos != null)
-            {
-                foreach (TextureBytes tex in infos)
-                {
-                    byte[] bytesofimage = tex.bytes;
-                    int sizeofbytes = bytesofimage.Length;
-                    int currentpos = 0;
-                    int n = sizeofbytes / 10;
-                    int a = (n / 10) * 10;
-                    int b = a + 10;
-                    int divider = 10;
-
-
-                    for (int i = 0; i < divider; i++)
-                    {
-                        byte[] segment = new byte[sizeofbytes / divider];
-
-                        for (int _i = 0; _i < bytesofimage.Length / divider; _i++)
-                        {
-                            segment[_i] = bytesofimage[currentpos];
-                            currentpos++;
-
-                        }
-
-                        using (Packet _packet = new Packet((int)ServerPacket.SendTexturetoPlayer))
-                        {
-                            _packet.Write(i);
-                            _packet.Write(divider);
-                            _packet.Write(segment.Length);
-                            _packet.Write(tex.Texname);
-                            _packet.Write(segment);
-
-                            //SendtoOne(_toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-                           // Console.WriteLine($"Sending {n} to {_toplayer}: Packet {i} of {divider}");
-                        }
-                    }
-
-
-
-                }
-
-            }
-
             
+                        using (Packet _packet = new Packet((int)ServerPacket.SendFileSegment))
+                        {
+                            _packet.Write(segment.NameofFile);
+                            _packet.Write(segment.this_segment_num);
+                            _packet.Write(segment.segment_count);
+                            _packet.Write(segment.segment.Length);
+                            _packet.Write(segment.segment);
+                            _packet.Write(segment.Filetype);
+                            _packet.Write(segment.Bytecount);
+
+                            SendtoOne(segment.client, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                           Console.WriteLine($"Sending {segment.NameofFile} to {segment.client}: Packet {segment.this_segment_num} of {segment.segment_count}");
+                        }
+                    
 
         }
 
 
 
-        public static void SendQuickBikeUpdate(uint __toplayer, Packet _packet)
+        public static void SendGearUpdate(uint __toplayer, Packet _packet)
         {
             try
             {
@@ -608,24 +509,9 @@ namespace PIPE_Valve_Online_Server
             }
             catch (Exception x)
             {
-                Console.WriteLine("Quick bike update error : " + x);
+                Console.WriteLine("Gear update error : " + x);
             }
         }
-
-
-
-        public static void SendQuickRiderUpdate(uint _toplayer, Packet _packet)
-        {
-            try
-            {
-                SendToAll(_toplayer, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
-            }
-            catch (Exception x)
-            {
-                Console.WriteLine("Quick Rider update error : " + x);
-            }
-        }
-
 
 
         public static void SendMapName(uint _from,string name)
@@ -707,7 +593,15 @@ namespace PIPE_Valve_Online_Server
         }
 
 
+        public static void Update(uint Conn)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.Update))
+            {
+                _packet.Write(Server.VERSIONNUMBER);
 
+                SendtoOne(Conn, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
 
 
 
@@ -727,7 +621,17 @@ namespace PIPE_Valve_Online_Server
 
         }
 
+        public static void StreamAdminInfo(uint to)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.AdminStream))
+            {
+                // Total Reliable messages pending
+                _packet.Write(Server.PendingReliableForConnection(Server.pollGroup));
 
+
+                SendtoOne(to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
 
         #endregion
 

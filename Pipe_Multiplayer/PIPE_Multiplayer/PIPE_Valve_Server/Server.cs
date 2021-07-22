@@ -23,7 +23,7 @@ namespace PIPE_Valve_Online_Server
 		#region Servers data
 
 		
-		public static float VERSIONNUMBER { get;} = 2.13f;
+		public static float VERSIONNUMBER { get;} = 2.14f;
 
 
 		public static List<BanProfile> BanProfiles = new List<BanProfile>();
@@ -61,12 +61,9 @@ namespace PIPE_Valve_Online_Server
 
 
         // connected clients
-		private static uint pollGroup;
+		public static uint pollGroup;
 
-		// Directories for Servers Stored Data
-		public static string Rootdir = Assembly.GetExecutingAssembly().Location.Replace(".exe", "") + "/Game Data/";
-		public static string TexturesDir = Rootdir + "Textures/";
-
+		
 
 		/// <summary>
 		/// A PacketHandler is any fuction that takes in a uint and a Packet
@@ -86,11 +83,7 @@ namespace PIPE_Valve_Online_Server
 		/// </summary>
 		public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
-		/// <summary>
-		/// dictionary of currently being ridden Maps and amount of players in each map
-		/// </summary>
-		public static Dictionary<string,int> MapsBeingRidden = new Dictionary<string,int>();
-
+		
         #endregion
 
 
@@ -110,14 +103,11 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.WelcomeReceived, ServersHandles.WelcomeReceived },
 				{ (int)ClientPackets.ReceiveAllParts, ServersHandles.ReceiveAllParts },
 				{ (int)ClientPackets.TransformUpdate, ServersHandles.TransformReceive},
-				{ (int)ClientPackets.SendTextureNames, ServersHandles.TexturenamesReceive},
-				{ (int)ClientPackets.ReceiveTexturenames, ServersHandles.TexturenamesReceive},
-				{ (int)ClientPackets.SendTexture, ServersHandles.TextureReceive },
+				{ (int)ClientPackets.ReceiveFileSegment, ServersHandles.FileSegmentReceive },
+				{ (int)ClientPackets.PlayerRequestedFile,ServersHandles.PlayerRequestedFile },
 				{ (int)ClientPackets.SendAudioUpdate,ServersHandles.ReceiveAudioUpdate},
 				{ (int)ClientPackets.SendTextMessage,ServersHandles.RelayPlayerMessage},
-				{ (int)ClientPackets.RequestforTex,ServersHandles.RequestforTex },
-				{ (int)ClientPackets.ReceiveQuickBikeUpdate,ServersHandles.BikeDataQuickUpdate },
-				{ (int)ClientPackets.ReceiveQuickRiderUpdate,ServersHandles.RiderQuickUpdate },
+				{ (int)ClientPackets.GearUpdate,ServersHandles.GearUpdate },
 				{ (int)ClientPackets.ReceiveMapname,ServersHandles.ReceiveMapname},
 				{ (int)ClientPackets.ReceiveBootPlayer,ServersHandles.AdminBootPlayer},
 				{ (int)ClientPackets.AdminLogin,ServersHandles.ReceiveAdminlogin},
@@ -129,7 +119,8 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.VoteToRemoveObject,ServersHandles.VoteToRemoveObject},
 				{ (int)ClientPackets.KeepAlive,ServersHandles.KeepAlive},
 				{ (int)ClientPackets.AdminRemoveObject,ServersHandles.AdminRemoveObject},
-
+				{ (int)ClientPackets.FileStatus,ServersHandles.FileStatus},
+				{ (int)ClientPackets.LogOut,ServersHandles.AdminLogOut},
 
 			};
 
@@ -192,8 +183,8 @@ namespace PIPE_Valve_Online_Server
 						break;
 
 					case ConnectionState.Connected:
-						Console.WriteLine("Client connected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
-						
+						Console.WriteLine($"New Rider from {info.connectionInfo.address.GetIP()} given ValveID: {info.connection} ");
+
 						// inital message
 						ServerSend.Welcome(info.connection);
 
@@ -202,7 +193,7 @@ namespace PIPE_Valve_Online_Server
 					case ConnectionState.ClosedByPeer:
 					case ConnectionState.ProblemDetectedLocally:
 						
-						Console.WriteLine("Client disconnected - ID: " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
+						Console.WriteLine("Rider called it a Day:  " + info.connection + ", IP: " + info.connectionInfo.address.GetIP());
 						ServerSend.DisconnectTellAll(info.connection);
 						DisconnectPlayerAndCleanUp(info.connection);
 
@@ -303,6 +294,7 @@ namespace PIPE_Valve_Online_Server
 
 				TimeoutCheck();
 				BanReleaseCheck();
+				
 
 				Thread.Sleep(Constants.MSPerTick);
 				
@@ -318,7 +310,15 @@ namespace PIPE_Valve_Online_Server
 
 
 
+		// Data about the connection to Server, called on tick
+		public static int PendingReliableForConnection(uint _player)
+		{
+			ConnectionStatus constat = new ConnectionStatus();
+			server.GetQuickConnectionStatus(_player, ref constat);
 
+			return constat.pendingReliable;
+
+		}
 
 
 
@@ -330,22 +330,26 @@ namespace PIPE_Valve_Online_Server
 		private static void ConnectionRequest(StatusInfo info)
         {
 			
-			if(Players.Values.Count < MaxPlayers)
+			if(Players.Values.Count >= MaxPlayers)
             {
+				server.CloseConnection(info.connection);
+				Console.WriteLine("Player refused connection due to MaxPlayer cap");
+				return;
+			}
 				foreach(BanProfile ban in BanProfiles)
                 {
 					if (ban.IP == info.connectionInfo.address.GetIP())
                     {
 						server.CloseConnection(info.connection);
 						
-						Console.WriteLine($"refused a connection due to Ban: {info.connectionInfo.address.GetIP()}");
+						Console.WriteLine($"{ban.Username} refused a connection due to Ban: {info.connectionInfo.address.GetIP()}");
 						return;
                     }
 					if (ban.ConnId == info.connection)
 					{
 						server.CloseConnection(info.connection);
 
-						Console.WriteLine($"refused a connection due to Ban: {info.connection}");
+						Console.WriteLine($"{ban.Username} refused a connection due to Ban: {info.connection}");
 						return;
 					}
 
@@ -355,117 +359,14 @@ namespace PIPE_Valve_Online_Server
 
 
 
-
-
-
 			server.AcceptConnection(info.connection);
 			server.SetConnectionPollGroup(pollGroup, info.connection);
 
-            }
-            else
-            {
-				server.CloseConnection(info.connection);
-				Console.WriteLine("Player refused connection due to MaxPlayer cap");
-			}
-		}
-
-
-		public static void CheckForTextureFiles(List<PlayerTextureInfo> listoffilenames, uint _fromclient)
-        {
-			DirectoryInfo info = new DirectoryInfo(TexturesDir);
-			FileInfo[] files = info.GetFiles();
-			List<string> Unfound = new List<string>();
-
-			foreach (PlayerTextureInfo s in listoffilenames)
-			{
-				if(s.Nameoftexture != "e" && s.Nameoftexture != "" && s.Nameoftexture != " ")
-                {
-				bool found = false;
-				foreach (FileInfo file in files)
-				{
-					if (file.Name == s.Nameoftexture)
-					{
-						found = true;
-						Console.WriteLine($"Matched {s.Nameoftexture} to {file.Name}");
-					}
-				}
-				if (!found)
-				{
-					// server doesnt have it, request it
-					Unfound.Add(s.Nameoftexture);
-					Console.WriteLine(s.Nameoftexture + " Added to unfound list");
-				}
-
-                }
-			}
-
-
-
-			// if any unfound, send list of required textures back to the client
-			if (Unfound.Count > 0)
-			{
-				//ServerSend.RequestTextures(_fromclient, Unfound);
-				Console.WriteLine($"Send Texture request for {Unfound.Count} items");
-			}
-			else
-			{
-				Console.WriteLine("Got All Textures");
-			}
-
+           
 		}
 
 
 
-		public static List<TextureBytes> GiveTexturesFromDirectory(List<string> listoffilenames)
-        {
-			List<TextureBytes> bytes = new List<TextureBytes>();
-
-			DirectoryInfo info = new DirectoryInfo(TexturesDir);
-			FileInfo[] files = info.GetFiles();
-			List<string> Found = new List<string>();
-			
-
-			// goes through Texture directory, add found to list, if not it may be incoming now or incompatible though its name got through
-			foreach (string s in listoffilenames)
-			{
-				if (s != "")
-				{
-					bool found = false;
-					foreach (FileInfo file in files)
-					{
-						if (file.Name.Contains(s))
-						{
-						Found.Add(file.FullName);
-							
-							found = true;
-							Console.WriteLine($"Matched {s} to {file.Name}, sending to player");
-						}
-					}
-					if (!found)
-					{
-						// server doesnt have it, request it
-						Console.WriteLine(s + " Unfound to give to player");
-					}
-
-				}
-			}
-
-            if (Found.Count > 0)
-            {
-				foreach(string n in Found)
-                {
-					byte[] b = File.ReadAllBytes(n);
-					bytes.Add(new TextureBytes(b,n));
-                }
-
-			return bytes;
-            }
-            else
-            {
-				return null;
-            }
-
-        }
 		
 
 		public static void TimeoutCheck()
@@ -478,7 +379,7 @@ namespace PIPE_Valve_Online_Server
 					if(_player.RiderID == key)
                     {
 						foundwatch = true;
-                        if (TimeoutWatches[key].Elapsed.TotalSeconds > 30f)
+                        if (TimeoutWatches[key].Elapsed.TotalSeconds > 120f)
                         {
                             try
                             {
@@ -506,10 +407,11 @@ namespace PIPE_Valve_Online_Server
 
 		public static void DisconnectPlayerAndCleanUp(uint ClientThatDisconnected)
         {
+			// cut connection
 			server.CloseConnection(ClientThatDisconnected);
 			server.FlushMessagesOnConnection(ClientThatDisconnected);
 
-
+			// find and remove PlayerData
 			foreach (Player p in Server.Players.Values.ToList())
 			{
 				if (p.RiderID == ClientThatDisconnected)
@@ -519,7 +421,7 @@ namespace PIPE_Valve_Online_Server
 				}
 			}
 
-
+			// find and remove Timeout watch for this connection
 			foreach (uint watch in Server.TimeoutWatches.Keys.ToList())
 			{
 				if (watch == ClientThatDisconnected)
@@ -529,6 +431,42 @@ namespace PIPE_Valve_Online_Server
 
 				}
 			}
+
+
+			// Find and remove and Send indexes for this connection
+			List<SendReceiveIndex> segments = new List<SendReceiveIndex>();
+			foreach(SendReceiveIndex s in ServerData.OutgoingIndexes)
+            {
+				if(s.PlayerTosendTo == ClientThatDisconnected)
+                {	
+				segments.Add(s);
+                }
+            }
+
+            if (segments.Count > 0)
+            {
+                for (int i = 0; i < segments.Count; i++)
+                {
+			      ServerData.OutgoingIndexes.Remove(segments[i]);
+
+                }
+
+            }
+
+			// Remove connection from any Incoming Indexes
+			foreach(SendReceiveIndex InIndex in ServerData.IncomingIndexes)
+            {
+				foreach(uint ui in InIndex.PlayersRequestedFrom.ToList())
+                {
+					if(ui == ClientThatDisconnected)
+                    {
+						InIndex.PlayersRequestedFrom.Remove(ui);
+                    }
+                }
+            }
+
+
+
 		}
 
         
@@ -547,21 +485,7 @@ namespace PIPE_Valve_Online_Server
 
     }
 
-	/// <summary>
-	/// Keep track of a texture in bytes and its file name
-	/// </summary>
-	class TextureBytes
-    {
-		public byte[] bytes;
-		public string Texname;
-
-		public TextureBytes(byte[] _bytes, string _texname)
-        {
-			Texname = _texname;
-			bytes = _bytes;
-        }
-
-    }
+	
 
 
 

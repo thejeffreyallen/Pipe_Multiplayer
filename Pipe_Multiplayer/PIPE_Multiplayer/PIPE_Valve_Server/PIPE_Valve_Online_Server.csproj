@@ -59,9 +59,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BMXLoadout.cs" />
     <Compile Include="Console Program.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="FileSyncServer.cs" />
     <Compile Include="GameLogic.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Packet.cs" />
@@ -70,6 +70,7 @@
     <Compile Include="ServerSend.cs" />
     <Compile Include="ServersHandles.cs" />
     <Compile Include="ServerData.cs" />
+    <Compile Include="TempFile.cs" />
     <Compile Include="ThreadManager.cs" />
   </ItemGroup>
   <ItemGroup>

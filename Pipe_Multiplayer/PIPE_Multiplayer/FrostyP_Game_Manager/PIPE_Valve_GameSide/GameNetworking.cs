@@ -17,10 +17,7 @@ namespace PIPE_Valve_Console_Client
     public class GameNetworking
     {
 
-		public float VERSIONNUMBER { get; } = 2.13f;
-
-
-		// this class accessable anywhere
+		public float VERSIONNUMBER { get; } = 2.14f;
 		public static GameNetworking instance;
 		public bool ServerLoopIsRunning = false;
 
@@ -28,7 +25,7 @@ namespace PIPE_Valve_Console_Client
 		public string Key = "";
 
 		/// <summary>
-		/// Server is looping in NetworkThreadLoop
+		/// All Outgoing and incoming networking is done on this thread, all data is processed by Unity thread before/after
 		/// </summary>
 	   public Thread ServerThread;
 
@@ -49,16 +46,16 @@ namespace PIPE_Valve_Console_Client
 		/// <summary>
 		/// The Socket itself used to send and receive through ValveSockets
 		/// </summary>
-		public NetworkingSockets client;
+		public NetworkingSockets Socket;
+		/// <summary>
+		/// connection number of server, only ever one connection for client, client.sendmessage(connection,any byte[], reference a flag)
+		/// </summary>
+		public uint ServerConnection = 0;
 
 		const int maxMessages = 256;
 
 		NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
 
-		/// <summary>
-		/// connection number of server, only ever one connection for client, client.sendmessage(connection,any byte[], reference a flag)
-		/// </summary>
-		public uint connection = 0;
 		/// <summary>
 		/// callbacks from connection
 		/// </summary>
@@ -81,11 +78,6 @@ namespace PIPE_Valve_Console_Client
 
 		public void Start()
         {
-
-			
-			
-
-
 			if (instance == null)
 			{
 				instance = this;
@@ -96,27 +88,19 @@ namespace PIPE_Valve_Console_Client
 				
 			}
 
-
-			
-
-
-			//Debug.Log("Initialising GameNetworking..");
-
 			// list of functions linking to incoming int codes
 			packetHandlers = new Dictionary<int, PacketHandler>()
 			{
 				{ (int)ServerPacket.Welcome,ClientHandle.Welcome },
 				{ (int)ServerPacket.ReceiveTransformUpdate,ClientHandle.PlayerPositionReceive },
 				{ (int)ServerPacket.SetupAPlayer,ClientHandle.SetupPlayerReceive},
-				{ (int)ServerPacket.RequestTexNames,ClientHandle.RequestforDaryienTexNamesReceive},
-				{ (int)ServerPacket.requestTextures,ClientHandle.RequestForTextures},
-				{ (int)ServerPacket.ReceiveTextureforPlayer,ClientHandle.ReceiveTexture},
+				{ (int)ServerPacket.requestTextures,ClientHandle.RequestForFile},
+				{ (int)ServerPacket.SendTexturetoplayer,ClientHandle.ReceiveFileSegment},
 				{ (int)ServerPacket.DisconnectedPlayer,ClientHandle.PlayerDisconnected},
 				{ (int)ServerPacket.ReceiveAudioForPlayer,ClientHandle.ReceiveAudioForaPlayer},
 				{ (int)ServerPacket.IncomingTextMessage, ClientHandle.IncomingTextMessage},
 				{ (int)ServerPacket.RequestForAllParts, ClientHandle.RequestForAllParts},
-				{ (int)ServerPacket.BikeQuickUpdate, ClientHandle.BikeQuickupdate},
-				{ (int)ServerPacket.RiderQuickUpdate, ClientHandle.RiderQuickupdate},
+				{ (int)ServerPacket.GearUpdate, ClientHandle.GearUpdate},
 				{ (int)ServerPacket.ReceiveSetupAllOnlinePlayers, ClientHandle.SetupAllOnlinePlayers},
 				{ (int)ServerPacket.ReceiveMapName, ClientHandle.ReceiveMapname},
 				{ (int)ServerPacket.disconnectme, ClientHandle.Disconnectme},
@@ -124,16 +108,15 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.SpawnAnObjectReceive, ClientHandle.SpawnAnObjectReceive},
 				{ (int)ServerPacket.DestroyAnObject, ClientHandle.DestroyAnObject},
 				{ (int)ServerPacket.MoveAnObject, ClientHandle.MoveAnObject},
+				{ (int)ServerPacket.FileStatus, ClientHandle.FileStatus},
+				{ (int)ServerPacket.Update, ClientHandle.Update},
+				{ (int)ServerPacket.AdminStream, ClientHandle.AdminStream},
 
 
 			};
 
+			FileSyncing.LoadData();
 
-
-
-
-			
-			
 		}
 
 
@@ -156,7 +139,7 @@ namespace PIPE_Valve_Console_Client
 
 
 			// Do incoming receive of messages on Server thread, send each to Unity thread
-			int netMessagesCount = client.ReceiveMessagesOnConnection(connection, netMessages, maxMessages);
+			int netMessagesCount = Socket.ReceiveMessagesOnConnection(ServerConnection, netMessages, maxMessages);
 			
 				
 				if (netMessagesCount > 0)
@@ -170,7 +153,6 @@ namespace PIPE_Valve_Console_Client
 
 						byte[] bytes = new byte[netMessage.length];
 						netMessage.CopyTo(bytes);
-
 					
 			           SendToUnityThread.instance.ExecuteOnMainThread(() =>
 				       {
@@ -217,7 +199,7 @@ namespace PIPE_Valve_Console_Client
             {
 			Library.Initialize();
 			utils = new NetworkingUtils();
-			client = new NetworkingSockets();
+			Socket = new NetworkingSockets();
 			
 				utils.SetStatusCallback(status);
 
@@ -226,16 +208,16 @@ namespace PIPE_Valve_Console_Client
 
 				Address address = new Address();
 			address.SetAddress(_ip,(ushort)port);
-			connection = client.Connect(ref address);
+			ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
 				int sendRateMax = 1048576;
-				int sendBufferSize = 10485760;
+				int sendBufferSize = 40485760;
 
 
 				unsafe
 			{
-				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
 				//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
@@ -278,7 +260,7 @@ namespace PIPE_Valve_Console_Client
 			{
 				Library.Initialize();
 				utils = new NetworkingUtils();
-				client = new NetworkingSockets();
+				Socket = new NetworkingSockets();
 
 				utils.SetStatusCallback(status);
 
@@ -303,7 +285,7 @@ namespace PIPE_Valve_Console_Client
 
 				Address address = new Address();
 				address.SetAddress(FrostyIP, (ushort)frostyport);
-				connection = client.Connect(ref address);
+				ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
 				int sendRateMax = 1048576;
 				int sendBufferSize = 10485760;
@@ -311,8 +293,8 @@ namespace PIPE_Valve_Console_Client
 
 				unsafe
 				{
-					utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-					utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(connection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+					utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+					utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 					utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 					//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
 					//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
@@ -358,10 +340,10 @@ namespace PIPE_Valve_Console_Client
             try
             {
 			ServerLoopIsRunning = false;
-			client.CloseConnection(connection);
-			client.FlushMessagesOnConnection(connection);
+			Socket.CloseConnection(ServerConnection);
+			Socket.FlushMessagesOnConnection(ServerConnection);
 			utils = null;
-			client = null;
+			Socket = null;
 			status = null;
 
 				ServerThread.Join();
@@ -378,8 +360,9 @@ namespace PIPE_Valve_Console_Client
             }
 		}
 
-		private Stopwatch watch;
 
+
+		private Stopwatch NetThreadWatch;
 		/// <summary>
 		/// This function is running on the ProcessThread, This is unable to use any Unity API, therfore to transfer commands use processthreadmanager, Fixedupdate will come along and run them. 
 		/// </summary>
@@ -395,8 +378,8 @@ namespace PIPE_Valve_Console_Client
 
 
 
-			watch = new Stopwatch();
-			watch.Start();
+			NetThreadWatch = new Stopwatch();
+			NetThreadWatch.Start();
 			
 		
 			while (ServerLoopIsRunning)
@@ -408,27 +391,27 @@ namespace PIPE_Valve_Console_Client
 				try
 				{
 					
-					ServerUpdate.Update();
+					NetworkThread.Update();
 				}
 				catch (System.Exception x)
 				{
 					SendToUnityThread.instance.ExecuteOnMainThread(() =>
 					{
-						UnityEngine.Debug.Log("Server update issue : " + x);
+						UnityEngine.Debug.Log("Network update issue : " + x);
 						//InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Server conflict", 1, 0));
 					});
 
 				}
-				if (Constants.MSPerTick - (int)watch.ElapsedMilliseconds < 100 && Constants.MSPerTick - (int)watch.ElapsedMilliseconds > 0)
+				if (Constants.MSPerTick - (int)NetThreadWatch.ElapsedMilliseconds < 100 && Constants.MSPerTick - (int)NetThreadWatch.ElapsedMilliseconds > 0)
 				{
 					
 
-					Thread.Sleep(Constants.MSPerTick - (int)watch.ElapsedMilliseconds);
-					watch.Reset();
+					Thread.Sleep(Constants.MSPerTick - (int)NetThreadWatch.ElapsedMilliseconds);
+					NetThreadWatch.Reset();
 				}
 				else
 				{
-					watch.Reset();
+					NetThreadWatch.Reset();
 					Thread.Sleep(Constants.MSPerTick);
 
 				}
@@ -443,8 +426,8 @@ namespace PIPE_Valve_Console_Client
 
 
 
-			watch.Reset();
-			watch.Stop();
+			NetThreadWatch.Reset();
+			NetThreadWatch.Stop();
 			SendToUnityThread.instance.ExecuteOnMainThread(() =>
 			{
 				UnityEngine.Debug.Log("Thread Ended");
@@ -457,7 +440,7 @@ namespace PIPE_Valve_Console_Client
 		public void ConnectionStatus()
         {
 			ConnectionStatus constat = new ConnectionStatus();
-			client.GetQuickConnectionStatus(connection, ref constat);
+			Socket.GetQuickConnectionStatus(ServerConnection, ref constat);
 
 			// if theres no connection, trigger full end with cleanup
 			if(constat.state == Valve.Sockets.ConnectionState.None | constat.state == Valve.Sockets.ConnectionState.ProblemDetectedLocally | constat.state == Valve.Sockets.ConnectionState.None)
@@ -480,7 +463,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-			// if there is a connection and were in online mode, log data
+			// if there is a connection and were in online mode, extract data from the Valve quick connectionstatus
 			if(InGameUI.instance.Connected && constat.state == Valve.Sockets.ConnectionState.Connected)
             {
 				InGameUI.instance.Ping = constat.ping;

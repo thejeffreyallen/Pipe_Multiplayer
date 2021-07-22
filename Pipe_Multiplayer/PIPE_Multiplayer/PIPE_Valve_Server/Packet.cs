@@ -15,16 +15,14 @@ namespace PIPE_Valve_Online_Server
     {
         Welcome = 1,
         SetupAPlayer,
-        RequestTexNames,
-        requestTextures,
+        RequestFile,
         SendTransformUpdate,
-        SendTexturetoPlayer,
+        SendFileSegment,
         DisconnectedPlayer,
         SendAudioUpdate,
         SendText,
         RequestAllParts,
-        BikeQuickUpdate,
-        RiderQuickUpdate,
+        GearUpdate,
         SetupAllOnlinePlayers,
         SendMapName,
         Disconnectyou,
@@ -32,6 +30,9 @@ namespace PIPE_Valve_Online_Server
         SpawnNewObjectSend,
         DestroyAnObject,
         MoveAnObject,
+        FileStatus,
+        Update,
+        AdminStream,
 
 
 
@@ -46,14 +47,11 @@ namespace PIPE_Valve_Online_Server
         WelcomeReceived = 1,
         ReceiveAllParts,
         TransformUpdate,
-        SendTextureNames,
-        ReceiveTexturenames,
-        SendTexture,
+        ReceiveFileSegment,
+        PlayerRequestedFile,
         SendAudioUpdate,
         SendTextMessage,
-        RequestforTex,
-        ReceiveQuickBikeUpdate,
-        ReceiveQuickRiderUpdate,
+        GearUpdate,
         ReceiveMapname,
         ReceiveBootPlayer,
         AdminLogin,
@@ -65,7 +63,8 @@ namespace PIPE_Valve_Online_Server
         VoteToRemoveObject,
         KeepAlive,
         AdminRemoveObject,
-
+        FileStatus,
+        LogOut,
 
     }
 

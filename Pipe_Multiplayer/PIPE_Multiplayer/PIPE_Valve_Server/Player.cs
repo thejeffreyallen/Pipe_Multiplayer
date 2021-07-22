@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Numerics;
+using System.Diagnostics;
 
 
 namespace PIPE_Valve_Online_Server
@@ -27,18 +28,25 @@ namespace PIPE_Valve_Online_Server
         /// <summary>
         /// contains everything about bike
         /// </summary>
-        public BMXLoadout Loadout;
-
         
-
-        public bool Gottexnames;
-        
+        public GearUpdate Gear;
         public bool ReadytoRoll = false;
 
 
         // 5 gets a 10 mins ban
         public int AmountofObjectBoots;
         public List<NetGameObject> PlayerObjects;
+
+        public bool AdminLoggedIn = false;
+        public bool AdminStream = false;
+        public Stopwatch AdminStreamWatch = new Stopwatch();
+
+
+
+
+
+
+
 
 
         /// <summary>
@@ -68,32 +76,30 @@ namespace PIPE_Valve_Online_Server
                 RiderRotations[i].Z = 0;
             }
             PlayerObjects = new List<NetGameObject>();
-            Loadout = new BMXLoadout();
+            Gear = new GearUpdate();
+            Gear.RiderTextures = new List<TextureInfo>();
             
 
         }
-
-
-      
-
-      
-
     }
 
 
     /// <summary>
     /// Used for keeping track of texture name and the gameobject its on for when it reaches remote players
     /// </summary>
-    public class PlayerTextureInfo
+    public class TextureInfo
     {
         public string Nameoftexture;
         public string NameofparentGameObject;
+        public bool isNormal;
+        public int Matnum;
 
-
-        public PlayerTextureInfo(string nameoftex, string nameofG_O)
+        public TextureInfo(string nameoftex, string nameofG_O, bool isnormal, int matnum)
         {
             Nameoftexture = nameoftex;
             NameofparentGameObject = nameofG_O;
+            isNormal = isnormal;
+            Matnum = matnum;
         }
 
 
@@ -129,6 +135,32 @@ namespace PIPE_Valve_Online_Server
     }
 
 
+    public class GearUpdate
+    {
+        public bool isRiderUpdate;
+        public List<TextureInfo> RiderTextures;
+
+        public byte[] Garagesave;
+
+
+
+        /// <summary>
+        /// to Send Just Riders gear
+        /// </summary>
+        /// <param name="ridertextures"></param>
+        public GearUpdate(List<TextureInfo> ridertextures)
+        {
+            isRiderUpdate = true;
+            RiderTextures = ridertextures;
+
+        }
+
+
+        public GearUpdate()
+        {
+        }
+
+    }
 
 
 

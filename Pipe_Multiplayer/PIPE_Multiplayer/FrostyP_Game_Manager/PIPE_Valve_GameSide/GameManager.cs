@@ -2,43 +2,48 @@
 using UnityEngine;
 using System.IO;
 using FrostyP_Game_Manager;
+using System.Reflection;
+using System.Xml.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+
 
 namespace PIPE_Valve_Console_Client
 {
     public class GameManager : MonoBehaviour
     {
         public static GameManager instance;
-        private CharacterModding _charactermod;
-        
+        public static GameObject DaryienClone;
+        public static GameObject BmxClone;
+        public static GameObject BMXSPlayer;
 
-        public LocalPlayer _localplayer;
         public string MycurrentLevel = "Unknown";
         public uint MyPlayerId;
         public bool firstMap = true;
         public static Dictionary<uint, RemotePlayer> Players;
-        public static Dictionary<uint, List<Vector3>> PlayersColours;
-        public static Dictionary<uint, List<float>> PlayersSmooths;
-        public static Dictionary<uint, List<float>> PlayersMetals;
-        public static Dictionary<uint, List<TextureInfo>> BikeTexinfos;
-        public static Dictionary<uint, List<TextureInfo>> Bikenormalinfos;
-        public static Dictionary<uint, List<TextureInfo>> RiderTexinfos;
+        static float KeepAlivetimer = 0;
 
-        public static Dictionary<uint, List<FrostyP_Game_Manager.NetGameObject>> PlayersObjects;
 
-      
+
+
 
         // FrostyMultiplayerAssets Bundle
         GameObject Prefab;
         public GameObject wheelcolliderobj;
         public AssetBundle FrostyAssets;
-        //public GameObject FrostyCanvas;
       
 
 
 
-        // found riders in Custom Players
-        public string riderdirectory = Application.dataPath + "/Custom Players/";
-        public string TexturesRootdir = Application.dataPath + "/FrostyPGameManager/Textures/";
+        // directories
+        public static string Rootdir = Application.dataPath + "/FrostyPGameManager/";
+        public static string TexturesDir = Rootdir + "Textures/";
+        public static string MapsDir = Application.dataPath + "/CustomMaps/";
+        public static string ParkAssetsDir = Rootdir + "ParkBuilder/Assetbundles/";
+        public static string GarageDir = Application.dataPath + "/GarageContent/";
+        public static string PlayerModelsDir = Application.dataPath + "/Custom Players/";
+        public static string TempDir = Rootdir + "Temp/";
+        public static string UpdateDir = Application.dataPath.Replace("PIPE_Data","") + "Mods/FrostyP Game Manager/Updates/";
+        
 
         //patchaMapImporter
         GameObject patcha;
@@ -52,43 +57,102 @@ namespace PIPE_Valve_Console_Client
             patcha.AddComponent<PatchaMapImporter.PatchaMapImporter>();
             mapImporter = patcha.GetComponent<PatchaMapImporter.PatchaMapImporter>();
 
+            Directory.CreateDirectory(UpdateDir);
 
-           
+
+            BMXSPlayer = GameObject.Find("BMXS Player Components");
+            SetupDaryienAndBMXBaseModels();
           
         }
 
         // Use this for initialization
         void Start()
         {
-            _charactermod = gameObject.GetComponent<CharacterModding>();
-           
-            _localplayer = gameObject.GetComponent<LocalPlayer>();
-
-
+            
             Players = new Dictionary<uint, RemotePlayer>();
-            PlayersColours = new Dictionary<uint, List<Vector3>>();
-            PlayersSmooths = new Dictionary<uint, List<float>>();
-            PlayersMetals = new Dictionary<uint, List<float>>();
-            BikeTexinfos = new Dictionary<uint, List<TextureInfo>>();
-            Bikenormalinfos = new Dictionary<uint, List<TextureInfo>>();
-            RiderTexinfos = new Dictionary<uint, List<TextureInfo>>();
-            PlayersObjects = new Dictionary<uint, List<FrostyP_Game_Manager.NetGameObject>>();
-
-
-
+           
+            if (!Directory.Exists(TempDir))
+            {
+                Directory.CreateDirectory(TempDir);
+            }
 
 
             FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
             Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
             Prefab.AddComponent<RemotePlayer>();
             wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
-           // FrostyCanvas = Instantiate(FrostyAssets.LoadAsset("FrostyCanvas") as GameObject);
           
         }
 
         public Dictionary<uint, RemotePlayer> GetPlayers() {
             return Players;
         }
+
+
+        // make clones so theres always a reference model for each and its not our Original versions
+        void SetupDaryienAndBMXBaseModels()
+        {
+            DaryienClone = Instantiate(UnityEngine.GameObject.Find("Daryien"));
+            BmxClone = Instantiate(UnityEngine.GameObject.Find("BMX"));
+            DontDestroyOnLoad(DaryienClone);
+            DontDestroyOnLoad(BmxClone);
+
+            foreach(Transform t in DaryienClone.GetComponentsInChildren<Transform>(true))
+            {
+                if (t.gameObject.GetComponent<Animation>())
+                {
+                    Destroy(t.gameObject.GetComponent<Animation>());
+                }
+                if (t.gameObject.GetComponent<BMXLimbTargetAdjust>())
+                {
+                   Destroy(t.gameObject.GetComponent<BMXLimbTargetAdjust>());
+
+                }
+                if (t.gameObject.GetComponent<SkeletonReferenceValue>())
+                {
+                    Destroy(t.gameObject.GetComponent<SkeletonReferenceValue>());
+                }
+                if (t.gameObject.GetComponent<Rigidbody>())
+                {
+                    t.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+                }
+                if (t.gameObject.name.Contains("Trigger"))
+                {
+                    Destroy(t.gameObject);
+                }
+
+              
+                t.gameObject.SetActive(false);
+                
+            }
+
+            foreach (Transform t in BmxClone.GetComponentsInChildren<Transform>())
+            {
+                if (t.gameObject.name.Contains("Target"))
+                {
+                    Destroy(t.gameObject);
+                }
+                if (t.gameObject.name.Contains("Foot"))
+                {
+                    Destroy(t.gameObject);
+                }
+
+                if (t.gameObject.GetComponent<Hub>())
+                {
+                   Destroy(t.gameObject.GetComponent<Hub>());
+                }
+                if (t.gameObject.GetComponent<Rigidbody>())
+                {
+                    t.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+                }
+
+              
+                t.gameObject.SetActive(false);
+            }
+
+            
+        }
+
 
 
         public void GetLevelName()
@@ -100,22 +164,42 @@ namespace PIPE_Valve_Console_Client
                 {
                     ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
+                    ChangingLevel(MycurrentLevel);
+
                 }
                 firstMap = false;
             }
             catch (UnityException)
             {
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldnt grab Current Scene name", (int)MessageColour.Server, 1));
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldnt grab Current Scene name", (int)MessageColourByNum.Server, 1));
             }
 
 
         }
-
-
-        public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, List<TextureInfo> BmxInfos, List<Vector3> Bikecolours, List<float> bikesmooths,List<float> bikemetts, string Currentmap, List<TextureInfo> Riderinfos, List<TextureInfo> Bmxnormalinfos)
+        public void ChangingLevel(string mylevel)
         {
-            Debug.Log($"Spawning : {_username} as {currentmodel}, bundlename: {modelbundlename}, bmxinfos count: {BmxInfos.Count}, Riderinfos count: {Riderinfos.Count}, Id: {_id}, bmxnormalcount: {Bmxnormalinfos.Count}");
+          foreach(RemotePlayer r in Players.Values)
+          {
+           r.ChangePlayerVisibilty(r.CurrentMap == mylevel.ToLower());
+          }
+            
+        }
+        public void ChangingLevel(string Riderslevel, uint from)
+        {
+            if(Players.TryGetValue(from,out RemotePlayer player))
+            {
+                player.ChangePlayerVisibilty(Riderslevel == MycurrentLevel);
+            }
+        }
 
+
+
+
+        public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, string Currentmap, GearUpdate Gear)
+        {
+            Debug.Log($"Spawning : {_username} as {currentmodel}, Id: {_id}");
+
+            // checki if exists already
             foreach(RemotePlayer player in Players.Values)
             {
                if(player.id == _id)
@@ -130,6 +214,7 @@ namespace PIPE_Valve_Console_Client
 
 
                     GameObject New = GameObject.Instantiate(Prefab);
+                    DontDestroyOnLoad(New);
                     RemotePlayer r = New.GetComponent<RemotePlayer>();
                     Players.Add(_id, r);
                     
@@ -139,66 +224,94 @@ namespace PIPE_Valve_Console_Client
                     r.id = _id;
                     r.username = _username;
                     r.CurrentMap = Currentmap;
+                    r.Gear = Gear;
+                    r.Objects = new List<NetGameObject>();
+
+
+            // file checks
+            FileSyncing.CheckForMap(Currentmap, _username);
+            for (int i = 0; i < Gear.RiderTextures.Count; i++)
+            {
+                if (!FileSyncing.CheckForFile(1, Gear.RiderTextures[i].Nameoftexture))
+                {
+                    FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture,_id);
+                }
+            }
+
+            if(currentmodel != "Daryien")
+            {
+              if (!FileSyncing.CheckForFile((int)FileTypeByNum.PlayerModel, currentmodel))
+              {
+                FileSyncing.AddToRequestable(3,currentmodel, _id);
+              }
+
+            }
+            
 
 
 
-                    PlayersColours.Add(_id, Bikecolours);
-                    PlayersSmooths.Add(_id, bikesmooths);
-                    BikeTexinfos.Add(_id,BmxInfos);
-                    Bikenormalinfos.Add(_id, Bmxnormalinfos);
-                    RiderTexinfos.Add(_id, Riderinfos);
-                    PlayersMetals.Add(_id, bikemetts);
-                    PlayersObjects.Add(_id, new List<NetGameObject>());
 
-           
-
-                    DontDestroyOnLoad(New);
-                    Debug.Log("Spawn finished");
+            Debug.Log("Spawn finished");
 
         }
 
 
 
-        public void SpawnObject(uint OwnerID, NetGameObject _netobj)
+        public void SpawnObject(NetGameObject _netobj)
         {
-           // check object doesnt exist already using objects unique id
+            RemotePlayer _player;
 
-            if(PlayersObjects[OwnerID] != null)
+
+            if(Players.TryGetValue(_netobj.OwnerID,out _player) != false)
             {
-            foreach(NetGameObject n in PlayersObjects[OwnerID])
+           // check object doesnt exist already using objects unique id
+            foreach(NetGameObject n in _player.Objects)
             {
                 if(n.ObjectID == _netobj.ObjectID)
                 {
-                        InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Duplicate spawn attempt {_netobj.NameofObject} from package {_netobj.NameOfFile} for {Players[OwnerID].username}, object wont be spawned", (int)MessageColour.Server, 0));
+                        InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Duplicate spawn attempt {_netobj.NameofObject} from package {_netobj.NameOfFile} for {Players[_netobj.OwnerID].username}, object wont be spawned", (int)MessageColourByNum.Server, 0));
                         return;
                 }
             }
 
+            // add to players objects whether the object is loadable or not
+                    _player.Objects.Add(_netobj);
+
+
+                GetObject(_netobj);
+                if(_netobj._Gameobject != null)
+                {
+                    _netobj._Gameobject.SetActive(_player.PlayerObjectsVisible);
+                }
+
+
             }
 
+        }
+        public void GetObject(NetGameObject _netobj)
+        {
             // check if objects bundle is loaded on this machine, if not look for filename and load bundle, if not, tell user what they need
-            
-            foreach(AssetBundle A in AssetBundle.GetAllLoadedAssetBundles())
+
+            foreach (AssetBundle A in AssetBundle.GetAllLoadedAssetBundles())
             {
-                if(A.name == _netobj.NameofAssetBundle)
+                if (A.name == _netobj.NameofAssetBundle)
                 {
                     GameObject _newobj = Instantiate(A.LoadAsset(_netobj.NameofObject)) as GameObject;
                     _newobj.transform.position = _netobj.Position;
                     _newobj.transform.eulerAngles = _netobj.Rotation;
-                    
+
                     _netobj._Gameobject = _newobj;
                     _netobj.AssetBundle = A;
                     DontDestroyOnLoad(_newobj);
-                    GameManager.PlayersObjects[OwnerID].Add(_netobj);
                     return;
                 }
             }
 
-            foreach(FileInfo file in new DirectoryInfo(ParkBuilder.instance.AssetbundlesDirectory).GetFiles())
+            foreach (FileInfo file in new DirectoryInfo(ParkBuilder.instance.AssetbundlesDirectory).GetFiles())
             {
-                if(file.Name == _netobj.NameOfFile)
+                if (file.Name == _netobj.NameOfFile)
                 {
-                   AssetBundle newbundle = AssetBundle.LoadFromFile(file.FullName);
+                    AssetBundle newbundle = AssetBundle.LoadFromFile(file.FullName);
                     GameObject _newobj = Instantiate(newbundle.LoadAsset(_netobj.NameofObject)) as GameObject;
 
                     _newobj.transform.position = _netobj.Position;
@@ -207,19 +320,20 @@ namespace PIPE_Valve_Console_Client
                     _netobj._Gameobject = _newobj;
                     _netobj.AssetBundle = newbundle;
                     DontDestroyOnLoad(_newobj);
-                    GameManager.PlayersObjects[OwnerID].Add(_netobj);
+
                     ParkBuilder.instance.bundlesloaded.Add(new BundleData(newbundle, file.Name));
                     return;
                 }
             }
 
             // failed to find object, inform user what package is missing and clean up, resolve with server
-            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to spawn object {_netobj.NameofObject} from package {_netobj.NameOfFile} for {Players[OwnerID].username}, object wont be spawned", (int)MessageColour.Server, 0));
-
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to find {_netobj.NameofObject} from {_netobj.NameOfFile} for {Players[_netobj.OwnerID].username}", (int)MessageColourByNum.Server, 0));
+            if (!FileSyncing.CheckForFile((int)FileTypeByNum.ParkAsset, _netobj.NameOfFile))
+            {
+                FileSyncing.AddToRequestable(5, _netobj.NameOfFile, _netobj.ObjectID,_netobj.OwnerID);
+            }
 
         }
-
-
         public void MoveObject(NetGameObject _netobj, Vector3 pos, Vector3 rot, Vector3 scale)
         {
             GameObject Obj = _netobj._Gameobject;
@@ -231,262 +345,305 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        /// <summary>
-        /// Sent Once to server, immediatley after receiving Welcome, the server receiving this is packet is what triggers a sendtoall of your data and sendtoyou of everyones data
-        /// </summary>
+        
+
+        public GearUpdate GetMyGear(bool forRidermodel)
+        {
+            GearUpdate gear = new GearUpdate();
+            if (forRidermodel)
+            {
+                List<TextureInfo> list = new List<TextureInfo>();
+                foreach(Renderer r in CharacterModding.instance.Rider_Materials.Values)
+                {
+                    for (int i = 0; i < r.materials.Length; i++)
+                    {
+                        if(r.materials[i].mainTexture != null)
+                        {
+                            list.Add(new TextureInfo(r.materials[i].mainTexture.name, r.gameObject.name, false, i));
+                        }
+
+                    }
+                    
+                   
+                }
+               
+                gear.RiderTextures = list;
+                gear.isRiderUpdate = true;
+
+            }
+            else
+            {
+                // grab garage list, convert to byte[] and place in gear update, send garagesave aswell as forRidermodel bool (false to inidcate bike update)
+                SaveList List = GarageDeserialize(PlayerPrefs.GetString("lastPreset"));
+                BinaryFormatter bf = new BinaryFormatter();
+                byte[] bytes;
+                using(var ms = new MemoryStream())
+                {
+                    bf.Serialize(ms, List);
+                    bytes = ms.ToArray();
+                    gear.GarageSave = bytes;
+                }
+
+               
+            }
+
+
+            return gear;
+
+        }
+
+        
+        // Edited piece of code from TheGarage to just give me latest GarageSave without disturbing it
+        public SaveList GarageDeserialize(string name)
+        {
+            try
+            {
+                Debug.Log("Starting load of: " + name + ".preset");
+                XmlSerializer deserializer = new XmlSerializer(typeof(SaveList));
+                TextReader reader = new StreamReader(Application.dataPath + "//GarageContent/GarageSaves/" + name + ".preset");
+                object obj = deserializer.Deserialize(reader);
+                reader.Close();
+                return (SaveList)obj;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log("Error while reading from XML: " + e.Message);
+                return null;
+            }
+        }
+        
+
+
         public void SendAllParts()
         {
-            List<TextureInfo> TexnamesBike = new List<TextureInfo>();
-            List<TextureInfo> TexnormalsBike = new List<TextureInfo>();
-            List<Vector3> Bikecolours = new List<Vector3>();
-            List<float> BikeSmooths = new List<float>();
-            List<float> BikeMetallics = new List<float>();
-            Bikecolours.Add(BMXNetLoadout.instance.FrameColour);
-            Bikecolours.Add(BMXNetLoadout.instance.ForksColour);
-            Bikecolours.Add(BMXNetLoadout.instance.BarsColour);
-            Bikecolours.Add(BMXNetLoadout.instance.SeatColour);
-            Bikecolours.Add(BMXNetLoadout.instance.FTireColour);
-            Bikecolours.Add(BMXNetLoadout.instance.FTireSideColour);
-            Bikecolours.Add(BMXNetLoadout.instance.RTireColour);
-            Bikecolours.Add(BMXNetLoadout.instance.RTireSideColour);
-            Bikecolours.Add(BMXNetLoadout.instance.StemColour);
-            Bikecolours.Add(BMXNetLoadout.instance.FRimColour);
-            Bikecolours.Add(BMXNetLoadout.instance.RRimColour);
+            GearUpdate FullGear = new GearUpdate();
+
+            // if daryien, add rider gear
+            if(LocalPlayer.instance.RiderModelname == "Daryien")
+            {
+            FullGear = GetMyGear(true);
+            }
+
+            FullGear.GarageSave = GetMyGear(false).GarageSave;
+
+            Debug.Log("Sending parts");
+            ClientSend.SendAllParts(FullGear);
+
+        }
+
+       
+
+        public static void TogglePlayerComponents(bool active)
+        {
+            if(BMXSPlayer == null)
+            {
+                BMXSPlayer = GameObject.Find("BMXS Player Components");
+            }
+
+            foreach(Transform t in BMXSPlayer.GetComponentsInChildren<Transform>(true))
+            {
+                if(t.gameObject.name.Contains("BMX Template") | t.gameObject.name.Contains("MGInputManager") | t.gameObject.name.Contains("CharacterManager"))
+                {
+                 t.gameObject.SetActive(active);
+                }
+            }
+        }
+         public static GameObject GetNewDaryien()
+         {
+            GameObject daryien = Instantiate(DaryienClone);
+
+            // make sure meshes are active, pipeworks PI keeps daryien but turns off all his meshes, then tracks new models to daryiens bones
+            foreach (Transform t in daryien.GetComponentsInChildren<Transform>(true))
+            {
+                t.gameObject.SetActive(true);
+                if (t.gameObject.name == "Daryen_Hair_Matt")
+                {
+                    Destroy(t.gameObject);
+                }
+                if (t.gameObject.GetComponent<Rigidbody>())
+                {
+                    t.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+                }
+
+            }
 
 
+            daryien.SetActive(true);
 
-            BikeSmooths.Add(BMXNetLoadout.instance.FrameSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.ForksSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.BarsSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.SeatSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.StemSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.FRimSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.RRimSmooth);
 
-            BikeMetallics.Add(BMXNetLoadout.instance.FrameMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.ForksMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.BarsMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.StemMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.FRimMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.RRimMetallic);
+            return daryien;
+         }
+         public static GameObject GetNewBMX()
+         {
+            GameObject bmx = Instantiate(BmxClone);
+            foreach (Transform t in bmx.GetComponentsInChildren<Transform>(true))
+            {
+                t.gameObject.SetActive(true);
+            }
 
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameTexname, "Frame Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.ForkTexname, "Forks Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.BarTexName, "Bars Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.TireTexName, "Tire Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.SeatTexname, "Seat Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.StemTexName, "Stem Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimTexName, "Front Rim"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimTexName, "Rear Rim"));
+            return bmx;
 
+         }
+        public static GameObject GetPlayerModel(string modelname, string modelbundlename)
+        {
             
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameNormalName, "Frame Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.ForksNormalName, "Forks Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.BarsNormalName, "Bars Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.StemNormalName, "Stem Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.SeatNormalName, "Seat Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimNormalName, "FRim Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimNormalName, "RRim Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.TireNormalName, "Tires Normal"));
 
-
-
-            List<TextureInfo> TexnamesRider = new List<TextureInfo>();
-
-            if(_localplayer.RiderModelname == "Daryien")
+            IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
+            foreach (AssetBundle a in bundles)
             {
-
-            foreach (Renderer n in CharacterModding.instance.Rider_Materials.Values)
-            {
-                if (n.gameObject.name == "body_geo")
+                if (a.name.ToLower().Contains(modelbundlename.ToLower()))
                 {
-                    TexnamesRider.Add(new TextureInfo(n.materials[0].mainTexture.name, "Daryien_Head"));
-                    TexnamesRider.Add(new TextureInfo(n.materials[1].mainTexture.name, "Daryien_Body"));
-                    TexnamesRider.Add(new TextureInfo(n.materials[2].mainTexture.name, "Daryien_HandsFeet"));
+                    return Instantiate(a.LoadAsset(modelname)) as GameObject;
 
                 }
-                else
-                {
-                    TexnamesRider.Add(new TextureInfo(n.material.mainTexture.name, n.gameObject.name));
 
-                }
             }
-            foreach (TextureInfo i in TexnamesRider)
+
+
+            if (File.Exists(PlayerModelsDir + modelname))
             {
-                Debug.Log($"{i.Nameoftexture} image and {i.NameofparentGameObject} coupled");
+
+                AssetBundle b = AssetBundle.LoadFromFile(PlayerModelsDir + modelname);
+
+
+                return Instantiate(b.LoadAsset(modelname) as GameObject);
             }
+            else
+            {
+               
+              return GetNewDaryien();
+              
             }
 
 
-            ClientSend.SendAllParts(Bikecolours,BikeSmooths, TexnamesBike,TexnamesRider,BikeMetallics, TexnormalsBike);
+
+
+
 
         }
 
-
-
-
-
-
-      
-
-        public void SendQuickBikeUpdate()
+        public static GameObject DoGarageSetup(GameObject bmx, byte[] _savelist)
         {
-            Debug.Log("Sending quick bike Update");
-            List<TextureInfo> TexnamesBike = new List<TextureInfo>();
-            List<TextureInfo> TexnormalsBike = new List<TextureInfo>();
-            List<Vector3> Bikecolours = new List<Vector3>();
-            List<float> BikeSmooths = new List<float>();
-            List<float> BikeMetallics = new List<float>();
-            Bikecolours.Add(BMXNetLoadout.instance.FrameColour);
-            Bikecolours.Add(BMXNetLoadout.instance.ForksColour);
-            Bikecolours.Add(BMXNetLoadout.instance.BarsColour);
-            Bikecolours.Add(BMXNetLoadout.instance.SeatColour);
-            Bikecolours.Add(BMXNetLoadout.instance.FTireColour);
-            Bikecolours.Add(BMXNetLoadout.instance.FTireSideColour);
-            Bikecolours.Add(BMXNetLoadout.instance.RTireColour);
-            Bikecolours.Add(BMXNetLoadout.instance.RTireSideColour);
-            Bikecolours.Add(BMXNetLoadout.instance.StemColour);
-            Bikecolours.Add(BMXNetLoadout.instance.FRimColour);
-            Bikecolours.Add(BMXNetLoadout.instance.RRimColour);
-
-
-
-            BikeSmooths.Add(BMXNetLoadout.instance.FrameSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.ForksSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.BarsSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.SeatSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.StemSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.FRimSmooth);
-            BikeSmooths.Add(BMXNetLoadout.instance.RRimSmooth);
-
-            BikeMetallics.Add(BMXNetLoadout.instance.FrameMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.ForksMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.BarsMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.StemMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.FRimMetallic);
-            BikeMetallics.Add(BMXNetLoadout.instance.RRimMetallic);
-
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameTexname, "Frame Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.ForkTexname, "Forks Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.BarTexName, "Bars Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.TireTexName, "Tire Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.SeatTexname, "Seat Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.StemTexName, "Stem Mesh"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimTexName, "Front Rim"));
-            TexnamesBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimTexName, "Rear Rim"));
-
-
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FrameNormalName, "Frame Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.ForksNormalName, "Forks Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.BarsNormalName, "Bars Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.StemNormalName, "Stem Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.SeatNormalName, "Seat Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.FRimNormalName, "FRim Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.RRimNormalName, "RRim Normal"));
-            TexnormalsBike.Add(new TextureInfo(BMXNetLoadout.instance.TireNormalName, "Tires Normal"));
-
-
-
-            ClientSend.SendQuickBikeUpdate(Bikecolours, BikeSmooths,BikeMetallics, TexnamesBike,TexnormalsBike);
-            Debug.Log("Sent quick bike update");
-        }
-
-        public void SendQuickRiderUpdate()
-        {
-           
-            List<TextureInfo> texnames = new List<TextureInfo>();
-
-            Debug.Log("Sending quick rider update");
-           
-            foreach(Renderer n in CharacterModding.instance.Rider_Materials.Values)
+            Debug.Log("Garage Setup on remote bike..");
+            SaveList list;
+            // cast back to savelist
+            using (var ms = new MemoryStream(_savelist))
             {
-                if(n.gameObject.name == "body_geo")
-                {
-                    texnames.Add(new TextureInfo(n.materials[0].mainTexture.name, "Daryien_Head"));
-                    texnames.Add(new TextureInfo(n.materials[1].mainTexture.name, "Daryien_Body"));
-                    texnames.Add(new TextureInfo(n.materials[2].mainTexture.name, "Daryien_HandsFeet"));
+              list = new BinaryFormatter().Deserialize(ms) as SaveList;
                 
-                }
-                else
-                {
-                texnames.Add(new TextureInfo(n.material.mainTexture.name, n.gameObject.name));
-
-                }
             }
-            foreach(TextureInfo i in texnames)
+
+            // apply all
+            BikeLoadOut BLO = bmx.GetComponentInChildren<BikeLoadOut>();
+
+            bmx.transform.localScale = new Vector3(list.bikeScale, list.bikeScale, list.bikeScale);
+            BLO.SetBackTireFatness(list.rearTireWidth);
+            BLO.SetFrontTireFatness(list.frontTireWidth);
+            BLO.seatApplyMod.SetSeatAnglePerc(list.seatAngle);
+            BLO.SetSeatHeight(list.seatHeight);
+            BLO.SetBarsAngle(list.barsAngle);
+            BLO.barsApplyMod.SetFlanges(list.flanges);
+            for (int i = 0; i < list.partColors.Count; i++)
             {
-                 Debug.Log($"{i.Nameoftexture} image and {i.NameofparentGameObject} coupled");
+                BLO.SetColor(new Color(list.partColors[i].r, list.partColors[i].g, list.partColors[i].b, list.partColors[i].a), list.partColors[i].partNum);
             }
 
-            ClientSend.SendQuickRiderUpdate(texnames);
-            Debug.Log("quickriderupdate sent");
+
+            Debug.Log("Garage Setup complete");
+            return bmx;
         }
 
+        public static Texture2D GetTexture(int filetype, string name)
+        {
+            Texture2D image = new Texture2D(2,2);
+            byte[] file = File.ReadAllBytes(FileSyncing.DirectoryByFileType[filetype] + name);
+           ImageConversion.LoadImage(image,file);
+            image.name = name;
 
 
+
+
+            return image;
+        }
+
+        public void TurnOnNetUpdates()
+        {
+            ClientSend.TurnMeOn();
+            LocalPlayer.instance.ServerActive = true;
+
+            foreach (RemotePlayer player in Players.Values)
+            {
+                player.MasterActive = true;
+            }
+
+        }
+        public void TurnOffNetUpdates()
+        {
+            ClientSend.TurnMeOff();
+            LocalPlayer.instance.ServerActive = false;
+            foreach(RemotePlayer player in Players.Values)
+            {
+                player.MasterActive = false;
+            }
+
+        }
+        public static void KeepNetworkActive()
+        {
+            // keep connection active while no rider is streaming
+            if (KeepAlivetimer < 2)
+            {
+                KeepAlivetimer = KeepAlivetimer + Time.deltaTime;
+            }
+            else if (KeepAlivetimer >= 2)
+            {
+                ClientSend.KeepActive();
+                KeepAlivetimer = 0;
+            }
+
+        }
 
         public void CleanUpOldPlayer(uint _id)
         {
             try
             {
-                if(Players[_id].RiderModel != null)
+                bool t = false;
+                if( Players.TryGetValue(_id,out RemotePlayer player))
                 {
-                    Destroy(Players[_id].RiderModel);
-                }
-                if (Players[_id].Audio != null)
-                {
-                    Destroy(Players[_id].Audio);
-                }
-                if (Players[_id].BMX != null)
-                {
-                    Destroy(Players[_id].BMX);
-                }
-                if (Players[_id].nameSign != null)
-                {
-                    Destroy(Players[_id].nameSign);
-                }
-                    Destroy(Players[_id].gameObject);
-
-                if (PlayersColours[_id] != null)
-                {
-                    PlayersColours.Remove(_id);
-                }
-                if (PlayersSmooths[_id] != null)
-                {
-                   PlayersSmooths.Remove(_id);
-                }
-                if (PlayersMetals[_id] != null)
-                {
-                    PlayersMetals.Remove(_id);
-                }
-                if (RiderTexinfos[_id] != null)
-                {
-                    RiderTexinfos.Remove(_id);
-                }
-                if (BikeTexinfos[_id] != null)
-                {
-                    BikeTexinfos.Remove(_id);
-                }
-                if (Bikenormalinfos[_id] != null)
-                {
-                    Bikenormalinfos.Remove(_id);
-                }
-                if (PlayersObjects[_id].Count > 0)
-                {
-                    foreach (NetGameObject n in PlayersObjects[_id])
+                    // delete objects
+                    if (player.Objects.Count > 0)
                     {
-                        if (n._Gameobject != null)
+                        for (int i = 0; i < player.Objects.Count; i++)
                         {
-                            Destroy(n._Gameobject);
+                            if(player.Objects[i]._Gameobject!= null)
+                            {
+                                Destroy(player.Objects[i]._Gameobject);
+                            }
                         }
                     }
 
+                    if(player.RiderModel != null)
+                    {
+                        Destroy(player.RiderModel);
+                    }
+
+                    if(player.BMX!= null)
+                    {
+                        Destroy(player.BMX);
+                    }
+                    t = true;
+
+
+
                 }
-                if (PlayersObjects[_id] != null)
+                if (t)
                 {
-                    PlayersObjects.Remove(_id);
+                    Players.Remove(_id);
+                    Destroy(player.gameObject);
+
                 }
 
+               
+               
             }
             catch (System.Exception x)
             {
@@ -496,10 +653,22 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-        
+        public void DestroyGameObject(GameObject g)
+        {
+            Destroy(g);
+        }
+        public void DontDestroy(GameObject g)
+        {
+            DontDestroyOnLoad(g);
+        }
 
 
-       
-       
     }
+
+
+
+
+   
+
+
 }

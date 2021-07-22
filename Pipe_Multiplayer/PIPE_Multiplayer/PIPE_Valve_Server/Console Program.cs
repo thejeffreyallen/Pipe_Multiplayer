@@ -33,14 +33,10 @@ namespace PIPE_Valve_Online_Server
             Console.WriteLine($"PIPE ONLINE SERVER V{Server.VERSIONNUMBER}");
             Console.WriteLine("Powered by Valve's GamenetworkingSockets");
             Console.WriteLine("Checking Directories..");
-            // Check directories info on startup, if not create
-            DirectoryInfo texinfo = new DirectoryInfo(Server.TexturesDir);
-            DirectoryInfo info = new DirectoryInfo(Server.Rootdir);
-            if (!info.Exists)
-            {
-                info.Create();
-                texinfo.Create();
-            }
+           
+
+            ServerData.LoadData();
+
             Console.WriteLine("Directories good");
             if (args.Length != 4)
             {
@@ -84,7 +80,6 @@ namespace PIPE_Valve_Online_Server
 
 
 
-            ServerData.LoadData();
             Server.Run(port, Maxplayers);
 
 

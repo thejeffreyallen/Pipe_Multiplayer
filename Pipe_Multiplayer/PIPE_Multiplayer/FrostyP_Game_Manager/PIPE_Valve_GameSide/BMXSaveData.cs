@@ -13,25 +13,25 @@ namespace PIPE_Valve_Console_Client
         public float FrameMetallic;
         public float FrameSmooth;
         public byte[] FrameTex;
-        public string FrameTexname;
+        public string FrameTexName;
         public byte[] FrameNormal;
-        public string FrameNormalname;
+        public string FrameNormalName;
 
         public float[] ForksColour;
         public float ForksSmooth;
-        public float Forksmetallic;
+        public float ForksMetallic;
         public byte[] ForksTex;
-        public string ForksTexname;
+        public string ForksTexName;
         public byte[] ForksNormal;
-        public string ForksNormalname;
+        public string ForksNormalName;
 
         public float[] BarsColour;
         public float BarsSmooth;
         public float BarsMetallic;
         public byte[] BarsTex;
-        public string BarsTexname;
+        public string BarsTexName;
         public byte[] BarsNormal;
-        public string BarsNormalname;
+        public string BarsNormalName;
 
         public float[] StemColour;
         public float StemSmooth;
@@ -62,19 +62,33 @@ namespace PIPE_Valve_Console_Client
         public float[] SeatColour;
         public float SeatSmooth;
         public byte[] SeatTex;
-        public string SeatTexname;
+        public string SeatTexName;
         public byte[] SeatNormal;
-        public string SeatNormalname;
+        public string SeatNormalName;
 
 
+        // F Tire
         public float[] FTireColour;
-        public float[] RTireColour;
         public float[] FTireSideColour;
+        public float FTireSmooth;
+        public float FTireSideSmooth;
+        public byte[] FTireTex;
+        public byte[] FTireNormal;
+        public string FTireTexName;
+        public string FTireNormalName;
+        public string FTireMeshFileName;
+
+        // R Tire
+        public float[] RTireColour;
         public float[] RTireSideColour;
-        public byte[] TiresTex;
-        public string TiresTexname;
-        public byte[] TiresNormal;
-        public string TiresNormalname;
+        public float RTireSmooth;
+        public float RTireSideSmooth;
+        public byte[] RTireTex;
+        public byte[] RTireNormal;
+        public string RTireTexName;
+        public string RTireNormalName;
+        public string RTireMeshFileName;
+
 
 
     }
