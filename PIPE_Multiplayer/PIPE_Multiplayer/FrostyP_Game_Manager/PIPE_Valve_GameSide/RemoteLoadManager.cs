@@ -499,20 +499,19 @@ public class RemoteLoadManager : MonoBehaviour
     {
         try
         {
-            BikeLoadOut BLO = player.BMX.GetComponentInChildren<BikeLoadOut>();
             foreach (PartMaterial p in loadList.partMaterials)
             {
                 switch (p.matID)
                 {
                     case 0:
-                        BLO.SetPartMaterial(MaterialManager.instance.defaultMat, p.partNum, true);
+                        player.partMaster.SetMaterial(p.partNum, MaterialManager.instance.defaultMat);
                         break;
                     case 7:
                         break;
                     case 9:
                         break;
                     default:
-                        BLO.SetPartMaterial(MaterialManager.instance.customMats[p.matID-1], p.partNum, true);
+                        player.partMaster.SetMaterial(p.partNum, MaterialManager.instance.customMats[p.matID - 1]);
                         break;
                 }
 
@@ -543,12 +542,13 @@ public class RemoteLoadManager : MonoBehaviour
 
     public void SetMaterialHelper(RemotePartMaster pm, int key, int mat, int index = 0)
     {
+        MaterialManager matman = FindObjectOfType<MaterialManager>();
         if (mat == 0)
-            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = MaterialManager.instance.defaultMat;
+            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = matman.defaultMat;
         else if (mat == 9)
             return;
         else
-            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = MaterialManager.instance.customMats[mat - 1];
+            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = matman.customMats[mat - 1];
     }
 
 

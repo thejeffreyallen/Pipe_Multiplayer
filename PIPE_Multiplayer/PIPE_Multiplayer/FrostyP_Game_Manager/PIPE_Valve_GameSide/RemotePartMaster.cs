@@ -401,8 +401,8 @@ public class RemotePartMaster : MonoBehaviour
                 ints.Add(rearWheelCol);
                 partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
             partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
-            partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
-            partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
+           // partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
+           // partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
 
         }
         catch (Exception e)
