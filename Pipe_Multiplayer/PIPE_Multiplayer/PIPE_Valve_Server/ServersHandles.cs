@@ -554,8 +554,8 @@ namespace PIPE_Valve_Online_Server
                 }
                 else
                 {
-                    _packet.Write(player.Gear.Garagesave.Length);
-                    _packet.Write(player.Gear.Garagesave);
+                    packet.Write(player.Gear.Garagesave.Length);
+                    packet.Write(player.Gear.Garagesave);
                   
                 }
 

@@ -566,6 +566,10 @@ namespace FrostyP_Game_Manager
                     {
                         foreach (RemotePlayer player in GameManager.Players.Values)
                         {
+
+                            if (player.MasterActive)
+                            {
+
                             if (player.ReplayPostions.Count > 1600)
                             {
                                 player.ReplayPostions.RemoveRange(0, player.ReplayPostions.Count - 1600);
@@ -596,6 +600,10 @@ namespace FrostyP_Game_Manager
 
 
                             }
+
+
+                            }
+
                         }
                     }
 

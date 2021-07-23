@@ -108,7 +108,6 @@ namespace PIPE_Valve_Console_Client
                 style.fontStyle = FontStyle.Bold;
                 style.hover.background = InGameUI.instance.GreyTex;
 
-                MasterActive = true;
 
             }
             catch (Exception x)
@@ -157,13 +156,6 @@ namespace PIPE_Valve_Console_Client
             {
                 Debug.Log($"RemotePlayer.Initialize error: {x}");
             }
-
-
-
-
-            
-
-            
 
 
         }
@@ -579,10 +571,10 @@ namespace PIPE_Valve_Console_Client
                     
                    foreach (TextureInfo t in Gear.RiderTextures)
                    {
-                        Debug.Log("looking");
+                       
                         if (FileSyncing.CheckForFile(1, t.Nameoftexture))
                         {
-                            Debug.Log("found");
+                           
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(1, t.Nameoftexture);
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].color = Color.white;
                         }
@@ -598,8 +590,8 @@ namespace PIPE_Valve_Console_Client
                 {
                     Debug.Log(x);
                 }
-           
-            
+
+                Debug.Log($"textures updated for {username}");
 
             }
 
@@ -638,6 +630,7 @@ namespace PIPE_Valve_Console_Client
             yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,1.2f));
 
             partMaster.InitPartList(BMX);
+            partMaster.AccessoriesSetup();
 
             if (CurrentModelName == "Daryien")
             {
@@ -652,7 +645,7 @@ namespace PIPE_Valve_Console_Client
             ChangePlayerVisibilty(CurrentMap == UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             ChangeCollideStatus(InGameUI.instance.CollisionsToggle);
 
-            Debug.Log($"{username} completed setup");
+            Debug.Log($"{username} completed setup"); MasterActive = true;
         }
 
         IEnumerator UpdateModelAfterWait()

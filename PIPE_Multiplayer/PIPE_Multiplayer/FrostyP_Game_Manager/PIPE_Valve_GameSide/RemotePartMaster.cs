@@ -95,16 +95,14 @@ public class RemotePartMaster : MonoBehaviour
     GameObject frontHubGuard;
     GameObject rearHubGuard;
 
-        public RemotePartMaster(GameObject bmx) {
-            InitPartList(bmx);
-        }
+       
    
     void Awake()
     {
         origTrans = new Dictionary<int, TransformData>();
     }
 
-    void Fart()
+    public void AccessoriesSetup()
     {
         accFront = new GameObject("FrontAccessory");
         accFront.AddComponent<MeshFilter>();
@@ -149,7 +147,7 @@ public class RemotePartMaster : MonoBehaviour
         rearHubGuard = Instantiate(rearHubGuard, GetPart(rearPegs).transform);
 
 
-        partList = new Dictionary<int, GameObject>();
+       
         partList.Add(frontAcc, accFront);
         partList.Add(rearAcc, accRear);
         partList.Add(barAcc, barAccessory);
@@ -191,6 +189,7 @@ public class RemotePartMaster : MonoBehaviour
 
             foreach (Transform t in barsJoint)
             {
+                    Debug.Log(t.gameObject.name);
                 switch (t.gameObject.name)
                 {
                     case "Pegs Mesh":
@@ -277,6 +276,7 @@ public class RemotePartMaster : MonoBehaviour
 
             foreach (Transform t in frameJoint)
             {
+                    Debug.Log(t.gameObject.name);
                 switch (t.gameObject.name)
                 {
                     case "Pegs Mesh":
@@ -403,6 +403,7 @@ public class RemotePartMaster : MonoBehaviour
             partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
             partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
             partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
+
         }
         catch (Exception e)
         {

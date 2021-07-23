@@ -267,6 +267,11 @@ public class RemoteLoadManager : MonoBehaviour
             {
                 if (pm.isCustom)
                 {
+                    int indexer = pm.fileName.IndexOf("/GarageContent");
+                    
+                    pm.fileName = pm.fileName.Remove(0, indexer);
+                    pm.fileName = pm.fileName.Insert(0, Application.dataPath);
+
                     if (!File.Exists(pm.fileName))
                     {
                         SavingManager.instance.ChangeAlertText("Error loading mesh: " + pm.fileName + " is a dependancy of this save file and could not be found. The save will continue to load, but it will load the default mesh in place of the missing custom mesh.");
@@ -504,7 +509,7 @@ public class RemoteLoadManager : MonoBehaviour
                     case 9:
                         break;
                     default:
-                        BLO.SetPartMaterial(MaterialManager.instance.customMats[p.matID - 1], p.partNum, true);
+                        BLO.SetPartMaterial(MaterialManager.instance.customMats[p.matID-1], p.partNum, true);
                         break;
                 }
 
