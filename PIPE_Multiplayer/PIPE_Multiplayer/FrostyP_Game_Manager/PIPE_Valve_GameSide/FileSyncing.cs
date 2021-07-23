@@ -78,7 +78,7 @@ namespace PIPE_Valve_Console_Client
                     else
                     {
                         sr.PacketNumbersStored = PacketsIalreadyHave;
-                        sr.IsReceiving = true;
+                        
                     }
                 }
             }

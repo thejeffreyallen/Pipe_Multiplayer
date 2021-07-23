@@ -5,7 +5,7 @@ using FrostyP_Game_Manager;
 using System.Reflection;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using PIPE_Valve_Gameside;
+
 
 namespace PIPE_Valve_Console_Client
 {
@@ -101,16 +101,16 @@ namespace PIPE_Valve_Console_Client
             {
                 if (t.gameObject.GetComponent<Animation>())
                 {
-                    Destroy(t.gameObject.GetComponent<Animation>());
+                    DestroyObj(t.gameObject.GetComponent<Animation>());
                 }
                 if (t.gameObject.GetComponent<BMXLimbTargetAdjust>())
                 {
-                   Destroy(t.gameObject.GetComponent<BMXLimbTargetAdjust>());
+                   DestroyObj(t.gameObject.GetComponent<BMXLimbTargetAdjust>());
 
                 }
                 if (t.gameObject.GetComponent<SkeletonReferenceValue>())
                 {
-                    Destroy(t.gameObject.GetComponent<SkeletonReferenceValue>());
+                    DestroyObj(t.gameObject.GetComponent<SkeletonReferenceValue>());
                 }
                 if (t.gameObject.GetComponent<Rigidbody>())
                 {
@@ -118,7 +118,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 if (t.gameObject.name.Contains("Trigger"))
                 {
-                    Destroy(t.gameObject);
+                    DestroyObj((Object)t.gameObject);
                 }
 
               
@@ -130,16 +130,16 @@ namespace PIPE_Valve_Console_Client
             {
                 if (t.gameObject.name.Contains("Target"))
                 {
-                    Destroy(t.gameObject);
+                    DestroyObj((Object)t.gameObject);
                 }
                 if (t.gameObject.name.Contains("Foot"))
                 {
-                    Destroy(t.gameObject);
+                    DestroyObj((Object)t.gameObject);
                 }
 
                 if (t.gameObject.GetComponent<Hub>())
                 {
-                   Destroy(t.gameObject.GetComponent<Hub>());
+                   DestroyObj(t.gameObject.GetComponent<Hub>());
                 }
                 if (t.gameObject.GetComponent<Rigidbody>())
                 {
@@ -213,13 +213,14 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                    GameObject New = GameObject.Instantiate(Prefab);
-                    DontDestroyOnLoad(New);
-                    RemotePlayer r = New.GetComponent<RemotePlayer>();
+                    GameObject NewRider = GameObject.Instantiate(Prefab);
+                    DontDestroyOnLoad(NewRider);
+                    RemotePlayer r = NewRider.GetComponent<RemotePlayer>();
                     Players.Add(_id, r);
-                    
+                    NewRider.AddComponent<RemotePartMaster>();
+                    NewRider.AddComponent<RemoteBrakesManager>();
                     r.CurrentModelName = currentmodel;
-                    New.name = _username + _id.ToString();
+                    NewRider.name = _username + _id.ToString();
                     r.Modelbundlename = modelbundlename;
                     r.id = _id;
                     r.username = _username;
@@ -384,6 +385,7 @@ namespace PIPE_Valve_Console_Client
                     gear.GarageSave = bytes;
                 }
 
+                gear.isRiderUpdate = false;
                
             }
 
@@ -458,7 +460,7 @@ namespace PIPE_Valve_Console_Client
                 t.gameObject.SetActive(true);
                 if (t.gameObject.name == "Daryen_Hair_Matt")
                 {
-                    Destroy(t.gameObject);
+                    Destroy((Object)t.gameObject);
                 }
                 if (t.gameObject.GetComponent<Rigidbody>())
                 {
@@ -599,19 +601,19 @@ namespace PIPE_Valve_Console_Client
                         {
                             if(player.Objects[i]._Gameobject!= null)
                             {
-                                Destroy(player.Objects[i]._Gameobject);
+                                DestroyObj((Object)player.Objects[i]._Gameobject);
                             }
                         }
                     }
 
                     if(player.RiderModel != null)
                     {
-                        Destroy(player.RiderModel);
+                        DestroyObj((Object)player.RiderModel);
                     }
 
                     if(player.BMX!= null)
                     {
-                        Destroy(player.BMX);
+                        DestroyObj((Object)player.BMX);
                     }
                     t = true;
 
@@ -621,7 +623,7 @@ namespace PIPE_Valve_Console_Client
                 if (t)
                 {
                     Players.Remove(_id);
-                    Destroy(player.gameObject);
+                    DestroyObj((Object)player.gameObject);
 
                 }
 
@@ -636,7 +638,11 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-        public void DestroyGameObject(GameObject g)
+
+
+
+        // A non-Monobehaviour wants to use a Mono function
+        public void DestroyObj(Object g)
         {
             Destroy(g);
         }

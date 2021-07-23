@@ -100,7 +100,6 @@ namespace PIPE_Valve_Console_Client
         public Dictionary<int, string> FileTypeDisplayNames = new Dictionary<int, string>();
         Vector2 SyncScroll1;
         Vector2 SyncScroll2;
-        Vector2 SyncScroll3;
         int InPacketsReceived = 0;
         int InPacketsTotal = 0;
         int OutPacketsTotal = 0;
@@ -163,7 +162,6 @@ namespace PIPE_Valve_Console_Client
         public Texture2D TransTex;
 
 
-        GameObject BMXS;
 
 
 
@@ -426,10 +424,14 @@ namespace PIPE_Valve_Console_Client
 
 
         void OnGUI()
-
         {
+
+
             try
             {
+                
+               
+                
                if (Minigui)
                {
                 MiniGUI();
@@ -542,7 +544,7 @@ namespace PIPE_Valve_Console_Client
                 {
                     if(r.Objects[i]._Gameobject != null)
                     {
-                        GameManager.instance.DestroyGameObject(r.Objects[i]._Gameobject);
+                        GameManager.instance.DestroyObj(r.Objects[i]._Gameobject);
                     }
                 }
 
@@ -556,7 +558,7 @@ namespace PIPE_Valve_Console_Client
             {
                 foreach(GameObject obj in objs)
                 {
-                   GameManager.instance.DestroyGameObject(obj);
+                   GameManager.instance.DestroyObj(obj);
                 }
             }
             GameManager.Players.Clear();
@@ -836,11 +838,17 @@ namespace PIPE_Valve_Console_Client
             }
             else
             {
-                if (GUILayout.Button("Enter Spectate Mode"))
+                if (GUILayout.Button("Spectate"))
                 {
                     SpectateEnter();
                 }
             }
+            GUILayout.Space(2);
+            if (GUILayout.Button("Sync Bmx"))
+            {
+                ClientSend.SendGearUpdate(GameManager.instance.GetMyGear(false));
+            }
+
             GUILayout.Space(2);
             if (GUILayout.Button("Disconnect"))
             {
@@ -2006,7 +2014,7 @@ namespace PIPE_Valve_Console_Client
             {
             if(GUILayout.Button($"Grab {Versionofupdate} files?"))
             {
-                    List<int> found = new List<int>();
+                   
                     FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.dll", (int)FileTypeByNum.Update);
                     FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.pdb", (int)FileTypeByNum.Update);
                     FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.dll", (int)FileTypeByNum.Update);

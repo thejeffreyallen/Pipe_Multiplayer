@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{74AE80A9-46D3-4E58-A8E2-E4903ACE307B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>PIPE_Valve_Gameside</RootNamespace>
+    <RootNamespace>PIPE_Valve_Console_Client</RootNamespace>
     <AssemblyName>PIPE_Valve_Console_Client</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -135,7 +135,7 @@
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>G:\Pipe1.9.9\3099592\PIPE_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>

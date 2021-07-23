@@ -551,23 +551,7 @@ namespace PIPE_Valve_Console_Client
     {
 		public bool isRiderUpdate;
 		public List<TextureInfo> RiderTextures;
-
-		public float BikeScale;
-		public List<TextureInfo> BikeTextures;
-		public List<Vector3> BikeColours;
-		public List<float> BikeSmooths;
-		public List<float> BikeMetallics;
-		public float FrontTireWidth;
-		public float RearTireWidth;
-		public bool Donuts;
-		public bool Brakes;
-		public bool BetterWheels;
-		public bool LHD;
-		public float seatAngle;
-		public float barsAngle;
-		public float seatHeight;
 		public byte[] GarageSave;
-		//public List<PartMesh> Meshes;
 
 
 
@@ -581,45 +565,6 @@ namespace PIPE_Valve_Console_Client
 			RiderTextures = ridertextures;
 
         }
-
-
-		/// <summary>
-		/// To Send just a Bike Update
-		/// </summary>
-		/// <param name="bikescale"></param>
-		/// <param name="Biketextures"></param>
-		/// <param name="bikecolours"></param>
-		/// <param name="bikesmooths"></param>
-		/// <param name="bikemetallics"></param>
-		/// <param name="fronttirewidth"></param>
-		/// <param name="reartirewidth"></param>
-		/// <param name="donuts"></param>
-		/// <param name="brakes"></param>
-		/// <param name="betterwheels"></param>
-		/// <param name="lhd"></param>
-		/// <param name="seatangle"></param>
-		/// <param name="barsangle"></param>
-		/// <param name="seatheight"></param>
-		public GearUpdate(float bikescale, List<TextureInfo> Biketextures, List<Vector3> bikecolours, List<float> bikesmooths, List<float> bikemetallics, float fronttirewidth, float reartirewidth, bool donuts, bool brakes, bool betterwheels, bool lhd, float seatangle, float barsangle,float seatheight)
-        {
-			isRiderUpdate = false;
-
-			BikeTextures = Biketextures;
-			BikeColours = bikecolours;
-			BikeSmooths = bikesmooths;
-			BikeMetallics = bikemetallics;
-			FrontTireWidth = fronttirewidth;
-			RearTireWidth = reartirewidth;
-			Donuts = donuts;
-			Brakes = brakes;
-			BetterWheels = betterwheels;
-			LHD = lhd;
-			seatAngle = seatangle;
-			barsAngle = barsangle;
-			seatHeight = seatheight;
-
-        }
-
 
 		public GearUpdate()
         {

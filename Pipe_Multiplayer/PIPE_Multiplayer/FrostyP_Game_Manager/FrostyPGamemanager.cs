@@ -193,11 +193,11 @@ namespace FrostyP_Game_Manager
 
 		public void OnGUI()
 		{
-           
+			
 			if (OpenMenu)
 			{
-             
 
+				
 
 				GUI.skin = skin;
 

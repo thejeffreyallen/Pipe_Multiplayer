@@ -139,7 +139,18 @@ namespace PIPE_Valve_Console_Client
 
                 BMX = GameManager.GetNewBMX();
                 BMX.name = "BMX " + id;
-                partMaster = new RemotePartMaster(BMX); // initialize the part master part list.
+           
+                SetupSuccess = RiderSetup();
+
+                if (!SetupSuccess)
+                {
+                Debug.Log("Error with Ridersetup()");
+                }
+
+
+                partMaster = gameObject.GetComponent<RemotePartMaster>(); // initialize the part master part list.
+                brakesManager = gameObject.GetComponent<RemoteBrakesManager>();
+                StartCoroutine(Initialiseafterwait());
             }
 
             catch (Exception x)
@@ -155,16 +166,6 @@ namespace PIPE_Valve_Console_Client
             
 
 
-            // Once models instatiated, run findriderparts to locate and assign all ridertransforms to models and children joints of models, sets masteractive on success
-            SetupSuccess = RiderSetup();
-
-            if (!SetupSuccess)
-            {
-                Debug.Log("Error with Ridersetup()");
-            }
-
-
-            StartCoroutine(Initialiseafterwait());
         }
 
 
@@ -197,7 +198,7 @@ namespace PIPE_Valve_Console_Client
            
             MoveRider();
             
-                if (CheckThresholds() | IncomingTransformUpdates.Count>3)
+                if (CheckThresholds())
                 {     
                   IncomingTransformUpdates.RemoveAt(0);
                 }
@@ -224,7 +225,7 @@ namespace PIPE_Valve_Console_Client
             value = Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < 0.1f;
            // value = Vector3.Distance(Riders_Transforms[0].eulerAngles, IncomingTransformUpdates[0].Rotations[0]) < 0.1f;
             value = Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23]) < 0.1f;
-           // value = Vector3.Distance(Riders_Transforms[23].eulerAngles, IncomingTransformUpdates[0].Rotations[23]) < 0.1f;
+            // value = Vector3.Distance(Riders_Transforms[23].eulerAngles, IncomingTransformUpdates[0].Rotations[23]) < 0.1f;
 
             /*
             for (int i = 1; i < 23; i++)
@@ -240,7 +241,7 @@ namespace PIPE_Valve_Console_Client
 
             */
 
-
+            value = IncomingTransformUpdates.Count > 1;
 
             return value;
         }
@@ -607,7 +608,7 @@ namespace PIPE_Valve_Console_Client
 
         public void UpdateBMX()
         {
-
+           
             try
             {
             // do garage setup
@@ -635,6 +636,9 @@ namespace PIPE_Valve_Console_Client
         {
           // stagger out the initial rider build in case many are spawning at once somehow?
             yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,1.2f));
+
+            partMaster.InitPartList(BMX);
+
             if (CurrentModelName == "Daryien")
             {
                 UpdateDaryien();

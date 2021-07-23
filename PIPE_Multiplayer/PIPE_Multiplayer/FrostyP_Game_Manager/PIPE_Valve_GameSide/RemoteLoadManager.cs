@@ -5,9 +5,15 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
-class RemoteLoadManager : MonoBehaviour
+public class RemoteLoadManager : MonoBehaviour
 {
     public static RemoteLoadManager instance;
+
+    void Awake()
+    {
+        instance = this;
+    }
+
 
     public void Load(RemotePlayer player, SaveList loadList)
     {

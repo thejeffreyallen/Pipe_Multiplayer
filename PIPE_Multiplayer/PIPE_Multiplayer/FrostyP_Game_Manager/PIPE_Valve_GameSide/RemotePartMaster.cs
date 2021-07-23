@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace PIPE_Valve_Console_Client
@@ -107,7 +104,7 @@ public class RemotePartMaster : MonoBehaviour
         origTrans = new Dictionary<int, TransformData>();
     }
 
-    void Start()
+    void Fart()
     {
         accFront = new GameObject("FrontAccessory");
         accFront.AddComponent<MeshFilter>();
@@ -151,6 +148,8 @@ public class RemotePartMaster : MonoBehaviour
         rearHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
         rearHubGuard = Instantiate(rearHubGuard, GetPart(rearPegs).transform);
 
+
+        partList = new Dictionary<int, GameObject>();
         partList.Add(frontAcc, accFront);
         partList.Add(rearAcc, accRear);
         partList.Add(barAcc, barAccessory);
@@ -181,79 +180,93 @@ public class RemotePartMaster : MonoBehaviour
 
 
         public void InitPartList(GameObject bmx)
-    {
+        {
         string errorPath = Application.dataPath + "//GarageContent/GarageErrorLog.txt";
+        List<int> ints = new List<int>();
         try
         {
             partList = new Dictionary<int, GameObject>();
-            Transform[] barsJoint = bmx.transform.FindDeepChild("BMX:Bars_Joint").GetComponentsInChildren<Transform>(true);
-            Transform[] frameJoint = bmx.transform.FindDeepChild("BMX:Frame_Joint").GetComponentsInChildren<Transform>(true);
+            Transform[] barsJoint = bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject.GetComponentsInChildren<Transform>(true);
+            Transform[] frameJoint = bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject.GetComponentsInChildren<Transform>(true);
 
             foreach (Transform t in barsJoint)
             {
                 switch (t.gameObject.name)
                 {
                     case "Pegs Mesh":
+                            ints.Add(frontPegs);
                         partList.Add(frontPegs, t.gameObject);
                         break;
                     case "Nipples Mesh":
+                            ints.Add(frontNipples);
                         partList.Add(frontNipples, t.gameObject);
                         break;
                     case "Spokes Mesh":
+                            ints.Add(frontSpokes);
                         partList.Add(frontSpokes, t.gameObject);
                         break;
                     case "Rim Mesh":
+                            ints.Add(frontRim);
                         partList.Add(frontRim, t.gameObject);
                         break;
                     case "Hub Mesh":
+                            ints.Add(frontHub);
                         partList.Add(frontHub, t.gameObject);
                         break;
                     case "Tire Mesh":
+                            ints.Add(frontTire);
                         partList.Add(frontTire, t.gameObject);
                         break;
                     case "Left Anchor":
+                            ints.Add(leftAnchor);
                         partList.Add(leftAnchor, t.gameObject);
                         break;
                     case "Right Anchor":
+                            ints.Add(rightAnchor);
                         partList.Add(rightAnchor, t.gameObject);
                         break;
                     case "Stem Bolts Mesh":
+                            ints.Add(stemBolts);
                         partList.Add(stemBolts, t.gameObject);
                         break;
                     case "Bars Mesh":
+                            ints.Add(bars);
                         partList.Add(bars, t.gameObject);
                         break;
                     case "BMX:Wheel":
+                            ints.Add(frontWheel);
                         partList.Add(frontWheel, t.gameObject);
                         break;
                     case "Bar Ends Mesh":
+                            ints.Add(barEnds);
                         partList.Add(barEnds, t.gameObject);
                         break;
                     case "Left Grip":
+                            ints.Add(leftGrip);
                         Transform[] tran1 = t.gameObject.GetComponentsInChildren<Transform>();
-                        if (tran1[0].gameObject.name == "Left Grip Mesh")
-                            partList.Add(leftGrip, tran1[0].gameObject);
-                        else
-                            partList.Add(leftGrip, tran1[1].gameObject);
+                        if (tran1[0].gameObject.name == "Left Grip Mesh") partList.Add(leftGrip, tran1[0].gameObject);
+                        else partList.Add(leftGrip, tran1[1].gameObject);
                         break;
                     case "Right Grip":
+                            ints.Add(rightGrip);
                         Transform[] tran2 = t.gameObject.GetComponentsInChildren<Transform>();
-                        if (tran2[0].gameObject.name == "Left Grip Mesh")
-                            partList.Add(rightGrip, tran2[0].gameObject);
-                        else
-                            partList.Add(rightGrip, tran2[1].gameObject);
+                        if (tran2[0].gameObject.name == "Right Grip Mesh") partList.Add(rightGrip, tran2[0].gameObject);
+                        else partList.Add(rightGrip, tran2[1].gameObject);
                         break;
                     case "Forks Mesh":
+                            ints.Add(forks);
                         partList.Add(forks, t.gameObject);
                         break;
                     case "Headset Mesh":
+                            ints.Add(headSet);
                         partList.Add(headSet, t.gameObject);
                         break;
                     case "Stem Mesh":
-                        if (!(t.gameObject.GetComponent<MeshFilter>() == null))
-                            partList.Add(stem, t.gameObject);
+                            ints.Add(stem);
+                        if (!(t.gameObject.GetComponent<MeshFilter>() == null)) partList.Add(stem, t.gameObject);
                         break;
                     case "Headset Spacers Mesh":
+                            ints.Add(headSetSpacers);
                         partList.Add(headSetSpacers, t.gameObject);
                         break;
                     default:
@@ -267,66 +280,89 @@ public class RemotePartMaster : MonoBehaviour
                 switch (t.gameObject.name)
                 {
                     case "Pegs Mesh":
+                            ints.Add(rearPegs);
                         partList.Add(rearPegs, t.gameObject);
                         break;
                     case "Nipples Mesh":
+                            ints.Add(rearNipples);
                         partList.Add(rearNipples, t.gameObject);
                         break;
                     case "BMX:Wheel 1":
+                            ints.Add(rearWheel);
                         partList.Add(rearWheel, t.gameObject);
                         break;
                     case "Spokes Mesh":
+                            ints.Add(rearSpokes);
                         partList.Add(rearSpokes, t.gameObject);
                         break;
                     case "Rim Mesh":
+                            ints.Add(rearRim);
                         partList.Add(rearRim, t.gameObject);
                         break;
                     case "Hub Mesh":
+                            ints.Add(rearHub);
                         partList.Add(rearHub, t.gameObject);
                         break;
                     case "Tire Mesh":
+                            ints.Add(rearTire);
                         partList.Add(rearTire, t.gameObject);
                         break;
                     case "Seat Post":
+                            ints.Add(seatPost);
                         partList.Add(seatPost, t.gameObject);
                         break;
                     case "Seat Post Anchor":
+                            ints.Add(seatPostAnchor);
                         partList.Add(seatPostAnchor, t.gameObject);
                         break;
                     case "Seat Mesh":
+                            ints.Add(seat);
                         partList.Add(seat, t.gameObject);
                         break;
                     case "Seat Clamp Mesh":
+                            ints.Add(seatClamp);
                         partList.Add(seatClamp, t.gameObject);
                         break;
                     case "Seat_Clamp_Bolt":
+                            ints.Add(seatClampBolt);
                         partList.Add(seatClampBolt, t.gameObject);
                         break;
                     case "Chain Mesh":
+                            ints.Add(chain);
                         partList.Add(chain, t.gameObject);
                         break;
                     case "Frame Mesh":
-                        partList.Add(frame, t.gameObject);
+                            ints.Add(frame);
+                            if(!partList.TryGetValue(0, out GameObject obj)) partList.Add(frame, t.gameObject);
                         break;
                     case "BB Mesh":
+                            ints.Add(bottomBracket);
                         partList.Add(bottomBracket, t.gameObject);
                         break;
                     case "Right Crank Arm Mesh":
+                            ints.Add(rightCrank);
                         partList.Add(rightCrank, t.gameObject);
                         break;
                     case "Left Crank Arm Mesh":
+                            ints.Add(leftCrank);
                         partList.Add(leftCrank, t.gameObject);
                         break;
                     case "Sprocket Mesh":
+                            ints.Add(sprocket);
                         partList.Add(sprocket, t.gameObject);
                         break;
                     case "Right_Crankarm_Cap":
+                            ints.Add(rightCrankBolt);
                         partList.Add(rightCrankBolt, t.gameObject);
                         break;
                     case "Left_Crankarm_Cap":
+                            ints.Add(leftCrankBolt);
                         partList.Add(leftCrankBolt, t.gameObject);
                         break;
                     case "BMX:LeftPedal_Joint":
+                            ints.Add(leftPedal);
+                            ints.Add(leftPedalAxle);
+                            ints.Add(leftPedalCap);
                         Transform[] tran1 = t.gameObject.GetComponentsInChildren<Transform>();
                         foreach (Transform tr in tran1)
                         {
@@ -340,6 +376,9 @@ public class RemotePartMaster : MonoBehaviour
                         }
                         break;
                     case "BMX:RightPedal_Joint":
+                            ints.Add(rightPedal);
+                            ints.Add(rightPedalAxle);
+                            ints.Add(rightPedalCap);
                         Transform[] tran2 = t.gameObject.GetComponentsInChildren<Transform>();
                         foreach (Transform tr in tran2)
                         {
@@ -356,7 +395,11 @@ public class RemotePartMaster : MonoBehaviour
                         break;
                 }
             }
-            partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
+                ints.Add(barsJ);
+                ints.Add(frameJ);
+                ints.Add(frontWheelCol);
+                ints.Add(rearWheelCol);
+                partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
             partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
             partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
             partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
@@ -364,10 +407,15 @@ public class RemotePartMaster : MonoBehaviour
         catch (Exception e)
         {
             File.AppendAllText(errorPath, "\n" + DateTime.Now + "\nRANDOM ERRORS: " + "Error while initializing part list in PartMaster.cs. " + e.Message + e.StackTrace);
+               foreach(int i in ints)
+                {
+                    Debug.Log(i);
+                }
+
             Debug.Log("Error while initializing part list in PartMaster.cs. " + e.Message + e.StackTrace);
         }
         isDone = true;
-    }
+        }
 
     /// <summary>
     ///  Get a bike part's GameObject

@@ -110,7 +110,7 @@ namespace FrostyP_Game_Manager
             GamemanOBJ.AddComponent<LocalPlayer>();
             GamemanOBJ.AddComponent<SendToUnityThread>();
             GamemanOBJ.AddComponent<CharacterModding>();
-            GamemanOBJ.AddComponent<RemotePartMaster>();
+            GamemanOBJ.AddComponent<RemoteLoadManager>();
          
             Network = new GameNetworking();
             Network.Start();

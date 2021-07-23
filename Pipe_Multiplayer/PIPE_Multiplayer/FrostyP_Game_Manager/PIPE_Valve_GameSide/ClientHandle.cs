@@ -6,7 +6,7 @@ using FrostyP_Game_Manager;
 
 namespace PIPE_Valve_Console_Client
 {
-    public class ClientHandle : MonoBehaviour
+    public class ClientHandle
     {
 
 
@@ -270,10 +270,10 @@ namespace PIPE_Valve_Console_Client
 
 
                     player.Audio.ShutdownAllSounds();
-                    Destroy(player.RiderModel);
-                    Destroy(player.BMX);
-                    Destroy(player.Audio);
-                    Destroy(player.nameSign);
+                    GameManager.instance.DestroyObj(player.RiderModel);
+                    GameManager.instance.DestroyObj(player.BMX);
+                    GameManager.instance.DestroyObj(player.Audio);
+                    GameManager.instance.DestroyObj(player.nameSign);
 
 
 
@@ -282,7 +282,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         if(n._Gameobject != null)
                         {
-                            GameManager.instance.DestroyGameObject(n._Gameobject);
+                            GameManager.instance.DestroyObj(n._Gameobject);
                         }
                    
                         foreach (PlacedObject p in ParkBuilder.instance.ObjectstoSave)
@@ -309,7 +309,7 @@ namespace PIPE_Valve_Console_Client
                 try
                 {
                  GameManager.Players.Remove(_id);
-                  Destroy(player.gameObject);
+                 GameManager.instance.DestroyObj(player.gameObject);
                 }
                 catch (Exception)
                 {
@@ -787,7 +787,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         if(player.Objects[i].ObjectID == ObjectId)
                         {
-                            GameManager.instance.DestroyGameObject(player.Objects[i]._Gameobject);
+                            GameManager.instance.DestroyObj(player.Objects[i]._Gameobject);
                             player.Objects.RemoveAt(i);
                         }
                     }

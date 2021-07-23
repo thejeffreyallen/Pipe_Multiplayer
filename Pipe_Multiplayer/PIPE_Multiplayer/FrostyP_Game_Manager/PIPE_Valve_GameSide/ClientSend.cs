@@ -9,7 +9,7 @@ namespace PIPE_Valve_Console_Client
     /// <summary>
     /// Choose a message type, give connection number (Server), bytes data and specify a send mode from Valve.sockets.sendflags, the message will then be sent to the server
     /// </summary>
-    public class ClientSend : MonoBehaviour
+    public class ClientSend
     {
         public static float PosMult = 4500;
         public static float Rotmult = 80;
@@ -214,10 +214,7 @@ namespace PIPE_Valve_Console_Client
 
         }
         
-        /// <summary>
-        /// A packet from server triggers this giving list of filenames it doesnt have
-        /// </summary>
-        /// <param name="unfound"></param>
+       
         public static void RequestFile(string unfound, int filetype, List<int> _packetsihave)
         {
             using(Packet _packet = new Packet((int)ClientPackets.RequestFileFromServer))
@@ -339,7 +336,8 @@ namespace PIPE_Valve_Console_Client
                 else
                 {
                     //bike
-
+                    _packet.Write(gear.GarageSave.Length);
+                    _packet.Write(gear.GarageSave);
 
                 }
 

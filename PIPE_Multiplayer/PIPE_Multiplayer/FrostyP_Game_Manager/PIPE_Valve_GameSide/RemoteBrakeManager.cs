@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class RemoteBrakesManager : MonoBehaviour
 {
-    public static RemoteBrakesManager instance;
+   
 
     public GameObject barBrakes;
     public GameObject frameBrakes;
@@ -18,7 +18,7 @@ public class RemoteBrakesManager : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+       
         brakesEnabled = false;
     }
 

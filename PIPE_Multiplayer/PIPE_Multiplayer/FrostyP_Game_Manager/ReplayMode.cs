@@ -180,7 +180,6 @@ namespace FrostyP_Game_Manager
                 ReplayCam.transform.position = Vector3.Lerp(currentpos, currentpos + pos, 1);
 
                 // rotation
-
                 currentrot = CamMarkers[CurrentCamPosition].CamRot;
                 Targetrot = CamMarkers[CurrentCamTargetPosition].CamRot;
                 RotAxis =  Vector3.Cross(Targetrot,currentrot).normalized;
