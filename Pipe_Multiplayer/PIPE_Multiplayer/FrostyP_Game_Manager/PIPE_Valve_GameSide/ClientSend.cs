@@ -199,8 +199,8 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(FileSegment.this_segment_num);
                     _packet.Write(FileSegment.segment.Length);
                     _packet.Write(FileSegment.segment);
-                    _packet.Write(FileSegment.FileType);
                     _packet.Write(FileSegment.ByteCount);
+                    _packet.Write(FileSegment.path);
 
                     SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
 
@@ -215,11 +215,11 @@ namespace PIPE_Valve_Console_Client
         }
         
        
-        public static void RequestFile(string unfound, int filetype, List<int> _packetsihave)
+        public static void RequestFile(string unfound, List<int> _packetsihave)
         {
             using(Packet _packet = new Packet((int)ClientPackets.RequestFileFromServer))
             {
-                _packet.Write(filetype);
+               
                 _packet.Write(unfound);
                 _packet.Write(_packetsihave.Count);
                 for (int i = 0; i < _packetsihave.Count; i++)
@@ -233,12 +233,11 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        public static void FileStatus(string name, int filetype, int Status)
+        public static void FileStatus(string name, int Status)
         {
             using (Packet _packet = new Packet((int)ClientPackets.FileStatus))
             {
                 _packet.Write(name);
-                _packet.Write(filetype);
                 _packet.Write(Status);
 
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);

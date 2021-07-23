@@ -19,15 +19,9 @@ namespace PIPE_Valve_Online_Server
 
         public static List<SendReceiveIndex> OutgoingIndexes = new List<SendReceiveIndex>();
         public static List<SendReceiveIndex> IncomingIndexes = new List<SendReceiveIndex>();
-        static Dictionary<int, string> FileTypeDirectory = new Dictionary<int, string>();
         public static List<FileSegment> UpdateSegments = new List<FileSegment>();
 
         public static string Rootdir = "Game Data/";
-        public static string TexturesDir = Rootdir + "Textures/";
-        public static string MapsDir = Rootdir + "Maps/";
-        public static string ParkAssetsDir = Rootdir + "ParkAssets/";
-        public static string BikeMeshesDir = Rootdir + "GarageMeshes/";
-        public static string PlayerModelsDir = Rootdir + "PlayerModels/";
         static string TempDir = Rootdir + "Temp/";
         public static string UpdateDir = Rootdir + "Update/";
         
@@ -44,7 +38,6 @@ namespace PIPE_Valve_Online_Server
 
 
 
-       static int received = 0;
 
 
         /// <summary>
@@ -86,26 +79,6 @@ namespace PIPE_Valve_Online_Server
             {
                 Directory.CreateDirectory(Rootdir);
             }
-            if (!Directory.Exists(TexturesDir))
-            {
-                Directory.CreateDirectory(TexturesDir);
-            }
-            if (!Directory.Exists(MapsDir))
-            {
-                Directory.CreateDirectory(MapsDir);
-            }
-            if (!Directory.Exists(ParkAssetsDir))
-            {
-                Directory.CreateDirectory(ParkAssetsDir);
-            }
-            if (!Directory.Exists(BikeMeshesDir))
-            {
-                Directory.CreateDirectory(BikeMeshesDir);
-            }
-            if (!Directory.Exists(PlayerModelsDir))
-            {
-                Directory.CreateDirectory(PlayerModelsDir);
-            }
             if (!Directory.Exists(TempDir))
             {
                 Directory.CreateDirectory(TempDir);
@@ -116,16 +89,7 @@ namespace PIPE_Valve_Online_Server
             }
 
 
-            FileTypeDirectory = new Dictionary<int, string>
-            {
-                {1,TexturesDir },
-                {2,MapsDir },
-                {3,PlayerModelsDir },
-                {4,BikeMeshesDir },
-                {5,ParkAssetsDir },
-                {6,UpdateDir },
-            };
-            
+           
 
         }
 
@@ -140,7 +104,7 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-        public static void FileCheckAndSend(string FileName, int Filetype, List<int> _packetsowned, uint _from)
+        public static void FileCheckAndSend(string FileName, List<int> _packetsowned, uint _from)
         {
             FileInfo _fileinfo = null;
 
@@ -149,7 +113,7 @@ namespace PIPE_Valve_Online_Server
                 if (FileName != "")
                 {
                    
-                    foreach (FileInfo file in new DirectoryInfo(FileTypeDirectory[Filetype]).GetFiles())
+                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles(FileName, SearchOption.AllDirectories))
                     {
                         if (file.Name.ToLower() == FileName.ToLower())
                         {
@@ -188,7 +152,7 @@ namespace PIPE_Valve_Online_Server
             }
 
 
-            SendReceiveIndex NewSend = new SendReceiveIndex(FileName, Filetype,(int)PacketCount);
+            SendReceiveIndex NewSend = new SendReceiveIndex(FileName,(int)PacketCount);
             NewSend.ByteLength = length;
             NewSend.PlayerTosendTo = _from;
             NewSend.isSending = true;
@@ -203,7 +167,7 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        public static void FileSaver(byte[] bytes, string name, int SegsTotal, int SegNo, uint _player, int _filetype, long Totalbytes)
+        public static void FileSaver(byte[] bytes, string name, int SegsTotal, int SegNo, uint _player, long Totalbytes, string path)
         {
 
             // if no Temp file exists create one 
@@ -215,7 +179,6 @@ namespace PIPE_Valve_Online_Server
 
                 
                 Temp.ByteLengthOfFile = Totalbytes;
-                Temp.FileType = _filetype;
 
                 bf.Serialize(stream,Temp);
                 stream.Close();
@@ -258,10 +221,13 @@ namespace PIPE_Valve_Online_Server
             // Do Save or just update temp file
             if (InIndex.PacketNumbersStored.Count == InIndex.TotalPacketsinFile)
             {
+                int indexer = path.ToLower().IndexOf("pipe_data");
+                string mypath = path.Remove(0, indexer + 10);
+                mypath = mypath.Insert(0, Rootdir);
 
 
-                if (!Directory.Exists(FileTypeDirectory[_filetype])) Directory.CreateDirectory(FileTypeDirectory[_filetype]);
-                File.Move(TempDir + name, FileTypeDirectory[_filetype] + InIndex.NameOfFile);
+                if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
+                File.Move(TempDir + name, mypath + InIndex.NameOfFile);
                 File.Delete(TempDir + name + ".temp");
                 
                 // Tell Anyone that i've asked to send this file that i have it now ,if still online
@@ -269,13 +235,13 @@ namespace PIPE_Valve_Online_Server
                 {
                     if(Server.Players[id] != null)
                     {
-                      ServerSend.FileStatus(id,name, _filetype, (int)FileStatus.Received);
+                      ServerSend.FileStatus(id,name, (int)FileStatus.Received);
 
                     }
                 }
 
                 IncomingIndexes.Remove(InIndex);
-                Console.WriteLine($"Saved {name} to {FileTypeDirectory[_filetype]}");
+                Console.WriteLine($"Saved {name} to {mypath}");
 
 
 
@@ -302,7 +268,7 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-        public static void FileCheckAndRequest(string Filename, uint _fromclient, int _filetype)
+        public static void FileCheckAndRequest(string Filename, uint _fromclient)
         {
            
                     bool found = false;
@@ -310,7 +276,7 @@ namespace PIPE_Valve_Online_Server
                 {
 
                      // find file
-                    foreach (FileInfo file in new DirectoryInfo(FileTypeDirectory[_filetype]).GetFiles())
+                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles(Filename, SearchOption.AllDirectories))
                     {
                         if (file.Name == Filename)
                         {
@@ -339,7 +305,7 @@ namespace PIPE_Valve_Online_Server
                               }
                          }
                 
-                         ServerSend.RequestFile(_fromclient, Filename, _filetype,Packetsiown);
+                         ServerSend.RequestFile(_fromclient, Filename,Packetsiown);
                         Console.WriteLine(Filename + $" requested from {Server.Players[_fromclient].Username}");
                     }
 
@@ -350,7 +316,28 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-        
+        public static SaveList DeserialiseGarage(byte[] save)
+        {
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                SaveList list;
+                using (var ms = new MemoryStream(save))
+                {
+                    list = bf.Deserialize(ms) as SaveList;
+                }
+              
+               
+                return list;
+            }
+            catch (System.Exception e)
+            {
+               
+                return null;
+            }
+
+           
+        }
 
 
 
@@ -371,10 +358,11 @@ namespace PIPE_Valve_Online_Server
             public int Filetype;
             public int senttimes;
             public long Bytecount;
+            public string path;
             
         
             
-            public FileSegment(byte[] _seg,string _name,int _segcount,int _thissegno, uint _player, int _filetype, long _bytecount)
+            public FileSegment(byte[] _seg,string _name,int _segcount,int _thissegno, uint _player, int _filetype, long _bytecount, string _path)
             {
                 segment = _seg;
                 NameofFile = _name;
@@ -383,6 +371,7 @@ namespace PIPE_Valve_Online_Server
                 client = _player;
                 Filetype = _filetype;
                 Bytecount = _bytecount;
+                path = _path;
             }
 
         }
@@ -452,17 +441,15 @@ namespace PIPE_Valve_Online_Server
         public List<uint> PlayersRequestedFrom = new List<uint>();
 
 
-        public SendReceiveIndex(string _filename, int _filetype, int _totalpackets)
+        public SendReceiveIndex(string _filename, int _totalpackets)
         {
             NameOfFile = _filename;
-            Filetype = _filetype;
             TotalPacketsinFile = _totalpackets;
         }
 
-        public SendReceiveIndex(string _filename, int _filetype)
+        public SendReceiveIndex(string _filename)
         {
             NameOfFile = _filename;
-            Filetype = _filetype;
         }
 
 

@@ -158,7 +158,7 @@ namespace PIPE_Valve_Console_Client
         {
             
                 
-                int _filetype = _packet.ReadInt();
+               
                     string n = _packet.ReadString();
             int Listcount = _packet.ReadInt();
             List<int> Packetsowned = new List<int>();
@@ -173,7 +173,7 @@ namespace PIPE_Valve_Console_Client
 
             // leave details including packets owned by server if any
 
-            FileSyncing.OutGoingIndexes.Add(new SendReceiveIndex(n, _filetype, Packetsowned));
+            FileSyncing.OutGoingIndexes.Add(new SendReceiveIndex(n, Packetsowned));
            
 
         }
@@ -195,14 +195,14 @@ namespace PIPE_Valve_Console_Client
             byte[] bytes = _packet.ReadBytes(bytecount);
             int Filetype = _packet.ReadInt();
             long Bytecount = _packet.ReadLong();
+            string path = _packet.ReadString();
 
-            FileSyncing.FileReceive(bytes, name, segmentscount, segmentno, Filetype, bytecount);
+            FileSyncing.FileReceive(bytes, name, segmentscount, segmentno, Filetype, bytecount, path);
         }
 
         public static void FileStatus(Packet _packet)
         {
             string name = _packet.ReadString();
-            int filetype = _packet.ReadInt();
             int status = _packet.ReadInt();
 
             // received

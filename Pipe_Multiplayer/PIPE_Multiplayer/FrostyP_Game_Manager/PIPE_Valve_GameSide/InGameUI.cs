@@ -1617,7 +1617,7 @@ namespace PIPE_Valve_Console_Client
 
                     if (GUILayout.Button($"Cancel {OutIndex.TotalPacketsinFile - OutIndex.PacketNumbersStored.Count} packets of {OutIndex.TotalPacketsinFile} for {OutIndex.NameOfFile}"))
                         {
-                            ClientSend.FileStatus(OutIndex.NameOfFile, OutIndex.Filetype, (int)FileStatus.Cancel);
+                            ClientSend.FileStatus(OutIndex.NameOfFile, (int)FileStatus.Cancel);
                             OutIndex.IsSending = false;
                         }
 
@@ -1625,7 +1625,7 @@ namespace PIPE_Valve_Console_Client
                     else
                     {
 
-                        if (GUILayout.Button($"{FileTypeDisplayNames[OutIndex.Filetype]}: {OutIndex.NameOfFile}", SyncWindowStyle2))
+                        if (GUILayout.Button($"{OutIndex.NameOfFile}", SyncWindowStyle2))
                         {
                           FileSyncing.SendFileToServer(OutIndex);
                         }
@@ -1658,15 +1658,15 @@ namespace PIPE_Valve_Console_Client
                     {
                         if (GUILayout.Button($"Cancel {InIndex.NameOfFile}: {InIndex.TotalPacketsinFile - InIndex.PacketNumbersStored.Count} Packets"))
                         {
-                            ClientSend.FileStatus(InIndex.NameOfFile, InIndex.Filetype, (int)FileStatus.Cancel);
+                            ClientSend.FileStatus(InIndex.NameOfFile, (int)FileStatus.Cancel);
                             InIndex.IsReceiving = false;
                         }
                     }
                     else
                     {
-                        if (GUILayout.Button($"{FileTypeDisplayNames[InIndex.Filetype]}: {InIndex.NameOfFile}: {InIndex.PacketNumbersStored.Count} Packets Stored"))
+                        if (GUILayout.Button($" {InIndex.NameOfFile}: {InIndex.PacketNumbersStored.Count} Packets Stored"))
                         {
-                            ClientSend.RequestFile(InIndex.NameOfFile, InIndex.Filetype, InIndex.PacketNumbersStored);
+                            ClientSend.RequestFile(InIndex.NameOfFile, InIndex.PacketNumbersStored);
                         }
                     }
 
@@ -2015,10 +2015,10 @@ namespace PIPE_Valve_Console_Client
             if(GUILayout.Button($"Grab {Versionofupdate} files?"))
             {
                    
-                    FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.dll", (int)FileTypeByNum.Update);
-                    FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.pdb", (int)FileTypeByNum.Update);
-                    FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.dll", (int)FileTypeByNum.Update);
-                    FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.pdb", (int)FileTypeByNum.Update);
+                    FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.dll");
+                    FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.pdb");
+                    FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.dll");
+                    FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.pdb");
             }
 
             }

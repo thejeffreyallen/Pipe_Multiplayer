@@ -233,7 +233,7 @@ namespace PIPE_Valve_Console_Client
             FileSyncing.CheckForMap(Currentmap, _username);
             for (int i = 0; i < Gear.RiderTextures.Count; i++)
             {
-                if (!FileSyncing.CheckForFile(1, Gear.RiderTextures[i].Nameoftexture))
+                if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture))
                 {
                     FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture,_id);
                 }
@@ -241,7 +241,7 @@ namespace PIPE_Valve_Console_Client
 
             if(currentmodel != "Daryien")
             {
-              if (!FileSyncing.CheckForFile((int)FileTypeByNum.PlayerModel, currentmodel))
+              if (!FileSyncing.CheckForFile(currentmodel))
               {
                 FileSyncing.AddToRequestable(3,currentmodel, _id);
               }
@@ -329,7 +329,7 @@ namespace PIPE_Valve_Console_Client
 
             // failed to find object, inform user what package is missing and clean up, resolve with server
             InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to find {_netobj.NameofObject} from {_netobj.NameOfFile} for {Players[_netobj.OwnerID].username}", (int)MessageColourByNum.Server, 0));
-            if (!FileSyncing.CheckForFile((int)FileTypeByNum.ParkAsset, _netobj.NameOfFile))
+            if (!FileSyncing.CheckForFile(_netobj.NameOfFile))
             {
                 FileSyncing.AddToRequestable(5, _netobj.NameOfFile, _netobj.ObjectID,_netobj.OwnerID);
             }
@@ -541,9 +541,17 @@ namespace PIPE_Valve_Console_Client
         public static Texture2D GetTexture(int filetype, string name)
         {
             Texture2D image = new Texture2D(2,2);
-            byte[] file = File.ReadAllBytes(FileSyncing.DirectoryByFileType[filetype] + name);
-           ImageConversion.LoadImage(image,file);
-            image.name = name;
+
+            foreach(FileInfo _file in new DirectoryInfo(Rootdir).GetFiles(name, SearchOption.AllDirectories))
+            {
+                if(_file.Name == name)
+                {
+                   byte[] file = File.ReadAllBytes(_file.FullName);
+                   ImageConversion.LoadImage(image,file);
+                   image.name = name;
+
+                }
+            }
 
 
 

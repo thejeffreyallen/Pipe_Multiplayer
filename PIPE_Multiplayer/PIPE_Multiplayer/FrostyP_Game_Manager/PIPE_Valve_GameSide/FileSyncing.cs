@@ -17,27 +17,11 @@ namespace PIPE_Valve_Console_Client
        
         public static List<SendReceiveIndex> IncomingIndexes = new List<SendReceiveIndex>();
         public static List<SendReceiveIndex> OutGoingIndexes = new List<SendReceiveIndex>();
-
         public static List<Waitingrequest> WaitingRequests = new List<Waitingrequest>();
-        public static Dictionary<int, string> DirectoryByFileType = new Dictionary<int, string>();
         
 
-        public static void LoadData()
-        {
-            DirectoryByFileType = new Dictionary<int, string>
-            {
-                {1,GameManager.TexturesDir},
-                {2,GameManager.MapsDir },
-                {3,GameManager.PlayerModelsDir },
-                {4,GameManager.GarageDir },
-                {5,GameManager.ParkAssetsDir },
-                {6,GameManager.UpdateDir },
-            };
-        }
 
-
-
-        public static void RequestFileFromServer(string FileName, int FileType)
+        public static void RequestFileFromServer(string FileName)
         {
             if(FileName.ToLower() == "e" | FileName == "" | FileName == " ")
             {
@@ -61,7 +45,7 @@ namespace PIPE_Valve_Console_Client
                 
             }
 
-            ClientSend.RequestFile(FileName, FileType, PacketsIalreadyHave);
+            ClientSend.RequestFile(FileName, PacketsIalreadyHave);
 
             bool found = false;
             foreach (SendReceiveIndex sr in IncomingIndexes)
@@ -85,7 +69,7 @@ namespace PIPE_Valve_Console_Client
 
             if (!found)
             {
-                IncomingIndexes.Add(new SendReceiveIndex(FileName, FileType,PacketsIalreadyHave));
+                IncomingIndexes.Add(new SendReceiveIndex(FileName,PacketsIalreadyHave));
 
             }
 
@@ -106,24 +90,18 @@ namespace PIPE_Valve_Console_Client
             {
                 // directories to search
                 List<DirectoryInfo> Tosearch = new List<DirectoryInfo>();
-                Tosearch.Add(new DirectoryInfo(DirectoryByFileType[(int)index.Filetype]));
                
-                foreach (DirectoryInfo di in new DirectoryInfo(DirectoryByFileType[(int)index.Filetype]).GetDirectories())
-                {
-                    Tosearch.Add(di);
-                }
 
 
                 // search for file
-                foreach (DirectoryInfo _di in Tosearch)
+                foreach (FileInfo _di in new DirectoryInfo(Application.dataPath).GetFiles(index.NameOfFile,SearchOption.AllDirectories))
                 {
-                    foreach (FileInfo fi in _di.GetFiles())
-                    {
-                        if (fi.Name.ToLower() == index.NameOfFile.ToLower())
+                   
+                        if (_di.Name.ToLower() == index.NameOfFile.ToLower())
                         {
-                            _file = fi;
+                            _file = _di;
                         }
-                    }
+                    
                 }
 
 
@@ -133,12 +111,6 @@ namespace PIPE_Valve_Console_Client
                     return;
                 }
                
-
-                if (index.Filetype == 0)
-                {
-                    return;
-                }
-
 
 
                 // Populate SendReceiveIndex with Data it needs
@@ -190,7 +162,7 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, int _filetype, long Totalbytes)
+        public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, int _filetype, long Totalbytes, string path)
         {
 
             // if no Temp file exists create one 
@@ -243,12 +215,16 @@ namespace PIPE_Valve_Console_Client
             // Do Save or just update temp file
             if (InIndex.PacketNumbersStored.Count == InIndex.TotalPacketsinFile)
             {
+                int indexer = path.IndexOf("Game Data");
+                string mypath = path.Remove(0, indexer + 10);
+                mypath = mypath.Insert(0, Application.dataPath + "/");
 
+                Debug.Log(mypath);
                
-                if (!Directory.Exists(DirectoryByFileType[_filetype])) Directory.CreateDirectory(DirectoryByFileType[_filetype]);
-                File.Move(GameManager.TempDir + name, DirectoryByFileType[_filetype] + InIndex.NameOfFile);
+                if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
+                File.Move(GameManager.TempDir + name, mypath + InIndex.NameOfFile);
                 File.Delete(GameManager.TempDir + name + ".temp");
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {name} to {DirectoryByFileType[_filetype]}", (int)MessageColourByNum.System, 1));
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {name} to {mypath}", (int)MessageColourByNum.System, 1));
 
                 IncomingIndexes.Remove(InIndex);
                
@@ -256,7 +232,7 @@ namespace PIPE_Valve_Console_Client
 
                
 
-                 ClientSend.FileStatus(name, _filetype,(int)FileStatus.Received);
+                 ClientSend.FileStatus(name,(int)FileStatus.Received);
                 
                  if(_filetype == 6)
                  {
@@ -270,16 +246,18 @@ namespace PIPE_Valve_Console_Client
                     List<Waitingrequest> todelete = new List<Waitingrequest>();
                     foreach(Waitingrequest r in WaitingRequests)
                     {
-
-                        if(GameManager.Players.TryGetValue(r.player,out RemotePlayer player))
-                        {
-                            todelete.Add(r);
-                           
-                        }
-
+                        
                        
                         if(r.Nameofasset == name)
                         {
+
+
+                            if(!GameManager.Players.TryGetValue(r.player, out RemotePlayer player))
+                            {
+                                return;
+                            }
+
+
                             if(r.filetype == (int)FileTypeByNum.Texture)
                             {
                             GameManager.Players[r.player].UpdateDaryien();
@@ -342,7 +320,10 @@ namespace PIPE_Valve_Console_Client
                                 
                             }
 
-
+                            if(r.filetype == (int)FileTypeByNum.Mesh)
+                            {
+                                player.UpdateBMX();
+                            }
 
 
 
@@ -412,17 +393,17 @@ namespace PIPE_Valve_Console_Client
                    
                 }
                 InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"{user} is at {name} that you dont have, request left in syncwindow", (int)MessageColourByNum.System, 1));
-                IncomingIndexes.Add(new SendReceiveIndex(name, (int)FileTypeByNum.Map));
+                IncomingIndexes.Add(new SendReceiveIndex(name));
             }
 
 
         }
 
 
-        public static bool CheckForFile(int Filetype, string nameoffile)
+        public static bool CheckForFile(string nameoffile)
         {
             
-            FileInfo[] info = new DirectoryInfo(DirectoryByFileType[Filetype]).GetFiles();
+            FileInfo[] info = new DirectoryInfo(Application.dataPath).GetFiles(nameoffile, SearchOption.AllDirectories);
             for (int i = 0; i < info.Length; i++)
             {
                 if(info[i].Name.ToLower() == nameoffile.ToLower())
@@ -496,19 +477,19 @@ namespace PIPE_Valve_Console_Client
         public string NameofFile;
         public int segment_count;
         public int this_segment_num;
-        public int FileType;
         public long ByteCount;
+        public string path;
 
 
 
-        public FileSegment(byte[] _seg, string _name, int _segcount, int _thissegno, int _filetype, long _bytecount)
+        public FileSegment(byte[] _seg, string _name, int _segcount, int _thissegno, long _bytecount, string _path)
         {
             segment = _seg;
             NameofFile = _name;
             segment_count = _segcount;
             this_segment_num = _thissegno;
-            FileType = _filetype;
             ByteCount = _bytecount;
+            path = _path;
         }
 
     }
@@ -545,7 +526,6 @@ namespace PIPE_Valve_Console_Client
     {
         public List<int> PacketNumbersStored = new List<int>();
         public string NameOfFile;
-        public int Filetype;
         public int TotalPacketsinFile;
         public FileInfo Fileinfo;
         public bool IsSending;
@@ -553,23 +533,20 @@ namespace PIPE_Valve_Console_Client
         public long ByteLength;
 
 
-        public SendReceiveIndex(string _filename, int _filetype, int _totalpackets)
+        public SendReceiveIndex(string _filename, int _totalpackets)
         {
             NameOfFile = _filename;
-            Filetype = _filetype;
             TotalPacketsinFile = _totalpackets;
         }
 
-        public SendReceiveIndex(string _filename, int _filetype, List<int> packetsnumbersowned)
+        public SendReceiveIndex(string _filename, List<int> packetsnumbersowned)
         {
             NameOfFile = _filename;
-            Filetype = _filetype;
             PacketNumbersStored = packetsnumbersowned;
         }
-        public SendReceiveIndex(string _filename, int _filetype)
+        public SendReceiveIndex(string _filename)
         {
             NameOfFile = _filename;
-            Filetype = _filetype;
         }
 
 

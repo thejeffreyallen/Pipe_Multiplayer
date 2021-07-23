@@ -99,11 +99,11 @@ namespace PIPE_Valve_Online_Server
                     Console.WriteLine("Checking Server has RiderModel and Map");
                     if(Ridermodel != "Daryien")
                     {
-                     ServerData.FileCheckAndRequest(Ridermodel, _from, (int)FileType.PlayerModel);
+                     ServerData.FileCheckAndRequest(Ridermodel, _from);
                     }
                     if(CurrentLevel != "Unknown" && CurrentLevel != "" && CurrentLevel != " " && !CurrentLevel.ToLower().Contains("pipe"))
                     {
-                        ServerData.FileCheckAndRequest(CurrentLevel,_from,(int)FileType.Map);
+                        ServerData.FileCheckAndRequest(CurrentLevel,_from);
                     }
 
 
@@ -162,7 +162,10 @@ namespace PIPE_Valve_Online_Server
                 int bytecount = _packet.ReadInt();
                 byte[] bytes = _packet.ReadBytes(bytecount);
 
+                SaveList glist = new SaveList();
+                   glist = ServerData.DeserialiseGarage(bytes);
 
+               
 
 
 
@@ -235,13 +238,27 @@ namespace PIPE_Valve_Online_Server
                
                 for (int i = 0; i < RiderTexnames.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(RiderTexnames[i].Nameoftexture, _from, 1);
+                    ServerData.FileCheckAndRequest(RiderTexnames[i].Nameoftexture, _from);
                 }
                 for (int i = 0; i < player.PlayerObjects.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(player.PlayerObjects[i].NameOfFile, _from, (int)FileType.ParkAsset);
+                    ServerData.FileCheckAndRequest(player.PlayerObjects[i].NameOfFile, _from);
                 }
-               
+
+                if(glist != null && glist.partMeshes != null)
+                {
+
+                foreach (PartMesh mesh in glist.partMeshes)
+                {
+                    if (mesh.isCustom)
+                    {
+                        ServerData.FileCheckAndRequest(mesh.fileName, _from);
+                    }
+                }
+                }
+
+
+
                 Console.WriteLine("Done");
 
 
@@ -317,7 +334,6 @@ namespace PIPE_Valve_Online_Server
         public static void PlayerRequestedFile(uint _from, Packet _packet)
         {
             // read data
-            int Filetype = _packet.ReadInt();
             string name = _packet.ReadString();
             int Listcount = _packet.ReadInt();
             List<int> Packetsowned = new List<int>();
@@ -354,7 +370,7 @@ namespace PIPE_Valve_Online_Server
                 }
 
             // if not, try to find and send
-            ServerData.FileCheckAndSend(name,Filetype,Packetsowned,_from);
+            ServerData.FileCheckAndSend(name,Packetsowned,_from);
 
         }
 
@@ -370,18 +386,17 @@ namespace PIPE_Valve_Online_Server
             int segmentno = _packet.ReadInt();
             int bytecount = _packet.ReadInt();
             byte[] bytes = _packet.ReadBytes(bytecount);
-            int _Filetype = _packet.ReadInt();
             long Totalbytes = _packet.ReadLong();
+            string path = _packet.ReadString();
 
           
-            ServerData.FileSaver(bytes, name,segmentscount,segmentno, _from, _Filetype, Totalbytes);
+            ServerData.FileSaver(bytes, name,segmentscount,segmentno, _from, Totalbytes,path);
 
         }
 
         public static void FileStatus(uint _from, Packet _packet)
         {
             string name = _packet.ReadString();
-            int filetype = _packet.ReadInt();
             int Status = _packet.ReadInt();
 
             
@@ -409,7 +424,7 @@ namespace PIPE_Valve_Online_Server
                 Server.Players[_from].MapName = name;
                 ServerSend.SendMapName(_from,name);
                 Console.WriteLine($"{Server.Players[_from].Username} went to {name}");
-                ServerData.FileCheckAndRequest(name, _from, (int)FileType.Map);
+                ServerData.FileCheckAndRequest(name, _from);
             }
             catch(Exception x)
             {
@@ -506,7 +521,7 @@ namespace PIPE_Valve_Online_Server
 
                 for (int i = 0; i < RidersTextures.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(RidersTextures[i].Nameoftexture, _from, 1);
+                    ServerData.FileCheckAndRequest(RidersTextures[i].Nameoftexture, _from);
                 }
 
 
@@ -521,6 +536,22 @@ namespace PIPE_Valve_Online_Server
                 int bytecount = _packet.ReadInt();
                 byte[] bytes = _packet.ReadBytes(bytecount);
                 player.Gear.Garagesave = bytes;
+
+                SaveList glist = new SaveList();
+                glist = ServerData.DeserialiseGarage(bytes);
+
+                if (glist != null && glist.partMeshes != null)
+                {
+
+                    foreach (PartMesh mesh in glist.partMeshes)
+                    {
+                        if (mesh.isCustom)
+                        {
+                            ServerData.FileCheckAndRequest(mesh.fileName, _from);
+                        }
+                    }
+                }
+
 
             }
 
@@ -718,7 +749,7 @@ namespace PIPE_Valve_Online_Server
                 }
                 Console.WriteLine($"{Server.Players[_ownerID].Username} spawned a {NameofGO}, objectID: {ObjectID}");
 
-                ServerData.FileCheckAndRequest(NameofFile, _ownerID, (int)FileType.ParkAsset);
+                ServerData.FileCheckAndRequest(NameofFile, _ownerID);
                 
 
             }

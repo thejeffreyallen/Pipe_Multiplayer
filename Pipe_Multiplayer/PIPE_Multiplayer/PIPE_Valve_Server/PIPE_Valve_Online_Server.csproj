@@ -54,6 +54,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
     <Reference Include="Valve">
       <HintPath>E:\Valve\bin\Debug\Valve.dll</HintPath>
     </Reference>
@@ -63,6 +69,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="FileSyncServer.cs" />
     <Compile Include="GameLogic.cs" />
+    <Compile Include="SaveList.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

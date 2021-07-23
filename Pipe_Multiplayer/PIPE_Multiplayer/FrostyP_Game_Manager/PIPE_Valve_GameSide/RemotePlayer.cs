@@ -266,11 +266,6 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
-        /// <summary>
-        /// Couple Ridertransforms array with transforms of ridermodel and bike, setup colliders, Rigidbodies, grab BikeLoadout script of bike, then set MasterActive to True
-        /// </summary>
-        /// <returns></returns>
         private bool RiderSetup()
         {
 
@@ -388,11 +383,6 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-
-
-        /// <summary>
-        /// Called by FixedUpdate if MasterActive is true, Updates transforms to latest received by my Master player
-        /// </summary>
         public void MoveRider()
         {
             if(RiderModel != null)
@@ -468,9 +458,6 @@ namespace PIPE_Valve_Console_Client
             }
            
         }
-
-
-
 
 
         public void ChangeCollideStatus(bool value)
@@ -572,7 +559,7 @@ namespace PIPE_Valve_Console_Client
                    foreach (TextureInfo t in Gear.RiderTextures)
                    {
                        
-                        if (FileSyncing.CheckForFile(1, t.Nameoftexture))
+                        if (FileSyncing.CheckForFile(t.Nameoftexture))
                         {
                            
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(1, t.Nameoftexture);

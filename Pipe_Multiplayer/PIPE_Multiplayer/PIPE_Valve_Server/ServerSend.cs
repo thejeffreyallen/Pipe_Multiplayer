@@ -138,12 +138,12 @@ namespace PIPE_Valve_Online_Server
 
 
        
-        public static void RequestFile(uint Clientid, string name, int _filetype, List<int> _packetsihave)
+        public static void RequestFile(uint Clientid, string name, List<int> _packetsihave)
         {
             // send request to client
             using(Packet _packet = new Packet((int)ServerPacket.RequestFile))
             {
-                _packet.Write(_filetype);
+                
                 _packet.Write(name);
                 _packet.Write(_packetsihave.Count);
                 for (int i = 0; i < _packetsihave.Count; i++)
@@ -178,7 +178,7 @@ namespace PIPE_Valve_Online_Server
                 }
             }
 
-            SendReceiveIndex Index = new SendReceiveIndex(name, _filetype);
+            SendReceiveIndex Index = new SendReceiveIndex(name);
             Index.PacketNumbersStored = _packetsihave;
             Index.PlayersRequestedFrom.Add(Clientid);
             ServerData.IncomingIndexes.Add(Index);
@@ -187,12 +187,11 @@ namespace PIPE_Valve_Online_Server
 
 
        
-        public static void FileStatus(uint _player, string name, int filetype, int Status)
+        public static void FileStatus(uint _player, string name, int Status)
         {
             using (Packet _packet = new Packet((int)ServerPacket.FileStatus))
             {
                 _packet.Write(name);
-                _packet.Write(filetype);
                 _packet.Write(Status);
 
                 SendtoOne(_player,_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
@@ -491,6 +490,7 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(segment.segment);
                             _packet.Write(segment.Filetype);
                             _packet.Write(segment.Bytecount);
+                            _packet.Write(segment.path);
 
                             SendtoOne(segment.client, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                            Console.WriteLine($"Sending {segment.NameofFile} to {segment.client}: Packet {segment.this_segment_num} of {segment.segment_count}");

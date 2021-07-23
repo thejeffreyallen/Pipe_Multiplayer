@@ -274,7 +274,10 @@ public class RemoteLoadManager : MonoBehaviour
 
                     if (!File.Exists(pm.fileName))
                     {
-                        SavingManager.instance.ChangeAlertText("Error loading mesh: " + pm.fileName + " is a dependancy of this save file and could not be found. The save will continue to load, but it will load the default mesh in place of the missing custom mesh.");
+                        int lastslash = pm.fileName.LastIndexOf("/");
+                        string shortfilename = pm.fileName.Remove(0, lastslash + 1);
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Mesh, shortfilename, player.id);
+                        SavingManager.instance.ChangeAlertText($"Error loading mesh: {pm.fileName} for {player.username}. A file request has been left in Sync window");
                         if (!SavingManager.instance.infoBox.activeSelf)
                             SavingManager.instance.infoBox.SetActive(true);
                     }

@@ -146,7 +146,7 @@ namespace PIPE_Valve_Console_Client
                        _stream.Read(Packet, 0, Packet.Length);
 
                         // add to send rack
-                        FileSegment Segment = new FileSegment(Packet,sr.NameOfFile, sr.TotalPacketsinFile, PacketnoToSend, sr.Filetype,sr.ByteLength);
+                        FileSegment Segment = new FileSegment(Packet,sr.NameOfFile, sr.TotalPacketsinFile, PacketnoToSend, sr.ByteLength,sr.Fileinfo.DirectoryName + "/");
                         ClientSend.SendFileSegment(Segment);
                         AddedAPacket = true;
                         sr.PacketNumbersStored.Add(PacketnoToSend);
