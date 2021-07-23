@@ -567,8 +567,8 @@ public class RemoteLoadManager : MonoBehaviour
         BLO.SetSeatHeight(list.seatHeight);
         BLO.SetBarsAngle(list.barsAngle);
         BLO.barsApplyMod.SetFlanges(list.flanges);
-        BLO.SetGripsID(list.gripsID);
-        BLO.SetSeatCover(list.seatID);
+        BLO.SetGripsID(list.gripsID % FindObjectOfType<BarsApplyMod>().gripMats.Length);
+        BLO.SetSeatCover(list.seatID % FindObjectOfType<SeatApplyMod>().seatCovers.Length);
     }
 
     private void LoadDriveSide(RemotePlayer player, SaveList loadList)

@@ -43,15 +43,10 @@ namespace PIPE_Valve_Console_Client
         private Dictionary<string, Handler> StateHandlers;
 
 
-
-        // Use this for initialization
-        void Start()
+        void Awake()
         {
-
-           
             IncomingRiserUpdates = new List<AudioStateUpdate>();
             IncomingOneShotUpdates = new List<AudioStateUpdate>();
-
             // setup state handlers to fire approriate function for each state
             StateHandlers = new Dictionary<string, Handler>()
             {
@@ -66,8 +61,6 @@ namespace PIPE_Valve_Console_Client
                 {"Slider Sound", SliderSound},
                 
             };
-
-
             sliderpath = "event:/Character Sounds/Cloth Sliding";
             railsinglepath = "event:/Grind/rail_slide_single";
             raildoublepath = "event:/Grind/rail_slide_double";
@@ -77,6 +70,14 @@ namespace PIPE_Valve_Console_Client
             singletirepath = "event:/Tires/tire_roll";
             footbrakepath = "event:/Tires/foot_braking";
             cassettepath = "event:/Tires/cassette";
+
+        }
+
+
+        // Use this for initialization
+        void Start()
+        {
+
 
             RailSingle = FMODUnity.RuntimeManager.CreateInstance(railsinglepath);
             Tires = FMODUnity.RuntimeManager.CreateInstance(tirespath);

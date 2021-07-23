@@ -400,9 +400,9 @@ public class RemotePartMaster : MonoBehaviour
                 ints.Add(frontWheelCol);
                 ints.Add(rearWheelCol);
                 partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
-            partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
-           // partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
-           // partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
+                partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
+                //partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
+               // partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
 
         }
         catch (Exception e)
@@ -427,7 +427,7 @@ public class RemotePartMaster : MonoBehaviour
     {
         if (!partList.ContainsKey(key))
         {
-            Debug.Log("Key not found in part list at GetPart() method");
+            Debug.Log($"Key {key} not found in part list at GetPart() method");
             return null;
         }
         return partList[key];
@@ -576,7 +576,12 @@ public class RemotePartMaster : MonoBehaviour
 
     public void SetPosition(int key, Vector3 pos)
     {
+            if (partList.ContainsKey(key))
+            {
+            Debug.Log($"Set part {key}");
         GetPart(key).transform.localPosition = pos;
+
+            }
     }
 
     public void SetPartsVisible()
@@ -590,8 +595,11 @@ public class RemotePartMaster : MonoBehaviour
 
     public void SetPartVisible(int key, bool isVisible)
     {
-        GameObject obj = GetPart(key);
-        obj.SetActive(isVisible);
+            if (partList.ContainsKey(key))
+            {
+                GameObject obj = GetPart(key);
+                obj.SetActive(isVisible);
+            }
     }
 
     public bool GetPartVisibe(int key)
@@ -619,8 +627,11 @@ public class RemotePartMaster : MonoBehaviour
 
     public void SetScale(int key, Vector3 scale)
     {
-        GameObject obj = GetPart(key);
-        obj.transform.localScale = scale;
+            if (partList.ContainsKey(key))
+            {
+                GameObject obj = GetPart(key);
+                obj.transform.localScale = scale;
+            }
     }
 
     public void DuplicatePart()
