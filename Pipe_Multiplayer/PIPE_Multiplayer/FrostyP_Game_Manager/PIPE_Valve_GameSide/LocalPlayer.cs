@@ -43,9 +43,9 @@ namespace PIPE_Valve_Console_Client
         void Awake()
         {
             instance = this;
-            Riders_Transforms = new Transform[32];
+            Riders_Transforms = new Transform[34];
             riderPositions = new Vector3[32];
-            riderRotations = new Vector3[32];
+            riderRotations = new Vector3[34];
 
         }
 
@@ -122,6 +122,10 @@ namespace PIPE_Valve_Console_Client
             Riders_Transforms[29] = Bmx_Root.transform.FindDeepChild("BMX:Wheel 1");
             Riders_Transforms[30] = Bmx_Root.transform.FindDeepChild("BMX:LeftPedal_Joint");
             Riders_Transforms[31] = Bmx_Root.transform.FindDeepChild("BMX:RightPedal_Joint");
+
+
+            Riders_Transforms[32] = DaryienOriginal.transform.FindDeepChild("mixamorig:LeftHandIndex2");
+            Riders_Transforms[33] = DaryienOriginal.transform.FindDeepChild("mixamorig:RightHandIndex2");
             return true;
         }
 
@@ -187,9 +191,10 @@ namespace PIPE_Valve_Console_Client
                     riderPositions[i] = Riders_Transforms[i].localPosition;
                     riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
-
+            riderRotations[32] = Riders_Transforms[32].localEulerAngles;
+            riderRotations[33] = Riders_Transforms[33].localEulerAngles;
            
-           ClientSend.SendMyTransforms(Riders_Transforms.Length, riderPositions, riderRotations, DateTime.Now.ToFileTimeUtc());
+           ClientSend.SendMyTransforms(riderPositions, riderRotations, DateTime.Now.ToFileTimeUtc());
            
         }
 
@@ -248,6 +253,10 @@ namespace PIPE_Valve_Console_Client
                 Riders_Transforms[31] = Bmx_Root.transform.FindDeepChild("BMX:RightPedal_Joint");
 
 
+                Riders_Transforms[32] = DaryienOriginal.transform.FindDeepChild("mixamorig:LeftHandIndex2");
+                Riders_Transforms[33] = DaryienOriginal.transform.FindDeepChild("mixamorig:RightHandIndex2");
+
+
             }
             else
             {
@@ -294,6 +303,10 @@ namespace PIPE_Valve_Console_Client
                         Riders_Transforms[29] = Bmx_Root.transform.FindDeepChild("BMX:Wheel 1");
                         Riders_Transforms[30] = Bmx_Root.transform.FindDeepChild("BMX:LeftPedal_Joint");
                         Riders_Transforms[31] = Bmx_Root.transform.FindDeepChild("BMX:RightPedal_Joint");
+
+
+                        Riders_Transforms[32] = ActiveModel.transform.FindDeepChild("mixamorig:LeftHandIndex2");
+                        Riders_Transforms[33] = ActiveModel.transform.FindDeepChild("mixamorig:RightHandIndex2");
 
 
                         IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();

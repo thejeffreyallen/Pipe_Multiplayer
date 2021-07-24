@@ -65,6 +65,40 @@ public class RemoteLoadManager : MonoBehaviour
             foreach (PartTexture p in loadList.partTextures)
             {
                 Debug.Log("Loading Texture: " + p.url);
+
+                // locally stored
+                if (p.url.ToLower().Contains("frostypgamemanager"))
+                {
+                    int lastslash = p.url.LastIndexOf("/");
+                    string name = p.url.Remove(0, lastslash + 1);
+
+
+                    if (FileSyncing.CheckForFile(name))
+                    {
+                        Texture2D tex = GameManager.GetTexture(name);
+
+
+                        if (!p.metallic && !p.normal)
+                            TexHelper(player, tex, null, p.partNum, "_MainTex", "", p.url);
+                        else if (p.normal)
+                            TexHelper(player, ConvertToNormalMap(tex), null, p.partNum, "_BumpMap", "_NORMALMAP", p.url);
+                        else
+                            TexHelper(player, tex, null, p.partNum, "_MetallicGlossMap", "_METALLICGLOSSMAP", p.url);
+                    }
+                    else
+                    {
+                        // waitingrequest
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, name, player.id);
+
+
+
+                    }
+
+                   
+                }
+                else
+                {
+
                 if (!p.url.Equals("") && !p.url.Equals("."))
                 {
                     if (!p.metallic && !p.normal)
@@ -83,6 +117,11 @@ public class RemoteLoadManager : MonoBehaviour
                     else
                         TextureManager.instance.RemoveMetallic(p.partNum);
                 }
+
+                }
+
+
+
             }
         }
         catch (Exception e)
@@ -90,6 +129,7 @@ public class RemoteLoadManager : MonoBehaviour
             Debug.Log("An error occured when loading textures. " + e.Message + " : " + e.StackTrace);
         }
     }
+
 
     public void SetTexture(RemotePlayer player, int partNum, string url)
     {
@@ -276,7 +316,7 @@ public class RemoteLoadManager : MonoBehaviour
                     {
                         int lastslash = pm.fileName.LastIndexOf("/");
                         string shortfilename = pm.fileName.Remove(0, lastslash + 1);
-                        FileSyncing.AddToRequestable((int)FileTypeByNum.Mesh, shortfilename, player.id);
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, shortfilename, player.id);
                         SavingManager.instance.ChangeAlertText($"Error loading mesh: {pm.fileName} for {player.username}. A file request has been left in Sync window");
                         if (!SavingManager.instance.infoBox.activeSelf)
                             SavingManager.instance.infoBox.SetActive(true);

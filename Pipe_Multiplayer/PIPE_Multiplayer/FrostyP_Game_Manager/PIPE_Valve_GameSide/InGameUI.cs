@@ -296,7 +296,7 @@ namespace PIPE_Valve_Console_Client
                  {(int)FileTypeByNum.Map,"Map" },
                  {(int)FileTypeByNum.PlayerModel,"Player Model" },
                  {(int)FileTypeByNum.ParkAsset,"Park Asset" },
-                 {(int)FileTypeByNum.Mesh,"Garage mesh" },
+                 {(int)FileTypeByNum.Garage,"Garage mesh" },
 
             };
            

@@ -451,6 +451,8 @@ namespace FrostyP_Game_Manager
             MyRidersTrans[21] = _RiderModel.transform.FindDeepChild("mixamorig:Neck").transform;
             MyRidersTrans[22] = _RiderModel.transform.FindDeepChild("mixamorig:Head").transform;
 
+            MyRidersTrans[32] = _RiderModel.transform.FindDeepChild("mixamorig:LeftHandIndex2").transform;
+            MyRidersTrans[33] = _RiderModel.transform.FindDeepChild("mixamorig:RightHandIndex2").transform;
 
 
 
@@ -519,6 +521,10 @@ namespace FrostyP_Game_Manager
             }
             else
             {
+                
+                try
+                {
+
                 if(_time < 0.020f)
                 {
                     _time = _time + Time.deltaTime;
@@ -552,10 +558,13 @@ namespace FrostyP_Game_Manager
                             Currentrotations[i] = LocalPlayer.instance.Riders_Transforms[i].localEulerAngles;
                         }
 
+                        Currentrotations[32] = LocalPlayer.instance.Riders_Transforms[32].localEulerAngles;
+                        Currentrotations[33] = LocalPlayer.instance.Riders_Transforms[33].localEulerAngles;
+
 
                         ReplayPosition pos = new ReplayPosition();
                         pos.Positions = new Vector3[32];
-                        pos.Rotations = new Vector3[32];
+                        pos.Rotations = new Vector3[34];
                         Array.Copy(Currentpositions, pos.Positions, Currentpositions.Length);
                         Array.Copy(Currentrotations, pos.Rotations, Currentrotations.Length);
                         MyPlayersPoisitions.Add(pos);
@@ -572,12 +581,12 @@ namespace FrostyP_Game_Manager
 
                             if (player.ReplayPostions.Count > 1600)
                             {
-                                player.ReplayPostions.RemoveRange(0, player.ReplayPostions.Count - 1600);
+                                player.ReplayPostions.RemoveRange(0, player.ReplayPostions.Count + 1 - 1600);
                             }
                             else
                             {
                                 Vector3[] pos = new Vector3[32];
-                                Vector3[] rot = new Vector3[32];
+                                Vector3[] rot = new Vector3[34];
 
                                 pos[0] = player.Riders_Transforms[0].position;
                                 rot[0] = player.Riders_Transforms[0].eulerAngles;
@@ -595,8 +604,11 @@ namespace FrostyP_Game_Manager
                                     pos[i] = player.Riders_Transforms[i].localPosition;
                                     rot[i] = player.Riders_Transforms[i].localEulerAngles;
                                 }
+                                    
+                                rot[32] = player.Riders_Transforms[32].localEulerAngles;
+                                rot[33] = player.Riders_Transforms[33].localEulerAngles;
 
-                                player.ReplayPostions.Add(new IncomingTransformUpdate(pos, rot));
+                                    player.ReplayPostions.Add(new IncomingTransformUpdate(pos, rot));
 
 
                             }
@@ -610,6 +622,13 @@ namespace FrostyP_Game_Manager
 
                     _time = 0;
                 }
+
+                }
+                catch (Exception x)
+                {
+                    Debug.Log($"Replay Update error: {x}");
+                }
+                
             }
         }
         void FixedUpdate()
@@ -718,26 +737,26 @@ namespace FrostyP_Game_Manager
             ReplayCam.SetActive(false);
             DontDestroyOnLoad(ReplayCam);
 
-            MyRidersTrans = new Transform[32];
+            MyRidersTrans = new Transform[34];
             Currentpositions = new Vector3[32];
-            Currentrotations = new Vector3[32];
+            Currentrotations = new Vector3[34];
            
             Tracking = true;
 
         }
         void OnGUI()
         {
-            GUI.skin = InGameUI.instance.skin;
             if (ReplayOpen)
             {
+              GUI.skin = InGameUI.instance.skin;
                 MainWindow();
-               
-            }
-
             if (OpenCamSettings)
             {
                 CameraSettings.instance.CameraSettingsShow();
             }
+               
+            }
+
 
 
         }

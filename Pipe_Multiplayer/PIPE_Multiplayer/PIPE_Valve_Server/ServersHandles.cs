@@ -161,10 +161,14 @@ namespace PIPE_Valve_Online_Server
 
                 int bytecount = _packet.ReadInt();
                 byte[] bytes = _packet.ReadBytes(bytecount);
-
+                Console.WriteLine($"Garage Save bytes: {bytes.Length}");
                 SaveList glist = new SaveList();
                    glist = ServerData.DeserialiseGarage(bytes);
 
+                if(glist == null)
+                {
+                    Console.WriteLine("Fail to cast garage save: Receive all parts");
+                }
                
 
 
@@ -255,6 +259,20 @@ namespace PIPE_Valve_Online_Server
                         ServerData.FileCheckAndRequest(mesh.fileName, _from);
                     }
                 }
+                }
+
+                if(glist != null && glist.partTextures != null)
+                {
+                    foreach(PartTexture tex in glist.partTextures)
+                    {
+                        if (tex.url.ToLower().Contains("frostypmanager"))
+                        {
+                            int lastslash = tex.url.LastIndexOf("/");
+
+                            string name = tex.url.Remove(0, lastslash + 1);
+                            ServerData.FileCheckAndRequest(name, _from);
+                        }
+                    }
                 }
 
 
@@ -551,6 +569,22 @@ namespace PIPE_Valve_Online_Server
                         }
                     }
                 }
+
+                if (glist != null && glist.partTextures != null)
+                {
+                    foreach (PartTexture tex in glist.partTextures)
+                    {
+                        if (tex.url.ToLower().Contains("frostypmanager"))
+                        {
+                            int lastslash = tex.url.LastIndexOf("/");
+
+                            string name = tex.url.Remove(0, lastslash + 1);
+                            ServerData.FileCheckAndRequest(name, _from);
+                        }
+                    }
+                }
+
+
 
 
             }

@@ -60,7 +60,7 @@ namespace PIPE_Valve_Console_Client
         void Awake()
         {
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
-            Riders_Transforms = new Transform[32];
+            Riders_Transforms = new Transform[34];
            
            
             IncomingTransformUpdates = new List<IncomingTransformUpdate>();
@@ -186,14 +186,14 @@ namespace PIPE_Valve_Console_Client
                 IncomingTransformUpdates.Clear();
             }
 
-
-           
-            MoveRider();
-            
                 if (CheckThresholds())
                 {     
                   IncomingTransformUpdates.RemoveAt(0);
                 }
+
+           
+            MoveRider();
+            
             
             
             if(_playerframerate > 0 && _playerframerate < 120)
@@ -212,29 +212,7 @@ namespace PIPE_Valve_Console_Client
         bool CheckThresholds()
         {
             bool value = false;
-
-
             value = Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < 0.1f;
-           // value = Vector3.Distance(Riders_Transforms[0].eulerAngles, IncomingTransformUpdates[0].Rotations[0]) < 0.1f;
-            value = Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23]) < 0.1f;
-            // value = Vector3.Distance(Riders_Transforms[23].eulerAngles, IncomingTransformUpdates[0].Rotations[23]) < 0.1f;
-
-            /*
-            for (int i = 1; i < 23; i++)
-            {
-                value = Vector3.Distance(Riders_Transforms[i].localPosition,IncomingTransformUpdates[0].Positions[i]) < 0.1f;
-                value = Vector3.Distance(Riders_Transforms[i].localEulerAngles,IncomingTransformUpdates[0].Rotations[i]) < 0.1f;
-            }
-            for (int i = 24; i < 32; i++)
-            {
-                value = Vector3.Distance(Riders_Transforms[i].localPosition, IncomingTransformUpdates[0].Positions[i]) < 0.1f;
-                value = Vector3.Distance(Riders_Transforms[i].localEulerAngles, IncomingTransformUpdates[0].Rotations[i]) < 0.1f;
-            }
-
-            */
-
-            value = IncomingTransformUpdates.Count > 1;
-
             return value;
         }
 
@@ -308,6 +286,8 @@ namespace PIPE_Valve_Console_Client
                 Riders_Transforms[30] = BMX.transform.FindDeepChild("BMX:LeftPedal_Joint");
                 Riders_Transforms[31] = BMX.transform.FindDeepChild("BMX:RightPedal_Joint");
 
+                Riders_Transforms[32] = RiderModel.transform.FindDeepChild("mixamorig:LeftHandIndex2");
+                Riders_Transforms[33] = RiderModel.transform.FindDeepChild("mixamorig:RightHandIndex2");
 
 
 
@@ -444,7 +424,15 @@ namespace PIPE_Valve_Console_Client
                         Riders_Transforms[i].localRotation = Quaternion.RotateTowards(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i]), Quaternion.Angle(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i])) / timespan / (1 / Time.deltaTime));
                         }
 
-                LastPing = InGameUI.instance.Ping;
+
+                        // fingers
+                        Riders_Transforms[32].localRotation = Quaternion.RotateTowards(Riders_Transforms[32].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[32]), Quaternion.Angle(Riders_Transforms[32].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[32])) / timespan / (1 / Time.deltaTime));
+                        Riders_Transforms[33].localRotation = Quaternion.RotateTowards(Riders_Transforms[33].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[33]), Quaternion.Angle(Riders_Transforms[33].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[33])) / timespan / (1 / Time.deltaTime));
+
+
+
+
+                        LastPing = InGameUI.instance.Ping;
                 }
 
 
@@ -562,7 +550,7 @@ namespace PIPE_Valve_Console_Client
                         if (FileSyncing.CheckForFile(t.Nameoftexture))
                         {
                            
-                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(1, t.Nameoftexture);
+                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(t.Nameoftexture);
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].color = Color.white;
                         }
                         else

@@ -136,7 +136,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        public static void SendMyTransforms(int TransformCount, Vector3[] positions, Vector3[] rotations, long _TimeStamp)
+        public static void SendMyTransforms(Vector3[] positions, Vector3[] rotations, long _TimeStamp)
         {
 
             using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
@@ -177,6 +177,14 @@ namespace PIPE_Valve_Console_Client
 
 
                 }
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].z * Rotmult))));
+
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].z * Rotmult))));
+
 
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
 

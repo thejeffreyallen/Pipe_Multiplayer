@@ -320,7 +320,7 @@ namespace PIPE_Valve_Console_Client
                                 
                             }
 
-                            if(r.filetype == (int)FileTypeByNum.Mesh)
+                            if(r.filetype == (int)FileTypeByNum.Garage)
                             {
                                 player.UpdateBMX();
                             }
@@ -559,7 +559,7 @@ namespace PIPE_Valve_Console_Client
         Texture = 1,
         Map = 2,
         PlayerModel = 3,
-        Mesh = 4,
+        Garage = 4,
         ParkAsset = 5,
         Update = 6,
     }

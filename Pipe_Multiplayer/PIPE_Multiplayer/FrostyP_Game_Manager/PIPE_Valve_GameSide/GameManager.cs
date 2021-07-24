@@ -180,7 +180,7 @@ namespace PIPE_Valve_Console_Client
         {
           foreach(RemotePlayer r in Players.Values)
           {
-           r.ChangePlayerVisibilty(r.CurrentMap == mylevel.ToLower());
+                r.ChangePlayerVisibilty(r.CurrentMap.ToLower() == mylevel.ToLower());
           }
             
         }
@@ -188,7 +188,7 @@ namespace PIPE_Valve_Console_Client
         {
             if(Players.TryGetValue(from,out RemotePlayer player))
             {
-                player.ChangePlayerVisibilty(Riderslevel == MycurrentLevel);
+                player.ChangePlayerVisibilty(Riderslevel.ToLower() == MycurrentLevel.ToLower());
             }
         }
 
@@ -538,7 +538,7 @@ namespace PIPE_Valve_Console_Client
             Debug.Log("Garage Setup complete");
         }
 
-        public static Texture2D GetTexture(int filetype, string name)
+        public static Texture2D GetTexture(string name)
         {
             Texture2D image = new Texture2D(2,2);
 

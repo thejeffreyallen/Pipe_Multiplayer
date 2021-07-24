@@ -475,7 +475,7 @@ namespace PIPE_Valve_Console_Client
 
                     // positions to be filled
                 Vector3[] Positions = new Vector3[32];
-                Vector3[] Rotations = new Vector3[32];
+                Vector3[] Rotations = new Vector3[34];
 
 
                     // Players machine timestamp
@@ -578,11 +578,12 @@ namespace PIPE_Valve_Console_Client
 
                 }
 
+                    Rotations[32] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort())/DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot);
+                    Rotations[33] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot);
 
 
-
-                try
-                {
+                    try
+                    {
                         if(GameManager.Players[FromId] != null)
                         {
                         if (GameManager.Players[FromId].MasterActive)
@@ -596,12 +597,12 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                }
-                catch (System.Exception x)
-                {
+                    }
+                    catch (System.Exception x)
+                    {
                     Debug.Log($"Position received for unready player {FromId}" + x);
 
-                }
+                    }
 
             }
 
