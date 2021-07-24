@@ -10,6 +10,5 @@ namespace PIPE_Valve_Console_Client
     {
         public List<int> PacketNumbersStored = new List<int>();
         public long ByteLengthOfFile;
-        public int FileType;
     }
 }

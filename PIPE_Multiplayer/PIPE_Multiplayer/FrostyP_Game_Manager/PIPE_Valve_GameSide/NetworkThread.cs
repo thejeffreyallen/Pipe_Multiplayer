@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using UnityEngine;
 
 namespace PIPE_Valve_Console_Client
 {
@@ -34,18 +35,19 @@ namespace PIPE_Valve_Console_Client
                 // only add one each time
                 bool AddedAPacket = false;
 
-
+                try
+                {
                 // find the first index that IsSending
                 foreach (SendReceiveIndex sr in FileSyncing.OutGoingIndexes)
                 {
+                    if (sr.IsSending && !AddedAPacket)
+                    {
+
                     if(sr.PacketNumbersStored.Count == sr.TotalPacketsinFile && sr.TotalPacketsinFile !=0)
                     {
                         // done
                         sr.IsSending = false;
                     }
-
-                    if (sr.IsSending && !AddedAPacket)
-                    {
 
                         byte[] Packet = null;
                         FileStream _stream = sr.Fileinfo.OpenRead();
@@ -162,6 +164,15 @@ namespace PIPE_Valve_Console_Client
 
                 }
 
+                }
+
+                catch (Exception x )
+                {
+                    SendToUnityThread.instance.ExecuteOnMainThread(() =>
+                    {
+                        Debug.Log("Network thread Filesync issue: " + x);   
+                    });
+                }
 
             }
 

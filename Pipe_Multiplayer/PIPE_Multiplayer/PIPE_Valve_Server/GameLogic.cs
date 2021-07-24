@@ -111,8 +111,9 @@ namespace PIPE_Valve_Online_Server
                     _stream.Seek(PostoStartAt, SeekOrigin.Begin);
                     _stream.Read(Packet, 0, Packet.Length);
 
+                    Console.WriteLine(Index.Fileinfo.FullName);
                     // add to send rack
-                    FileSegment Segment = new FileSegment(Packet, Index.NameOfFile, Index.TotalPacketsinFile, PacketnoToSend,Index.PlayerTosendTo, Index.Filetype, Index.ByteLength, Index.Fileinfo.DirectoryName + "/");
+                    FileSegment Segment = new FileSegment(Packet, Index.NameOfFile, Index.TotalPacketsinFile, PacketnoToSend,Index.PlayerTosendTo, Index.Filetype, Index.ByteLength, Index.Fileinfo.DirectoryName);
                     ServerSend.SendFileSegment(Segment);
                     AddedAPacket = true;
                     Index.PacketNumbersStored.Add(PacketnoToSend);

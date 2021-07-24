@@ -155,13 +155,13 @@ namespace PIPE_Valve_Online_Server
             SendReceiveIndex NewSend = new SendReceiveIndex(FileName,(int)PacketCount);
             NewSend.ByteLength = length;
             NewSend.PlayerTosendTo = _from;
-            NewSend.isSending = true;
             NewSend.Fileinfo = _fileinfo;
+            NewSend.isSending = true;
 
             Stream.Close();
 
             OutgoingIndexes.Add(NewSend);
-            Console.WriteLine($"Sending {FileName} to {_from}");
+           
 
         }
 
@@ -332,7 +332,7 @@ namespace PIPE_Valve_Online_Server
             }
             catch (System.Exception e)
             {
-               
+                Console.WriteLine(e.Message + " : " + e.StackTrace);
                 return null;
             }
 
@@ -357,7 +357,7 @@ namespace PIPE_Valve_Online_Server
             public uint client;
             public int Filetype;
             public int senttimes;
-            public long Bytecount;
+            public long FileByteCount;
             public string path;
             
         
@@ -370,7 +370,7 @@ namespace PIPE_Valve_Online_Server
                 this_segment_num = _thissegno;
                 client = _player;
                 Filetype = _filetype;
-                Bytecount = _bytecount;
+                FileByteCount = _bytecount;
                 path = _path;
             }
 

@@ -488,8 +488,7 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(segment.segment_count);
                             _packet.Write(segment.segment.Length);
                             _packet.Write(segment.segment);
-                            _packet.Write(segment.Filetype);
-                            _packet.Write(segment.Bytecount);
+                            _packet.Write(segment.FileByteCount);
                             _packet.Write(segment.path);
 
                             SendtoOne(segment.client, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);

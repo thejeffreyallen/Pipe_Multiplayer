@@ -211,8 +211,6 @@ namespace PIPE_Valve_Console_Client
             }
             
 
-
-
                     GameObject NewRider = GameObject.Instantiate(Prefab);
                     DontDestroyOnLoad(NewRider);
                     RemotePlayer r = NewRider.GetComponent<RemotePlayer>();

@@ -193,11 +193,10 @@ namespace PIPE_Valve_Console_Client
             int segmentscount = _packet.ReadInt();
             int bytecount = _packet.ReadInt();
             byte[] bytes = _packet.ReadBytes(bytecount);
-            int Filetype = _packet.ReadInt();
-            long Bytecount = _packet.ReadLong();
+            long FileBytecount = _packet.ReadLong();
             string path = _packet.ReadString();
 
-            FileSyncing.FileReceive(bytes, name, segmentscount, segmentno, Filetype, bytecount, path);
+            FileSyncing.FileReceive(bytes, name, segmentscount, segmentno, FileBytecount, path);
         }
 
         public static void FileStatus(Packet _packet)

@@ -10,6 +10,8 @@ using System.Collections;
 
 namespace PIPE_Valve_Online_Server
 {
+
+    // not used yet, would be for setting up seperate connection, pairing with rider connection then doing file sends across it
     class FileSyncServer
     {
 

@@ -97,89 +97,11 @@ public class RemotePartMaster : MonoBehaviour
 
        
    
-    void Awake()
+    public void InitPartList(GameObject bmx)
     {
-        origTrans = new Dictionary<int, TransformData>();
-    }
+            origTrans = new Dictionary<int, TransformData>();
 
-    public void AccessoriesSetup()
-    {
-        accFront = new GameObject("FrontAccessory");
-        accFront.AddComponent<MeshFilter>();
-        accFront.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
-        accFront.AddComponent<MeshRenderer>();
-        accFront.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
-        accFront = Instantiate(accFront, GetPart(frontSpokes).transform);
-
-        accRear = new GameObject("RearAccessory");
-        accRear.AddComponent<MeshFilter>();
-        accRear.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
-        accRear.AddComponent<MeshRenderer>();
-        accRear.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
-        accRear = Instantiate(accRear, GetPart(rearSpokes).transform);
-
-        barAccessory = new GameObject("barAccessory");
-        barAccessory.AddComponent<MeshFilter>();
-        barAccessory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
-        barAccessory.AddComponent<MeshRenderer>();
-        barAccessory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        barAccessory = Instantiate(barAccessory, GetPart(bars).transform);
-
-        frameAccesory = new GameObject("frameAccesory");
-        frameAccesory.AddComponent<MeshFilter>();
-        frameAccesory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
-        frameAccesory.AddComponent<MeshRenderer>();
-        frameAccesory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        frameAccesory = Instantiate(frameAccesory, GetPart(frame).transform);
-
-        frontHubGuard = new GameObject("frontHubGuard");
-        frontHubGuard.AddComponent<MeshFilter>();
-        frontHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
-        frontHubGuard.AddComponent<MeshRenderer>();
-        frontHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        frontHubGuard = Instantiate(frontHubGuard, GetPart(frontPegs).transform);
-
-        rearHubGuard = new GameObject("rearHubGuard");
-        rearHubGuard.AddComponent<MeshFilter>();
-        rearHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
-        rearHubGuard.AddComponent<MeshRenderer>();
-        rearHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
-        rearHubGuard = Instantiate(rearHubGuard, GetPart(rearPegs).transform);
-
-
-       
-        partList.Add(frontAcc, accFront);
-        partList.Add(rearAcc, accRear);
-        partList.Add(barAcc, barAccessory);
-        partList.Add(frameAcc, frameAccesory);
-        partList.Add(frontHubG, frontHubGuard);
-        partList.Add(rearHubG, rearHubGuard);
-
-        SetMaterial(forks, MaterialManager.instance.defaultMat);
-        SetMaterial(rightCrank, MaterialManager.instance.defaultMat);
-        SetMaterial(leftCrank, MaterialManager.instance.defaultMat);
-
-        foreach (KeyValuePair<int, GameObject> pair in partList)
-        {
-            origTrans.Add(pair.Key, new TransformData(pair.Value.transform));
-        }
-    }
-
-
-        public void SetMaterialData(int key, float glossiness, float glossMapScale)
-        {
-            Material material = GetMaterial(key);
-            if (material == null)
-                return;
-            material.SetFloat("_Glossiness", glossiness);
-            material.SetFloat("_GlossMapScale", glossMapScale);
-            SetMaterial(key, material);
-        }
-
-
-        public void InitPartList(GameObject bmx)
-        {
-        string errorPath = Application.dataPath + "//GarageContent/GarageErrorLog.txt";
+            string errorPath = Application.dataPath + "//GarageContent/GarageErrorLog.txt";
         List<int> ints = new List<int>();
         try
         {
@@ -401,8 +323,7 @@ public class RemotePartMaster : MonoBehaviour
                 ints.Add(rearWheelCol);
                 partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
                 partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
-                //partList.Add(frontWheelCol, bmx.transform.FindDeepChild("FrontWheelCollider").gameObject);
-               // partList.Add(rearWheelCol, bmx.transform.FindDeepChild("BackWheelCollider").gameObject);
+                
 
         }
         catch (Exception e)
@@ -416,6 +337,82 @@ public class RemotePartMaster : MonoBehaviour
             Debug.Log("Error while initializing part list in PartMaster.cs. " + e.Message + e.StackTrace);
         }
         isDone = true;
+    }
+   
+    public void AccessoriesSetup()
+    {
+           
+
+            accFront = new GameObject("FrontAccessory");
+        accFront.AddComponent<MeshFilter>();
+        accFront.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
+        accFront.AddComponent<MeshRenderer>();
+        accFront.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
+        accFront = Instantiate(accFront, GetPart(frontSpokes).transform);
+
+        accRear = new GameObject("RearAccessory");
+        accRear.AddComponent<MeshFilter>();
+        accRear.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
+        accRear.AddComponent<MeshRenderer>();
+        accRear.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
+        accRear = Instantiate(accRear, GetPart(rearSpokes).transform);
+
+        barAccessory = new GameObject("barAccessory");
+        barAccessory.AddComponent<MeshFilter>();
+        barAccessory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
+        barAccessory.AddComponent<MeshRenderer>();
+        barAccessory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
+        barAccessory = Instantiate(barAccessory, GetPart(bars).transform);
+
+        frameAccesory = new GameObject("frameAccesory");
+        frameAccesory.AddComponent<MeshFilter>();
+        frameAccesory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
+        frameAccesory.AddComponent<MeshRenderer>();
+        frameAccesory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
+        frameAccesory = Instantiate(frameAccesory, GetPart(frame).transform);
+
+        frontHubGuard = new GameObject("frontHubGuard");
+        frontHubGuard.AddComponent<MeshFilter>();
+        frontHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
+        frontHubGuard.AddComponent<MeshRenderer>();
+        frontHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
+        frontHubGuard = Instantiate(frontHubGuard, GetPart(frontPegs).transform);
+
+        rearHubGuard = new GameObject("rearHubGuard");
+        rearHubGuard.AddComponent<MeshFilter>();
+        rearHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
+        rearHubGuard.AddComponent<MeshRenderer>();
+        rearHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
+        rearHubGuard = Instantiate(rearHubGuard, GetPart(rearPegs).transform);
+
+
+       
+        partList.Add(frontAcc, accFront);
+        partList.Add(rearAcc, accRear);
+        partList.Add(barAcc, barAccessory);
+        partList.Add(frameAcc, frameAccesory);
+        partList.Add(frontHubG, frontHubGuard);
+        partList.Add(rearHubG, rearHubGuard);
+
+        SetMaterial(forks, MaterialManager.instance.defaultMat);
+        SetMaterial(rightCrank, MaterialManager.instance.defaultMat);
+        SetMaterial(leftCrank, MaterialManager.instance.defaultMat);
+
+        foreach (KeyValuePair<int, GameObject> pair in partList)
+        {
+            origTrans.Add(pair.Key, new TransformData(pair.Value.transform));
+        }
+    }
+
+
+    public void SetMaterialData(int key, float glossiness, float glossMapScale)
+        {
+            Material material = GetMaterial(key);
+            if (material == null)
+                return;
+            material.SetFloat("_Glossiness", glossiness);
+            material.SetFloat("_GlossMapScale", glossMapScale);
+            SetMaterial(key, material);
         }
 
     /// <summary>

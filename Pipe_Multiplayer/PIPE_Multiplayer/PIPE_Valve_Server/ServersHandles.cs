@@ -256,7 +256,9 @@ namespace PIPE_Valve_Online_Server
                 {
                     if (mesh.isCustom)
                     {
-                        ServerData.FileCheckAndRequest(mesh.fileName, _from);
+                            int indexer = mesh.fileName.LastIndexOf("/");
+                            string shortname = mesh.fileName.Remove(0, indexer + 1);
+                        ServerData.FileCheckAndRequest(shortname, _from);
                     }
                 }
                 }
@@ -574,7 +576,7 @@ namespace PIPE_Valve_Online_Server
                 {
                     foreach (PartTexture tex in glist.partTextures)
                     {
-                        if (tex.url.ToLower().Contains("frostypmanager"))
+                        if (tex.url.ToLower().Contains("frostypgamemanager"))
                         {
                             int lastslash = tex.url.LastIndexOf("/");
 
@@ -593,23 +595,23 @@ namespace PIPE_Valve_Online_Server
 
 
             // send on to others
-            using (Packet packet = new Packet((int)ServerPacket.GearUpdate))
+            using (Packet ServersPacket = new Packet((int)ServerPacket.GearUpdate))
             {
-                packet.Write(_from);
-                packet.Write(IsRiderUpdate);
+                ServersPacket.Write(_from);
+                ServersPacket.Write(IsRiderUpdate);
 
                 if (IsRiderUpdate)
                 {
                     // pass on rider info
 
-                    packet.Write(player.Gear.RiderTextures.Count);
+                    ServersPacket.Write(player.Gear.RiderTextures.Count);
                     if (player.Gear.RiderTextures.Count > 0)
                     {
                         for (int i = 0; i < player.Gear.RiderTextures.Count; i++)
                         {
-                            packet.Write(player.Gear.RiderTextures[i].Nameoftexture);
-                            packet.Write(player.Gear.RiderTextures[i].NameofparentGameObject);
-                            packet.Write(player.Gear.RiderTextures[i].Matnum);
+                            ServersPacket.Write(player.Gear.RiderTextures[i].Nameoftexture);
+                            ServersPacket.Write(player.Gear.RiderTextures[i].NameofparentGameObject);
+                            ServersPacket.Write(player.Gear.RiderTextures[i].Matnum);
                         }
 
                     }
@@ -619,15 +621,15 @@ namespace PIPE_Valve_Online_Server
                 }
                 else
                 {
-                    packet.Write(player.Gear.Garagesave.Length);
-                    packet.Write(player.Gear.Garagesave);
+                    ServersPacket.Write(player.Gear.Garagesave.Length);
+                    ServersPacket.Write(player.Gear.Garagesave);
                   
                 }
 
 
 
 
-                ServerSend.SendGearUpdate(_from, packet);
+                ServerSend.SendGearUpdate(_from, ServersPacket);
 
             }
             Console.WriteLine("Gear Update stored and relayed, player:" + player.Username);

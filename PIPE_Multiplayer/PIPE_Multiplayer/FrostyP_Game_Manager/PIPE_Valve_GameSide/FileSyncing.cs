@@ -162,7 +162,7 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, int _filetype, long Totalbytes, string path)
+        public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, long Totalbytes, string path)
         {
 
             // if no Temp file exists create one 
@@ -174,7 +174,6 @@ namespace PIPE_Valve_Console_Client
 
                 
                 Temp.ByteLengthOfFile = Totalbytes;
-                Temp.FileType = _filetype;
 
                 bf.Serialize(stream, Temp);
                 stream.Close();
@@ -210,19 +209,20 @@ namespace PIPE_Valve_Console_Client
 
 
                  InIndex.PacketNumbersStored.Add(SegNo);
-
+                 Debug.Log($"Received packet {SegNo} of {segmentcount} for {name}");
 
             // Do Save or just update temp file
             if (InIndex.PacketNumbersStored.Count == InIndex.TotalPacketsinFile)
             {
+                Debug.Log($"Saving {name}");
                 int indexer = path.IndexOf("Game Data");
                 string mypath = path.Remove(0, indexer + 10);
                 mypath = mypath.Insert(0, Application.dataPath + "/");
+                
 
-                Debug.Log(mypath);
                
                 if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
-                File.Move(GameManager.TempDir + name, mypath + InIndex.NameOfFile);
+                File.Move(GameManager.TempDir + name, mypath + "/" + InIndex.NameOfFile);
                 File.Delete(GameManager.TempDir + name + ".temp");
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {name} to {mypath}", (int)MessageColourByNum.System, 1));
 
@@ -234,10 +234,7 @@ namespace PIPE_Valve_Console_Client
 
                  ClientSend.FileStatus(name,(int)FileStatus.Received);
                 
-                 if(_filetype == 6)
-                 {
-                    InGameUI.instance.UpdateDownloaded = true;
-                 }
+                 
 
 
                 // if any waiting request exist, have them process again now the file exists

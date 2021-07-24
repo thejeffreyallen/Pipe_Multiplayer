@@ -43,6 +43,9 @@
     <ApplicationIcon>pipeservericon_cDx_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BikeWorkshopMenu">
+      <HintPath>..\..\..\..\TheGarage\Garage\BikeMenu UnityProj\BikeMenu UnityProj\obj\Release\BikeWorkshopMenu.dll</HintPath>
+    </Reference>
     <Reference Include="PIPE Server GUI">
       <HintPath>PIPE Server GUI\bin\Release\PIPE Server GUI.dll</HintPath>
     </Reference>
@@ -69,7 +72,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="FileSyncServer.cs" />
     <Compile Include="GameLogic.cs" />
-    <Compile Include="SaveList.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
