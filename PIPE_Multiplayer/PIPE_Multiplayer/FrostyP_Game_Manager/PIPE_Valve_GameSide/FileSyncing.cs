@@ -350,7 +350,6 @@ namespace PIPE_Valve_Console_Client
                 stream = File.OpenWrite(GameManager.TempDir + name + ".temp");
                 bf.Serialize(stream, _temp);
                 stream.Close();
-
             }
 
 

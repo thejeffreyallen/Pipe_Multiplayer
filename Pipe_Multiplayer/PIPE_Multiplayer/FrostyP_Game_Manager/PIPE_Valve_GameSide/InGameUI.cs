@@ -1666,7 +1666,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         if (GUILayout.Button($" {InIndex.NameOfFile}: {InIndex.PacketNumbersStored.Count} Packets Stored"))
                         {
-                            ClientSend.RequestFile(InIndex.NameOfFile, InIndex.PacketNumbersStored);
+                        FileSyncing.RequestFileFromServer(InIndex.NameOfFile);
                         }
                     }
 

@@ -153,6 +153,7 @@ namespace PIPE_Valve_Online_Server
 
 
             SendReceiveIndex NewSend = new SendReceiveIndex(FileName,(int)PacketCount);
+            NewSend.PacketNumbersStored = _packetsowned;
             NewSend.ByteLength = length;
             NewSend.PlayerTosendTo = _from;
             NewSend.Fileinfo = _fileinfo;

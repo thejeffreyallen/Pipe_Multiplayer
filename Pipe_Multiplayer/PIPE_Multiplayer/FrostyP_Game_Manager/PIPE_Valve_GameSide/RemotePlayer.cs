@@ -212,7 +212,10 @@ namespace PIPE_Valve_Console_Client
         bool CheckThresholds()
         {
             bool value = false;
-            value = Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < 0.1f;
+            if (IncomingTransformUpdates.Count > 0)
+            {
+            value = Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < 0.01f;
+            }
             return value;
         }
 
