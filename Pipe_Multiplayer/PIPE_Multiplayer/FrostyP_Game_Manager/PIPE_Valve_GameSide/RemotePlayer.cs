@@ -178,29 +178,36 @@ namespace PIPE_Valve_Console_Client
                 SetupSuccess = RiderSetup();
             }
 
-           
-           
-            // keeps players up to date if stall occurs for level change, player spawn etc, list typically runs with 1-2 new positions at any one time
-            if (IncomingTransformUpdates.Count > 60)
-            {
-                IncomingTransformUpdates.Clear();
-            }
 
-                if (CheckThresholds())
-                {     
-                  IncomingTransformUpdates.RemoveAt(0);
+                try
+                {
+
+                  // keeps players up to date if stall occurs for level change, player spawn etc, list typically runs with 1-2 new positions at any one time
+                  if (IncomingTransformUpdates.Count > 60)
+                  {
+                    IncomingTransformUpdates.Clear();
+                  }
+
+                  if (CheckThresholds())
+                  {     
+                   IncomingTransformUpdates.RemoveAt(0);
+                  }
+
+           
+                  MoveRider();
+            
+            
+            
+                  if(_playerframerate > 0 && _playerframerate < 120)
+                  {
+                   PlayersFrameRate = _playerframerate;
+                  }
+
                 }
-
-           
-            MoveRider();
-            
-            
-            
-            if(_playerframerate > 0 && _playerframerate < 120)
-            {
-                PlayersFrameRate = _playerframerate;
-            }
-
+                catch (Exception x )
+                {
+                    Debug.Log($"Rider LateUpdate Error" + x);
+                }
 
 
 

@@ -582,13 +582,13 @@ public class RemoteLoadManager : MonoBehaviour
 
     public void SetMaterialHelper(RemotePartMaster pm, int key, int mat, int index = 0)
     {
-        MaterialManager matman = FindObjectOfType<MaterialManager>();
+        
         if (mat == 0)
-            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = matman.defaultMat;
+            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = MaterialManager.instance.defaultMat;
         else if (mat == 9)
             return;
         else
-            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = matman.customMats[mat - 1];
+            pm.GetPart(key).GetComponent<MeshRenderer>().materials[index] = MaterialManager.instance.customMats[mat - 1];
     }
 
 
