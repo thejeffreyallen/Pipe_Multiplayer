@@ -168,7 +168,7 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Main loop ran by FrostyPGameManagers OnGUI(), this classes OnGUI() frees functions from boundaries of FrostyPGamemangers OnGUI() to allow images to display out the way of the manager
         /// </summary>
-        public void RiderSetupShow()
+        public void Show()
 		{
 
 			

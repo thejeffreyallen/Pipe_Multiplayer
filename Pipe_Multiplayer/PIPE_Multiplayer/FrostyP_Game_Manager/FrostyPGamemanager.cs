@@ -12,10 +12,10 @@ namespace FrostyP_Game_Manager
 	public class FrostyPGamemanager : MonoBehaviour
 	{
 		public static FrostyPGamemanager instance;
-		
-        bool consoleon = false;
-		
-		
+
+		public GUIStyle style;
+
+
 		// Menu Controller
 		delegate void Menu();
 		Dictionary<int, Menu> Menus = new Dictionary<int, Menu>();
@@ -41,7 +41,15 @@ namespace FrostyP_Game_Manager
 
 		void Start()
 		{
-			
+			style = new GUIStyle();
+			style.normal.background = InGameUI.instance.BlackTex;
+			style.alignment = TextAnchor.MiddleCenter;
+			style.normal.textColor = Color.white;
+			style.fontStyle = FontStyle.Bold;
+			style.hover.background = InGameUI.instance.GreenTex;
+			style.hover.textColor = Color.black;
+			style.onNormal.background = InGameUI.instance.RedTex;
+			style.onHover.background = InGameUI.instance.GreenTex;
 
 			if (instance == null)
 			{
@@ -55,11 +63,11 @@ namespace FrostyP_Game_Manager
 
 			Menus = new Dictionary<int, Menu>()
 			{
-				{1,CharacterModding.instance.RiderSetupShow},
+				{1,CharacterModding.instance.Show},
 				{2,Teleport.instance.Show},
-				{3,CameraSettings.instance.CameraSettingsShow},
-				{4,RiderPhysics.instance.RiderPhysicsShow},
-				{5,InGameUI.instance.OnlineShow },
+				{3,CameraSettings.instance.Show},
+				{4,RiderPhysics.instance.Show},
+				{5,InGameUI.instance.Show },
 
 			};
 
@@ -200,55 +208,42 @@ namespace FrostyP_Game_Manager
 				
 
 				GUI.skin = skin;
-
 				
+
 				GUILayout.Space(20);
 
 				GUILayout.BeginArea(new Rect(new Vector2(Screen.width/4,10),new Vector2(Screen.width/2,Screen.height/20)));
 				GUILayout.BeginHorizontal();
 				
-				GUILayout.Label($"PIPE Manager - {PIPE_Valve_Console_Client.GameNetworking.instance.VERSIONNUMBER}", Generalstyle);
+				GUILayout.Label($"PIPE Manager : {PIPE_Valve_Console_Client.GameNetworking.instance.VERSIONNUMBER}", Generalstyle);
 				GUILayout.Space(10);
-				GUILayout.Label("G to toggle Menu: L to toggle Patcha", Generalstyle);
+				GUILayout.Label("G to toggle Menu: L to toggle Patcha, B to toggle Garage", Generalstyle);
 				GUILayout.EndHorizontal();
 				GUILayout.Space(5);
 				GUILayout.BeginHorizontal();
 
-				///// CONSOLE: when its attached in FrostyPgamemanager.Main it can be toggled with this, when toggled on it records to Desktop/Your_logs, spacebar to see it recording
-				consoleon = GUILayout.Toggle(consoleon, "Debug mode");
-				if (!this.gameObject.GetComponent<Consolelog>())
-				{
-					this.gameObject.AddComponent<Consolelog>().enabled = false;
-
-				}
-				if (consoleon && this.gameObject.GetComponent<Consolelog>())
-				{
-					this.gameObject.GetComponent<Consolelog>().enabled = true;
-
-				}
-				if (!consoleon && this.gameObject.GetComponent<Consolelog>())
-				{
-					this.gameObject.GetComponent<Consolelog>().enabled = false;
-
-				}
-
+                
+                if (GUILayout.Button("Debugger", style))
+                {
+			      gameObject.GetComponent<Consolelog>().enabled = !gameObject.GetComponent<Consolelog>().enabled;
+                }
 				GUILayout.Space(5);
 				// parkbuilder tab
-				if (GUILayout.Button("Park Builder"))
+				if (GUILayout.Button("Park Builder",style))
                 {
 					GetComponent<ParkBuilder>().Open(LocalPlayer.instance.DaryienOriginal.transform.position);
 					OpenMenu = false;
                 }
 				GUILayout.Space(5);
 				// Replay mode
-				if (GUILayout.Button("Replay"))
+				if (GUILayout.Button("Replay", style))
                 {
 					ReplayMode.instance.Open();
 					OpenMenu = false;
                 }
 				GUILayout.Space(5);
 				// Rider Setup Tab
-				if (GUILayout.Button("Rider"))
+				if (GUILayout.Button("Rider", style))
 				{
 					
 					GUILayout.Space(20);
@@ -258,7 +253,7 @@ namespace FrostyP_Game_Manager
 				}
 				GUILayout.Space(5);
 				// Bmx Setup Tab
-				if (GUILayout.Button("Teleport"))
+				if (GUILayout.Button("Teleport", style))
                 {
 					
 					GUILayout.Space(20);
@@ -268,14 +263,14 @@ namespace FrostyP_Game_Manager
                 }
 				GUILayout.Space(5);
 				// camera tab
-				if (GUILayout.Button("Camera"))
+				if (GUILayout.Button("Camera", style))
                 {
 					
 					MenuShowing = 3;
                 }
 				GUILayout.Space(5);
 				// rider tab
-				if (GUILayout.Button("Physics"))
+				if (GUILayout.Button("Physics", style))
                 {
 					
 
@@ -283,7 +278,7 @@ namespace FrostyP_Game_Manager
                 }
 				GUILayout.Space(5);
 				// online tab
-				if (GUILayout.Button("Online"))
+				if (GUILayout.Button("Online", style))
                 {
 					
 					MenuShowing = 5;

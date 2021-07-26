@@ -122,7 +122,7 @@ namespace PIPE_Valve_Console_Client
                    foreach(AudioStateUpdate update in IncomingRiserUpdates)
                    {
                        // UnityEngine.Debug.Log($"Incoming audio state: {update.playstate}");
-                 StateHandlers[update.nameofriser]?.Invoke(update);
+                    StateHandlers[update.nameofriser]?.Invoke(update);
                    }
 
                     IncomingRiserUpdates.Clear();
@@ -203,7 +203,6 @@ namespace PIPE_Valve_Console_Client
                         Tires.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                        
                     }
-                   // Tires = FMODUnity.RuntimeManager.CreateInstance(tirespath);
                     Tires.set3DAttributes(Rider.transform.position.To3DAttributes());
                     Tires.setVolume(update.Volume);
                     Tires.setPitch(update.pitch);

@@ -210,7 +210,7 @@ namespace PIPE_Valve_Console_Client
 			address.SetAddress(_ip,(ushort)port);
 			ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 1048576;
+				int sendRateMax = 2048576;
 				int sendBufferSize = 40485760;
 
 
@@ -287,7 +287,7 @@ namespace PIPE_Valve_Console_Client
 				address.SetAddress(FrostyIP, (ushort)frostyport);
 				ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 1048576;
+				int sendRateMax = 2048576;
 				int sendBufferSize = 10485760;
 
 
@@ -296,8 +296,6 @@ namespace PIPE_Valve_Console_Client
 					utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
 					utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 					utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
-					//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
-					//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 				}
 
 				if (ServerThread == null && !ServerLoopIsRunning)
@@ -443,7 +441,7 @@ namespace PIPE_Valve_Console_Client
 			Socket.GetQuickConnectionStatus(ServerConnection, ref constat);
 
 			// if theres no connection, trigger full end with cleanup
-			if(constat.state == Valve.Sockets.ConnectionState.None | constat.state == Valve.Sockets.ConnectionState.ProblemDetectedLocally | constat.state == Valve.Sockets.ConnectionState.None)
+			if(constat.state == Valve.Sockets.ConnectionState.None | constat.state == Valve.Sockets.ConnectionState.ProblemDetectedLocally | constat.state == Valve.Sockets.ConnectionState.ClosedByPeer)
             {
                 if (InGameUI.instance.Connected)
                 {
@@ -456,7 +454,7 @@ namespace PIPE_Valve_Console_Client
 						FrostyPGamemanager.instance.OpenMenu = true;
 					    InGameUI.instance.Connected = false;
 						InGameUI.instance.Disconnect();
-						InGameUI.instance.Waittoend();
+						InGameUI.instance.ShutdownAfterMessageFromServer();
 					});
 				}
             }
@@ -469,6 +467,12 @@ namespace PIPE_Valve_Console_Client
 				InGameUI.instance.Ping = constat.ping;
 				InGameUI.instance.Pendingreliable = constat.pendingReliable;
 				InGameUI.instance.Pendingunreliable = constat.pendingUnreliable;
+				InGameUI.instance.Outbytespersec = constat.outBytesPerSecond;
+				InGameUI.instance.InBytespersec = constat.inBytesPerSecond;
+				InGameUI.instance.connectionstate = constat.state;
+				InGameUI.instance.connectionqualitylocal = constat.connectionQualityLocal;
+				InGameUI.instance.connectionqualityremote = constat.connectionQualityRemote;
+				
 				
             }
 

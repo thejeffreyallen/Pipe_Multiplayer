@@ -521,20 +521,19 @@ public class RemoteLoadManager : MonoBehaviour
 
     public void SetFrontTireWall(RemotePartMaster pm, int id)
     {
-        int index = (id % PartManager.instance.tireMats.Length);
+        int index = (id % PartManager.instance.tireWallMats.Length);
         Material[] mats = pm.GetMaterials(pm.frontTire);
-        mats[1] = PartManager.instance.tireMats[index];
+        mats[1] = PartManager.instance.tireWallMats[index];
         pm.SetMaterials(pm.frontTire, mats);
     }
 
     public void SetRearTireWall(RemotePartMaster pm, int id)
     {
-        int index = (id % PartManager.instance.tireMats.Length);
+        int index = (id % PartManager.instance.tireWallMats.Length);
         Material[] mats = pm.GetMaterials(pm.rearTire);
-        mats[1] = PartManager.instance.tireMats[index];
+        mats[1] = PartManager.instance.tireWallMats[index];
         pm.SetMaterials(pm.rearTire, mats);
     }
-
     private void LoadMaterials(RemotePlayer player, SaveList loadList)
     {
         try

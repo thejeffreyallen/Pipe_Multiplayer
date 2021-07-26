@@ -98,7 +98,7 @@ namespace PIPE_Valve_Console_Client
             tm.fontStyle = FontStyle.Bold;
             tm.alignment = TextAlignment.Center;
             tm.anchor = TextAnchor.MiddleCenter;
-            tm.characterSize = 0.2f;
+            tm.characterSize = 0.1f;
             tm.fontSize = 10;
             tm.text = username;
 
@@ -165,22 +165,18 @@ namespace PIPE_Valve_Console_Client
         {
             if (MasterActive)
             {
-
-            if (nameSign != null && RiderModel != null)
-            {
-			nameSign.transform.rotation = Camera.current.transform.rotation;
-
-            }
-
-           
-            if (!SetupSuccess)
-            {
-                SetupSuccess = RiderSetup();
-            }
-
-
                 try
                 {
+
+                  if (nameSign != null && RiderModel != null)
+                  {
+			       nameSign.transform.rotation = Camera.current.transform.rotation;
+                  }
+
+                  if (!SetupSuccess)
+                  {
+                   SetupSuccess = RiderSetup();
+                  }
 
                   // keeps players up to date if stall occurs for level change, player spawn etc, list typically runs with 1-2 new positions at any one time
                   if (IncomingTransformUpdates.Count > 60)
@@ -194,7 +190,7 @@ namespace PIPE_Valve_Console_Client
                   }
 
            
-                  MoveRider();
+                  InterpolateRider();
             
             
             
@@ -208,9 +204,6 @@ namespace PIPE_Valve_Console_Client
                 {
                     Debug.Log($"Rider LateUpdate Error" + x);
                 }
-
-
-
             }
 
         }
@@ -245,13 +238,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-        public void UpdateModel()
-        {
-            MasterActive = false;
-            StartCoroutine(UpdateModelAfterWait());
-
-        }
 
 
         private bool RiderSetup()
@@ -373,10 +359,9 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public void MoveRider()
+        public void InterpolateRider()
         {
-            if(RiderModel != null)
-            {
+            
             try
             {
 
@@ -427,10 +412,12 @@ namespace PIPE_Valve_Console_Client
                        // Bmx
                         Riders_Transforms[23].position = Vector3.MoveTowards(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23], (float)(Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[1].Positions[23]) / timespan / (1 / Time.deltaTime)));
                         Riders_Transforms[23].rotation = Quaternion.RotateTowards(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23]),Quaternion.Angle(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23])) / timespan / (1 / Time.deltaTime));
+                      // frmae joint
+                        Riders_Transforms[24].localPosition = Vector3.MoveTowards(Riders_Transforms[24].localPosition, IncomingTransformUpdates[0].Positions[24], (float)(Vector3.Distance(Riders_Transforms[24].position, IncomingTransformUpdates[1].Positions[24]) / timespan / (1 / Time.deltaTime)));
                         // bmx locals
                         for (int i = 24; i < 32; i++)
                         {   
-                        Riders_Transforms[i].localPosition = Vector3.MoveTowards(Riders_Transforms[i].localPosition, IncomingTransformUpdates[0].Positions[i], (float)(Vector3.Distance(Riders_Transforms[i].localPosition, IncomingTransformUpdates[1].Positions[i]) / timespan / (1 / Time.deltaTime)));
+                       // Riders_Transforms[i].localPosition = Vector3.MoveTowards(Riders_Transforms[i].localPosition, IncomingTransformUpdates[0].Positions[i], (float)(Vector3.Distance(Riders_Transforms[i].localPosition, IncomingTransformUpdates[1].Positions[i]) / timespan / (1 / Time.deltaTime)));
                         Riders_Transforms[i].localRotation = Quaternion.RotateTowards(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i]), Quaternion.Angle(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i])) / timespan / (1 / Time.deltaTime));
                         }
 
@@ -453,8 +440,8 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-            }
-           
+            
+          
         }
 
 
@@ -631,6 +618,17 @@ namespace PIPE_Valve_Console_Client
             ChangeCollideStatus(InGameUI.instance.CollisionsToggle);
 
             Debug.Log($"{username} completed setup"); MasterActive = true;
+        }
+
+
+
+
+        // called by receiving model file after failure to load
+        public void UpdateModel()
+        {
+            MasterActive = false;
+            StartCoroutine(UpdateModelAfterWait());
+
         }
 
         IEnumerator UpdateModelAfterWait()

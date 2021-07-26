@@ -33,6 +33,7 @@ public class RemotePartMaster : MonoBehaviour
     public Dictionary<int, TransformData> origTrans;
     public bool isDone = false;
 
+   
     public int frame = 0;
     public int bars = 1;
     public int forks = 2;
@@ -171,7 +172,7 @@ public class RemotePartMaster : MonoBehaviour
                     case "Right Grip":
                             ints.Add(rightGrip);
                         Transform[] tran2 = t.gameObject.GetComponentsInChildren<Transform>();
-                        if (tran2[0].gameObject.name == "Right Grip Mesh") partList.Add(rightGrip, tran2[0].gameObject);
+                        if (tran2[0].gameObject.name == "Left Grip Mesh") partList.Add(rightGrip, tran2[0].gameObject);
                         else partList.Add(rightGrip, tran2[1].gameObject);
                         break;
                     case "Forks Mesh":
@@ -485,16 +486,17 @@ public class RemotePartMaster : MonoBehaviour
     {
         if (!partList.ContainsKey(key) || partList[key].GetComponent<MeshRenderer>() == null)
         {
-            Debug.Log("Key not found in part list at SetMaterial() method");
+            Debug.Log($"Key not found in part list at SetMaterial() method for {key} and {mat.name}");
             return;
         }
         Material[] mats = partList[key].GetComponent<MeshRenderer>().materials;
         if (mats.Length > 1)
         {
-            Debug.Log("More than one material");
+            Debug.Log($"More than one material {partList[key].name}");
             mats[0] = mat;
+            
         }
-        partList[key].GetComponent<Renderer>().material = mat;
+        partList[key].GetComponent<Renderer>().materials[0] = mat;
     }
 
     /// <summary>
@@ -507,7 +509,7 @@ public class RemotePartMaster : MonoBehaviour
     {
         if (!partList.ContainsKey(key) || partList[key].GetComponent<MeshRenderer>() == null)
         {
-            Debug.Log("Key not found in part list at SetMaterial(index, key, mat) method");
+            Debug.Log($"Key not found in part list at SetMaterial({index}, {key}, {mat}) method");
             return;
         }
         partList[key].GetComponent<MeshRenderer>().materials[index] = mat;

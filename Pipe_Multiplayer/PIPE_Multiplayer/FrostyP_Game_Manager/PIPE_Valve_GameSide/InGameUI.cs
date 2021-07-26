@@ -8,6 +8,7 @@ using System;
 using FrostyP_Game_Manager;
 using UnityEngine.Rendering.PostProcessing;
 using System.Runtime.Serialization.Formatters.Binary;
+using Valve.Sockets;
 
 
 
@@ -27,6 +28,7 @@ namespace PIPE_Valve_Console_Client
         GUIStyle MessagesTextStyle = new GUIStyle();
         GUIStyle CurrentMessagestyle;
         GUIStyle PlayeroptionsStyle = new GUIStyle();
+        GUIStyle Bottompanelstyle = new GUIStyle();
 
 
         public static GUIStyle BoxStyle = new GUIStyle();
@@ -52,11 +54,14 @@ namespace PIPE_Valve_Console_Client
 
         // connection status
         public float Ping = 0;
-        public int SendBytesPersec = 0;
         public float Outbytespersec = 0;
         public float InBytespersec = 0;
         public int Pendingreliable;
         public int Pendingunreliable;
+        public ConnectionState connectionstate;
+        public float connectionqualitylocal;
+        public float connectionqualityremote;
+        string StateLabel = "Offline";
 
 
 
@@ -77,6 +82,7 @@ namespace PIPE_Valve_Console_Client
 
         // MiniGUI
         bool MiniLiveRiderstoggle;
+        Vector2 minguiscroll;
 
 
         // live riders
@@ -114,7 +120,13 @@ namespace PIPE_Valve_Console_Client
         string PlayerObjectsLabel = "Turn Objects Off";
         public bool PlayerTagsToggle = true;
         string PlayerTagsLabel = "Turn Objects Off";
+        public bool BottompanelToggle = true;
+        string BottompanelLabel = "Turn Bottom Panel Off";
+        Dictionary<int, string> connectionstatelabels = new Dictionary<int, string>();
 
+
+        // bottom panel
+        bool BottompanelOpen = true;
 
 
         // Update window
@@ -186,6 +198,20 @@ namespace PIPE_Valve_Console_Client
 
             };
 
+            connectionstatelabels = new Dictionary<int, string>()
+            {
+                {3, "Connected" },
+                {4, "Server Closed" },
+                {1, "Connecting.." },
+                {0, "Offline" },
+                {5, "Local Problem" },
+
+
+            };
+
+
+
+
 
 
 
@@ -201,7 +227,7 @@ namespace PIPE_Valve_Console_Client
 
             RedTex.Apply();
 
-            BlackTex = Texture2D.blackTexture;
+            BlackTex = new Texture2D(2, 2);
             Color[] colorarray2 = BlackTex.GetPixels();
             Color newcolor2 = new Color(0, 0, 0, 1f);
             for (var i = 0; i < colorarray2.Length; ++i)
@@ -213,7 +239,7 @@ namespace PIPE_Valve_Console_Client
 
             BlackTex.Apply();
 
-            GreyTex = Texture2D.blackTexture;
+            GreyTex = new Texture2D(2, 2);
             Color[] colorarray3 = GreyTex.GetPixels();
             Color newcolor3 = new Color(0.5f, 0.5f, 0.5f, 1);
             for (var i = 0; i < colorarray3.Length; ++i)
@@ -270,8 +296,6 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-
-
 
         private void Start()
         {
@@ -337,7 +361,6 @@ namespace PIPE_Valve_Console_Client
             SpecCamOBJ.SetActive(false);
 
         }
-
 
         void Update()
         {
@@ -422,7 +445,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         void OnGUI()
         {
 
@@ -479,9 +501,7 @@ namespace PIPE_Valve_Console_Client
 
         }
      
-
-
-        public void OnlineShow()
+        public void Show()
         {
 
             if (OfflineMenu)
@@ -498,7 +518,6 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-
         /// <summary>
         /// Master Call to connect, also turns connected to true which some data sends have as their/one of their conditions
         /// </summary>
@@ -510,19 +529,20 @@ namespace PIPE_Valve_Console_Client
           
         }
 
-
         /// <summary>
         /// Call to Shutdown, also cleans up all gamemanger data and remote riders in scene
         /// </summary>
         public void Disconnect()
         {
             Connected = false;
-            GameManager.instance.firstMap = true;
+           
             List<GameObject> objs = new List<GameObject>();
             GameNetworking.instance.DisconnectMaster();
            
             foreach (RemotePlayer r in GameManager.Players.Values)
             {
+                r.Audio.ShutdownAllSounds();
+
                 if (r.RiderModel)
                 {
                 Destroy(r.RiderModel);
@@ -562,9 +582,9 @@ namespace PIPE_Valve_Console_Client
                 }
             }
             GameManager.Players.Clear();
-           
 
-            
+
+            Resources.UnloadUnusedAssets();
            
             
             
@@ -576,11 +596,6 @@ namespace PIPE_Valve_Console_Client
 
         }
         
-
-       
-       
-    
-
        public void ClientsOfflineMenu()
         {
 
@@ -962,381 +977,17 @@ namespace PIPE_Valve_Console_Client
                     GUILayout.EndArea();
                     }
 
+            if (BottompanelOpen)
+            {
+                ShowBottomPanel();
+            }
+
+
 
         }
 
 
 
-       public void MiniGUI()
-        {
-            GUILayout.Space(10);
-            if (GUILayout.Button("return",MiniLiveRidersStyle))
-            {
-                Minigui = false;
-                OnlineMenu = true;
-                OfflineMenu = false;
-                FrostyPGamemanager.instance.OpenMenu = true;
-               
-               
-            }
-            GUILayout.Space(20);
-
-           // GUILayout.Label($"Ping: {Ping}");
-           // GUILayout.Label($"Pending rel: {Pendingreliable}");
-           // GUILayout.Label($"Pending unrel: {Pendingunreliable}");
-           // GUILayout.Label($"Out per sec:  {Outbytespersec}");
-            //GUILayout.Label($"in per sec:  {InBytespersec}");
-            //GUILayout.Label($"Bytes out/s: {SendBytesPersec}");
-
-            
-            MiniLiveRiderstoggle = GUILayout.Toggle(MiniLiveRiderstoggle, " Live Riders", MiniLiveRidersStyle);
-
-            if (MiniLiveRiderstoggle)
-            {
-               
-
-
-                GUILayout.Space(20);
-                foreach (RemotePlayer r in GameManager.Players.Values)
-                {
-                  GUIStyle Playernamestyle = new GUIStyle();
-
-                    Playernamestyle.alignment = TextAnchor.MiddleCenter;
-                    Playernamestyle.fontStyle = FontStyle.Bold;
-                    Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
-                    Playernamestyle.normal.background = TransTex;
-                    Playernamestyle.normal.textColor = r.tm.color;
-                   
-
-                    GUILayout.Label($"{r.username} is at {r.CurrentMap}",Playernamestyle);
-                }
-
-            GUILayout.Space(20);
-            }
-            GUILayout.Label("Messages:", Generalstyle);
-
-            // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-            foreach (TextMessage mess in Messages)
-            {
-                GUIStyle style = new GUIStyle();
-                if(mess.FromCode == 3)
-                {
-                    try
-                    {
-                       style.normal.textColor = GameManager.Players[mess.FromConnection].tm.color;
-                    }
-                    catch (Exception x)
-                    {
-                        style.normal.textColor = Color.black;
-                        Debug.Log($"Assign text color to player color error : {x}");
-                    }
-
-                }
-                else
-                {
-                    style.normal.textColor = MessageColour[mess.FromCode];
-                }
-                
-
-                GUILayout.Label(mess.Message, style);
-            }
-
-           
-
-        }
-
-        public void ShowRiderInfo()
-        {
-            GUI.skin = skin;
-            if(IdofRidertoshow != 0)
-            {
-                try
-                {
-                foreach(RemotePlayer r in GameManager.Players.Values)
-                {
-                    if(r.id == IdofRidertoshow)
-                    {
-                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 18), new Vector2(400, 400)));
-                        GUILayout.Label($"{r.username}", Generalstyle);
-                        GUILayout.Label($"Riding at: {r.CurrentMap}" ,Generalstyle);
-                        GUILayout.Label($"As: {r.CurrentModelName}",Generalstyle);
-                        GUILayout.Label($"Net FPS: {Mathf.RoundToInt(r.PlayersFrameRate)}",Generalstyle);
-                        GUILayout.Label($"Rider2Rider Ping: {r.R2RPing} Ms",Generalstyle);
-                            GUILayout.Space(10);
-                            r.PlayerIsVisible = GUILayout.Toggle(r.PlayerIsVisible, "Toggle Player Visibilty");
-                            if (r.PlayerIsVisible)
-                            {
-                                if (!r.RiderModel.activeInHierarchy)
-                                {
-                                    r.ChangePlayerVisibilty(true);
-                                }
-                                if (!r.BMX.activeInHierarchy)
-                                {
-                                    r.ChangePlayerVisibilty(true);
-                                }
-
-
-
-
-                            }
-                            if (!r.PlayerIsVisible)
-                            {
-                                if (r.RiderModel.activeInHierarchy)
-                                {
-                                    r.ChangePlayerVisibilty(false);
-                                }
-                                if (r.BMX.activeInHierarchy)
-                                {
-                                    r.ChangePlayerVisibilty(false);
-                                }
-
-
-
-
-                            }
-                            GUILayout.Space(10);
-                            r.PlayerCollides = GUILayout.Toggle(r.PlayerCollides, "Player Collides");
-                            r.ChangeCollideStatus(r.PlayerCollides);
-
-
-                            GUILayout.Space(10);
-                            r.PlayerTagVisible = GUILayout.Toggle(r.PlayerTagVisible, "Toggle Name Tag");
-                        if (r.PlayerTagVisible)
-                        {
-                                if (!r.tm.gameObject.activeInHierarchy)
-                                {
-                                    r.ChangePlayerTagVisible(true);
-
-                                }
-                        }
-                        if (!r.PlayerTagVisible)
-                        {
-                                if (r.tm.gameObject.activeInHierarchy)
-                                {
-                                    r.ChangePlayerTagVisible(false);
-                                }
-                        }
-
-                        if (r.Objects.Count > 0)
-                        {
-                            GUILayout.Space(10);
-                        r.PlayerObjectsVisible = GUILayout.Toggle(r.PlayerObjectsVisible, "Toggle player Objects");
-                            if (r.PlayerObjectsVisible)
-                            {
-
-                                    r.ChangeObjectsVisible(true);
-
-                                
-                            }
-                            if (!r.PlayerObjectsVisible)
-                            {
-
-                                    r.ChangeObjectsVisible(false);
-
-                                
-                            }
-
-
-                            GUILayout.Space(10);
-                            GUILayout.Label($"Objects:", Generalstyle);
-                            GUILayout.Space(10);
-                            Riderinfoscroll = GUILayout.BeginScrollView(Riderinfoscroll);
-
-                           
-                            foreach (NetGameObject n in r.Objects)
-                            {
-                                if (GUILayout.Button($"Vote off {n.NameofObject}"))
-                                {
-                                    ClientSend.VoteToRemoveObject(n.ObjectID, IdofRidertoshow);
-                                }
-                            }
-
-                            
-                            GUILayout.EndScrollView();
-                        }
-
-
-                        GUILayout.Space(10);
-                        if (GUILayout.Button("Close"))
-                        {
-                            RiderInfoMenuOpen = false;
-                        }
-                        GUILayout.EndArea();
-                    }
-
-                }
-
-                }
-                catch (Exception x)
-                {
-                    Debug.Log("Showriderinfo Error : " + x);
-                }
-              
-
-            }
-
-        }
-
-
-        public void LiveRiders()
-        {
-            try
-            {
-            LiveRiderBox = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6.5f, Screen.height/3));
-            GUI.skin = skin;
-            GUILayout.BeginArea(LiveRiderBox);
-            GUILayout.Label("Live Rider list:", Generalstyle);
-            liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
-            if (GameManager.Players.Count > 0)
-            {
-            foreach (RemotePlayer r in GameManager.Players.Values)
-            {
-                try
-                {
-                GUIStyle Playernamestyle = new GUIStyle();
-
-                Playernamestyle.alignment = TextAnchor.MiddleCenter;
-                Playernamestyle.fontStyle = FontStyle.Bold;
-                Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
-                Playernamestyle.normal.background = TransTex;
-                        try
-                        {
-                            if(r.tm != null)
-                            {
-                              Playernamestyle.normal.textColor = r.tm.color;
-
-                            }
-
-                        }
-                        catch (Exception x)
-                        {
-                            Playernamestyle.normal.textColor = Color.black;
-                        }
-                Playernamestyle.hover.textColor = Color.green;
-                Playernamestyle.hover.background = whiteTex;
-
-                if (GUILayout.Button($"{r.username}",Playernamestyle))
-                {
-                    IdofRidertoshow = r.id;
-                    RiderInfoMenuOpen = true;
-                }
-
-                }
-                catch (Exception x)
-                {
-                    Debug.Log("Live Rider issue : " + x);
-                }
-
-            }
-
-            }
-            GUILayout.EndScrollView();
-            GUILayout.EndArea();
-
-
-            }
-            catch (Exception x)
-            {
-                Debug.Log("Live Riders Show Error : " + x);
-            }
-            GUILayout.Space(50);
-        }
-
-
-        public void MessagesShow()
-        {
-            try
-            {
-                Rect _box;
-                if (MessagesToggle)
-                {
-                  _box = new Rect(new Vector2(Screen.width/3/2, Screen.height/3-40), new Vector2(Screen.width / 3 * 2, Screen.height / 3 * 2));
-                    CurrentMessagestyle = MessagesBigStyle;
-                    Messageslabel = "Minimise Messages";
-                }
-                else
-                {
-                  _box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 2), new Vector2(Screen.width / 6.5f, Screen.height / 8));
-                    CurrentMessagestyle = MessagesSmallStyle;
-                    Messageslabel = "Messages";
-                }
-
-
-
-            GUI.skin = skin;
-            GUILayout.BeginArea(_box);
-
-
-                GUILayout.BeginHorizontal();
-            MessagesToggle = GUILayout.Toggle(MessagesToggle,Messageslabel,CurrentMessagestyle);
-
-                GUILayout.Space(10);
-                if (MessagesToggle)
-                {
-                   // MessagesBigStyle.alignment = TextAnchor.MiddleCenter;
-                    try
-                    {
-                    Messagetosend = GUILayout.TextField(Messagetosend);
-
-                    }
-                    catch (UnityException x)
-                    {
-
-                    }
-                    GUILayout.Space(5);
-                    if (GUILayout.Button("Send",CurrentMessagestyle))
-                    {
-                        if (Messagetosend != null)
-                        {
-                            ClientSend.SendTextMessage(Messagetosend.ToString());
-                            Messagetosend = "";
-
-                        }
-                    }
-                    GUILayout.Space(20);
-                }
-                GUILayout.EndHorizontal();
-                GUILayout.Space(20);
-                Messagesscroll = GUILayout.BeginScrollView(Messagesscroll);
-
-            if (Messages.Count > 0)
-            {
-            foreach (TextMessage mess in Messages)
-            {
-                       
-                if (mess.FromCode == 3)
-                {
-                 
-                 GUILayout.Label(mess.Message, GameManager.Players[mess.FromConnection].style);
-                }
-                    else
-                    {
-                    GUIStyle style = new GUIStyle();
-                    style.normal.textColor = MessageColour[mess.FromCode];
-                    style.alignment = TextAnchor.MiddleCenter;
-                    style.padding = new RectOffset(10, 10, 2, 2);
-                    style.normal.background = GreyTex;
-                    GUILayout.Label(mess.Message, style);
-                    }
-
-                       
-                
-            }
-
-
-            }
-
-
-            GUILayout.EndScrollView();
-            GUILayout.EndArea();
-           
-
-            }
-            catch(Exception e)
-            {
-                Debug.Log(e);
-            }
-        }
 
 
         /// <summary>
@@ -1346,6 +997,23 @@ namespace PIPE_Valve_Console_Client
         /// <param name="message"></param>
         public void NewMessage(int _secs, TextMessage message)
         {
+            // if message is too long, add line breaks
+            if (message.Message.Length > 40)
+            {
+                char[] chars = message.Message.ToCharArray();
+                int counter = 0;
+                for (int i = 0; i < chars.Length; i++)
+                {
+                    if(counter == 40)
+                    {
+                       message.Message = message.Message.Insert(i, "\n");
+                        counter = 0;
+                    }
+                    counter++;
+                }
+            }
+
+
             StartCoroutine(MessageEnum(_secs, message));
         }
         private IEnumerator MessageEnum(int _secs, TextMessage message)
@@ -1360,7 +1028,7 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Called by Disconnectme in ClientHandle, if the server rejects us it sends a command for us to initiate the disconnect, meaning the user can receive an online message before hand saying that they have lost connection with the reason sent from server
         /// </summary>
-        public void Waittoend()
+        public void ShutdownAfterMessageFromServer()
         {
             StartCoroutine(WaitthenEnd());
         }
@@ -1583,6 +1251,373 @@ namespace PIPE_Valve_Console_Client
 
 
 
+       public void MiniGUI()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+            if (GUILayout.Button("return",MiniLiveRidersStyle))
+            {
+                Minigui = false;
+                OnlineMenu = true;
+                OfflineMenu = false;
+                FrostyPGamemanager.instance.OpenMenu = true;
+               
+               
+            }
+            GUILayout.Space(10);
+
+
+            
+            MiniLiveRiderstoggle = GUILayout.Toggle(MiniLiveRiderstoggle, " Live Riders", MiniLiveRidersStyle);
+
+            if (MiniLiveRiderstoggle)
+            {
+               
+
+
+                GUILayout.Space(20);
+                foreach (RemotePlayer r in GameManager.Players.Values)
+                {
+                 
+                    GUILayout.Label($"{r.username} is at {r.CurrentMap}",r.style);
+                }
+
+            GUILayout.Space(20);
+            }
+
+
+
+            
+
+           
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginArea(new Rect(new Vector2(20,Screen.height-(Screen.height/4)), new Vector2(Screen.width/4,Screen.height/4)));
+            minguiscroll = GUILayout.BeginScrollView(minguiscroll);
+            foreach (TextMessage mess in Messages)
+            {
+               
+                if(mess.FromCode == 3)
+                {
+                    try
+                    {
+                      GUILayout.Label(mess.Message, GameManager.Players[mess.FromConnection].style);
+                    }
+                    catch (Exception x)
+                    {
+                       
+                      Debug.Log($"Assign text style error, player left? : {x}");
+                    }
+
+                }
+                else
+                {
+                    GUIStyle style = new GUIStyle();
+                    style.normal.textColor = MessageColour[mess.FromCode];
+                    style.alignment = TextAnchor.MiddleCenter;
+                    style.padding = new RectOffset(2, 2, 2, 2);
+                    style.normal.background = GreyTex;
+                    GUILayout.Label(mess.Message, style);
+                }
+                
+
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+
+        }
+
+        public void ShowRiderInfo()
+        {
+            GUI.skin = skin;
+            if(IdofRidertoshow != 0)
+            {
+                try
+                {
+                foreach(RemotePlayer r in GameManager.Players.Values)
+                {
+                    if(r.id == IdofRidertoshow)
+                    {
+                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 17), new Vector2(400, 400)));
+                        GUILayout.Label($"{r.username}", Generalstyle);
+                        GUILayout.Label($"Riding at: {r.CurrentMap}" ,Generalstyle);
+                        GUILayout.Label($"As: {r.CurrentModelName}",Generalstyle);
+                        GUILayout.Label($"Net FPS: {Mathf.RoundToInt(r.PlayersFrameRate)}",Generalstyle);
+                        GUILayout.Label($"Rider2Rider Ping: {r.R2RPing} Ms",Generalstyle);
+                            GUILayout.Space(10);
+                            r.PlayerIsVisible = GUILayout.Toggle(r.PlayerIsVisible, "Toggle Player Visibilty",PlayeroptionsStyle);
+                            if (r.PlayerIsVisible)
+                            {
+                                if (!r.RiderModel.activeInHierarchy)
+                                {
+                                    r.ChangePlayerVisibilty(true);
+                                }
+                                if (!r.BMX.activeInHierarchy)
+                                {
+                                    r.ChangePlayerVisibilty(true);
+                                }
+
+
+
+
+                            }
+                            if (!r.PlayerIsVisible)
+                            {
+                                if (r.RiderModel.activeInHierarchy)
+                                {
+                                    r.ChangePlayerVisibilty(false);
+                                }
+                                if (r.BMX.activeInHierarchy)
+                                {
+                                    r.ChangePlayerVisibilty(false);
+                                }
+
+
+
+
+                            }
+                            GUILayout.Space(10);
+                            r.PlayerCollides = GUILayout.Toggle(r.PlayerCollides, "Player Collides", PlayeroptionsStyle);
+                            r.ChangeCollideStatus(r.PlayerCollides);
+
+
+                            GUILayout.Space(10);
+                            r.PlayerTagVisible = GUILayout.Toggle(r.PlayerTagVisible, "Toggle Name Tag", PlayeroptionsStyle);
+                        if (r.PlayerTagVisible)
+                        {
+                                if (!r.tm.gameObject.activeInHierarchy)
+                                {
+                                    r.ChangePlayerTagVisible(true);
+
+                                }
+                        }
+                        if (!r.PlayerTagVisible)
+                        {
+                                if (r.tm.gameObject.activeInHierarchy)
+                                {
+                                    r.ChangePlayerTagVisible(false);
+                                }
+                        }
+
+                        if (r.Objects.Count > 0)
+                        {
+                            GUILayout.Space(10);
+                        r.PlayerObjectsVisible = GUILayout.Toggle(r.PlayerObjectsVisible, "Toggle player Objects");
+                            if (r.PlayerObjectsVisible)
+                            {
+
+                                    r.ChangeObjectsVisible(true);
+
+                                
+                            }
+                            if (!r.PlayerObjectsVisible)
+                            {
+
+                                    r.ChangeObjectsVisible(false);
+
+                                
+                            }
+
+
+                            GUILayout.Space(10);
+                            GUILayout.Label($"Objects:", Generalstyle);
+                            GUILayout.Space(10);
+                            Riderinfoscroll = GUILayout.BeginScrollView(Riderinfoscroll);
+
+                           
+                            foreach (NetGameObject n in r.Objects)
+                            {
+                                if (GUILayout.Button($"Vote off {n.NameofObject}"))
+                                {
+                                    ClientSend.VoteToRemoveObject(n.ObjectID, IdofRidertoshow);
+                                }
+                            }
+
+                            
+                            GUILayout.EndScrollView();
+                        }
+
+
+                        GUILayout.Space(10);
+                        if (GUILayout.Button("Close"))
+                        {
+                            RiderInfoMenuOpen = false;
+                        }
+                        GUILayout.EndArea();
+                    }
+
+                }
+
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Showriderinfo Error : " + x);
+                }
+              
+
+            }
+
+        }
+
+        public void LiveRiders()
+        {
+            try
+            {
+            LiveRiderBox = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6.5f, Screen.height/3));
+            GUI.skin = skin;
+            GUILayout.BeginArea(LiveRiderBox,BoxStyle);
+            GUILayout.Label("Live Rider list:", Generalstyle);
+            liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
+            if (GameManager.Players.Count > 0)
+            {
+            foreach (RemotePlayer r in GameManager.Players.Values)
+            {
+                try
+                {
+                GUIStyle Playernamestyle = new GUIStyle();
+
+                Playernamestyle.alignment = TextAnchor.MiddleCenter;
+                Playernamestyle.fontStyle = FontStyle.Bold;
+                Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
+                Playernamestyle.normal.background = TransTex;
+                        try
+                        {
+                            if(r.tm != null)
+                            {
+                              Playernamestyle.normal.textColor = r.tm.color;
+
+                            }
+
+                        }
+                        catch (Exception x)
+                        {
+                            Playernamestyle.normal.textColor = Color.black;
+                        }
+                Playernamestyle.hover.textColor = Color.green;
+                Playernamestyle.hover.background = whiteTex;
+
+                if (GUILayout.Button($"{r.username}",Playernamestyle))
+                {
+                    IdofRidertoshow = r.id;
+                    RiderInfoMenuOpen = true;
+                }
+
+                }
+                catch (Exception x)
+                {
+                    Debug.Log("Live Rider issue : " + x);
+                }
+
+            }
+
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("Live Riders Show Error : " + x);
+            }
+            GUILayout.Space(50);
+        }
+
+        public void MessagesShow()
+        {
+            try
+            {
+                Rect _box;
+                if (MessagesToggle)
+                {
+                  _box = new Rect(new Vector2(Screen.width/3/2, Screen.height/3-40), new Vector2(Screen.width / 3 * 2, Screen.height / 3 * 2));
+                    CurrentMessagestyle = MessagesBigStyle;
+                    Messageslabel = "Minimise Messages";
+                }
+                else
+                {
+                  _box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 2), new Vector2(Screen.width / 6.5f, Screen.height / 8));
+                    CurrentMessagestyle = MessagesSmallStyle;
+                    Messageslabel = "Messages";
+                }
+
+
+
+            GUI.skin = skin;
+            GUILayout.BeginArea(_box,MessagesTextStyle);
+
+
+                GUILayout.BeginHorizontal();
+            MessagesToggle = GUILayout.Toggle(MessagesToggle,Messageslabel,CurrentMessagestyle);
+
+                GUILayout.Space(10);
+                if (MessagesToggle)
+                {
+                   // MessagesBigStyle.alignment = TextAnchor.MiddleCenter;
+                    try
+                    {
+                    Messagetosend = GUILayout.TextField(Messagetosend);
+
+                    }
+                    catch (UnityException x)
+                    {
+
+                    }
+                    GUILayout.Space(5);
+                    if (GUILayout.Button("Send",CurrentMessagestyle))
+                    {
+                        if (Messagetosend != null)
+                        {
+                            ClientSend.SendTextMessage(Messagetosend.ToString());
+                            Messagetosend = "";
+
+                        }
+                    }
+                    GUILayout.Space(20);
+                }
+                GUILayout.EndHorizontal();
+                GUILayout.Space(20);
+                Messagesscroll = GUILayout.BeginScrollView(Messagesscroll);
+
+            if (Messages.Count > 0)
+            {
+            foreach (TextMessage mess in Messages)
+            {
+                       
+                if (mess.FromCode == 3)
+                {
+                 
+                 GUILayout.Label(mess.Message, GameManager.Players[mess.FromConnection].style);
+                }
+                    else
+                    {
+                    GUIStyle style = new GUIStyle();
+                    style.normal.textColor = MessageColour[mess.FromCode];
+                    style.alignment = TextAnchor.MiddleCenter;
+                    style.padding = new RectOffset(2, 2, 2, 2);
+                    style.normal.background = GreyTex;
+                    GUILayout.Label(mess.Message, style);
+                    }
+
+                       
+                
+            }
+
+
+            }
+
+
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+           
+
+            }
+            catch(Exception e)
+            {
+                Debug.Log(e);
+            }
+        }
 
         public void ShowSyncWindow()
         {
@@ -1684,8 +1719,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-
         public void ShowPlayerOptions()
         {
             GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 8*3, Screen.height / 4), new Vector2(Screen.width / 4, Screen.height/5)), BoxStyle);
@@ -1784,12 +1817,41 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-           
+            GUILayout.Space(10);
+            // Bottom panel
+            BottompanelToggle = GUILayout.Toggle(BottompanelToggle, BottompanelLabel, PlayeroptionsStyle);
+            if (BottompanelToggle)
+            {
+                BottompanelOpen = true;
+                BottompanelLabel = "Turn off Bottom Panel";
+            }
+            else 
+            {
+                BottompanelOpen = false;
+                BottompanelLabel = "Turn on Bottom Panel";
+            }
+
             GUILayout.EndArea();
 
         }
 
+        public void ShowBottomPanel()
+        {
+            StateLabel = connectionstatelabels[(int)connectionstate];
 
+
+            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/40)), new Vector2(Screen.width - 100, Screen.height/40)),BoxStyle);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"Connection State: {StateLabel} ", Bottompanelstyle);
+            GUILayout.Label($"Ping: {Ping}",Bottompanelstyle);
+            GUILayout.Label($"Bytes out per/s: {Outbytespersec} ", Bottompanelstyle);
+            GUILayout.Label($"Bytes in per/s: {InBytespersec} ", Bottompanelstyle);
+            GUILayout.Label($"Pending Reliable: {Pendingreliable} ", Bottompanelstyle);
+            GUILayout.Label($"Pending Unreliable: {Pendingunreliable} ", Bottompanelstyle);
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+        }
 
 
         void SetupGuis()
@@ -1799,7 +1861,10 @@ namespace PIPE_Valve_Console_Client
             BoxStyle.normal.background = whiteTex;
 
 
-
+            Bottompanelstyle.fixedWidth = Screen.width / 9;
+            Bottompanelstyle.alignment = TextAnchor.MiddleCenter;
+            Bottompanelstyle.fontStyle = FontStyle.Bold;
+            Bottompanelstyle.wordWrap = true;
 
             // sync window
             SyncWindowStyle1.normal.background = GreyTex;
@@ -1835,18 +1900,14 @@ namespace PIPE_Valve_Console_Client
             MessagesBigStyle.padding = new RectOffset(0, 0, 5, 5);
             MessagesBigStyle.clipping = TextClipping.Clip;
             MessagesBigStyle.stretchWidth = false;
-
-
-
-          
-
+            MessagesBigStyle.wordWrap = true;
 
 
             MessagesSmallStyle.normal.background = whiteTex;
             MessagesSmallStyle.alignment = TextAnchor.UpperCenter;
             MessagesSmallStyle.hover.background = GreenTex;
 
-
+            MessagesTextStyle.wordWrap = true;
 
 
 
@@ -1870,12 +1931,12 @@ namespace PIPE_Valve_Console_Client
 
 
             // general
-            Generalstyle.normal.background = BlackTex;
+            Generalstyle.normal.background = GreyTex;
             Generalstyle.normal.textColor = Color.black;
 
             Generalstyle.alignment = TextAnchor.MiddleCenter;
             Generalstyle.fontStyle = FontStyle.Bold;
-            Generalstyle.hover.background = RedTex;
+            Generalstyle.hover.background = GreenTex;
             Generalstyle.onHover.background = RedTex;
 
             
@@ -1975,7 +2036,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
+        // Server refused your connection but didnt disconnect you and sent Update message, giving option to download before disconnecting
         public void UpdateAvailable(float version)
         {
             FrostyPGamemanager.instance.OpenMenu = false;

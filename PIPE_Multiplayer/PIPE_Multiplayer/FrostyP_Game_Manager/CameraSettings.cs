@@ -107,7 +107,7 @@ namespace FrostyP_Game_Manager
 
 		}
 
-		public void CameraSettingsShow()
+		public void Show()
 		{
 
 			

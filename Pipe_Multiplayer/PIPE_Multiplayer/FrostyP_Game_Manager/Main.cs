@@ -98,6 +98,7 @@ namespace FrostyP_Game_Manager
 
 
             GamemanOBJ = new GameObject("FrostyGameManager");
+            GamemanOBJ.AddComponent<Consolelog>().enabled = false;
             GamemanOBJ.AddComponent<InGameUI>();
             GamemanOBJ.AddComponent<ParkBuilder>();
             GamemanOBJ.AddComponent<ReplayMode>();

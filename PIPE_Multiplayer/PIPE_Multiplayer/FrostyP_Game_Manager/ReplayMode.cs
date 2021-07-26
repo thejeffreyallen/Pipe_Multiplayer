@@ -657,6 +657,8 @@ namespace FrostyP_Game_Manager
                     TriggerScrollPlayMode();
                 }
 
+
+
                 // my position update
                 if (MyPlayersPoisitions.Count > CurrentShowingPosition)
                 {
@@ -677,13 +679,12 @@ namespace FrostyP_Game_Manager
 
                     }
 
+                    MyRidersTrans[32].localRotation = Quaternion.Lerp(MyRidersTrans[32].localRotation, Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition].Rotations[32]), Playspeed);
+                    MyRidersTrans[33].localRotation = Quaternion.Lerp(MyRidersTrans[33].localRotation, Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition].Rotations[33]), Playspeed);
 
-                   
+
 
                 }
-
-
-
 
                 // online players position update
                 foreach (RemotePlayer player in GameManager.Players.Values)
@@ -708,6 +709,10 @@ namespace FrostyP_Game_Manager
                             player.Riders_Transforms[i].localPosition = Vector3.Lerp(player.Riders_Transforms[i].localPosition, player.ReplayPostions[CurrentShowingPosition].Positions[i], Playspeed);
                             player.Riders_Transforms[i].localRotation = Quaternion.Lerp(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[i]), Playspeed);
                         }
+
+                        player.Riders_Transforms[32].localRotation = Quaternion.Lerp(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[32]), Playspeed);
+                        player.Riders_Transforms[33].localRotation = Quaternion.Lerp(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[33]), Playspeed);
+
 
                     }
 
@@ -752,7 +757,7 @@ namespace FrostyP_Game_Manager
                 MainWindow();
             if (OpenCamSettings)
             {
-                CameraSettings.instance.CameraSettingsShow();
+                CameraSettings.instance.Show();
             }
                
             }

@@ -228,7 +228,7 @@ namespace PIPE_Valve_Console_Client
             InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(msg + ": disconnecting", 4, 0));
             InGameUI.instance.Disconnect();
             InGameUI.instance.Connected = false;
-            InGameUI.instance.Waittoend();
+            InGameUI.instance.ShutdownAfterMessageFromServer();
         }
 
         public static void PlayerDisconnected(Packet _packet)
@@ -531,14 +531,16 @@ namespace PIPE_Valve_Console_Client
                 Positions[23] = ClientPacket.ReadVector3();
                 Rotations[23] = ClientPacket.ReadVector3();
 
+                Positions[24] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos);
+
                     // bike locals
                 for (int i = 24; i < 32; i++)
                 {
-                    SystemHalf.Half x = ClientPacket.ReadShort();
-                    SystemHalf.Half y = ClientPacket.ReadShort();
-                    SystemHalf.Half z = ClientPacket.ReadShort();
+                   // SystemHalf.Half x = ClientPacket.ReadShort();
+                  //  SystemHalf.Half y = ClientPacket.ReadShort();
+                  //  SystemHalf.Half z = ClientPacket.ReadShort();
 
-
+                        /*
                         if (SystemHalf.HalfHelper.IsInfinity(x) | SystemHalf.HalfHelper.IsNaN(x))
                         {
                             x = 0;
@@ -551,9 +553,9 @@ namespace PIPE_Valve_Console_Client
                         {
                             z = 0;
                         }
+                        */
 
-
-                        Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / DividePos, SystemHalf.HalfHelper.HalfToSingle(y) / DividePos, SystemHalf.HalfHelper.HalfToSingle(z) / DividePos);
+                       // Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / DividePos, SystemHalf.HalfHelper.HalfToSingle(y) / DividePos, SystemHalf.HalfHelper.HalfToSingle(z) / DividePos);
                        
                     SystemHalf.Half _x = ClientPacket.ReadShort();
                     SystemHalf.Half _y = ClientPacket.ReadShort();
@@ -623,18 +625,13 @@ namespace PIPE_Valve_Console_Client
                     uint _from = (uint)_packet.ReadLong();
                     int senderspacketcode = _packet.ReadInt();
 
-                    int count = _packet.ReadInt();
-                int code = _packet.ReadInt();
+                    int RiserorOneshot = _packet.ReadInt();
 
-                if(code == 1)
+                if(RiserorOneshot == 1)
                 {
-                    for (int i = 0; i < count; i++)
-                    {
+                   
                         string nameofriser = _packet.ReadString();
                         int playstate = _packet.ReadInt();
-                            // float volume = SystemHalf.HalfHelper.HalfToSingle(_packet.ReadShort() / 1000);
-                            //float pitch = SystemHalf.HalfHelper.HalfToSingle(_packet.ReadShort() / 1000);
-                            //float Velocity = SystemHalf.HalfHelper.HalfToSingle(_packet.ReadShort() / 1000);
                             float volume = _packet.ReadFloat();
                             float pitch = _packet.ReadFloat();
                             float Velocity = _packet.ReadFloat();
@@ -644,50 +641,49 @@ namespace PIPE_Valve_Console_Client
                                 try
                                 {
 
-                                if (GameManager.Players[_from] != null)
+                                if (GameManager.Players.TryGetValue(_from, out RemotePlayer player))
                                 {
-                                    if (GameManager.Players[_from].MasterActive)
+                                    if (player.MasterActive)
                                     {
-                                        GameManager.Players[_from].Audio.IncomingRiserUpdates.Add(update);
+                                        player.Audio.IncomingRiserUpdates.Add(update);
 
                                     }
 
                                 }
 
 
-                            }
+                                }
                                 catch (Exception e) {
-                                    Debug.Log("Error in foreach loop in ClientHandle.RecieveAudioForAPlayer :" + e.Message + e.StackTrace);
+                                    Debug.Log("Error in ClientHandle.RecieveAudioForAPlayer :" + e.Message + e.StackTrace);
                                 }
                             
                         
 
-                    }
+                    
 
                 }
 
-                if(code == 2)
+                if(RiserorOneshot == 2)
                 {
-                    for (int i = 0; i < count; i++)
-                    {
+                    
                         string Pathofsound = _packet.ReadString();
                         float volume = _packet.ReadFloat();
 
 
                         AudioStateUpdate update = new AudioStateUpdate(volume, Pathofsound);
                        
-                            if(GameManager.Players[_from] != null)
+                            if(GameManager.Players.TryGetValue(_from,out RemotePlayer player))
                             {
-                            if (GameManager.Players[_from].MasterActive)
+                            if (player.MasterActive)
                             {
-                                GameManager.Players[_from].Audio.IncomingOneShotUpdates.Add(update);
+                                player.Audio.IncomingOneShotUpdates.Add(update);
 
                             }
 
                             }
                         
 
-                    }
+                    
 
                 }
 

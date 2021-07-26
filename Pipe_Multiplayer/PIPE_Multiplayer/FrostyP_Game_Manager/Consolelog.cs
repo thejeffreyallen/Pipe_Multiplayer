@@ -6,6 +6,7 @@ public class Consolelog : MonoBehaviour
     string filename = "";
     bool doShow = true;
     int kChars = 700;
+    Vector2 scroll;
     void OnEnable() { Application.logMessageReceived += Log; }
     void OnDisable() { Application.logMessageReceived -= Log; }
     void Update() { if (Input.GetKeyDown(KeyCode.Space)) { doShow = !doShow; } }
@@ -31,8 +32,8 @@ public class Consolelog : MonoBehaviour
     void OnGUI()
     {
         if (!doShow) { return; }
-        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity,
-           new Vector3(Screen.width / 1200.0f, Screen.height / 800.0f, 1.0f));
-        GUI.TextArea(new Rect(10, 10, 540, 370), myLog);
+        scroll = GUILayout.BeginScrollView(scroll);
+        GUILayout.TextArea( myLog);
+        GUILayout.EndScrollView();
     }
 }

@@ -567,7 +567,9 @@ namespace PIPE_Valve_Online_Server
                     {
                         if (mesh.isCustom)
                         {
-                            ServerData.FileCheckAndRequest(mesh.fileName, _from);
+                            int indexer = mesh.fileName.LastIndexOf("/");
+                            string shortname = mesh.fileName.Remove(0, indexer + 1);
+                            ServerData.FileCheckAndRequest(shortname, _from);
                         }
                     }
                 }

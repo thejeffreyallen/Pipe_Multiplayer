@@ -15,7 +15,7 @@ namespace PIPE_Valve_Console_Client
         /// Master Switch to Send continuous data from FixedUpdate
         /// </summary>
         public bool ServerActive=false;
-        public float MovementThreshold = 0.001f;
+        public float MovementThreshold = 0.01f;
 
         //always daryien
         public GameObject DaryienOriginal;
@@ -64,10 +64,10 @@ namespace PIPE_Valve_Console_Client
         private void Update()
         {
             // MUST BE IN UPDATE, LateUpdate Causes loss of something, IK movements seem to be lost?
-            // Independently measures timespan and if met, creates a transform update with timestamp and stores in SendToServer thread's outbox, Aims for 60Fps
+            // Independently measures timespan to guarantee position updates are spaced appropriately
             if (InGameUI.instance.Connected && ServerActive)
             {
-                if((DateTime.Now - LastTransformTime).TotalMilliseconds + (Time.deltaTime * 1000 / 3) >= 16f)
+                if((DateTime.Now - LastTransformTime).TotalMilliseconds >= 16f)
                 {
                     CheckThreshold();
                     LastTransformTime = DateTime.Now;
@@ -144,11 +144,13 @@ namespace PIPE_Valve_Console_Client
             for (int i = 1; i < 23 ; i++)
             {
                 distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
+                distances.Add(Vector3.Distance(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
             distances.Add(Vector3.Distance(riderPositions[23], Riders_Transforms[23].position));
             for (int i = 24; i < 32; i++)
             {
                 distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
+                distances.Add(Vector3.Distance(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
 
             for (int i = 0; i < distances.Count; i++)
@@ -171,8 +173,7 @@ namespace PIPE_Valve_Console_Client
         /// <summary>Sends player Movement to the server.</summary>
         public void PackTransformsandSend()
         {
-            //Debug.Log("Trans going out ::  ");
-            // pack world pos and rot first, then for loop from 1 through all children grabbing the local pos and rot
+           // rider
             riderPositions[0] = Riders_Transforms[0].position;
             riderRotations[0] = Riders_Transforms[0].eulerAngles;
 
@@ -182,15 +183,16 @@ namespace PIPE_Valve_Console_Client
                     riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
 
-
+            // bmx
             riderPositions[23] = Riders_Transforms[23].position;
             riderRotations[23] = Riders_Transforms[23].eulerAngles;
-
             for (int i = 24; i < 32; i++)
             {
                     riderPositions[i] = Riders_Transforms[i].localPosition;
                     riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
+
+            // rot of fingers index2
             riderRotations[32] = Riders_Transforms[32].localEulerAngles;
             riderRotations[33] = Riders_Transforms[33].localEulerAngles;
            
@@ -206,7 +208,7 @@ namespace PIPE_Valve_Console_Client
         // called by GUI on connect, so leaving and changing rider will fire this again. For net, 
         //if component count is less than 70 theres no extra mixamorig attached so make ridermodel name Daryien, if more, rename Ridermodelname to new character,
         //grab new character reference and realign Rider_Transforms to the new bones,
-        // then grabs assetbundle name associated with ridermodelname, needed for checking whether,
+        // then grabs assetbundle name associated with ridermodelname, needed for checking whether
         // the bundle is already loaded at any point and accessing that bundle if it is,
         // G-O name and filename are not reliable
         public void RiderTrackingSetup()

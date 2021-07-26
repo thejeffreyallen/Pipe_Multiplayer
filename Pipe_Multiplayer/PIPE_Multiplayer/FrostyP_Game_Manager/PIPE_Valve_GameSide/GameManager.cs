@@ -176,6 +176,11 @@ namespace PIPE_Valve_Console_Client
 
 
         }
+
+        /// <summary>
+        ///  im changing level, change all rider visibilty to mylevel == theirlevel;
+        /// </summary>
+        /// <param name="mylevel"></param>
         public void ChangingLevel(string mylevel)
         {
           foreach(RemotePlayer r in Players.Values)
@@ -184,6 +189,13 @@ namespace PIPE_Valve_Console_Client
           }
             
         }
+
+
+        /// <summary>
+        /// Someones chaging level, change their visiblity to mylevel == theirlevel;
+        /// </summary>
+        /// <param name="Riderslevel"></param>
+        /// <param name="from"></param>
         public void ChangingLevel(string Riderslevel, uint from)
         {
             if(Players.TryGetValue(from,out RemotePlayer player))

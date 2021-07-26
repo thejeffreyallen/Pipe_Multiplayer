@@ -21,7 +21,7 @@ namespace FrostyP_Game_Manager
 		GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
 		GUIStyle Generalstyle = new GUIStyle();
 		GUIStyle Myobjectstyle = new GUIStyle();
-		GUIStyle Myobjectstyle1 = new GUIStyle();
+		GUIStyle headerstyle = new GUIStyle();
 
 		MGInputManager inputman;
 		ParkSaveLoad _ParkSaveLoad = new ParkSaveLoad();
@@ -368,7 +368,6 @@ namespace FrostyP_Game_Manager
 
 		}
 
-
 		void FixedUpdate()
         {
             if (StreamingObjectData && InGameUI.instance.Connected)
@@ -397,9 +396,6 @@ namespace FrostyP_Game_Manager
 
 
         }
-
-
-
 
         void OnGUI()
         {
@@ -436,52 +432,23 @@ namespace FrostyP_Game_Manager
 
 
 
-				//--------------------------------------------
+					//--------------------------------------------
 
 
 
 
 
-				// -------------------------------------------------------------------------------------------------------------------------      Things contained in Primary GUI     -----------------------------------------------------------------------------------------------------------------
-
-				scrollPosition = GUILayout.BeginScrollView(scrollPosition, Generalstyle);
-				GUILayout.Space(10);
-				GUILayout.Label("Park Builder", Generalstyle);
+					// -------------------------------------------------------------------------------------------------------------------------      Things contained in Primary GUI     -----------------------------------------------------------------------------------------------------------------
+					GUILayout.BeginArea(new Rect(new Vector2(Screen.width/4,5), new Vector2(Screen.width/2,30)));
+					GUILayout.BeginHorizontal();
 				
-				GUILayout.Space(10);
-				Helpmenu = GUILayout.Toggle(Helpmenu, " Help ");
-                if (Helpmenu)
-                {
-					GUILayout.Label(" parkbuilder will recognise and load any Assetbundles that");
-					GUILayout.Label(" do not contain Scenes. To do this follow the steps");
-					GUILayout.Label(" for creating a map, using the mapscript that creates bundles,");
-					GUILayout.Label(" but dont mark your scene as a bundle item, make each object in");
-					GUILayout.Label(" your scene a prefab by dragging from hierarchy to assets,");
-					GUILayout.Label(" then mark each prefab as part of your assetbundle, build bundle and");
-					GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show below.");
-					GUILayout.Label(" make your objects positions 0,0,0 and square so that theyre root");
-					GUILayout.Label(" position can be found again later");
-
-				}
-				
-			    GUILayout.Space(10);
-				controlmenu = GUILayout.Toggle(controlmenu,"Controls:");
-                    if (controlmenu)
-                    {
-						GUILayout.Label("A to Place : B to Replace : Y to change speed");
-						GUILayout.Label("LB/RB to Spin");
-						GUILayout.Label("Hold LT for height and Cam distance");
-						GUILayout.Label("Hold RT for Fine Rotate");
-						GUILayout.Label("LStick click to Reset");
-					}
-					
-				
-				GUILayout.Space(30);
+				Helpmenu = GUILayout.Toggle(Helpmenu, " Help ", FrostyPGamemanager.instance.style);
+			    GUILayout.Space(2);
+				controlmenu = GUILayout.Toggle(controlmenu,"Controls:", FrostyPGamemanager.instance.style);
+				GUILayout.Space(5);
 				GUILayout.Label("Movement Speed at " + camspeed.speeds[currentcamspeed].name, Generalstyle);
-
-
-
-				if (GUILayout.Button("Clear All ") && placedobjects.Count>0)
+				GUILayout.Space(5);
+				if (GUILayout.Button("Clear All ", FrostyPGamemanager.instance.style) && placedobjects.Count>0)
 				{
 					Vector3 pos = new Vector3(0, 0, 0);
                     for (int i = 0; i < placedobjects.Count; i++)
@@ -514,49 +481,55 @@ namespace FrostyP_Game_Manager
 				}
 
 
-
-
-				if (Activeobj != null)
-                {
-                    if (!Activeobj.name.Contains("Pointer"))
-                    {
-					  if(GUILayout.Button("Destroy " + Activeobj.gameObject.name.Replace("(Clone)","")))
-					  {
-						DestroyObject();
+				       if (Activeobj != null)
+                       {
+						GUILayout.Space(2);
+						if (!Activeobj.name.Contains("Pointer"))
+                        {
+					       if(GUILayout.Button("Destroy " + Activeobj.gameObject.name.Replace("(Clone)",""), FrostyPGamemanager.instance.style))
+					       {
+						   DestroyObject();
 						
-                      }
-                    }
-                }
+                           }
+                        }
+                       }
 
 
-
-
-
-				// Save current objects
-				GUILayout.Space(10);
-				SaveLoadOpen = GUILayout.Toggle(SaveLoadOpen, "Toggle Save/Load Menu");
-					objectswindow = GUILayout.Toggle(objectswindow, "Objects");
+				    // Save current objects
+				    GUILayout.Space(2);
+				    SaveLoadOpen = GUILayout.Toggle(SaveLoadOpen, "Save/Load", FrostyPGamemanager.instance.style);
+					GUILayout.Space(2);
+					objectswindow = GUILayout.Toggle(objectswindow, "Objects/Bundles", FrostyPGamemanager.instance.style);
                     
-				
-
-
-				GUILayout.Space(20);
-				if (GUILayout.Button("Return to game"))
+				GUILayout.Space(2);
+				if (GUILayout.Button("Return to game", FrostyPGamemanager.instance.style))
                 {
 				Close();
 				}
-
-			   GUILayout.EndScrollView();
-
+					GUILayout.EndHorizontal();
+					GUILayout.EndArea();
 
 					if (objectswindow)
 					{
 						ObjectsWindowShow();
 					}
 
-		      }
+					if (Helpmenu)
+					{
+					controlmenu = false;
+					 HelpShow();
+					}
 
-            }
+					if (controlmenu)
+					{
+						Helpmenu = false;
+						ControlHelp();
+					}
+
+
+				}
+
+			}
 			catch(UnityException x)
             {
 				Debug.Log($"ParkBuilder GUI error : " + x);
@@ -564,10 +537,6 @@ namespace FrostyP_Game_Manager
         }
 
       
-
-
-
-
 
 	
 		/// <summary>
@@ -775,7 +744,36 @@ namespace FrostyP_Game_Manager
         }
 
 
+		void HelpShow()
+        {
 
+			GUILayout.BeginArea(new Rect(new Vector2(Screen.width/4,Screen.height/4), new Vector2(Screen.width/2,Screen.height/2)),InGameUI.BoxStyle);
+
+			GUILayout.Label("Make your own Assets",headerstyle);
+			GUILayout.Space(20);
+			GUILayout.Label(" parkbuilder will recognise and load any Assetbundles that do not contain Scenes. To do this follow the steps \n for creating a map, using the mapscript that creates an assetbundle",Generalstyle);
+			GUILayout.Label(" but dont mark your scene as a bundle item, make each object in", Generalstyle);
+			GUILayout.Label(" your scene a prefab by dragging from hierarchy to assets,", Generalstyle);
+			GUILayout.Label(" then mark each prefab as part of your assetbundle, build bundle and", Generalstyle);
+			GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show below.", Generalstyle);
+			GUILayout.Label(" make your objects positions 0,0,0 and square so that theyre root", Generalstyle);
+			GUILayout.Label(" position can be found again later", Generalstyle);
+
+			GUILayout.EndArea();
+		}
+
+		void ControlHelp()
+        {
+			GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, Screen.height / 4), new Vector2(Screen.width / 2, Screen.height / 2)),InGameUI.BoxStyle);
+			GUILayout.Label("Controls", Generalstyle);
+			GUILayout.Space(20);
+			GUILayout.Label("A to Place : B to Replace : Y to change speed",Generalstyle);
+			GUILayout.Label("LB/RB to Spin", Generalstyle);
+			GUILayout.Label("Hold LT for height and Cam distance", Generalstyle);
+			GUILayout.Label("Hold RT for Fine Rotate", Generalstyle);
+			GUILayout.Label("LStick click to Reset", Generalstyle);
+			GUILayout.EndArea();
+		}
 
 		void Controls()
         {
@@ -907,8 +905,6 @@ namespace FrostyP_Game_Manager
 
 
 		}
-
-
 
 		void DestroyObject()
         {
@@ -1114,7 +1110,6 @@ namespace FrostyP_Game_Manager
 			}
         }
 
-
 		void ReplaceOnBButton()
         {
             if (MGInputManager.B_Down())
@@ -1208,7 +1203,7 @@ namespace FrostyP_Game_Manager
 		void SaveLoadMenu()
         {
 
-			Rect box = new Rect(new Vector2(Screen.width /3, 20f), new Vector2(Screen.width / 3f, Screen.height - 100));
+			Rect box = new Rect(new Vector2(Screen.width /3, 50f), new Vector2(Screen.width / 3f, Screen.height - 100));
 			
 			GUILayout.BeginArea(box,InGameUI.BoxStyle);
 			Save_Load_Toggle = GUILayout.Toggle(Save_Load_Toggle, $"{SaveloadMode}");
@@ -1394,7 +1389,7 @@ namespace FrostyP_Game_Manager
 				GUILayout.Space(5);
 				GUILayout.Label("My Objects");
 				GUILayout.Space(5);
-				MyObjectsSaveScroll = GUILayout.BeginScrollView(MyObjectsSaveScroll,InGameUI.BoxStyle);
+				MyObjectsSaveScroll = GUILayout.BeginScrollView(MyObjectsSaveScroll);
 				
 				foreach (PlacedObject myobj in placedobjects.ToArray())
                 {
@@ -1434,7 +1429,7 @@ namespace FrostyP_Game_Manager
 
 				GUILayout.Space(15);
 				GUILayout.Label("Online Players:");
-				OtherPlayersScroll = GUILayout.BeginScrollView(OtherPlayersScroll, InGameUI.BoxStyle);
+				OtherPlayersScroll = GUILayout.BeginScrollView(OtherPlayersScroll);
 				if (InGameUI.instance.Connected)
                 {
 				foreach(RemotePlayer player in GameManager.Players.Values)
@@ -1603,7 +1598,6 @@ namespace FrostyP_Game_Manager
 
         }
 
-
 		public void LoadedSpotReceiveFromFile(SavedSpot _spot)
         {
 			ActiveSavedspot = _spot;
@@ -1636,7 +1630,6 @@ namespace FrostyP_Game_Manager
 
 			ShowLoadedspot = true;
         }
-
 
 		public void ShowLoadedSpot()
         {
@@ -1704,9 +1697,12 @@ namespace FrostyP_Game_Manager
 
 		void SetupGuis()
         {
-			
 
-			
+
+			headerstyle.fontStyle = FontStyle.Bold;
+			headerstyle.fontSize = 14;
+			headerstyle.normal.textColor = Color.black;
+			headerstyle.alignment = TextAnchor.MiddleCenter;
 
 			Myobjectstyle.hover.background = GreenTex;
 			Myobjectstyle.normal.textColor = Color.black;
@@ -1771,10 +1767,7 @@ namespace FrostyP_Game_Manager
 			skin.verticalScrollbar.normal.background = GreyTex;
 			skin.scrollView.alignment = TextAnchor.MiddleCenter;
 			skin.scrollView.padding = new RectOffset(15, 15, 5, 5);
-			//skin.scrollView.fixedWidth = Screen.width / 4;
 			skin.scrollView.normal.background = whiteTex;
-			skin.scrollView.stretchHeight = true;
-			skin.scrollView.stretchWidth = true;
 
 			
 

@@ -217,7 +217,7 @@ namespace FrostyP_Game_Manager
 
 
 
-		public void RiderPhysicsShow()
+		public void Show()
         {
 
 			try

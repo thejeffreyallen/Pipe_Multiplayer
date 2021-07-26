@@ -143,6 +143,9 @@ namespace PIPE_Valve_Console_Client
             {
 
                 _packet.Write(_TimeStamp);
+
+
+                // rider root and locals
                 _packet.Write(positions[0]);
                 _packet.Write(rotations[0]);
                 for (int i = 1; i < 23; i++)
@@ -159,17 +162,20 @@ namespace PIPE_Valve_Console_Client
                 }
 
 
-
-
+                
+                // bmx root and locals
                 _packet.Write(positions[23]);
                 _packet.Write(rotations[23]);
+
+                // bike joint
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[24].x * PosMult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[24].y * PosMult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[24].z * PosMult))));
 
                 for (int i = 24; i < 32; i++)
                 {
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].x * PosMult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].y * PosMult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].z * PosMult))));
+                  
 
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
@@ -177,6 +183,9 @@ namespace PIPE_Valve_Console_Client
 
 
                 }
+
+
+                // left and right 2nd index of fingers, just rot needed
                 _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].x * Rotmult))));
                 _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].y * Rotmult))));
                 _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].z * Rotmult))));
@@ -186,7 +195,7 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].z * Rotmult))));
 
 
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
 
             }
 
@@ -260,25 +269,23 @@ namespace PIPE_Valve_Console_Client
             // Risers
             if(code == 1)
             {
-                using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
+                foreach (AudioStateUpdate update in updates)
                 {
-                    _packet.Write(updates.Count);
+                    using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
+                    {
                         _packet.Write(code);
 
-                    foreach (AudioStateUpdate update in updates)
-                    {
+
                         _packet.Write(update.nameofriser);
                         _packet.Write(update.playstate);
-                        /// _packet.Write((short)SystemHalf.HalfHelper.SingleToHalf(update.Volume * 1000));
-                        // _packet.Write((short)SystemHalf.HalfHelper.SingleToHalf(update.pitch * 1000));
-                        // _packet.Write((short)SystemHalf.HalfHelper.SingleToHalf(update.Velocity * 1000));
                         _packet.Write(update.Volume);
                         _packet.Write(update.pitch);
                         _packet.Write(update.Velocity);
-                    }
-                    
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable | Valve.Sockets.SendFlags.NoDelay);
 
+
+                        SendToServer(_packet.ToArray(),update.Sendflag);
+
+                    }
                 }
 
             }
@@ -286,17 +293,18 @@ namespace PIPE_Valve_Console_Client
             // One Shots
             if(code == 2)
             {
-                using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
+                foreach (AudioStateUpdate update in updates)
                 {
-                    _packet.Write(updates.Count);
-                        _packet.Write(code);
-                    foreach (AudioStateUpdate update in updates)
+                    using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
                     {
+                        _packet.Write(code);
+
                         _packet.Write(update.Path);
                         _packet.Write(update.Volume);
-                    }
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable | Valve.Sockets.SendFlags.NoDelay);
 
+                        SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+
+                    }
                 }
             }
            
