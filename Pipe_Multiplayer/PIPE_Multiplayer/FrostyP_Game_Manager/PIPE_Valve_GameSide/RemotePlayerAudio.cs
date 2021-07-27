@@ -119,13 +119,16 @@ namespace PIPE_Valve_Console_Client
             {
                 try
                 {
-                   foreach(AudioStateUpdate update in IncomingRiserUpdates)
-                   {
-                       // UnityEngine.Debug.Log($"Incoming audio state: {update.playstate}");
-                    StateHandlers[update.nameofriser]?.Invoke(update);
-                   }
 
-                    IncomingRiserUpdates.Clear();
+                        for (int i = 0; i < IncomingRiserUpdates.Count; i++)
+                        {
+                          StateHandlers[IncomingRiserUpdates[i].nameofriser]?.Invoke(IncomingRiserUpdates[i]);
+                            IncomingRiserUpdates.RemoveAt(i);
+                        }
+                     
+                   
+
+                  
                    
 
                 }
@@ -151,8 +154,8 @@ namespace PIPE_Valve_Console_Client
                     instance.release();
                     instance.clearHandle();
                     
+                    IncomingOneShotUpdates.RemoveAt(i);
                 }
-                IncomingOneShotUpdates.Clear();
              }  
 
             

@@ -168,11 +168,9 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write(rotations[23]);
 
                 // bike joint
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[24].x * PosMult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[24].y * PosMult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[24].z * PosMult))));
-
-                for (int i = 24; i < 32; i++)
+                _packet.Write(positions[24]);
+                _packet.Write(rotations[24]);
+                for (int i = 25; i < 32; i++)
                 {
 
                   
@@ -370,7 +368,10 @@ namespace PIPE_Valve_Console_Client
         {
             using (Packet _packet = new Packet((int)ClientPackets.SendMapName))
             {
-                _packet.Write(name);
+                
+
+                Debug.Log($"Sent {name}");
+                _packet.Write(name.ToString());
               
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }

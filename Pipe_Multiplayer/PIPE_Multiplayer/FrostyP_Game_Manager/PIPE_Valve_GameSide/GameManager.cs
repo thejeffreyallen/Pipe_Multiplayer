@@ -481,7 +481,7 @@ namespace PIPE_Valve_Console_Client
 
 
             daryien.SetActive(true);
-
+            DontDestroyOnLoad(daryien);
 
             return daryien;
          }
@@ -492,21 +492,22 @@ namespace PIPE_Valve_Console_Client
             {
                 t.gameObject.SetActive(true);
             }
-
+            DontDestroyOnLoad(bmx);
             return bmx;
 
          }
         public static GameObject GetPlayerModel(string modelname, string modelbundlename)
         {
-            
+            GameObject player = null;
 
             IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
             foreach (AssetBundle a in bundles)
             {
                 if (a.name.ToLower().Contains(modelbundlename.ToLower()))
                 {
-                    return Instantiate(a.LoadAsset(modelname)) as GameObject;
-
+                    player = Instantiate(a.LoadAsset(modelname)) as GameObject;
+                    DontDestroyOnLoad(player);
+                    return player;
                 }
 
             }
@@ -518,7 +519,9 @@ namespace PIPE_Valve_Console_Client
                 AssetBundle b = AssetBundle.LoadFromFile(PlayerModelsDir + modelname);
 
 
-                return Instantiate(b.LoadAsset(modelname) as GameObject);
+                player = Instantiate(b.LoadAsset(modelname) as GameObject);
+                DontDestroyOnLoad(player);
+                return player;
             }
             else
             {

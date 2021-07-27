@@ -531,32 +531,13 @@ namespace PIPE_Valve_Console_Client
                 Positions[23] = ClientPacket.ReadVector3();
                 Rotations[23] = ClientPacket.ReadVector3();
 
-                Positions[24] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos);
+                    Positions[24] = ClientPacket.ReadVector3();
+                    Rotations[24] = ClientPacket.ReadVector3();
 
                     // bike locals
-                for (int i = 24; i < 32; i++)
+                for (int i = 25; i < 32; i++)
                 {
-                   // SystemHalf.Half x = ClientPacket.ReadShort();
-                  //  SystemHalf.Half y = ClientPacket.ReadShort();
-                  //  SystemHalf.Half z = ClientPacket.ReadShort();
-
-                        /*
-                        if (SystemHalf.HalfHelper.IsInfinity(x) | SystemHalf.HalfHelper.IsNaN(x))
-                        {
-                            x = 0;
-                        }
-                        if (SystemHalf.HalfHelper.IsInfinity(y) | SystemHalf.HalfHelper.IsNaN(y))
-                        {
-                            y = 0;
-                        }
-                        if (SystemHalf.HalfHelper.IsInfinity(z) | SystemHalf.HalfHelper.IsNaN(z))
-                        {
-                            z = 0;
-                        }
-                        */
-
-                       // Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / DividePos, SystemHalf.HalfHelper.HalfToSingle(y) / DividePos, SystemHalf.HalfHelper.HalfToSingle(z) / DividePos);
-                       
+                 
                     SystemHalf.Half _x = ClientPacket.ReadShort();
                     SystemHalf.Half _y = ClientPacket.ReadShort();
                     SystemHalf.Half _z = ClientPacket.ReadShort();
@@ -585,15 +566,13 @@ namespace PIPE_Valve_Console_Client
 
                     try
                     {
-                        if(GameManager.Players[FromId] != null)
+                        if(GameManager.Players.TryGetValue(FromId,out RemotePlayer player))
                         {
-                        if (GameManager.Players[FromId].MasterActive)
+                        if (player.MasterActive)
                         {
-                            GameManager.Players[FromId].IncomingTransformUpdates.Add(new IncomingTransformUpdate(Positions, Rotations, Ping, ServerTimestamp, _playertime));
-                            GameManager.Players[FromId].ReplayPostions.Add(new IncomingTransformUpdate(Positions, Rotations));
+                         player.IncomingTransformUpdates.Add(new IncomingTransformUpdate(Positions, Rotations, Ping, ServerTimestamp, _playertime));
                         }
                     
-
                         }
 
 

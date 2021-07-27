@@ -186,7 +186,10 @@ namespace PIPE_Valve_Console_Client
             // bmx
             riderPositions[23] = Riders_Transforms[23].position;
             riderRotations[23] = Riders_Transforms[23].eulerAngles;
-            for (int i = 24; i < 32; i++)
+
+            riderPositions[24] = Riders_Transforms[24].position;
+            riderRotations[24] = Riders_Transforms[24].eulerAngles;
+            for (int i = 25; i < 32; i++)
             {
                     riderPositions[i] = Riders_Transforms[i].localPosition;
                     riderRotations[i] = Riders_Transforms[i].localEulerAngles;
