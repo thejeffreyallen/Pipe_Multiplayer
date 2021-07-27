@@ -121,6 +121,7 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.AdminRemoveObject,ServersHandles.AdminRemoveObject},
 				{ (int)ClientPackets.FileStatus,ServersHandles.FileStatus},
 				{ (int)ClientPackets.LogOut,ServersHandles.AdminLogOut},
+				{ (int)ClientPackets.InviteToSpawn, ServersHandles.InviteToSpawn },
 
 			};
 

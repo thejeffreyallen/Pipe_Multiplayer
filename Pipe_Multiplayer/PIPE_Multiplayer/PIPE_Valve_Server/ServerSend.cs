@@ -25,16 +25,7 @@ namespace PIPE_Valve_Online_Server
                 Server.server.SendMessageToConnection(toclient, bytes, sendflag);
             });
         }
-        private static void SendToAll(byte[] bytes, Valve.Sockets.SendFlags sendflag)
-        {
-            foreach(Player client in Server.Players.Values.ToList())
-            {
-                ThreadManager.ExecuteOnMainThread(() =>
-                {
-                    Server.server.SendMessageToConnection(client.RiderID, bytes, sendflag);
-                });
-            }
-        }
+       
         private static void SendToAll(uint Exceptthis, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
 
@@ -365,7 +356,7 @@ namespace PIPE_Valve_Online_Server
 
                 try
                 {
-                    SendToAllReadyToRoll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToAllReadyToRoll(_aboutplayer, _Packet.ToArray(), Valve.Sockets.SendFlags.Unreliable);
                 }
                 catch (Exception x)
                 {
@@ -602,7 +593,17 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
+        public static void InviteToSpawn(uint from,uint goingto, Vector3 pos, Vector3 rot)
+        {
+            using(Packet _packet = new Packet((int)ServerPacket.InviteToSpawn))
+            {
+                _packet.Write(from);
+                _packet.Write(pos);
+                _packet.Write(rot);
 
+                SendtoOne(goingto, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
 
 
 

@@ -441,10 +441,17 @@ namespace PIPE_Valve_Online_Server
 
             try
             {
-                Server.Players[_from].MapName = name;
+                if(Server.Players.TryGetValue(_from,out Player _player))
+                {
+
+                 _player.MapName = name;
                 ServerSend.SendMapName(_from,name);
-                Console.WriteLine($"{Server.Players[_from].Username} went to {name}");
+                Console.WriteLine($"{_player.Username} went to {name}");
                 ServerData.FileCheckAndRequest(name, _from);
+
+
+                }
+
             }
             catch(Exception x)
             {
@@ -753,7 +760,14 @@ namespace PIPE_Valve_Online_Server
 
         }
 
+        public static void InviteToSpawn(uint _from, Packet _packet)
+        {
+            uint goingto = (uint)_packet.ReadLong();
+            Vector3 pos = _packet.ReadVector3();
+            Vector3 rot = _packet.ReadVector3();
 
+            ServerSend.InviteToSpawn(_from, goingto, pos, rot);
+        }
 
 
 

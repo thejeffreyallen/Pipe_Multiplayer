@@ -5,6 +5,7 @@ using FrostyP_Game_Manager;
 using System.Reflection;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 
 namespace PIPE_Valve_Console_Client
@@ -84,10 +85,6 @@ namespace PIPE_Valve_Console_Client
           
         }
 
-        public Dictionary<uint, RemotePlayer> GetPlayers() {
-            return Players;
-        }
-
 
         // make clones so theres always a reference model for each and its not our Original versions
         void SetupDaryienAndBMXBaseModels()
@@ -126,7 +123,7 @@ namespace PIPE_Valve_Console_Client
                 
             }
 
-            foreach (Transform t in BmxClone.GetComponentsInChildren<Transform>())
+            foreach (Transform t in BmxClone.GetComponentsInChildren<Transform>(true))
             {
                 if (t.gameObject.name.Contains("Target"))
                 {
@@ -153,21 +150,27 @@ namespace PIPE_Valve_Console_Client
             
         }
 
-
-
         public void GetLevelName()
         {
             try
             {
+                firstMap = string.IsNullOrEmpty(mapImporter.GetCurrentMapName());
                 MycurrentLevel = string.IsNullOrEmpty(mapImporter.GetCurrentMapName()) ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().name : mapImporter.GetCurrentMapName(); // Use the actual map file name or, if on the unmodded maps, use the scene name
-                if (!firstMap)
+                string inputString = MycurrentLevel;
+                string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                MycurrentLevel = asAscii;
+                MycurrentLevel = MycurrentLevel.Trim(Path.GetInvalidFileNameChars());
+                MycurrentLevel = MycurrentLevel.Trim(Path.GetInvalidPathChars());
+                
+
+                if (!firstMap && InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
                 {
                     ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
                     ChangingLevel(MycurrentLevel);
 
                 }
-                firstMap = false;
+                
             }
             catch (UnityException)
             {
@@ -370,7 +373,12 @@ namespace PIPE_Valve_Console_Client
                     {
                         if(r.materials[i].mainTexture != null)
                         {
-                            list.Add(new TextureInfo(r.materials[i].mainTexture.name, r.gameObject.name, false, i));
+                            string inputString = r.materials[i].mainTexture.name;
+                            string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                            asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
+                            asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+
+                            list.Add(new TextureInfo(asciifile, r.gameObject.name, false, i));
                         }
 
                     }

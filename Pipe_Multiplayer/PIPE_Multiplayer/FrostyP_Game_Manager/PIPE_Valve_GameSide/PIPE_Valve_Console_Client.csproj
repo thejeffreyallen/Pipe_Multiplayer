@@ -71,7 +71,7 @@
     </Reference>
     <Reference Include="BikeWorkshopMenu, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\TheGarage\Garage\BikeMenu UnityProj\BikeMenu UnityProj\obj\Release\BikeWorkshopMenu.dll</HintPath>
+      <HintPath>E:\GITHUB\TheGarage\Garage\BikeMenu UnityProj\BikeMenu UnityProj\obj\Release\BikeWorkshopMenu.dll</HintPath>
     </Reference>
     <Reference Include="com.unity.postprocessing.Runtime">
       <HintPath>F:\PIPE 1.9 MASTER\PIPE 1.9.9 Build\PIPE_Data\Managed\com.unity.postprocessing.Runtime.dll</HintPath>

@@ -160,6 +160,11 @@ namespace PIPE_Valve_Console_Client
                             UnityEngine.Debug.Log($"Sent Packet: {sr.NameOfFile}: {PacketnoToSend} of {sr.TotalPacketsinFile}");
                         });
 
+                            if(sr.PacketNumbersStored.Count == sr.TotalPacketsinFile)
+                            {
+                                sr.IsSending = false;
+                            }
+
                     }
 
                 }

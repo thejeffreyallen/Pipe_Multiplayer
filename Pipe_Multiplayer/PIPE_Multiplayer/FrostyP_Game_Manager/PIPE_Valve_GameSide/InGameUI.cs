@@ -1285,24 +1285,23 @@ namespace PIPE_Valve_Console_Client
             GUILayout.Space(20);
             }
 
-
-
-            
-
-           
-
             GUILayout.EndHorizontal();
+
+
 
             GUILayout.BeginArea(new Rect(new Vector2(20,Screen.height-(Screen.height/4)), new Vector2(Screen.width/4,Screen.height/4)));
             minguiscroll = GUILayout.BeginScrollView(minguiscroll);
             foreach (TextMessage mess in Messages)
             {
-               
+                // from a player
                 if(mess.FromCode == 3)
                 {
                     try
                     {
-                      GUILayout.Label(mess.Message, GameManager.Players[mess.FromConnection].style);
+                        if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
+
+
+                      GUILayout.Label(mess.Message, player.style);
                     }
                     catch (Exception x)
                     {
@@ -1313,6 +1312,8 @@ namespace PIPE_Valve_Console_Client
                 }
                 else
                 {
+                    // system,server or you
+
                     GUIStyle style = new GUIStyle();
                     style.normal.textColor = MessageColour[mess.FromCode];
                     style.alignment = TextAnchor.MiddleCenter;
@@ -1335,42 +1336,41 @@ namespace PIPE_Valve_Console_Client
             {
                 try
                 {
-                foreach(RemotePlayer r in GameManager.Players.Values)
-                {
-                    if(r.id == IdofRidertoshow)
+                
+                    if(GameManager.Players.TryGetValue(IdofRidertoshow,out RemotePlayer player))
                     {
-                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 17), new Vector2(400, 400)));
-                        GUILayout.Label($"{r.username}", Generalstyle);
-                        GUILayout.Label($"Riding at: {r.CurrentMap}" ,Generalstyle);
-                        GUILayout.Label($"As: {r.CurrentModelName}",Generalstyle);
-                        GUILayout.Label($"Net FPS: {Mathf.RoundToInt(r.PlayersFrameRate)}",Generalstyle);
-                        GUILayout.Label($"Rider2Rider Ping: {r.R2RPing} Ms",Generalstyle);
+                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 15), new Vector2(400, 400)));
+                        GUILayout.Label($"{player.username}", Generalstyle);
+                        GUILayout.Label($"Riding at: {player.CurrentMap}" ,Generalstyle);
+                        GUILayout.Label($"As: {player.CurrentModelName}",Generalstyle);
+                        GUILayout.Label($"Net FPS: {Mathf.RoundToInt(player.PlayersFrameRate)}",Generalstyle);
+                        GUILayout.Label($"Rider2Rider Ping: {player.R2RPing} Ms",Generalstyle);
                             GUILayout.Space(10);
-                            r.PlayerIsVisible = GUILayout.Toggle(r.PlayerIsVisible, "Toggle Player Visibilty",PlayeroptionsStyle);
-                            if (r.PlayerIsVisible)
+                        player.PlayerIsVisible = GUILayout.Toggle(player.PlayerIsVisible, "Toggle Player Visibilty",PlayeroptionsStyle);
+                            if (player.PlayerIsVisible)
                             {
-                                if (!r.RiderModel.activeInHierarchy)
+                                if (!player.RiderModel.activeInHierarchy)
                                 {
-                                    r.ChangePlayerVisibilty(true);
+                                player.ChangePlayerVisibilty(true);
                                 }
-                                if (!r.BMX.activeInHierarchy)
+                                if (!player.BMX.activeInHierarchy)
                                 {
-                                    r.ChangePlayerVisibilty(true);
+                                player.ChangePlayerVisibilty(true);
                                 }
 
 
 
 
                             }
-                            if (!r.PlayerIsVisible)
+                            if (!player.PlayerIsVisible)
                             {
-                                if (r.RiderModel.activeInHierarchy)
+                                if (player.RiderModel.activeInHierarchy)
                                 {
-                                    r.ChangePlayerVisibilty(false);
+                                player.ChangePlayerVisibilty(false);
                                 }
-                                if (r.BMX.activeInHierarchy)
+                                if (player.BMX.activeInHierarchy)
                                 {
-                                    r.ChangePlayerVisibilty(false);
+                                player.ChangePlayerVisibilty(false);
                                 }
 
 
@@ -1378,43 +1378,72 @@ namespace PIPE_Valve_Console_Client
 
                             }
                             GUILayout.Space(10);
-                            r.PlayerCollides = GUILayout.Toggle(r.PlayerCollides, "Player Collides", PlayeroptionsStyle);
-                            r.ChangeCollideStatus(r.PlayerCollides);
+                        player.PlayerCollides = GUILayout.Toggle(player.PlayerCollides, "Player Collides", PlayeroptionsStyle);
+                        player.ChangeCollideStatus(player.PlayerCollides);
 
 
                             GUILayout.Space(10);
-                            r.PlayerTagVisible = GUILayout.Toggle(r.PlayerTagVisible, "Toggle Name Tag", PlayeroptionsStyle);
-                        if (r.PlayerTagVisible)
+                        player.PlayerTagVisible = GUILayout.Toggle(player.PlayerTagVisible, "Toggle Name Tag", PlayeroptionsStyle);
+                        if (player.PlayerTagVisible)
                         {
-                                if (!r.tm.gameObject.activeInHierarchy)
+                                if (!player.tm.gameObject.activeInHierarchy)
                                 {
-                                    r.ChangePlayerTagVisible(true);
+                                player.ChangePlayerTagVisible(true);
 
                                 }
                         }
-                        if (!r.PlayerTagVisible)
+                        if (!player.PlayerTagVisible)
                         {
-                                if (r.tm.gameObject.activeInHierarchy)
+                                if (player.tm.gameObject.activeInHierarchy)
                                 {
-                                    r.ChangePlayerTagVisible(false);
+                                player.ChangePlayerTagVisible(false);
                                 }
                         }
 
-                        if (r.Objects.Count > 0)
+
+                        // invite to spawn
+                        if(GUILayout.Button("Invite to spawn",PlayeroptionsStyle))
+                        {
+                            if(player.CurrentMap != GameManager.instance.MycurrentLevel)
+                            {
+                                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Player not on your map", (int)MessageColourByNum.Server, 1));
+                            }
+                            else
+                            {
+                                SessionMarker marker = FindObjectOfType<SessionMarker>();
+                                ClientSend.InviteToSpawn(player.id, marker.marker.position, marker.marker.eulerAngles);
+                                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Sent spawn to {player.username}", (int)MessageColourByNum.System, 1));
+                            }
+                        }
+
+                        // accept spawn offer if one has been offered
+                        if (player.InviteToSpawnLive)
+                        {
+                            if (GUILayout.Button("Spawn on rider"))
+                            {
+                              SessionMarker marker = FindObjectOfType<SessionMarker>();
+                                marker.marker.position = player.spawnpos;
+                                marker.marker.eulerAngles = player.spawnrot;
+
+                                marker.ResetPlayerAtMarker();
+                            }
+                        }
+
+                        if (player.Objects.Count > 0)
                         {
                             GUILayout.Space(10);
-                        r.PlayerObjectsVisible = GUILayout.Toggle(r.PlayerObjectsVisible, "Toggle player Objects");
-                            if (r.PlayerObjectsVisible)
+                            player.PlayerObjectsVisible = GUILayout.Toggle(player.PlayerObjectsVisible, "Toggle player Objects");
+                            if (player.PlayerObjectsVisible)
                             {
 
-                                    r.ChangeObjectsVisible(true);
+                                player.ChangeObjectsVisible(true);
 
                                 
                             }
-                            if (!r.PlayerObjectsVisible)
+                            if (!player.PlayerObjectsVisible)
                             {
 
-                                    r.ChangeObjectsVisible(false);
+                                player.ChangeObjectsVisible(false);
 
                                 
                             }
@@ -1426,7 +1455,7 @@ namespace PIPE_Valve_Console_Client
                             Riderinfoscroll = GUILayout.BeginScrollView(Riderinfoscroll);
 
                            
-                            foreach (NetGameObject n in r.Objects)
+                            foreach (NetGameObject n in player.Objects)
                             {
                                 if (GUILayout.Button($"Vote off {n.NameofObject}"))
                                 {
@@ -1436,10 +1465,10 @@ namespace PIPE_Valve_Console_Client
 
                             
                             GUILayout.EndScrollView();
+                            GUILayout.Space(10);
                         }
 
 
-                        GUILayout.Space(10);
                         if (GUILayout.Button("Close"))
                         {
                             RiderInfoMenuOpen = false;
@@ -1447,7 +1476,7 @@ namespace PIPE_Valve_Console_Client
                         GUILayout.EndArea();
                     }
 
-                }
+                
 
                 }
                 catch (Exception x)
@@ -2032,8 +2061,31 @@ namespace PIPE_Valve_Console_Client
         }
 
 
+        public void ReceivedSpawnInvite(uint from, Vector3 pos, Vector3 rot)
+        {
+            if(GameManager.Players.TryGetValue(from,out RemotePlayer player))
+            {
+              NewMessage(Constants.ServerMessageTime, new TextMessage($"{player.username} offered his spawn", (int)MessageColourByNum.Player, from));
+                player.spawnpos = pos;
+                player.spawnrot = rot;
+
+                // if an offer is live, shut it down
+                if (player.InviteToSpawnLive)
+                {
+                    StopCoroutine(player.InvitedToSpawn());
+                    player.InviteToSpawnLive = false;
+                }
+
+                // set new offer
+                StartCoroutine(player.InvitedToSpawn());
 
 
+
+            }
+
+
+        }
+        
 
 
         // Server refused your connection but didnt disconnect you and sent Update message, giving option to download before disconnecting

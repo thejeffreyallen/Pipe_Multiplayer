@@ -33,6 +33,7 @@ namespace PIPE_Valve_Online_Server
         FileStatus,
         Update,
         AdminStream,
+        InviteToSpawn,
 
 
 
@@ -65,6 +66,7 @@ namespace PIPE_Valve_Online_Server
         AdminRemoveObject,
         FileStatus,
         LogOut,
+        InviteToSpawn,
 
     }
 

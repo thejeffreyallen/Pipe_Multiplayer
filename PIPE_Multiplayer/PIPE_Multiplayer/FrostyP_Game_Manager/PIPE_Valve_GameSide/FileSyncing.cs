@@ -88,16 +88,18 @@ namespace PIPE_Valve_Console_Client
 
             try
             {
-                // directories to search
-                List<DirectoryInfo> Tosearch = new List<DirectoryInfo>();
-               
 
-
-                // search for file
-                foreach (FileInfo _di in new DirectoryInfo(Application.dataPath).GetFiles(index.NameOfFile,SearchOption.AllDirectories))
+              
+                foreach (FileInfo _di in new DirectoryInfo(Application.dataPath).GetFiles("*.*",SearchOption.AllDirectories))
                 {
-                   
-                        if (_di.Name.ToLower() == index.NameOfFile.ToLower())
+                    string inputString = _di.Name;
+                    string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                    asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
+                    asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+
+
+
+                    if (asciifile.ToLower() == index.NameOfFile.ToLower())
                         {
                             _file = _di;
                         }
@@ -164,13 +166,17 @@ namespace PIPE_Valve_Console_Client
 
         public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, long Totalbytes, string path)
         {
+            string inputString = name;
+            string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+
+
 
             // if no Temp file exists create one 
-            if (!File.Exists(GameManager.TempDir + name + ".temp"))
+            if (!File.Exists(GameManager.TempDir + asAscii + ".temp"))
             {
                 TempFile Temp = new TempFile();
                 BinaryFormatter bf = new BinaryFormatter();
-                FileStream stream = File.OpenWrite(GameManager.TempDir + name + ".temp");
+                FileStream stream = File.OpenWrite(GameManager.TempDir + asAscii + ".temp");
 
                 
                 Temp.ByteLengthOfFile = Totalbytes;
@@ -185,7 +191,12 @@ namespace PIPE_Valve_Console_Client
                 foreach(SendReceiveIndex r in IncomingIndexes)
                 {
 
-                if(r.NameOfFile == name)
+                string fileinputString = r.NameOfFile;
+                string fileasAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+
+
+
+                if (fileasAscii.ToLower() == asAscii.ToLower())
                 {
                     InIndex = r;
                 }
@@ -222,9 +233,9 @@ namespace PIPE_Valve_Console_Client
 
                
                 if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
-                File.Move(GameManager.TempDir + name, mypath + "/" + InIndex.NameOfFile);
-                File.Delete(GameManager.TempDir + name + ".temp");
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {name} to {mypath}", (int)MessageColourByNum.System, 1));
+                File.Move(GameManager.TempDir + asAscii, mypath + "/" + asAscii);
+                File.Delete(GameManager.TempDir + asAscii + ".temp");
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {asAscii} to {mypath}", (int)MessageColourByNum.System, 1));
 
                 IncomingIndexes.Remove(InIndex);
                
@@ -232,7 +243,7 @@ namespace PIPE_Valve_Console_Client
 
                
 
-                 ClientSend.FileStatus(name,(int)FileStatus.Received);
+                 ClientSend.FileStatus(asAscii,(int)FileStatus.Received);
                 
                  
 
@@ -245,7 +256,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         
                        
-                        if(r.Nameofasset == name)
+                        if(r.Nameofasset.ToLower() == name.ToLower())
                         {
 
 
@@ -342,12 +353,12 @@ namespace PIPE_Valve_Console_Client
             else
             {
                 // update temp file
-                FileStream stream = File.OpenRead(GameManager.TempDir + name + ".temp");
+                FileStream stream = File.OpenRead(GameManager.TempDir + asAscii + ".temp");
                 BinaryFormatter bf = new BinaryFormatter();
                 TempFile _temp = bf.Deserialize(stream) as TempFile;
                 stream.Close();
                 _temp.PacketNumbersStored.Add(SegNo);
-                stream = File.OpenWrite(GameManager.TempDir + name + ".temp");
+                stream = File.OpenWrite(GameManager.TempDir + asAscii + ".temp");
                 bf.Serialize(stream, _temp);
                 stream.Close();
             }
@@ -369,12 +380,19 @@ namespace PIPE_Valve_Console_Client
             {
                 return;
             }
-
-            foreach(FileInfo _map in new DirectoryInfo(GameManager.MapsDir).GetFiles())
+            string asAscii = null;
+            foreach (FileInfo _map in new DirectoryInfo(GameManager.MapsDir).GetFiles())
             {
-                if(_map.Name.ToLower() == name.ToLower())
+                string inputString = _map.Name;
+                string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
+                asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+
+                if (asciifile.ToLower() == name.ToLower())
                 {
                     got = true;
+                    asAscii = asciifile;
+
                 }
             }
             if (!got)
@@ -399,10 +417,15 @@ namespace PIPE_Valve_Console_Client
         public static bool CheckForFile(string nameoffile)
         {
             
-            FileInfo[] info = new DirectoryInfo(Application.dataPath).GetFiles(nameoffile, SearchOption.AllDirectories);
+            FileInfo[] info = new DirectoryInfo(Application.dataPath).GetFiles("*.*", SearchOption.AllDirectories);
             for (int i = 0; i < info.Length; i++)
             {
-                if(info[i].Name.ToLower() == nameoffile.ToLower())
+                string inputString = info[i].Name;
+                string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
+                asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+
+                if (asciifile.ToLower() == nameoffile.ToLower())
                 {
                     return true;
                 }
@@ -410,9 +433,6 @@ namespace PIPE_Valve_Console_Client
             }
 
             return false;
-
-            
-
 
         }
 

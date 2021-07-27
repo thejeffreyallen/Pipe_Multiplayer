@@ -113,9 +113,17 @@ namespace PIPE_Valve_Online_Server
                 if (FileName != "")
                 {
                    
-                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles(FileName, SearchOption.AllDirectories))
+                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
                     {
-                        if (file.Name.ToLower() == FileName.ToLower())
+                    // get ascii'd file name
+                    string inputString = file.Name;
+                    string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                    asAscii = asAscii.Trim(Path.GetInvalidFileNameChars());
+                    asAscii = asAscii.Trim(Path.GetInvalidPathChars());
+
+
+
+                    if (asAscii.ToLower() == FileName.ToLower())
                         {
                         _fileinfo = file;
                         Console.WriteLine($"Located {FileName}");
@@ -276,12 +284,21 @@ namespace PIPE_Valve_Online_Server
                 if (Filename.ToLower() != "e" && Filename != "" && Filename != " ")
                 {
 
+                string asciiname = null;
                      // find file
-                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles(Filename, SearchOption.AllDirectories))
+                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
                     {
-                        if (file.Name == Filename)
+                    // get ascii'd file name
+                    string inputString = file.Name;
+                    string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                    asAscii = asAscii.Trim(Path.GetInvalidFileNameChars());
+                    asAscii = asAscii.Trim(Path.GetInvalidPathChars());
+
+
+                    if (asAscii.ToLower() == Filename.ToLower())
                         {
                             found = true;
+                        asciiname = asAscii;
                            // Console.WriteLine($"Matched {s.Nameoftexture} to {file.Name}");
                         }
                     }
@@ -306,7 +323,7 @@ namespace PIPE_Valve_Online_Server
                               }
                          }
                 
-                         ServerSend.RequestFile(_fromclient, Filename,Packetsiown);
+                         ServerSend.RequestFile(_fromclient,Filename,Packetsiown);
                         Console.WriteLine(Filename + $" requested from {Server.Players[_fromclient].Username}");
                     }
 

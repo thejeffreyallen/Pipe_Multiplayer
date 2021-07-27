@@ -358,7 +358,15 @@ namespace PIPE_Valve_Console_Client
             Debug.Log("Update offer received");
         }
 
+        public static void InviteToSpawn(Packet _packet)
+        {
+            uint player = (uint)_packet.ReadLong();
+            Vector3 pos = _packet.ReadVector3();
+            Vector3 rot = _packet.ReadVector3();
 
+            InGameUI.instance.ReceivedSpawnInvite(player, pos, rot);
+
+        }
 
 
 

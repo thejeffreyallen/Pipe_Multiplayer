@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using System.Text;
+using System.IO;
 
 
 namespace PIPE_Valve_Console_Client
@@ -113,9 +114,21 @@ namespace PIPE_Valve_Console_Client
                     {
                         foreach(FrostyP_Game_Manager.NetGameObject _netobj in FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects)
                         {
+
+                            string nameoffileinput = _netobj.NameOfFile;
+                            string nameoffileascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameoffileinput)));
+                            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidFileNameChars());
+                            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidPathChars());
+
+                            string nameofassetbuninput = _netobj.NameofAssetBundle;
+                            string nameofassetbunascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameofassetbuninput)));
+                            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidFileNameChars());
+                            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidPathChars());
+
+
                             _packet.Write(_netobj.NameofObject);
-                            _packet.Write(_netobj.NameOfFile);
-                            _packet.Write(_netobj.NameofAssetBundle);
+                            _packet.Write(nameoffileascii);
+                            _packet.Write(nameofassetbunascii);
 
                             _packet.Write(_netobj.Position);
                             _packet.Write(_netobj.Rotation);
@@ -133,8 +146,6 @@ namespace PIPE_Valve_Console_Client
             }
 
         }
-
-
 
         public static void SendMyTransforms(Vector3[] positions, Vector3[] rotations, long _TimeStamp)
         {
@@ -161,8 +172,6 @@ namespace PIPE_Valve_Console_Client
 
                 }
 
-
-                
                 // bmx root and locals
                 _packet.Write(positions[23]);
                 _packet.Write(rotations[23]);
@@ -172,14 +181,9 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write(rotations[24]);
                 for (int i = 25; i < 32; i++)
                 {
-
-                  
-
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * Rotmult))));
-
-
                 }
 
 
@@ -201,9 +205,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-
-        
         public static void SendFileSegment(FileSegment FileSegment)
         {
             
@@ -368,10 +369,11 @@ namespace PIPE_Valve_Console_Client
         {
             using (Packet _packet = new Packet((int)ClientPackets.SendMapName))
             {
-                
+                string inputString = name;
+                string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8,Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty),new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
 
-                Debug.Log($"Sent {name}");
-                _packet.Write(name.ToString());
+                Debug.Log($"Sent {asAscii}");
+                _packet.Write(asAscii);
               
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
@@ -404,7 +406,17 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
+        public static void InviteToSpawn(uint invitee,Vector3 pos, Vector3 rot)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.InviteToSpawn))
+            {
+                _packet.Write(invitee);
+                _packet.Write(pos);
+                _packet.Write(rot);
 
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+         }
 
 
 
@@ -413,11 +425,21 @@ namespace PIPE_Valve_Console_Client
 
         public static void SpawnObjectOnServer(FrostyP_Game_Manager.NetGameObject _netobj)
         {
-            using(Packet _packet = new Packet((int)ClientPackets.SpawnObject))
+            string nameoffileinput = _netobj.NameOfFile;
+            string nameoffileascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameoffileinput)));
+            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidFileNameChars());
+            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidPathChars());
+
+            string nameofassetbuninput = _netobj.NameofAssetBundle;
+            string nameofassetbunascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameofassetbuninput)));
+            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidFileNameChars());
+            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidPathChars());
+
+            using (Packet _packet = new Packet((int)ClientPackets.SpawnObject))
             {
                 _packet.Write(_netobj.NameofObject);
-                _packet.Write(_netobj.NameOfFile);
-                _packet.Write(_netobj.NameofAssetBundle);
+                _packet.Write(nameoffileascii);
+                _packet.Write(nameofassetbunascii);
 
                 _packet.Write(_netobj.Position);
                 _packet.Write(_netobj.Rotation);
@@ -430,7 +452,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-      
         public static void DestroyAnObject(int objectid)
         {
             using(Packet _packet = new Packet((int)ClientPackets.DestroyAnObject))
@@ -483,7 +504,6 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-
 
         public static void SendBootPlayer(string _username, int mins)
         {

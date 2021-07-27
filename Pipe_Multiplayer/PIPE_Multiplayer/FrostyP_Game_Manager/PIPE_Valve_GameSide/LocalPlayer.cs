@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.IO;
+using System.Text;
 
 
 
@@ -49,16 +50,11 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-
-
         private void Start()
         {
             InitialiseLocalRider();
-
             Audio = gameObject.AddComponent<LocalPlayerAudio>();
             Audio.Riderroot = DaryienOriginal;
-            
         }
 
         private void Update()
@@ -77,9 +73,6 @@ namespace PIPE_Valve_Console_Client
 
         }
        
-
-
-
         // Grabs all of Daryiens Bones on Start, and the bikes, stores in Rider_Transforms[] for sending
         public bool InitialiseLocalRider()
         {
@@ -129,12 +122,6 @@ namespace PIPE_Valve_Console_Client
             return true;
         }
 
-
-       
-       
-        /// <summary>
-        /// triggers a transformupdate to be sent if any ridertransform moves more than MovementThreshold
-        /// </summary>
         public void CheckThreshold()
         {
             List<float> distances = new List<float>();
@@ -149,7 +136,6 @@ namespace PIPE_Valve_Console_Client
             distances.Add(Vector3.Distance(riderPositions[23], Riders_Transforms[23].position));
             for (int i = 24; i < 32; i++)
             {
-                distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
                 distances.Add(Vector3.Distance(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
 
@@ -168,9 +154,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-
-        /// <summary>Sends player Movement to the server.</summary>
         public void PackTransformsandSend()
         {
            // rider
@@ -203,17 +186,6 @@ namespace PIPE_Valve_Console_Client
            
         }
 
-
-
-
-
-
-        // called by GUI on connect, so leaving and changing rider will fire this again. For net, 
-        //if component count is less than 70 theres no extra mixamorig attached so make ridermodel name Daryien, if more, rename Ridermodelname to new character,
-        //grab new character reference and realign Rider_Transforms to the new bones,
-        // then grabs assetbundle name associated with ridermodelname, needed for checking whether
-        // the bundle is already loaded at any point and accessing that bundle if it is,
-        // G-O name and filename are not reliable
         public void RiderTrackingSetup()
         {
             // if theres less than 75 parts, the PI rig is not there, must be daryien, if not, go and get GO name and Assetbundle name as they can be different
@@ -271,8 +243,14 @@ namespace PIPE_Valve_Console_Client
                 {
                     if (i.name.Contains("Clone"))
                     {
-                        RiderModelname = i.name.Replace("(Clone)", "");
-                       // InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Detected Custom Model: {RiderModelname} ", 1, 0));
+                        string inputString = i.name.Replace("(Clone)","");
+                        string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                        asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
+                        asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+
+
+                        RiderModelname = asciifile;
+                       InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Detected Custom Model: {RiderModelname} ", 1, 0));
                         ActiveModel = i.gameObject;
                         Riders_Transforms[0] = ActiveModel.transform;
                         Riders_Transforms[1] = ActiveModel.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
@@ -317,13 +295,21 @@ namespace PIPE_Valve_Console_Client
                         IEnumerable<AssetBundle> bundles = AssetBundle.GetAllLoadedAssetBundles();
                         foreach (AssetBundle a in bundles)
                         {
-                            string[] names = a.GetAllAssetNames();
-                            Assetnames.Add(names);
-                            foreach (string name in names)
+                           
+                            foreach (string name in a.GetAllAssetNames())
                             {
-                                if (name.ToLower().Contains(RiderModelname.ToLower()))
+                                string assetinput = name;
+                                string assetascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(assetinput)));
+                                assetascii = assetascii.Trim(Path.GetInvalidFileNameChars());
+                                assetascii = assetascii.Trim(Path.GetInvalidPathChars());
+
+                                if (assetascii.ToLower().Contains(RiderModelname.ToLower()))
                                 {
-                                    RiderModelBundleName = a.name;
+                                    string bundleinput = a.name;
+                                    string bundleascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(bundleinput)));
+                                    bundleascii = bundleascii.Trim(Path.GetInvalidFileNameChars());
+                                    bundleascii = bundleascii.Trim(Path.GetInvalidPathChars());
+                                    RiderModelBundleName = bundleascii;
                                 }
                             }
                         }
@@ -335,19 +321,8 @@ namespace PIPE_Valve_Console_Client
 
 
             }
-           // InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Rider Tracking Done for {RiderModelname}", 1, 0));
+           
         }
-
-
-       
-
-       
-        
-     
-       
-
-
-
 
     }
    

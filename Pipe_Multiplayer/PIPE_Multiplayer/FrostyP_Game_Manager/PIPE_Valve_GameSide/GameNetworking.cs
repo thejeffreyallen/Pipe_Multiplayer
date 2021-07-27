@@ -111,6 +111,7 @@ namespace PIPE_Valve_Console_Client
 				{ (int)ServerPacket.FileStatus, ClientHandle.FileStatus},
 				{ (int)ServerPacket.Update, ClientHandle.Update},
 				{ (int)ServerPacket.AdminStream, ClientHandle.AdminStream},
+				{ (int)ServerPacket.InviteToSpawn,ClientHandle.InviteToSpawn},
 
 
 			};

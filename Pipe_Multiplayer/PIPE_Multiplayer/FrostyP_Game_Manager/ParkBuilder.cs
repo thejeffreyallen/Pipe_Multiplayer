@@ -1520,12 +1520,9 @@ namespace FrostyP_Game_Manager
 								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject,_savedObj.FileName,_savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]),_thisobj.transform.localScale, false, ID, _thisobj);
 								NetgameObjects.Add(_newobj);
 
-								if (InGameUI.instance.Connected && NetgameObjects.Count < 10)
-								{
-									ClientSend.SpawnObjectOnServer(_newobj);
+								
+							   ClientSend.SpawnObjectOnServer(_newobj);
 
-
-								}
 
 							
 						}
@@ -1571,12 +1568,10 @@ namespace FrostyP_Game_Manager
 								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject, _savedObj.FileName, _savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]), _thisobj.transform.localScale, false, ID, _thisobj);
 								NetgameObjects.Add(_newobj);
 
-								if (InGameUI.instance.Connected && NetgameObjects.Count < 10)
-								{
+								
 									ClientSend.SpawnObjectOnServer(_newobj);
 
-
-								}
+								
 
 
 							}

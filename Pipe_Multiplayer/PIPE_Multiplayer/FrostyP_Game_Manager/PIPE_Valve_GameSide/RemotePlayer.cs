@@ -40,7 +40,9 @@ namespace PIPE_Valve_Console_Client
         public GUIStyle style = new GUIStyle();
        
         private bool SetupSuccess;
-
+        public bool InviteToSpawnLive;
+        public Vector3 spawnpos;
+        public Vector3 spawnrot;
 
         public float PlayersFrameRate;
         private float _playerframerate;
@@ -61,11 +63,8 @@ namespace PIPE_Valve_Console_Client
         {
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
             Riders_Transforms = new Transform[34];
-           
-           
             IncomingTransformUpdates = new List<IncomingTransformUpdate>();
             ReplayPostions = new List<IncomingTransformUpdate>();
-           
         }
 
 
@@ -92,10 +91,10 @@ namespace PIPE_Valve_Console_Client
             tm.text = username;
 
                 style.normal.textColor = tm.color;
-                style.alignment = TextAnchor.MiddleRight;
+                style.alignment = TextAnchor.MiddleCenter;
                 style.padding = new RectOffset(10, 10, 2, 2);
                 style.fontStyle = FontStyle.Bold;
-                style.hover.background = InGameUI.instance.GreyTex;
+                style.normal.background = InGameUI.instance.GreyTex;
 
 
             }
@@ -347,7 +346,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         public void InterpolateRider()
         {
             
@@ -432,7 +430,6 @@ namespace PIPE_Valve_Console_Client
             
           
         }
-
 
         public void ChangeCollideStatus(bool value)
         {
@@ -609,7 +606,13 @@ namespace PIPE_Valve_Console_Client
             Debug.Log($"{username} completed setup"); MasterActive = true;
         }
 
+        public IEnumerator InvitedToSpawn()
+        {
+            InviteToSpawnLive = true;
+            yield return new WaitForSeconds(60);
+            InviteToSpawnLive = false;
 
+        }
 
 
         // called by receiving model file after failure to load

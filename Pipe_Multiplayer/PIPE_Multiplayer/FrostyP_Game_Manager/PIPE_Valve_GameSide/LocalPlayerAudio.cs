@@ -117,91 +117,90 @@ namespace PIPE_Valve_Console_Client
 
                 }
 
-
-
-
-
               
+
+
+                // take care of all FMODbyRiserVel's in Bmx
+                for (int i = 0; i < Risers.Length; i++)
+                {
+                    Risers[i].sound.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE st);
+
+                    // if both the current state and last sent state are not STOPPED, carry on
+                    if (((int)st != 2 && laststates[i] != 2))
+                    {
+                        // send update
+                        if (st == FMOD.Studio.PLAYBACK_STATE.PLAYING)
+                        {
+                            // Debug.Log("Playing" + FindRisers[i].gameObject.name);
+                            StateHandlers[0](0, Risers[i]);
+                        }
+                        //send update and tell to start
+                        if (st == FMOD.Studio.PLAYBACK_STATE.STARTING)
+                        {
+                            //  Debug.Log("starting" + FindRisers[i].gameObject.name);
+                            StateHandlers[3](3, Risers[i]);
+                        }
+                        // send just this info
+                        if (st == FMOD.Studio.PLAYBACK_STATE.STOPPED)
+                        {
+                            // Debug.Log("stopped" + FindRisers[i].gameObject.name);
+                            StateHandlers[2](2, Risers[i]);
+                        }
+                        // send update and tell to stop
+                        if (st == FMOD.Studio.PLAYBACK_STATE.STOPPING)
+                        {
+                            // Debug.Log("stopping" + FindRisers[i].gameObject.name);
+                            StateHandlers[4](4, Risers[i]);
+                        }
+                        // paused? dont think that used, if so paused = sustaining, stopping and playing at once so will need more checks on all above
+                        if (st == FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
+                        {
+                            // Debug.Log("sustaining" + FindRisers[i].gameObject.name);
+                            StateHandlers[1](1, Risers[i]);
+                        }
+
+                    }
+                    laststates[i] = (int)st;
+                }
+
+
+
+
                 if (OneShotUpdates.Count > 0)
                 {
                     ClientSend.SendAudioUpdate(OneShotUpdates, 2);
                     OneShotUpdates.Clear();
 
                 }
+                if (RisersStateUpdate.Count > 0)
+                {
+                    ClientSend.SendAudioUpdate(RisersStateUpdate, 1);
+                    RisersStateUpdate.Clear();
+                }
+
+
+
+
+
 
 
 
             }
+
 
         }
 
         void FixedUpdate()
         {
 
-            if (InGameUI.instance.Connected && Mylocalplayer.ServerActive)
-            {
-
-                // take care of all FMODbyRiserVel's in Bmx
-               for (int i = 0; i < Risers.Length; i++)
-               {
-                  Risers[i].sound.getPlaybackState(out FMOD.Studio.PLAYBACK_STATE st);
-
-                  // if both the current state and last sent state are not STOPPED, carry on
-                  if (((int)st != 2 && laststates[i] != 2))
-                  {
-                    // send update
-                    if (st == FMOD.Studio.PLAYBACK_STATE.PLAYING)
-                    {
-                        // Debug.Log("Playing" + FindRisers[i].gameObject.name);
-                        StateHandlers[0](0, Risers[i]);
-                    }
-                    //send update and tell to start
-                    if (st == FMOD.Studio.PLAYBACK_STATE.STARTING)
-                    {
-                        //  Debug.Log("starting" + FindRisers[i].gameObject.name);
-                        StateHandlers[3](3, Risers[i]);
-                    }
-                    // send just this info
-                    if (st == FMOD.Studio.PLAYBACK_STATE.STOPPED)
-                    {
-                        // Debug.Log("stopped" + FindRisers[i].gameObject.name);
-                        StateHandlers[2](2, Risers[i]);
-                    }
-                    // send update and tell to stop
-                    if (st == FMOD.Studio.PLAYBACK_STATE.STOPPING)
-                    {
-                        // Debug.Log("stopping" + FindRisers[i].gameObject.name);
-                        StateHandlers[4](4, Risers[i]);
-                    }
-                    // paused? dont think that used, if so paused = sustaining, stopping and playing at once so will need more checks on all above
-                    if (st == FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
-                    {
-                        // Debug.Log("sustaining" + FindRisers[i].gameObject.name);
-                        StateHandlers[1](1, Risers[i]);
-                    }
-
-                  }
-
-                laststates[i] = (int)st;
-
-               }
-
-                if (RisersStateUpdate.Count > 0)
-                {  
-                  ClientSend.SendAudioUpdate(RisersStateUpdate, 1);
-                  RisersStateUpdate.Clear();
-                }
-
-            }
-
-
+           
 
         }
 
 
         private bool PlayThreshold(string name, float finalvol)
            {
-              if(PlayThresholds[name] - finalvol > 0.09f | (PlayThresholds[name] - finalvol < -0.09f))
+              if(PlayThresholds[name] - finalvol > 0.02f | (PlayThresholds[name] - finalvol < -0.02f))
               {
                 PlayThresholds[name] = finalvol;
                 return true;

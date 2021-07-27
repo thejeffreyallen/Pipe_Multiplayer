@@ -32,6 +32,7 @@ namespace PIPE_Valve_Console_Client
         FileStatus,
         Update,
         AdminStream,
+        InviteToSpawn,
 
 
 
@@ -63,6 +64,7 @@ namespace PIPE_Valve_Console_Client
         AdminRemoveObject,
         FileStatus,
         LogOut,
+        InviteToSpawn,
 
     }
 
