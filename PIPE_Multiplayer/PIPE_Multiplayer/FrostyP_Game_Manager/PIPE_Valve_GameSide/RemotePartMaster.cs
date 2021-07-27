@@ -346,42 +346,42 @@ public class RemotePartMaster : MonoBehaviour
 
             accFront = new GameObject("FrontAccessory");
         accFront.AddComponent<MeshFilter>();
-        accFront.GetComponent<MeshFilter>().mesh = FindObjectOfType<CustomMeshManager>().accessoryMeshes[0];
+        accFront.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         accFront.AddComponent<MeshRenderer>();
-        accFront.GetComponent<MeshRenderer>().material = FindObjectOfType<CustomMeshManager>().accMats[0];
+        accFront.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
         accFront = Instantiate(accFront, GetPart(frontSpokes).transform);
 
         accRear = new GameObject("RearAccessory");
         accRear.AddComponent<MeshFilter>();
-        accRear.GetComponent<MeshFilter>().mesh = FindObjectOfType<CustomMeshManager>().accessoryMeshes[0];
+        accRear.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         accRear.AddComponent<MeshRenderer>();
-        accRear.GetComponent<MeshRenderer>().material = FindObjectOfType<CustomMeshManager>().accMats[0];
+        accRear.GetComponent<MeshRenderer>().material = CustomMeshManager.instance.accMats[0];
         accRear = Instantiate(accRear, GetPart(rearSpokes).transform);
 
         barAccessory = new GameObject("barAccessory");
         barAccessory.AddComponent<MeshFilter>();
-        barAccessory.GetComponent<MeshFilter>().mesh = FindObjectOfType<CustomMeshManager>().accessoryMeshes[0];
+        barAccessory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         barAccessory.AddComponent<MeshRenderer>();
         barAccessory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
         barAccessory = Instantiate(barAccessory, GetPart(bars).transform);
 
         frameAccesory = new GameObject("frameAccesory");
         frameAccesory.AddComponent<MeshFilter>();
-        frameAccesory.GetComponent<MeshFilter>().mesh = FindObjectOfType<CustomMeshManager>().accessoryMeshes[0];
+        frameAccesory.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         frameAccesory.AddComponent<MeshRenderer>();
         frameAccesory.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
         frameAccesory = Instantiate(frameAccesory, GetPart(frame).transform);
 
         frontHubGuard = new GameObject("frontHubGuard");
         frontHubGuard.AddComponent<MeshFilter>();
-        frontHubGuard.GetComponent<MeshFilter>().mesh = FindObjectOfType<CustomMeshManager>().accessoryMeshes[0];
+        frontHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         frontHubGuard.AddComponent<MeshRenderer>();
         frontHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
         frontHubGuard = Instantiate(frontHubGuard, GetPart(frontPegs).transform);
 
         rearHubGuard = new GameObject("rearHubGuard");
         rearHubGuard.AddComponent<MeshFilter>();
-        rearHubGuard.GetComponent<MeshFilter>().mesh = FindObjectOfType<CustomMeshManager>().accessoryMeshes[0];
+        rearHubGuard.GetComponent<MeshFilter>().mesh = CustomMeshManager.instance.accessoryMeshes[0];
         rearHubGuard.AddComponent<MeshRenderer>();
         rearHubGuard.GetComponent<MeshRenderer>().material = MaterialManager.instance.defaultMat;
         rearHubGuard = Instantiate(rearHubGuard, GetPart(rearPegs).transform);
@@ -494,9 +494,9 @@ public class RemotePartMaster : MonoBehaviour
         {
             Debug.Log($"More than one material {partList[key].name}");
             mats[0] = mat;
-            return;
+            
         }
-        partList[key].GetComponent<Renderer>().material = mat;
+        partList[key].GetComponent<Renderer>().materials[0] = mat;
     }
 
     /// <summary>
