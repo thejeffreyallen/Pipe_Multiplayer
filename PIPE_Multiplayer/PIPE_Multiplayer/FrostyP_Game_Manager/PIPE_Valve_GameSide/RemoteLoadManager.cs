@@ -321,6 +321,11 @@ public class RemoteLoadManager : MonoBehaviour
                         if (!SavingManager.instance.infoBox.activeSelf)
                             SavingManager.instance.infoBox.SetActive(true);
                     }
+                    else
+                    {
+                        player.partMaster.SetMesh(pm.partNum, CustomMeshManager.instance.FindSpecific(pm.partName, pm.fileName));
+                        continue;
+                    }
                 }
                 switch (pm.partName)
                 {
