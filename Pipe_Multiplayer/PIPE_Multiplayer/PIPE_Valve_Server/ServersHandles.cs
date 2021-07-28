@@ -50,7 +50,7 @@ namespace PIPE_Valve_Online_Server
             }
             catch (Exception x)
             {
-                Console.WriteLine($"no Version number found from {name}  :" + x);
+                Console.WriteLine($"no Version number found from {name}, cut off");
                     Server.server.CloseConnection(_from);
             }
 
@@ -63,9 +63,9 @@ namespace PIPE_Valve_Online_Server
 
             if(VersionNo != Server.VERSIONNUMBER)
             {
-                    // ServerSend.Update(_from);
-                    ServerSend.DisconnectPlayer($"Mod Version Doesnt Match, Install Version {Server.VERSIONNUMBER} to connect to this Server", _from);
-                    Console.WriteLine($"Player {name} refused due to versionNo:{VersionNo}");
+                    ServerSend.Update(_from,ServerData.GiveUpdateFileNames());
+                   // ServerSend.DisconnectPlayer($"Mod Version Doesnt Match, Install Version {Server.VERSIONNUMBER} to connect to this Server", _from);
+                    Console.WriteLine($"Player {name} offered update. Their version:{VersionNo}");
                     return;
             }
             else
@@ -101,7 +101,7 @@ namespace PIPE_Valve_Online_Server
                     {
                      ServerData.FileCheckAndRequest(Ridermodel, _from);
                     }
-                    if(CurrentLevel != "Unknown" && CurrentLevel != "" && CurrentLevel != " " && !CurrentLevel.ToLower().Contains("pipe"))
+                    if(CurrentLevel != "Unknown" && CurrentLevel != "" && CurrentLevel != " " && !CurrentLevel.ToLower().Contains("pipe") && !CurrentLevel.ToLower().Contains("chuck"))
                     {
                         ServerData.FileCheckAndRequest(CurrentLevel,_from);
                     }

@@ -131,6 +131,7 @@ namespace PIPE_Valve_Console_Client
 
         // Update window
         float Versionofupdate;
+        List<string> UpdateFiles;
         bool UpdateOpen;
         public bool UpdateDownloaded;
 
@@ -536,62 +537,31 @@ namespace PIPE_Valve_Console_Client
         {
             Connected = false;
            
-            List<GameObject> objs = new List<GameObject>();
+            List<GameObject> playerroots = new List<GameObject>();
             GameNetworking.instance.DisconnectMaster();
            
             foreach (RemotePlayer r in GameManager.Players.Values)
             {
-                r.Audio.ShutdownAllSounds();
-
-                if (r.RiderModel)
-                {
-                Destroy(r.RiderModel);
-                }
-                if (r.BMX)
-                {
-                Destroy(r.BMX);
-                }
-                if (r.Audio)
-                {
-                Destroy(r.Audio);
-                }
-                if (r.nameSign)
-                {
-                Destroy(r.nameSign);
-                }
-
-                for (int i = 0; i < r.Objects.Count; i++)
-                {
-                    if(r.Objects[i]._Gameobject != null)
-                    {
-                        GameManager.instance.DestroyObj(r.Objects[i]._Gameobject);
-                    }
-                }
-
-
-
-                objs.Add(r.gameObject);
+                r.MasterShutdown();
+                playerroots.Add(r.gameObject);
                 
-
             }
-            if (objs.Count > 0)
+            if (playerroots.Count > 0)
             {
-                foreach(GameObject obj in objs)
+                for (int i = 0; i < playerroots.Count; i++)
                 {
-                   GameManager.instance.DestroyObj(obj);
+                   Destroy(playerroots[i]);
                 }
+                
             }
             GameManager.Players.Clear();
 
-
-            Resources.UnloadUnusedAssets();
-           
-            
-            
             FileSyncing.WaitingRequests.Clear();
             FileSyncing.IncomingIndexes.Clear();
             FileSyncing.OutGoingIndexes.Clear();
 
+            Resources.UnloadUnusedAssets();
+            GameManager.instance.UnLoadOtherPlayerModels();
             // Server learns of disconnection itself and tells everyone
 
         }
@@ -1399,10 +1369,10 @@ namespace PIPE_Valve_Console_Client
                                 player.ChangePlayerTagVisible(false);
                                 }
                         }
-
+                        GUILayout.Space(10);
 
                         // invite to spawn
-                        if(GUILayout.Button("Invite to spawn",PlayeroptionsStyle))
+                        if (GUILayout.Button("Invite to spawn",Generalstyle))
                         {
                             if(player.CurrentMap != GameManager.instance.MycurrentLevel)
                             {
@@ -1415,6 +1385,7 @@ namespace PIPE_Valve_Console_Client
                                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Sent spawn to {player.username}", (int)MessageColourByNum.System, 1));
                             }
                         }
+                        GUILayout.Space(10);
 
                         // accept spawn offer if one has been offered
                         if (player.InviteToSpawnLive)
@@ -1467,7 +1438,6 @@ namespace PIPE_Valve_Console_Client
                             GUILayout.EndScrollView();
                             GUILayout.Space(10);
                         }
-
 
                         if (GUILayout.Button("Close"))
                         {
@@ -2089,10 +2059,11 @@ namespace PIPE_Valve_Console_Client
 
 
         // Server refused your connection but didnt disconnect you and sent Update message, giving option to download before disconnecting
-        public void UpdateAvailable(float version)
+        public void UpdateAvailable(float version,List<string> filesinUpdate)
         {
             FrostyPGamemanager.instance.OpenMenu = false;
             Versionofupdate = version;
+            UpdateFiles = filesinUpdate;
             UpdateOpen = true;
         }
 
@@ -2108,8 +2079,8 @@ namespace PIPE_Valve_Console_Client
                 if(f.NameOfFile == "FrostyP_Game_Manager.dll" | f.NameOfFile == "FrostyP_Game_Manager.pdb" | f.NameOfFile == "PIPE_Valve_Console_Client.dll" | f.NameOfFile == "PIPE_Valve_Console_Client.pdb")
                 {
                     downloading = true;
-                    totalpackets = totalpackets + f.TotalPacketsinFile;
-                    currentpackets = currentpackets + f.PacketNumbersStored.Count;
+                    totalpackets = f.TotalPacketsinFile;
+                    currentpackets = f.PacketNumbersStored.Count;
 
                 }
             }
@@ -2127,11 +2098,11 @@ namespace PIPE_Valve_Console_Client
             {
             if(GUILayout.Button($"Grab {Versionofupdate} files?"))
             {
+                   foreach(string file in UpdateFiles)
+                   {
+                    FileSyncing.RequestFileFromServer(file);
+                   }
                    
-                    FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.dll");
-                    FileSyncing.RequestFileFromServer("FrostyP_Game_Manager.pdb");
-                    FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.dll");
-                    FileSyncing.RequestFileFromServer("PIPE_Valve_Console_Client.pdb");
             }
 
             }

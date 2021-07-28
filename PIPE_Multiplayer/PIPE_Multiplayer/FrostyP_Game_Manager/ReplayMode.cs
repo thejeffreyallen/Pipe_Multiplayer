@@ -532,6 +532,8 @@ namespace FrostyP_Game_Manager
                 else
                 {
 
+                      
+
                     // Keep 30 seconds of my footage
                     if (MyPlayersPoisitions.Count > 1600)
                     {
@@ -571,7 +573,7 @@ namespace FrostyP_Game_Manager
                     }
 
                     // remote players footage track
-                    if (InGameUI.instance.Connected)
+                    if (InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
                     {
                         foreach (RemotePlayer player in GameManager.Players.Values)
                         {
@@ -729,6 +731,9 @@ namespace FrostyP_Game_Manager
         void Awake()
         {
             instance = this;
+            MyRidersTrans = new Transform[34];
+            Currentpositions = new Vector3[32];
+            Currentrotations = new Vector3[34];
         }
         void Start()
         {
@@ -742,10 +747,6 @@ namespace FrostyP_Game_Manager
             ReplayCam.SetActive(false);
             DontDestroyOnLoad(ReplayCam);
 
-            MyRidersTrans = new Transform[34];
-            Currentpositions = new Vector3[32];
-            Currentrotations = new Vector3[34];
-           
             Tracking = true;
 
         }

@@ -668,6 +668,50 @@ namespace PIPE_Valve_Console_Client
 
         }
 
+        /// <summary>
+        /// PI assumes it knows what bundles are loaded based on my use. symptom: choosing a model after any remoteplayer has loaded it causes failure Asset/bundle already loaded
+        /// </summary>
+        public void UnLoadOtherPlayerModels()
+        {
+            List<AssetBundle> tounload = new List<AssetBundle>();
+
+            // get loaded bundles
+            IEnumerable<AssetBundle> loaded = AssetBundle.GetAllLoadedAssetBundles();
+            foreach(AssetBundle a in loaded)
+            {
+                string bundleinput = a.name;
+                string bundleascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(bundleinput)));
+                bundleascii = bundleascii.Trim(Path.GetInvalidFileNameChars());
+                bundleascii = bundleascii.Trim(Path.GetInvalidPathChars());
+
+                if(bundleascii.ToLower() != LocalPlayer.instance.RiderModelBundleName.ToLower())
+                {
+                    FileInfo[] models = new DirectoryInfo(PlayerModelsDir).GetFiles();
+
+                    for (int i = 0; i < models.Length; i++)
+                    {
+                        if (a.Contains(models[i].Name))
+                        {
+                            tounload.Add(a);
+                        }
+                    }
+
+
+                }
+
+
+            }
+
+            if (tounload.Count > 0)
+            {
+                for (int i = 0; i < tounload.Count; i++)
+                {
+                    tounload[i].Unload(true);
+                }
+            }
+
+
+        }
 
 
         // A non-Monobehaviour wants to use a Mono function

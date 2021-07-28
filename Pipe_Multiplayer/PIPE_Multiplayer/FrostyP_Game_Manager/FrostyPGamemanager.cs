@@ -204,7 +204,7 @@ namespace FrostyP_Game_Manager
 			
 			if (OpenMenu)
 			{
-				GUILayout.Label(LocalPlayer.instance.Riders_Transforms[24].position.ToString());
+				GUILayout.Label(LocalPlayer.instance.Riders_Transforms[25].position.ToString());
 				
 
 				GUI.skin = skin;

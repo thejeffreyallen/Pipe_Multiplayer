@@ -357,7 +357,19 @@ namespace PIPE_Valve_Online_Server
            
         }
 
+        public static List<string> GiveUpdateFileNames()
+        {
+            List<string> files = new List<string>();
+            foreach(FileInfo f in new DirectoryInfo(UpdateDir).GetFiles())
+            {
+                files.Add(f.Name);
+            }
 
+
+
+            return files;
+
+        }
 
     }
 

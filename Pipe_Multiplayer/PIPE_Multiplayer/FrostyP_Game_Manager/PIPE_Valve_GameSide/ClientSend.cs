@@ -352,6 +352,7 @@ namespace PIPE_Valve_Console_Client
                     //bike
                     _packet.Write(gear.GarageSave.Length);
                     _packet.Write(gear.GarageSave);
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Sent Garage preset: {PlayerPrefs.GetString("lastPreset")}", (int)MessageColourByNum.System, 1));
 
                 }
 

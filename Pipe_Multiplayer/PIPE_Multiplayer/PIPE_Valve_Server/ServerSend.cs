@@ -583,11 +583,17 @@ namespace PIPE_Valve_Online_Server
         }
 
 
-        public static void Update(uint Conn)
+        public static void Update(uint Conn,List<string> updatefiles)
         {
             using(Packet _packet = new Packet((int)ServerPacket.Update))
             {
                 _packet.Write(Server.VERSIONNUMBER);
+                _packet.Write(updatefiles.Count);
+                for (int i = 0; i < updatefiles.Count; i++)
+                {
+                    _packet.Write(updatefiles[i]);
+                }
+                
 
                 SendtoOne(Conn, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }

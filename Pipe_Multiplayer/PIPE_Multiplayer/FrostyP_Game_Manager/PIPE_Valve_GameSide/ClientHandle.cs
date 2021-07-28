@@ -353,8 +353,16 @@ namespace PIPE_Valve_Console_Client
 
         public static void Update(Packet _packet)
         {
+            List<string> FilesinUpdate = new List<string>();
+
             float Version = _packet.ReadFloat();
-            InGameUI.instance.UpdateAvailable(Version);
+            int amountoffiles = _packet.ReadInt();
+            for (int i = 0; i < amountoffiles; i++)
+            {
+                string file = _packet.ReadString();
+                FilesinUpdate.Add(file);
+            }
+            InGameUI.instance.UpdateAvailable(Version,FilesinUpdate);
             Debug.Log("Update offer received");
         }
 

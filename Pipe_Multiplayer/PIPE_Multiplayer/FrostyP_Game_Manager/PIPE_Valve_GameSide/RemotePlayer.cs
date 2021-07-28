@@ -573,9 +573,36 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        
+        public void MasterShutdown()
+        {
+            if (Audio)
+            {
+            Audio.ShutdownAllSounds();
+            }
+            if (RiderModel)
+            {
+                Destroy(RiderModel);
+            }
+            if (BMX)
+            {
+                Destroy(BMX);
+            }
+            if (nameSign)
+            {
+                Destroy(nameSign);
+            }
 
-      
+            for (int i = 0; i < Objects.Count; i++)
+            {
+                if (Objects[i]._Gameobject != null)
+                {
+                    Destroy(Objects[i]._Gameobject);
+                }
+            }
+
+        }
+
+
 
 
         /// <summary>
