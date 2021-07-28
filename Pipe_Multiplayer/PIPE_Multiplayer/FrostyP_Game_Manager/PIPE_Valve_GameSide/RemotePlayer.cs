@@ -596,6 +596,7 @@ namespace PIPE_Valve_Console_Client
             }
 
             // do bike
+            DestroyNormal();
             UpdateBMX();
 
             
@@ -604,6 +605,24 @@ namespace PIPE_Valve_Console_Client
             ChangeCollideStatus(InGameUI.instance.CollisionsToggle);
 
             Debug.Log($"{username} completed setup"); MasterActive = true;
+        }
+
+        private void DestroyNormal()
+        {
+            Material[] defaultMats = partMaster.GetMaterials(partMaster.frame);
+            defaultMats[0].SetTexture("_DetailNormalMap", null);
+            defaultMats[0].color = Color.black;
+            Debug.Log("Destroying detail normal maps on remote rider");
+            foreach (KeyValuePair<int, GameObject> pair in partMaster.partList)
+            {
+                Material[] m = partMaster.GetMaterials(pair.Key);
+                if (m == null)
+                    continue;
+                if (m[0].name.ToLower().Contains("a_glossy") || m[0].name.ToLower().Contains("forks"))
+                {
+                    partMaster.SetMaterials(pair.Key, defaultMats);
+                }
+            }
         }
 
         public IEnumerator InvitedToSpawn()
