@@ -61,7 +61,6 @@ namespace PIPE_Valve_Console_Client
         public ConnectionState connectionstate;
         public float connectionqualitylocal;
         public float connectionqualityremote;
-        string StateLabel = "Offline";
 
 
 
@@ -81,8 +80,10 @@ namespace PIPE_Valve_Console_Client
 
 
         // MiniGUI
-        bool MiniLiveRiderstoggle;
         Vector2 minguiscroll;
+
+        // saved servers
+        Vector2 savedserversscroll;
 
 
         // live riders
@@ -572,7 +573,7 @@ namespace PIPE_Valve_Console_Client
 
         }
         
-       public void ClientsOfflineMenu()
+        public void ClientsOfflineMenu()
         {
 
 
@@ -726,9 +727,7 @@ namespace PIPE_Valve_Console_Client
             GUILayout.EndHorizontal();
             GUILayout.Space(40);
 
-            RecentSavedServersMenu = GUILayout.Toggle(RecentSavedServersMenu, "Saved Servers");
-            if (RecentSavedServersMenu)
-            {
+          
                 GUILayout.Space(15);
                 GUILayout.BeginHorizontal();
                 if(GUILayout.Button($"Save current setup as"))
@@ -753,10 +752,11 @@ namespace PIPE_Valve_Console_Client
                 GUILayout.EndHorizontal();
                 GUILayout.Space(10);
 
-                GUILayout.Label("Saved server list:");
+                GUILayout.Label("Saved servers:");
                 GUILayout.Space(10);
                 if (PlayerSavedata != null && PlayerSavedata.savedservers != null)
                 {
+                 savedserversscroll = GUILayout.BeginScrollView(savedserversscroll);
                     foreach(SavedServer s in PlayerSavedata.savedservers.ToArray())
                     {
                         GUILayout.BeginHorizontal();
@@ -781,12 +781,12 @@ namespace PIPE_Valve_Console_Client
                         GUILayout.EndHorizontal();
                         GUILayout.Space(10);
                     }
+                 GUILayout.EndScrollView();
                 }
 
 
 
-                GUILayout.Space(35);
-            }
+            GUILayout.Space(35);
             GUILayout.Space(40);
             if (GUILayout.Button("Close"))
             {
@@ -962,10 +962,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-
-
-
         /// <summary>
         /// Call IngameUI.instance.NewMessage(constants.?, new textmessage("message", messagecolour.?, 1(incoming messages from server are coded and handled in clienthandle)  ))     to display message
         /// </summary>
@@ -999,7 +995,6 @@ namespace PIPE_Valve_Console_Client
             InGameUI.instance.Messages.Remove(message);
             yield return null;
         }
-
 
         /// <summary>
         /// Called by Disconnectme in ClientHandle, if the server rejects us it sends a command for us to initiate the disconnect, meaning the user can receive an online message before hand saying that they have lost connection with the reason sent from server
@@ -1222,15 +1217,11 @@ namespace PIPE_Valve_Console_Client
 
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        
-
-
-
        public void MiniGUI()
         {
+            GUILayout.BeginArea(new Rect(new Vector2(50, 0), new Vector2(Screen.width - 100, Screen.height / 45)),BoxStyle);
             GUILayout.BeginHorizontal();
-            GUILayout.Space(10);
-            if (GUILayout.Button("return",MiniLiveRidersStyle))
+            if (GUILayout.Button("return",Bottompanelstyle))
             {
                 Minigui = false;
                 OnlineMenu = true;
@@ -1239,32 +1230,18 @@ namespace PIPE_Valve_Console_Client
                
                
             }
-            GUILayout.Space(10);
-
-
-            
-            MiniLiveRiderstoggle = GUILayout.Toggle(MiniLiveRiderstoggle, " Live Riders", MiniLiveRidersStyle);
-
-            if (MiniLiveRiderstoggle)
-            {
-               
-
-
-                GUILayout.Space(20);
-                foreach (RemotePlayer r in GameManager.Players.Values)
-                {
-                 
-                    GUILayout.Label($"{r.username} is at {r.CurrentMap}",r.style);
-                }
-
-            GUILayout.Space(20);
-            }
+            GUILayout.Label($"People Riding: {GameManager.Players.Count}",Bottompanelstyle);
+            GUILayout.Label($"Riders on this map: {GameManager.instance.RidersOnMyMap()}",Bottompanelstyle);
+            GUILayout.Label($"Status: {connectionstatelabels[(int)connectionstate]}",Bottompanelstyle);
+            GUILayout.Label($"Ping: {Ping}",Bottompanelstyle);
 
             GUILayout.EndHorizontal();
+            GUILayout.EndArea();
 
-
-
-            GUILayout.BeginArea(new Rect(new Vector2(20,Screen.height-(Screen.height/4)), new Vector2(Screen.width/4,Screen.height/4)));
+            // pop up message box
+            if (Messages.Count > 0)
+            {
+            GUILayout.BeginArea(new Rect(new Vector2(50, Screen.height / 45), new Vector2(Screen.width/6,Screen.height/15)),BoxStyle);
             minguiscroll = GUILayout.BeginScrollView(minguiscroll);
             foreach (TextMessage mess in Messages)
             {
@@ -1274,9 +1251,17 @@ namespace PIPE_Valve_Console_Client
                     try
                     {
                         if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
+                        {
 
+                            GUIStyle style = new GUIStyle();
+                        style.normal.textColor = player.style.normal.textColor;
+                        style.alignment = TextAnchor.MiddleCenter;
+                        style.padding = new RectOffset(2, 2, 2, 2);
+                        style.normal.background = TransTex;
+                        GUILayout.Label(mess.Message, style);
 
-                      GUILayout.Label(mess.Message, player.style);
+                        }
+
                     }
                     catch (Exception x)
                     {
@@ -1293,7 +1278,7 @@ namespace PIPE_Valve_Console_Client
                     style.normal.textColor = MessageColour[mess.FromCode];
                     style.alignment = TextAnchor.MiddleCenter;
                     style.padding = new RectOffset(2, 2, 2, 2);
-                    style.normal.background = GreyTex;
+                    style.normal.background = TransTex;
                     GUILayout.Label(mess.Message, style);
                 }
                 
@@ -1301,6 +1286,8 @@ namespace PIPE_Valve_Console_Client
             }
             GUILayout.EndScrollView();
             GUILayout.EndArea();
+
+            }
 
         }
 
@@ -1314,7 +1301,7 @@ namespace PIPE_Valve_Console_Client
                 
                     if(GameManager.Players.TryGetValue(IdofRidertoshow,out RemotePlayer player))
                     {
-                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 15), new Vector2(400, 400)));
+                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 15), new Vector2(400, 400)),BoxStyle);
                         GUILayout.Label($"{player.username}", Generalstyle);
                         GUILayout.Label($"Riding at: {player.CurrentMap}" ,Generalstyle);
                         GUILayout.Label($"As: {player.CurrentModelName}",Generalstyle);
@@ -1600,7 +1587,6 @@ namespace PIPE_Valve_Console_Client
                     style.normal.textColor = MessageColour[mess.FromCode];
                     style.alignment = TextAnchor.MiddleCenter;
                     style.padding = new RectOffset(2, 2, 2, 2);
-                    style.normal.background = GreyTex;
                     GUILayout.Label(mess.Message, style);
                     }
 
@@ -1841,12 +1827,12 @@ namespace PIPE_Valve_Console_Client
 
         public void ShowBottomPanel()
         {
-            StateLabel = connectionstatelabels[(int)connectionstate];
+            
 
 
-            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/40)), new Vector2(Screen.width - 100, Screen.height/40)),BoxStyle);
+            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/45)), new Vector2(Screen.width - 100, Screen.height/45)),BoxStyle);
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"Connection State: {StateLabel} ", Bottompanelstyle);
+            GUILayout.Label($"Connection State: {connectionstatelabels[(int)connectionstate]} ", Bottompanelstyle);
             GUILayout.Label($"Ping: {Ping}",Bottompanelstyle);
             GUILayout.Label($"Bytes out per/s: {Outbytespersec} ", Bottompanelstyle);
             GUILayout.Label($"Bytes in per/s: {InBytespersec} ", Bottompanelstyle);
@@ -1857,7 +1843,6 @@ namespace PIPE_Valve_Console_Client
             GUILayout.EndArea();
         }
 
-
         void SetupGuis()
         {
             // box style
@@ -1865,10 +1850,13 @@ namespace PIPE_Valve_Console_Client
             BoxStyle.normal.background = whiteTex;
 
 
-            Bottompanelstyle.fixedWidth = Screen.width / 9;
+            //Bottompanelstyle.fixedWidth = Screen.width / 9;
             Bottompanelstyle.alignment = TextAnchor.MiddleCenter;
             Bottompanelstyle.fontStyle = FontStyle.Bold;
             Bottompanelstyle.wordWrap = true;
+            Bottompanelstyle.hover.background = GreenTex;
+            Bottompanelstyle.padding = new RectOffset(0, 0, 0, 2);
+            Bottompanelstyle.fontSize = 11;
 
             // sync window
             SyncWindowStyle1.normal.background = GreyTex;
@@ -1935,7 +1923,7 @@ namespace PIPE_Valve_Console_Client
 
 
             // general
-            Generalstyle.normal.background = GreyTex;
+           // Generalstyle.normal.background = GreyTex;
             Generalstyle.normal.textColor = Color.black;
 
             Generalstyle.alignment = TextAnchor.MiddleCenter;
@@ -2035,7 +2023,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         public void ReceivedSpawnInvite(uint from, Vector3 pos, Vector3 rot)
         {
             if(GameManager.Players.TryGetValue(from,out RemotePlayer player))
@@ -2061,9 +2048,6 @@ namespace PIPE_Valve_Console_Client
 
         }
         
-
-
-        // Server refused your connection but didnt disconnect you and sent Update message, giving option to download before disconnecting
         public void UpdateAvailable(float version,List<string> filesinUpdate)
         {
             FrostyPGamemanager.instance.OpenMenu = false;
@@ -2145,7 +2129,6 @@ namespace PIPE_Valve_Console_Client
 
             GUILayout.EndArea();
         }
-
 
     }
 

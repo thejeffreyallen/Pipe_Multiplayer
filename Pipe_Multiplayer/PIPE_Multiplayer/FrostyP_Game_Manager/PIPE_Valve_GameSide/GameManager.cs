@@ -22,6 +22,7 @@ namespace PIPE_Valve_Console_Client
         public bool firstMap = true;
         public static Dictionary<uint, RemotePlayer> Players;
         static float KeepAlivetimer = 0;
+        List<string> RandomMessageOnSpawn;
 
 
 
@@ -63,6 +64,19 @@ namespace PIPE_Valve_Console_Client
 
             BMXSPlayer = GameObject.Find("BMXS Player Components");
             SetupDaryienAndBMXBaseModels();
+
+            RandomMessageOnSpawn = new List<string>()
+            {
+                {" is on it" },
+                {" broke the bmx out" },
+                {" is about to drop hammers" },
+                {"'s pumped the tyres up" },
+                {"'s about" },
+                {"'s here" },
+
+            };
+
+
           
         }
 
@@ -260,10 +274,10 @@ namespace PIPE_Valve_Console_Client
               }
 
             }
-            
 
 
 
+            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage(_username + RandomMessageOnSpawn[Random.Range(0, RandomMessageOnSpawn.Count - 1)], (int)MessageColourByNum.System, 1));
 
             Debug.Log("Spawn finished");
 
@@ -711,6 +725,19 @@ namespace PIPE_Valve_Console_Client
             }
 
 
+        }
+
+        public int RidersOnMyMap()
+        {
+            int count = 0;
+            foreach(RemotePlayer player in Players.Values)
+            {
+                if(player.CurrentMap == MycurrentLevel)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
 

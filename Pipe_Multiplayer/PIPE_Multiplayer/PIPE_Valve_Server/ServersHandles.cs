@@ -63,9 +63,9 @@ namespace PIPE_Valve_Online_Server
 
             if(VersionNo != Server.VERSIONNUMBER)
             {
-                    ServerSend.Update(_from,ServerData.GiveUpdateFileNames());
-                   // ServerSend.DisconnectPlayer($"Mod Version Doesnt Match, Install Version {Server.VERSIONNUMBER} to connect to this Server", _from);
-                    Console.WriteLine($"Player {name} offered update. Their version:{VersionNo}");
+                    if (VersionNo > 2.13f) { ServerSend.Update(_from, ServerData.GiveUpdateFileNames()); Console.WriteLine($"Player {name} offered update. Their version:{VersionNo}"); }
+                    else { ServerSend.DisconnectPlayer($"Mod Version Doesnt Match, Install Version {Server.VERSIONNUMBER} to connect to this Server", _from); Console.WriteLine($"Player {name} refused. Their version:{VersionNo}"); }
+                   
                     return;
             }
             else

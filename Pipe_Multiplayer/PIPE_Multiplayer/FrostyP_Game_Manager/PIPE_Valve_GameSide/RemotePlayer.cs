@@ -94,7 +94,6 @@ namespace PIPE_Valve_Console_Client
                 style.alignment = TextAnchor.MiddleCenter;
                 style.padding = new RectOffset(10, 10, 2, 2);
                 style.fontStyle = FontStyle.Bold;
-                style.normal.background = InGameUI.instance.GreyTex;
 
 
             }
