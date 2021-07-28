@@ -156,7 +156,7 @@ namespace PIPE_Valve_Console_Client
                 try
                 {
 
-                  if (nameSign != null && RiderModel != null)
+                  if (nameSign != null && RiderModel != null && Camera.current!= null)
                   {
 			       nameSign.transform.rotation = Camera.current.transform.rotation;
                   }

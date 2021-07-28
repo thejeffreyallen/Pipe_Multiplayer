@@ -43,7 +43,8 @@
     <ApplicationIcon>pipeservericon_cDx_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BikeWorkshopMenu">
+    <Reference Include="BikeWorkshopMenu, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\TheGarage\Garage\BikeMenu UnityProj\BikeMenu UnityProj\obj\Release\BikeWorkshopMenu.dll</HintPath>
     </Reference>
     <Reference Include="PIPE Server GUI">
