@@ -544,15 +544,18 @@ namespace PIPE_Valve_Console_Client
 
 
                 // bike root pos and rot
-                Positions[23] = ClientPacket.ReadVector3();
-                Rotations[23] = ClientPacket.ReadVector3();
+               // Positions[23] = ClientPacket.ReadVector3();
+               // Rotations[23] = ClientPacket.ReadVector3();
 
                     Positions[24] = ClientPacket.ReadVector3();
                     Rotations[24] = ClientPacket.ReadVector3();
 
+                    Positions[25] = ClientPacket.ReadVector3();
+                    Positions[27] = ClientPacket.ReadVector3();
+
                     // bike locals
-                for (int i = 25; i < 32; i++)
-                {
+                    for (int i = 25; i < 34; i++)
+                    {
                  
                     SystemHalf.Half _x = ClientPacket.ReadShort();
                     SystemHalf.Half _y = ClientPacket.ReadShort();
@@ -574,11 +577,9 @@ namespace PIPE_Valve_Console_Client
 
                         Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_y) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_z) / DivideRot);
 
-                }
+                    }
 
-                    Rotations[32] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort())/DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot);
-                    Rotations[33] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot);
-
+                   
 
                     try
                     {

@@ -172,10 +172,13 @@ namespace PIPE_Valve_Console_Client
 
             riderPositions[24] = Riders_Transforms[24].position;
             riderRotations[24] = Riders_Transforms[24].eulerAngles;
+
+            riderPositions[25] = Riders_Transforms[25].position;
+            riderPositions[27] = Riders_Transforms[27].position;
+
             for (int i = 25; i < 32; i++)
-            {
-                    riderPositions[i] = Riders_Transforms[i].localPosition;
-                    riderRotations[i] = Riders_Transforms[i].localEulerAngles;
+            {    
+               riderRotations[i] = Riders_Transforms[i].localEulerAngles;
             }
 
             // rot of fingers index2

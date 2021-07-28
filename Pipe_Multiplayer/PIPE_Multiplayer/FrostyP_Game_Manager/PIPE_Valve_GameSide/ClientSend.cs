@@ -173,28 +173,27 @@ namespace PIPE_Valve_Console_Client
                 }
 
                 // bmx root and locals
-                _packet.Write(positions[23]);
-                _packet.Write(rotations[23]);
+               // _packet.Write(positions[23]);
+               // _packet.Write(rotations[23]);
 
                 // bike joint
                 _packet.Write(positions[24]);
                 _packet.Write(rotations[24]);
-                for (int i = 25; i < 32; i++)
+
+                
+                _packet.Write(positions[25]);
+                _packet.Write(positions[27]);
+
+
+                for (int i = 25; i < 34; i++)
                 {
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
                     _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * Rotmult))));
+
                 }
 
 
-                // left and right 2nd index of fingers, just rot needed
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].x * Rotmult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].y * Rotmult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].z * Rotmult))));
-
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].x * Rotmult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].y * Rotmult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].z * Rotmult))));
 
 
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);

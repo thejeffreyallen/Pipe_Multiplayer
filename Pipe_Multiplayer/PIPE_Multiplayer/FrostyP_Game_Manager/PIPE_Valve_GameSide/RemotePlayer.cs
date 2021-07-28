@@ -397,12 +397,15 @@ namespace PIPE_Valve_Console_Client
 
 
                        // Bmx
-                        Riders_Transforms[23].position = Vector3.MoveTowards(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23], (float)(Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[1].Positions[23]) / timespan / (1 / Time.deltaTime)));
-                        Riders_Transforms[23].rotation = Quaternion.RotateTowards(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23]),Quaternion.Angle(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23])) / timespan / (1 / Time.deltaTime));
+                      //  Riders_Transforms[23].position = Vector3.MoveTowards(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23], (float)(Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[1].Positions[23]) / timespan / (1 / Time.deltaTime)));
+                      //  Riders_Transforms[23].rotation = Quaternion.RotateTowards(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23]),Quaternion.Angle(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23])) / timespan / (1 / Time.deltaTime));
                     // bike joint
                     Riders_Transforms[24].position = Vector3.MoveTowards(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24], (float)(Vector3.Distance(Riders_Transforms[24].position, IncomingTransformUpdates[1].Positions[24]) / timespan / (1 / Time.deltaTime)));
                     Riders_Transforms[24].rotation = Quaternion.RotateTowards(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24]), Quaternion.Angle(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24])) / timespan / (1 / Time.deltaTime));
-                    // bmx locals
+
+                    Riders_Transforms[25].position = Vector3.MoveTowards(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25], (float)(Vector3.Distance(Riders_Transforms[25].position, IncomingTransformUpdates[1].Positions[25]) / timespan / (1 / Time.deltaTime)));
+                    Riders_Transforms[27].position = Vector3.MoveTowards(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27], (float)(Vector3.Distance(Riders_Transforms[27].position, IncomingTransformUpdates[1].Positions[27]) / timespan / (1 / Time.deltaTime)));
+                        // bmx locals
                         for (int i = 25; i < 32; i++)
                         {   
                         Riders_Transforms[i].localRotation = Quaternion.RotateTowards(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i]), Quaternion.Angle(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i])) / timespan / (1 / Time.deltaTime));

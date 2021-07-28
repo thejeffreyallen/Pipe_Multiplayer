@@ -536,7 +536,8 @@ namespace PIPE_Valve_Console_Client
         public void Disconnect()
         {
             Connected = false;
-           
+
+
             List<GameObject> playerroots = new List<GameObject>();
             GameNetworking.instance.DisconnectMaster();
            
@@ -546,6 +547,7 @@ namespace PIPE_Valve_Console_Client
                 playerroots.Add(r.gameObject);
                 
             }
+            GameManager.Players.Clear();
             if (playerroots.Count > 0)
             {
                 for (int i = 0; i < playerroots.Count; i++)
@@ -554,7 +556,6 @@ namespace PIPE_Valve_Console_Client
                 }
                 
             }
-            GameManager.Players.Clear();
 
             FileSyncing.WaitingRequests.Clear();
             FileSyncing.IncomingIndexes.Clear();
@@ -562,6 +563,11 @@ namespace PIPE_Valve_Console_Client
 
             Resources.UnloadUnusedAssets();
             GameManager.instance.UnLoadOtherPlayerModels();
+
+            if (IsSpectating)
+            {
+                SpectateExit();
+            }
             // Server learns of disconnection itself and tells everyone
 
         }
@@ -1014,14 +1020,14 @@ namespace PIPE_Valve_Console_Client
         // --------------------------------------------------------------------------------------------  SPECTATE MODE ---------------------------------------------------------------------------------------------------
         public void SpectateEnter()
         {
-           
+            cycleplayerslist = new List<RemotePlayer>();
             if (GameManager.Players.Count > 0)
             {
 
             bool got = false;
             foreach(RemotePlayer rem in GameManager.Players.Values)
             {
-                if (!got)
+                if (!got && rem.RiderModel)
                 {
                     Targetrider = rem.RiderModel;
                     ControlObj.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
@@ -1209,9 +1215,8 @@ namespace PIPE_Valve_Console_Client
             }
             cyclecounter = 0;
             IsSpectating = false;
+            SpecCamOBJ.transform.parent = null;
             SpecCamOBJ.SetActive(false);
-           
-            Targetrider = null;
 
         }
 
