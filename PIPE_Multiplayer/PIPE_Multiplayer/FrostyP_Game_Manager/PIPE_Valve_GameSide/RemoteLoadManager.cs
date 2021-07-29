@@ -156,30 +156,21 @@ public class RemoteLoadManager : MonoBehaviour
     IEnumerator SetTextureEnum(RemotePlayer player, int partNum, string url)
     {
         WWW www = new WWW(url);
-        while (!www.isDone)
-        {
-            yield return new WaitForEndOfFrame();
-        }
+        yield return www;
         TexHelper(player, www.texture, null, partNum, "_MainTex", "", url);
     }
 
     IEnumerator SetMetallicEnum(RemotePlayer player, int partNum, string url)
     {
         WWW www = new WWW(url);
-        while (!www.isDone)
-        {
-            yield return new WaitForEndOfFrame();
-        }
+        yield return www;
         TexHelper(player, www.texture, null, partNum, "_MetallicGlossMap", "_METALLICGLOSSMAP", url);
     }
 
     IEnumerator SetNormalEnum(RemotePlayer player, int partNum, string url)
     {
         WWW www = new WWW(url);
-        while (!www.isDone)
-        {
-            yield return new WaitForEndOfFrame();
-        }
+        yield return www;
         Texture2D normalTexture = ConvertToNormalMap(www.texture);
 
         TexHelper(player, normalTexture, null, partNum, "_BumpMap", "_NORMALMAP", url);
