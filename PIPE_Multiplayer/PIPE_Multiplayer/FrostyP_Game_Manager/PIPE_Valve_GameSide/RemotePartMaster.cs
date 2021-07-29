@@ -680,7 +680,7 @@ public class RemotePartMaster : MonoBehaviour
         }
     }
 
-        public void SetColor(int key, Color c)
+        public void SetColor(RemotePlayer player, int key, Color c)
         {
             switch (key)
             {
@@ -690,8 +690,22 @@ public class RemotePartMaster : MonoBehaviour
                 case -2:
                     GetMaterials(rearTire)[1].color = c;
                     return;
+                case -3:
+                    if (player.brakesManager.IsEnabled())
+                    {
+                        player.brakesManager.GetFrameBrakes().GetComponent<Renderer>().materials[2].color = c;
+                        player.brakesManager.GetBarBrakes().GetComponent<Renderer>().materials[1].color = c;
+                    }
+                    return;
+                case -4:
+                    if (player.brakesManager.IsEnabled())
+                    {
+                        player.brakesManager.GetFrameBrakes().GetComponent<Renderer>().materials[3].color = c;
+                        player.brakesManager.GetBarBrakes().GetComponent<Renderer>().materials[2].color = c;
+                    }
+                    return;
             }
-            if (key >= 0 && key < 54)
+            if (key >= 0 && key < partList.Count)
                 GetMaterial(key).color = c;
         }
     }

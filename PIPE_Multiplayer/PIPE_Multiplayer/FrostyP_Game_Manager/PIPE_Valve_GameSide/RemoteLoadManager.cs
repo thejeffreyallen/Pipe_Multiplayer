@@ -28,7 +28,7 @@ public class RemoteLoadManager : MonoBehaviour
             LoadTireTread(pm, loadList);
             foreach (PartColor p in loadList.partColors)
             {
-                pm.SetColor(p.partNum, new Color(p.r, p.g, p.b, p.a));
+                pm.SetColor(player, p.partNum, new Color(p.r, p.g, p.b, p.a));
             }
             LoadMeshes(player, loadList);
             LoadTextures(player, loadList);
@@ -585,6 +585,14 @@ public class RemoteLoadManager : MonoBehaviour
             SetMaterialHelper(player.partMaster, player.partMaster.rearSpokes, loadList.rearSpokesMat);
             SetMaterialHelper(player.partMaster, player.partMaster.frontNipples, loadList.frontNipplesMat);
             SetMaterialHelper(player.partMaster, player.partMaster.rearNipples, loadList.rearNipplesMat);
+
+            SetMaterialHelper(player.partMaster, player.partMaster.leftGrip, loadList.leftGripMat);
+            SetMaterialHelper(player.partMaster, player.partMaster.rightGrip, loadList.rightGripMat);
+            SetMaterialHelper(player.partMaster, player.partMaster.leftCrank, loadList.leftCrankMat);
+            SetMaterialHelper(player.partMaster, player.partMaster.rightCrank, loadList.rightCrankMat);
+            SetMaterialHelper(player.partMaster, player.partMaster.leftPedal, loadList.leftPedalMat);
+            SetMaterialHelper(player.partMaster, player.partMaster.rightPedal, loadList.rightPedalMat);
+
             foreach (MatData matData in loadList.matData)
             {
                 player.partMaster.SetMaterialData(matData.key, matData.glossiness, matData.glossMapScale);
@@ -707,8 +715,8 @@ public class RemoteLoadManager : MonoBehaviour
         BLO.SetSeatHeight(list.seatHeight);
         BLO.SetBarsAngle(list.barsAngle);
         BLO.barsApplyMod.SetFlanges(list.flanges);
-        BLO.SetGripsID(list.gripsID % FindObjectOfType<BarsApplyMod>().gripMats.Length);
-        BLO.SetSeatCover(list.seatID % FindObjectOfType<SeatApplyMod>().seatCovers.Length);
+        BLO.SetGripsID(list.gripsID % BLO.barsApplyMod.gripMats.Length);
+        BLO.SetSeatCover(list.seatID % BLO.seatApplyMod.seatCovers.Length);
     }
 
     private void LoadDriveSide(RemotePlayer player, SaveList loadList)
