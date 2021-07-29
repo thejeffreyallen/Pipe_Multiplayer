@@ -1219,7 +1219,8 @@ namespace PIPE_Valve_Console_Client
 
        public void MiniGUI()
         {
-            GUILayout.BeginArea(new Rect(new Vector2(50, 0), new Vector2(Screen.width - 100, Screen.height / 45)),BoxStyle);
+            GUI.skin = skin;
+            GUILayout.BeginArea(new Rect(new Vector2(50, 0), new Vector2(Screen.width - 100, Screen.height / 50)),BoxStyle);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("return",Bottompanelstyle))
             {
@@ -1241,7 +1242,7 @@ namespace PIPE_Valve_Console_Client
             // pop up message box
             if (Messages.Count > 0)
             {
-            GUILayout.BeginArea(new Rect(new Vector2(50, Screen.height / 45), new Vector2(Screen.width/6,Screen.height/15)),BoxStyle);
+            GUILayout.BeginArea(new Rect(new Vector2(50, Screen.height / 45), new Vector2(Screen.width/6,Screen.height/15)));
             minguiscroll = GUILayout.BeginScrollView(minguiscroll);
             foreach (TextMessage mess in Messages)
             {
@@ -1252,14 +1253,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
                         {
-
-                            GUIStyle style = new GUIStyle();
-                        style.normal.textColor = player.style.normal.textColor;
-                        style.alignment = TextAnchor.MiddleCenter;
-                        style.padding = new RectOffset(2, 2, 2, 2);
-                        style.normal.background = TransTex;
-                        GUILayout.Label(mess.Message, style);
-
+                        GUILayout.Label(mess.Message, player.style);
                         }
 
                     }
@@ -1278,7 +1272,7 @@ namespace PIPE_Valve_Console_Client
                     style.normal.textColor = MessageColour[mess.FromCode];
                     style.alignment = TextAnchor.MiddleCenter;
                     style.padding = new RectOffset(2, 2, 2, 2);
-                    style.normal.background = TransTex;
+                    style.normal.background = whiteTex;
                     GUILayout.Label(mess.Message, style);
                 }
                 
@@ -1536,7 +1530,7 @@ namespace PIPE_Valve_Console_Client
 
 
             GUI.skin = skin;
-            GUILayout.BeginArea(_box,MessagesTextStyle);
+            GUILayout.BeginArea(_box);
 
 
                 GUILayout.BeginHorizontal();
@@ -1548,17 +1542,17 @@ namespace PIPE_Valve_Console_Client
                    // MessagesBigStyle.alignment = TextAnchor.MiddleCenter;
                     try
                     {
-                    Messagetosend = GUILayout.TextField(Messagetosend);
+                    Messagetosend = GUILayout.TextArea(Messagetosend,200);
 
                     }
                     catch (UnityException x)
                     {
-
+                        Debug.Log("Text area error : " + x);
                     }
                     GUILayout.Space(5);
                     if (GUILayout.Button("Send",CurrentMessagestyle))
                     {
-                        if (Messagetosend != null)
+                        if (Messagetosend != null && Messagetosend != "")
                         {
                             ClientSend.SendTextMessage(Messagetosend.ToString());
                             Messagetosend = "";
@@ -1587,6 +1581,7 @@ namespace PIPE_Valve_Console_Client
                     style.normal.textColor = MessageColour[mess.FromCode];
                     style.alignment = TextAnchor.MiddleCenter;
                     style.padding = new RectOffset(2, 2, 2, 2);
+                    style.normal.background = whiteTex;
                     GUILayout.Label(mess.Message, style);
                     }
 
@@ -1899,7 +1894,7 @@ namespace PIPE_Valve_Console_Client
             MessagesSmallStyle.alignment = TextAnchor.UpperCenter;
             MessagesSmallStyle.hover.background = GreenTex;
 
-            MessagesTextStyle.wordWrap = true;
+           
 
 
 
@@ -1952,12 +1947,24 @@ namespace PIPE_Valve_Console_Client
             skin.textField.alignment = TextAnchor.MiddleCenter;
             skin.textField.normal.textColor = Color.red;
             skin.textField.hover.textColor = Color.white;
-            skin.textField.normal.background = Texture2D.whiteTexture;
+            skin.textField.normal.background = whiteTex;
             skin.textField.focused.background = BlackTex;
             skin.textField.focused.textColor = Color.white;
             skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
             skin.textField.padding = new RectOffset(10, 10, 10, 10);
 
+
+            skin.textArea.alignment = TextAnchor.MiddleCenter;
+            skin.textArea.normal.textColor = Color.red;
+            skin.textArea.hover.textColor = Color.white;
+            skin.textArea.normal.background = whiteTex;
+            skin.textArea.focused.background = BlackTex;
+            skin.textArea.focused.textColor = Color.white;
+            skin.textArea.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
+            skin.textArea.padding = new RectOffset(10, 10, 10, 10);
+            skin.textArea.fixedWidth = 300;
+            skin.textArea.clipping = TextClipping.Clip;
+            skin.textArea.wordWrap = true;
 
 
             skin.button.normal.textColor = Color.black;

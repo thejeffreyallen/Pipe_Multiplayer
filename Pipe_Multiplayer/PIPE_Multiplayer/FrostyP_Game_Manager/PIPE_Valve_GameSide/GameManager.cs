@@ -73,6 +73,12 @@ namespace PIPE_Valve_Console_Client
                 {"'s pumped the tyres up" },
                 {"'s about" },
                 {"'s here" },
+                { " showed up" },
+                {" is rollin" },
+                {"'s gonna send it" },
+                {"'s about to go off" },
+                {"'s warming up" },
+
 
             };
 
@@ -277,7 +283,7 @@ namespace PIPE_Valve_Console_Client
 
 
 
-            InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage(_username + RandomMessageOnSpawn[Random.Range(0, RandomMessageOnSpawn.Count - 1)], (int)MessageColourByNum.System, 1));
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(_username + RandomMessageOnSpawn[Random.Range(0, RandomMessageOnSpawn.Count - 1)], (int)MessageColourByNum.Player, _id));
 
             Debug.Log("Spawn finished");
 

@@ -76,7 +76,7 @@ namespace PIPE_Valve_Console_Client
             {
             Initialize();
            
-            nameSign = new GameObject("player_label");
+            nameSign = new GameObject($"{username} label");
             DontDestroyOnLoad(nameSign);
             nameSign.transform.position = RiderModel.transform.position + Vector3.up * 1.8f;
             nameSign.transform.parent = RiderModel.transform;
@@ -94,6 +94,7 @@ namespace PIPE_Valve_Console_Client
                 style.alignment = TextAnchor.MiddleCenter;
                 style.padding = new RectOffset(10, 10, 2, 2);
                 style.fontStyle = FontStyle.Bold;
+                style.normal.background = InGameUI.instance.whiteTex;
 
 
             }

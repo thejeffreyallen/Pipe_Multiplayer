@@ -14,7 +14,6 @@ public class RemoteLoadManager : MonoBehaviour
         instance = this;
     }
 
-
     public void Load(RemotePlayer player, SaveList loadList)
     {
         try
@@ -130,7 +129,6 @@ public class RemoteLoadManager : MonoBehaviour
         }
     }
 
-
     public void SetTexture(RemotePlayer player, int partNum, string url)
     {
         if (url == "" || url == null)
@@ -192,8 +190,6 @@ public class RemoteLoadManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
         TexHelper(player, null, null, partNum, "_MainTex");
     }
-
-
 
     IEnumerator SetNormalBlank(RemotePlayer player, int partNum)
     {
@@ -690,7 +686,6 @@ public class RemoteLoadManager : MonoBehaviour
         }
             
     }
-
 
     private void LoadBrakes(RemotePlayer player, SaveList loadList)
     {
