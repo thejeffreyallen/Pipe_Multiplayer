@@ -67,6 +67,7 @@ namespace PIPE_Valve_Online_Server
         FileStatus,
         LogOut,
         InviteToSpawn,
+        AlterBanWords,
 
     }
 

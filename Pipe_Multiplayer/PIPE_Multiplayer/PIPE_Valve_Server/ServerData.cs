@@ -72,6 +72,26 @@ namespace PIPE_Valve_Online_Server
                
             };
 
+            if(File.Exists(Rootdir + "SaveData.Server"))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                Stream stream = File.OpenRead(Rootdir + "SaveData.Server");
+                SaveData data = bf.Deserialize(stream) as SaveData;
+                BannedWords = data.Banwords;
+                Server.BanProfiles = data.Banprofiles;
+                stream.Close();
+
+            }
+            else
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                SaveData data = new SaveData(BannedWords, Server.BanProfiles);
+                Stream stream = File.OpenWrite(Rootdir + "SaveData.Server");
+                bf.Serialize(stream,data);
+                stream.Close();
+
+            }
+
 
 
 
@@ -93,15 +113,65 @@ namespace PIPE_Valve_Online_Server
 
         }
 
+        public static void SaveServerData()
+        {
+            SaveData data = new SaveData(BannedWords, Server.BanProfiles);
+            BinaryFormatter bf = new BinaryFormatter();
+            Stream stream = File.OpenWrite(Rootdir + "SaveData.Server");
+            bf.Serialize(stream, data);
+            stream.Close();
+        }
 
         public static void BanPlayer(string _username, string IP, uint connid, int mins)
         {
             DateTime Time_of_release = DateTime.Now.AddMinutes(mins);
 
             Server.BanProfiles.Add(new BanProfile(IP, _username, connid, Time_of_release));
-
+            SaveServerData();
 
         }
+
+        public static void AlterBanWords(uint admin,bool add,string word)
+        {
+            if (add)
+            {
+                bool found = false;
+                for (int i = 0; i < BannedWords.Count; i++)
+                {
+                    if(BannedWords[i].ToLower() == word.ToLower())
+                    {
+                        found = true;
+                    }
+
+                }
+                if (!found)
+                {
+                BannedWords.Add(word);
+                SaveServerData();
+                ServerSend.SendTextFromServerToOne(admin, $"Added {word}");
+
+                }
+                else
+                {
+                    ServerSend.SendTextFromServerToOne(admin, $"{word} already stored");
+                }
+            }
+            else
+            {
+                for (int i = 0; i < BannedWords.Count; i++)
+                {
+                    if(BannedWords[i] == word)
+                    {
+                        BannedWords.RemoveAt(i);
+                        SaveServerData();
+                        ServerSend.SendTextFromServerToOne(admin, $"Removed {word}");
+                    }
+
+                }
+                
+            }
+        }
+
 
 
         public static void FileCheckAndSend(string FileName, List<int> _packetsowned, uint _from)

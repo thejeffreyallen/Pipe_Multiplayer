@@ -50,7 +50,7 @@ namespace PIPE_Valve_Online_Server
 
                 Constants.TicksPerSec = int.Parse(Console.ReadLine());
 
-                Console.WriteLine("Please enter an admin login password.. (in game, Use A key when in online mode to toggle Admin controls -- password is case sensitive)");
+                Console.WriteLine("Please enter an admin login password.. (in game, Use F12 key when in online mode to toggle Admin controls -- password is case sensitive)");
                 ServerData.AdminPassword = Console.ReadLine();
 
 

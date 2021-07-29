@@ -213,7 +213,6 @@ namespace PIPE_Valve_Console_Client
             
         }
 
-
         /// <summary>
         /// Someones chaging level, change their visiblity to mylevel == theirlevel;
         /// </summary>
@@ -226,9 +225,6 @@ namespace PIPE_Valve_Console_Client
                 player.ChangePlayerVisibilty(Riderslevel.ToLower() == MycurrentLevel.ToLower());
             }
         }
-
-
-
 
         public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, string Currentmap, GearUpdate Gear)
         {
@@ -289,8 +285,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
-
         public void SpawnObject(NetGameObject _netobj)
         {
             RemotePlayer _player;
@@ -322,6 +316,7 @@ namespace PIPE_Valve_Console_Client
             }
 
         }
+
         public void GetObject(NetGameObject _netobj)
         {
             // check if objects bundle is loaded on this machine, if not look for filename and load bundle, if not, tell user what they need
@@ -368,6 +363,7 @@ namespace PIPE_Valve_Console_Client
             }
 
         }
+
         public void MoveObject(NetGameObject _netobj, Vector3 pos, Vector3 rot, Vector3 scale)
         {
             GameObject Obj = _netobj._Gameobject;
@@ -377,9 +373,6 @@ namespace PIPE_Valve_Console_Client
             Obj.transform.localScale = Vector3.MoveTowards(Obj.transform.localScale, scale, Vector3.Distance(Obj.transform.localScale, scale));
 
         }
-
-
-        
 
         public GearUpdate GetMyGear(bool forRidermodel)
         {
@@ -400,10 +393,14 @@ namespace PIPE_Valve_Console_Client
 
                             list.Add(new TextureInfo(asciifile, r.gameObject.name, false, i));
                         }
+                        else
+                        {
+                            list.Add(new TextureInfo("e", r.gameObject.name, false, i));
+                        }
+
 
                     }
                     
-                   
                 }
                
                 gear.RiderTextures = list;
@@ -432,7 +429,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        
         // Edited piece of code from TheGarage to just give me latest GarageSave without disturbing it
         public SaveList GarageDeserialize(string name)
         {
@@ -452,8 +448,6 @@ namespace PIPE_Valve_Console_Client
             }
         }
         
-
-
         public void SendAllParts()
         {
             GearUpdate FullGear = new GearUpdate();
@@ -471,8 +465,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-       
-
         public static void TogglePlayerComponents(bool active)
         {
             if(BMXSPlayer == null)
@@ -488,6 +480,7 @@ namespace PIPE_Valve_Console_Client
                 }
             }
         }
+
          public static GameObject GetNewDaryien()
          {
             GameObject daryien = Instantiate(DaryienClone);
@@ -513,6 +506,7 @@ namespace PIPE_Valve_Console_Client
 
             return daryien;
          }
+
          public static GameObject GetNewBMX()
          {
             GameObject bmx = Instantiate(BmxClone);
@@ -524,6 +518,7 @@ namespace PIPE_Valve_Console_Client
             return bmx;
 
          }
+
         public static GameObject GetPlayerModel(string modelname, string modelbundlename)
         {
             GameObject player = null;
@@ -745,7 +740,6 @@ namespace PIPE_Valve_Console_Client
             }
             return count;
         }
-
 
         // A non-Monobehaviour wants to use a Mono function
         public void DestroyObj(Object g)

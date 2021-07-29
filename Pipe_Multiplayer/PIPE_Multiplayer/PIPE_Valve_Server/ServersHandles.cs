@@ -975,7 +975,13 @@ namespace PIPE_Valve_Online_Server
 
         }
 
+        public static void AdminAlterBanwords(uint _admin, Packet _packet)
+        {
+            string word = _packet.ReadString();
+            bool addtolist = _packet.ReadBool();
 
+            ServerData.AlterBanWords(_admin, addtolist, word);
+        }
 
 
 

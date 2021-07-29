@@ -75,6 +75,7 @@ namespace PIPE_Valve_Console_Client
         public int ServerPendingRel;
         Vector2 BootObjectScroll;
         Vector2 BootPlayerScroll;
+        string Banword = "word to ban..";
 
 
 
@@ -429,7 +430,7 @@ namespace PIPE_Valve_Console_Client
             
 
 
-            if (Connected && OnlineMenu && Input.GetKeyDown(KeyCode.A))
+            if (Connected && OnlineMenu && Input.GetKeyDown(KeyCode.F12))
             {
                 AdminOpen = !AdminOpen;
             }
@@ -444,8 +445,10 @@ namespace PIPE_Valve_Console_Client
             }
 
 
+           
 
         }
+
 
         void OnGUI()
         {
@@ -453,9 +456,7 @@ namespace PIPE_Valve_Console_Client
 
             try
             {
-                
-               
-                
+            
                if (Minigui)
                {
                 MiniGUI();
@@ -881,6 +882,17 @@ namespace PIPE_Valve_Console_Client
                     GUILayout.Space(30);
                     GUILayout.Label($"Server Pending Reliable: {ServerPendingRel}");
 
+                    Banword = GUILayout.TextField(Banword);
+                    if(GUILayout.Button("Add word"))
+                    {
+                        ClientSend.AdminAlterBanWords(true, Banword);
+                    }
+                    if (GUILayout.Button("remove word"))
+                    {
+                        ClientSend.AdminAlterBanWords(false, Banword);
+                    }
+
+
                 }
 
                 GUILayout.EndHorizontal();
@@ -957,8 +969,6 @@ namespace PIPE_Valve_Console_Client
             {
                 ShowBottomPanel();
             }
-
-
 
         }
 
@@ -1516,7 +1526,7 @@ namespace PIPE_Valve_Console_Client
                 Rect _box;
                 if (MessagesToggle)
                 {
-                  _box = new Rect(new Vector2(Screen.width/3/2, Screen.height/3-40), new Vector2(Screen.width / 3 * 2, Screen.height / 3 * 2));
+                  _box = new Rect(new Vector2(Screen.width/3, Screen.height/3-40), new Vector2(Screen.width / 3, Screen.height / 3 * 2));
                     CurrentMessagestyle = MessagesBigStyle;
                     Messageslabel = "Minimise Messages";
                 }
@@ -1823,9 +1833,7 @@ namespace PIPE_Valve_Console_Client
         public void ShowBottomPanel()
         {
             
-
-
-            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/45)), new Vector2(Screen.width - 100, Screen.height/45)),BoxStyle);
+            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/50)), new Vector2(Screen.width - 100, Screen.height/50)),BoxStyle);
             GUILayout.BeginHorizontal();
             GUILayout.Label($"Connection State: {connectionstatelabels[(int)connectionstate]} ", Bottompanelstyle);
             GUILayout.Label($"Ping: {Ping}",Bottompanelstyle);
@@ -1883,8 +1891,7 @@ namespace PIPE_Valve_Console_Client
             MessagesBigStyle.alignment = TextAnchor.MiddleCenter;
             MessagesBigStyle.onHover.background = RedTex;
             MessagesBigStyle.hover.background = GreenTex;
-            MessagesBigStyle.fixedWidth = 400;
-            MessagesBigStyle.padding = new RectOffset(0, 0, 5, 5);
+            MessagesBigStyle.padding = new RectOffset(5, 5, 5, 5);
             MessagesBigStyle.clipping = TextClipping.Clip;
             MessagesBigStyle.stretchWidth = false;
             MessagesBigStyle.wordWrap = true;
@@ -1962,7 +1969,6 @@ namespace PIPE_Valve_Console_Client
             skin.textArea.focused.textColor = Color.white;
             skin.textArea.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
             skin.textArea.padding = new RectOffset(10, 10, 10, 10);
-            skin.textArea.fixedWidth = 300;
             skin.textArea.clipping = TextClipping.Clip;
             skin.textArea.wordWrap = true;
 

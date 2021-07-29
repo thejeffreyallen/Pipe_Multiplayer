@@ -598,13 +598,15 @@ namespace FrostyP_Game_Manager
                                     pos[i] = player.Riders_Transforms[i].localPosition;
                                     rot[i] = player.Riders_Transforms[i].localEulerAngles;
                                 }
-                                pos[23] = player.Riders_Transforms[23].position;
-                                rot[23] = player.Riders_Transforms[23].eulerAngles;
+                                pos[24] = player.Riders_Transforms[24].position;
+                                rot[24] = player.Riders_Transforms[24].eulerAngles;
 
-                                for (int i = 24; i < 32; i++)
+                                pos[25] = player.Riders_Transforms[25].position;
+                                pos[27] = player.Riders_Transforms[27].position;
+
+                                for (int i = 25; i < 32; i++)
                                 {
-                                    pos[i] = player.Riders_Transforms[i].localPosition;
-                                    rot[i] = player.Riders_Transforms[i].localEulerAngles;
+                                 rot[i] = player.Riders_Transforms[i].localEulerAngles;
                                 }
                                     
                                 rot[32] = player.Riders_Transforms[32].localEulerAngles;
@@ -688,6 +690,9 @@ namespace FrostyP_Game_Manager
 
                 }
 
+                if (InGameUI.instance.Connected)
+                {
+
                 // online players position update
                 foreach (RemotePlayer player in GameManager.Players.Values)
                 {
@@ -704,11 +709,14 @@ namespace FrostyP_Game_Manager
                             player.Riders_Transforms[i].localRotation = Quaternion.Lerp(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[i]),Playspeed);
                         }
 
-                        player.Riders_Transforms[23].position = Vector3.Lerp(player.Riders_Transforms[23].position, player.ReplayPostions[CurrentShowingPosition].Positions[0], Playspeed);
-                        player.Riders_Transforms[23].rotation = Quaternion.Lerp(player.Riders_Transforms[23].rotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[0]), Playspeed);
-                        for (int i = 24; i < 32; i++)
+                        player.Riders_Transforms[24].position = Vector3.Lerp(player.Riders_Transforms[24].position, player.ReplayPostions[CurrentShowingPosition].Positions[24], Playspeed);
+                        player.Riders_Transforms[24].rotation = Quaternion.Lerp(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[24]), Playspeed);
+
+                        player.Riders_Transforms[25].position = Vector3.Lerp(player.Riders_Transforms[25].position, player.ReplayPostions[CurrentShowingPosition].Positions[25], Playspeed);
+                        player.Riders_Transforms[27].position = Vector3.Lerp(player.Riders_Transforms[27].position, player.ReplayPostions[CurrentShowingPosition].Positions[27], Playspeed);
+
+                        for (int i = 25; i < 32; i++)
                         {
-                            player.Riders_Transforms[i].localPosition = Vector3.Lerp(player.Riders_Transforms[i].localPosition, player.ReplayPostions[CurrentShowingPosition].Positions[i], Playspeed);
                             player.Riders_Transforms[i].localRotation = Quaternion.Lerp(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPostions[CurrentShowingPosition].Rotations[i]), Playspeed);
                         }
 
@@ -717,6 +725,10 @@ namespace FrostyP_Game_Manager
 
 
                     }
+
+                }
+
+
 
                 }
 

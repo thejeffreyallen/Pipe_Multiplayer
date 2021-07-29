@@ -162,26 +162,24 @@ namespace PIPE_Valve_Console_Client
                 for (int i = 1; i < 23; i++)
                 {
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].x * PosMult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].y * PosMult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].z * PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].x * (int)PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].y * (int)PosMult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].z * (int)PosMult))));
 
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * (int)Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * (int)Rotmult))));
+                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * (int)Rotmult))));
 
                 }
 
-                // bmx root and locals
-               // _packet.Write(positions[23]);
-               // _packet.Write(rotations[23]);
-
+               
                 // bike joint
                 _packet.Write(positions[24]);
                 _packet.Write(rotations[24]);
 
-                
+                //bars joint
                 _packet.Write(positions[25]);
+                // frame joint
                 _packet.Write(positions[27]);
 
 
@@ -536,7 +534,16 @@ namespace PIPE_Valve_Console_Client
 
         }
 
+        public static void AdminAlterBanWords(bool addtolist, string word)
+        {
+            using (Packet _packet = new Packet((int)ClientPackets.AlterBanwords))
+            {
+                _packet.Write(word.ToLower());
+                _packet.Write(addtolist);
 
+                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+            }
+        }
 
         #endregion
         

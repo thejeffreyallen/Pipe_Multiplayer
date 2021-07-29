@@ -81,6 +81,8 @@ namespace PIPE_Valve_Console_Client
             ActiveModel = DaryienOriginal;
             Bmx_Root = UnityEngine.GameObject.Find("BMX");
 
+           UnityEngine.GameObject.Find("BMXS Player Components").GetComponentInChildren<DrivableVehicle>(true).initOnStart = true;
+
             Riders_Transforms[0] = DaryienOriginal.transform;
             Riders_Transforms[1] = DaryienOriginal.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
             Riders_Transforms[2] = DaryienOriginal.transform.FindDeepChild("mixamorig:RightUpLeg").transform;
@@ -131,12 +133,12 @@ namespace PIPE_Valve_Console_Client
             for (int i = 1; i < 23 ; i++)
             {
                 distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
-                distances.Add(Vector3.Distance(riderRotations[i], Riders_Transforms[i].localEulerAngles));
+                distances.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
             distances.Add(Vector3.Distance(riderPositions[23], Riders_Transforms[23].position));
             for (int i = 24; i < 32; i++)
             {
-                distances.Add(Vector3.Distance(riderRotations[i], Riders_Transforms[i].localEulerAngles));
+                distances.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
 
             for (int i = 0; i < distances.Count; i++)

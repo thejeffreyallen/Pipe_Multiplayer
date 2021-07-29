@@ -21,9 +21,6 @@ namespace FrostyP_Game_Manager
 		Dictionary<int, Menu> Menus = new Dictionary<int, Menu>();
 		public int MenuShowing;
 
-
-
-        
 		// GUI
 		public GUISkin skin = ScriptableObject.CreateInstance<GUISkin>();
 		public GUIStyle Generalstyle = new GUIStyle();
@@ -31,7 +28,6 @@ namespace FrostyP_Game_Manager
 		GUIStyle OffStyle = new GUIStyle();
 		GUIStyle OnStyle = new GUIStyle();
 		
-
 		// menu paramters
 		public bool OpenMenu;
 
@@ -185,7 +181,6 @@ namespace FrostyP_Game_Manager
 			OpenMenu = true;
 		}
 
-
 		private void Update()
 		{
 			/// toggle menu with G
@@ -194,10 +189,7 @@ namespace FrostyP_Game_Manager
 				OpenMenu = !OpenMenu;
 			}
 
-
 		}
-
-
 
 		public void OnGUI()
 		{

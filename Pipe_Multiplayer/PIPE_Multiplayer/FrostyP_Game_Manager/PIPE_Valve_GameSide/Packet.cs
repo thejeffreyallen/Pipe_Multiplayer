@@ -65,6 +65,7 @@ namespace PIPE_Valve_Console_Client
         FileStatus,
         LogOut,
         InviteToSpawn,
+        AlterBanwords,
 
     }
 

@@ -22,7 +22,7 @@ namespace PIPE_Valve_Console_Client
         #region Riders Directories
         // directories of rider textures
         public string HeadDir = Application.dataPath + "/FrostyPGameManager/Textures/Head/";
-		public string HatDir = Application.dataPath + "/FrostyPGameManager/Textures/Head/";
+		public string HatDir = Application.dataPath + "/FrostyPGameManager/Textures/Hat/";
 		public string ShirtDir = Application.dataPath + "/FrostyPGameManager/Textures/Shirt/";
 		public string BottomsDir = Application.dataPath + "/FrostyPGameManager/Textures/Pants/";
 		public string ShoeDir = Application.dataPath + "/FrostyPGameManager/Textures/Shoes/";
@@ -65,7 +65,6 @@ namespace PIPE_Valve_Console_Client
 
 		
 		Vector2 TexScroll;
-		Vector2 NormalScroll;
 
 		
 		// Random Choice numbers
@@ -132,7 +131,6 @@ namespace PIPE_Valve_Console_Client
 			}
 		}
 
-
 		private void Start()
 		{
 			
@@ -160,10 +158,6 @@ namespace PIPE_Valve_Console_Client
 
 
 		}
-
-
-		
-
 
         /// <summary>
         /// Main loop ran by FrostyPGameManagers OnGUI(), this classes OnGUI() frees functions from boundaries of FrostyPGamemangers OnGUI() to allow images to display out the way of the manager
@@ -336,15 +330,15 @@ namespace PIPE_Valve_Console_Client
 			RiderIsShowing = true;
 		}
 
-
-
-
-		
 		void ShowPartMenu(CharacterPart part)
         {
 			GUILayout.Label($"{part.DisplayName}");
 			GUILayout.Space(10);
-			
+            if (GUILayout.Button("Remove"))
+            {
+				part.Renderer.material.mainTexture = null;
+				part.Renderer.enabled = false;
+            }
 				TexScroll = GUILayout.BeginScrollView(TexScroll);
 				GUILayout.Space(20);
 				for (int i = 0; i < part.BaseTexs.Length; i++)
@@ -367,6 +361,7 @@ namespace PIPE_Valve_Console_Client
            
 			   if (GUILayout.Button(part.BaseTexs[texNum], style))
 			   {
+				part.Renderer.enabled = true;
 			    part.Renderer.materials[part.MatNum].mainTexture = part.BaseTexs[texNum];
 					part.Renderer.materials[part.MatNum].color = new Color(1, 1, 1, 1);
 			   }
@@ -380,10 +375,6 @@ namespace PIPE_Valve_Console_Client
 		 Rider_Materials[name].material.color = Color.white;
 			
 		}
-
-
-
-
 
 		/// <summary>
 		/// Takes a Directory and gives all textures in itself and all subs
@@ -410,38 +401,100 @@ namespace PIPE_Valve_Console_Client
 			return array;
 		}
 
-
-
 		public void SaveRiderSetup()
         {
 			RiderSaveData data = new RiderSaveData();
+
+            if (Rider_Materials["Shirt"].material.mainTexture)
+            {
 			data.Shirtbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Shirt"].material.mainTexture);
 			data.shirtimagename = Rider_Materials["Shirt"].material.mainTexture.name;
 			data.shirtParentname = "Shirt";
+            }
+            else
+            {
+				data.Shirtbytes = new byte[1];
+				data.shirtimagename = "e";
+				data.shirtParentname = "Shirt";
+			}
 
+            if (Rider_Materials["Bottoms"].material.mainTexture)
+            {
 			data.bottomsbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Bottoms"].material.mainTexture);
 			data.bottomsimagename = Rider_Materials["Bottoms"].material.mainTexture.name;
 			data.bottomsParentname = "Bottoms";
+            }
+            else
+            {
+				data.bottomsbytes = new byte[1];
+				data.bottomsimagename = "e";
+				data.bottomsParentname = "Bottoms";
+			}
 
+            if (Rider_Materials["Shoes"].material.mainTexture)
+            {
 			data.shoesbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Shoes"].material.mainTexture);
 			data.shoesimagename = Rider_Materials["Shoes"].material.mainTexture.name;
 			data.shoesParentname = "Shoes";
+            }
+            else
+            {
+				data.shoesbytes = new byte[1];
+				data.shoesimagename = "e";
+				data.shoesParentname = "Shoes";
+			}
 
+            if (Rider_Materials["Cap"].material.mainTexture)
+            {
 			data.hatbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Cap"].material.mainTexture);
 			data.hatimagename = Rider_Materials["Cap"].material.mainTexture.name;
 			data.hatParentname = "Cap";
+            }
+            else
+            {
+				data.hatbytes = new byte[1];
+				data.hatimagename = "e";
+				data.hatParentname = "Cap";
+			}
 
+            if (Rider_Materials["Body"].materials[0].mainTexture)
+            {
 			data.headbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Body"].materials[0].mainTexture);
 			data.headimagename = Rider_Materials["Body"].materials[0].mainTexture.name;
 			data.headParentname = "Body";
+            }
+            else
+            {
+				data.headbytes = new byte[1];
+				data.headimagename = "e";
+				data.headParentname = "Body";
+			}
 
+            if (Rider_Materials["Body"].materials[1].mainTexture)
+            {
 			data.bodybytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Body"].materials[1].mainTexture);
 			data.bodyimagename = Rider_Materials["Body"].materials[1].mainTexture.name;
 			data.bodyParentname = "Body";
+            }
+            else
+            {
+				data.bodybytes = new byte[1];
+				data.bodyimagename = "e";
+				data.bodyParentname = "Body";
+			}
 
+            if (Rider_Materials["Body"].materials[2].mainTexture)
+            {
 			data.handsfeetbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Body"].materials[2].mainTexture);
 			data.handsfeetimagename = Rider_Materials["Body"].materials[2].mainTexture.name;
 			data.handsfeetParentname = "Body";
+            }
+            else
+            {
+				data.handsfeetbytes = new byte[1];
+				data.handsfeetimagename = "e";
+				data.handsfeetParentname = "Body";
+			}
 
 
 			if (!Directory.Exists(RidersaveDir))
@@ -482,33 +535,116 @@ namespace PIPE_Valve_Console_Client
 			Texture2D bodytex = new Texture2D(1024, 1024);
 			Texture2D handsfeettex = new Texture2D(1024, 1024);
 
-			ImageConversion.LoadImage(Shirttex, load.Shirtbytes);
-			ImageConversion.LoadImage(bottomstex, load.bottomsbytes);
-			ImageConversion.LoadImage(shoestex, load.shoesbytes);
-			ImageConversion.LoadImage(hattex, load.hatbytes);
-			ImageConversion.LoadImage(headtex, load.headbytes);
-			ImageConversion.LoadImage(bodytex, load.bodybytes);
-			ImageConversion.LoadImage(handsfeettex, load.handsfeetbytes);
+                if (load.Shirtbytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(Shirttex, load.Shirtbytes);
+                }
+                if (load.bottomsbytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(bottomstex, load.bottomsbytes);
+                }
+                if (load.shoesbytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(shoestex, load.shoesbytes);
+                }
+                if (load.hatbytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(hattex, load.hatbytes);
+                }
+                if (load.headbytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(headtex, load.headbytes);
+                }
+                if (load.bodybytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(bodytex, load.bodybytes);
+                }
+                if (load.handsfeetbytes.Length > 1)
+                {
+			     ImageConversion.LoadImage(handsfeettex, load.handsfeetbytes);
+                }
 
 
-			Shirttex.name = load.shirtimagename;
-			bottomstex.name = load.bottomsimagename;
-			shoestex.name = load.shoesimagename;
-			headtex.name = load.headimagename;
-			bodytex.name = load.bodyimagename;
-			handsfeettex.name = load.handsfeetimagename;
-			hattex.name = load.hatimagename;
+			  Shirttex.name = load.shirtimagename;
+			  bottomstex.name = load.bottomsimagename;
+			  shoestex.name = load.shoesimagename;
+			  headtex.name = load.headimagename;
+			  bodytex.name = load.bodyimagename;
+			  handsfeettex.name = load.handsfeetimagename;
+			  hattex.name = load.hatimagename;
 
 
+				if(Shirttex.name != "e")
+                {
+			     Rider_Materials["Shirt"].material.mainTexture = Shirttex;
+                }
+                else
+                {
+				 Rider_Materials["Shirt"].material.mainTexture = null;
+				 Rider_Materials["Shirt"].enabled = false;
+				}
 
-			Rider_Materials["Shirt"].material.mainTexture = Shirttex;
-			Rider_Materials["Bottoms"].material.mainTexture = bottomstex;
-			Rider_Materials["Shoes"].material.mainTexture = shoestex;
-			Rider_Materials["Cap"].material.mainTexture = hattex;
-	        Rider_Materials["Cap"].material.color = Color.white;
-			Rider_Materials["Body"].materials[0].mainTexture = headtex;
-			Rider_Materials["Body"].materials[1].mainTexture = bodytex;
-			Rider_Materials["Body"].materials[2].mainTexture = handsfeettex;
+				if(bottomstex.name != "e")
+                {
+			     Rider_Materials["Bottoms"].material.mainTexture = bottomstex;
+                }
+                else
+                {
+					Rider_Materials["Bottoms"].material.mainTexture = null;
+					Rider_Materials["Bottoms"].enabled = false;
+				}
+
+				if(shoestex.name != "e")
+                {
+			     Rider_Materials["Shoes"].material.mainTexture = shoestex;
+                }
+                else
+                {
+					Rider_Materials["Shoes"].material.mainTexture = null;
+					Rider_Materials["Shoes"].enabled = false;
+				}
+
+				if(hattex.name != "e")
+                {
+			     Rider_Materials["Cap"].material.mainTexture = hattex;
+	             Rider_Materials["Cap"].material.color = Color.white;
+                }
+                else
+                {
+					Rider_Materials["Cap"].material.mainTexture = null;
+					Rider_Materials["Cap"].enabled = false;
+				}
+
+				if(headtex.name != "e")
+                {
+			     Rider_Materials["Body"].materials[0].mainTexture = headtex;
+                }
+                else
+                {
+					Rider_Materials["Body"].materials[0].mainTexture = null;
+					Rider_Materials["Body"].enabled = false;
+				}
+
+				if(bodytex.name != "e")
+                {
+			     Rider_Materials["Body"].materials[1].mainTexture = bodytex;
+                }
+                else
+                {
+					Rider_Materials["Body"].materials[1].mainTexture = null;
+					Rider_Materials["Body"].enabled = false;
+
+				}
+
+				if(handsfeettex.name != "e")
+                {
+			     Rider_Materials["Body"].materials[2].mainTexture = handsfeettex;
+                }
+                else
+                {
+					Rider_Materials["Body"].materials[2].mainTexture = null;
+					Rider_Materials["Body"].enabled = false;
+				}
 
 			return 1;
             }
@@ -524,8 +660,6 @@ namespace PIPE_Valve_Console_Client
 
 
 		}
-
-
 
     }
 
@@ -571,9 +705,6 @@ namespace PIPE_Valve_Console_Client
         }
 
 	}
-
-
-	
 
 	/// <summary>
 	/// Used for keeping track of texture name and the gameobject its on for when it reaches remote players

@@ -484,8 +484,8 @@ namespace PIPE_Valve_Console_Client
 
 
                     // to avoid truncation problem
-                    int DividePos = 4500;
-                    int DivideRot = 80;
+                    int DividePos = (int)ClientSend.PosMult;
+                    int DivideRot = (int)ClientSend.Rotmult;
 
 
                     // positions to be filled

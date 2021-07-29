@@ -337,14 +337,6 @@ namespace FrostyP_Game_Manager
                 }
 
 
-
-
-
-				// check everything is there, if not load/find it/turn it on, destroying activeobj will always result in it being re-instatiated as pointer object
-				
-				
-				
-				
 				
 				if (Activeobj != null)
 				{

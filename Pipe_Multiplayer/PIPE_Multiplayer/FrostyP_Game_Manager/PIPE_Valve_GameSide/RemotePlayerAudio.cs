@@ -71,14 +71,6 @@ namespace PIPE_Valve_Console_Client
             footbrakepath = "event:/Tires/foot_braking";
             cassettepath = "event:/Tires/cassette";
 
-        }
-
-
-        // Use this for initialization
-        void Start()
-        {
-
-
             RailSingle = FMODUnity.RuntimeManager.CreateInstance(railsinglepath);
             Tires = FMODUnity.RuntimeManager.CreateInstance(tirespath);
             RailDouble = FMODUnity.RuntimeManager.CreateInstance(raildoublepath);
@@ -88,10 +80,10 @@ namespace PIPE_Valve_Console_Client
             Cassette = FMODUnity.RuntimeManager.CreateInstance(cassettepath);
             singleTire = FMODUnity.RuntimeManager.CreateInstance(singletirepath);
             Slider = FMODUnity.RuntimeManager.CreateInstance(sliderpath);
-
-
         }
 
+
+      
        
         void Update()
         {
@@ -126,10 +118,6 @@ namespace PIPE_Valve_Console_Client
                             IncomingRiserUpdates.RemoveAt(i);
                         }
                      
-                   
-
-                  
-                   
 
                 }
                 catch(UnityException x)
@@ -148,7 +136,7 @@ namespace PIPE_Valve_Console_Client
                 for (int i = 0; i < IncomingOneShotUpdates.Count; i++)
                 {
                     FMOD.Studio.EventInstance instance = FMODUnity.RuntimeManager.CreateInstance(IncomingOneShotUpdates[i].Path);
-                    instance.setVolume(IncomingOneShotUpdates[i].Volume / (Vector3.Distance(Rider.transform.position, Camera.current.transform.position) * 0.5f));
+                    instance.setVolume(Mathf.Clamp(IncomingOneShotUpdates[i].Volume / (Vector3.Distance(Rider.transform.position, Camera.current.transform.position) * 0.5f),0,10));
                     instance.set3DAttributes(Rider.transform.position.To3DAttributes());
                     instance.start();
                     instance.release();

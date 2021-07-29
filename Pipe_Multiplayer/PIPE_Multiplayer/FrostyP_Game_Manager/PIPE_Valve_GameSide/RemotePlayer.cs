@@ -396,14 +396,14 @@ namespace PIPE_Valve_Console_Client
 
 
 
-                       // Bmx
-                      //  Riders_Transforms[23].position = Vector3.MoveTowards(Riders_Transforms[23].position, IncomingTransformUpdates[0].Positions[23], (float)(Vector3.Distance(Riders_Transforms[23].position, IncomingTransformUpdates[1].Positions[23]) / timespan / (1 / Time.deltaTime)));
-                      //  Riders_Transforms[23].rotation = Quaternion.RotateTowards(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23]),Quaternion.Angle(Riders_Transforms[23].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[23])) / timespan / (1 / Time.deltaTime));
+                      
                     // bike joint
                     Riders_Transforms[24].position = Vector3.MoveTowards(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24], (float)(Vector3.Distance(Riders_Transforms[24].position, IncomingTransformUpdates[1].Positions[24]) / timespan / (1 / Time.deltaTime)));
                     Riders_Transforms[24].rotation = Quaternion.RotateTowards(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24]), Quaternion.Angle(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24])) / timespan / (1 / Time.deltaTime));
 
+                    // bars joint
                     Riders_Transforms[25].position = Vector3.MoveTowards(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25], (float)(Vector3.Distance(Riders_Transforms[25].position, IncomingTransformUpdates[1].Positions[25]) / timespan / (1 / Time.deltaTime)));
+                    // frame joint
                     Riders_Transforms[27].position = Vector3.MoveTowards(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27], (float)(Vector3.Distance(Riders_Transforms[27].position, IncomingTransformUpdates[1].Positions[27]) / timespan / (1 / Time.deltaTime)));
                         // bmx locals
                         for (int i = 25; i < 32; i++)
@@ -520,11 +520,9 @@ namespace PIPE_Valve_Console_Client
         public void UpdateDaryien()
         {
             
-            // look through rider
             if (Gear.RiderTextures.Count > 0)
             {
                 Debug.Log($"Updating Textures for {username}");
-                //InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updating {username}'s Rider..", 1, 1));
 
 
                 try
@@ -532,10 +530,12 @@ namespace PIPE_Valve_Console_Client
                     
                    foreach (TextureInfo t in Gear.RiderTextures)
                    {
-                       
+                        if(t.Nameoftexture.ToLower() != "e")
+                        {
                         if (FileSyncing.CheckForFile(t.Nameoftexture))
                         {
-                           
+                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].EnableKeyword("_ALPHATEST_ON");
+                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().enabled = true;
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(t.Nameoftexture);
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].color = Color.white;
                         }
@@ -543,9 +543,17 @@ namespace PIPE_Valve_Console_Client
                         {
                             FileSyncing.AddToRequestable(1, t.Nameoftexture, id);
                         }
+                        }
+                        else
+                        {
+                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().enabled = false;
+                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = null;
+                        }
+                       
 
                    }
             
+                  InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updated {username}'s Rider..", 1, 1));
                 }
                 catch (UnityException x)
                 {
@@ -622,6 +630,8 @@ namespace PIPE_Valve_Console_Client
 
             if (CurrentModelName == "Daryien")
             {
+                RiderModel.transform.FindDeepChild("pants_geo").GetComponent<SkinnedMeshRenderer>().material.EnableKeyword("_ALPHATEST_ON");
+                RiderModel.transform.FindDeepChild("shirt_geo").GetComponent<SkinnedMeshRenderer>().material.EnableKeyword("_ALPHATEST_ON");
                 UpdateDaryien();
             }
 
