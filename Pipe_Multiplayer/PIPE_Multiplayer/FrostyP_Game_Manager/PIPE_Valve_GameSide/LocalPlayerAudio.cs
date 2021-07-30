@@ -174,7 +174,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 if (RisersStateUpdate.Count > 0)
                 {
-                    Debug.Log("Riser send: " + RisersStateUpdate.Count);
+                   
                     ClientSend.SendAudioUpdate(RisersStateUpdate, 1);
                     RisersStateUpdate.Clear();
                 }
@@ -196,7 +196,7 @@ namespace PIPE_Valve_Console_Client
 
         private bool PlayThreshold(string name, float finalvol)
            {
-              if(PlayThresholds[name] - finalvol > 0.01f | (PlayThresholds[name] - finalvol < -0.01f))
+              if(PlayThresholds[name] - finalvol > 0.001f | (PlayThresholds[name] - finalvol < -0.001f))
               {
                 
                 PlayThresholds[name] = finalvol;

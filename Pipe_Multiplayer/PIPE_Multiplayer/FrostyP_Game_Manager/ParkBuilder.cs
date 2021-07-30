@@ -136,17 +136,6 @@ namespace FrostyP_Game_Manager
 		public List<NetGameObject> NetgameObjects = new List<NetGameObject>();
 		
 		
-
-		Texture2D RedTex;
-		Texture2D BlackTex;
-		Texture2D GreyTex;
-		Texture2D GreenTex;
-		Texture2D whiteTex;
-		Texture2D TransTex;
-		
-
-
-		
 		Camera buildercam;
 		GameObject camobj;
 		Vector3 camFarPos;
@@ -182,21 +171,18 @@ namespace FrostyP_Game_Manager
 		void Awake()
         {
 			instance = this;
-
-			
-				bundlesloaded = new List<BundleData>();
+			bundlesloaded = new List<BundleData>();
 			
 
 			// check both directories and create if needed
-			DirectoryInfo info = new DirectoryInfo(ParksDirectory);
-			if (!info.Exists)
+			if (!Directory.Exists(ParksDirectory))
 			{
-				info.Create();
+			 Directory.CreateDirectory(ParksDirectory);
 			}
-			DirectoryInfo info1 = new DirectoryInfo(AssetbundlesDirectory);
-			if (!info1.Exists)
+			
+			if (!Directory.Exists(AssetbundlesDirectory))
 			{
-				info1.Create();
+			 Directory.CreateDirectory(AssetbundlesDirectory);
 			}
 
 
@@ -220,99 +206,16 @@ namespace FrostyP_Game_Manager
 			camspeed.Setup();
 
 			// check both directories and create if needed
-			DirectoryInfo info = new DirectoryInfo(ParksDirectory);
-            if (!info.Exists)
+			
+            if (!Directory.Exists(ParksDirectory))
             {
-				info.Create();
+				Directory.CreateDirectory(ParksDirectory);
             }
-			DirectoryInfo info1 = new DirectoryInfo(AssetbundlesDirectory);
-			if (!info.Exists)
+			
+			if (!Directory.Exists(AssetbundlesDirectory))
 			{
-				info.Create();
+				Directory.CreateDirectory(AssetbundlesDirectory);
 			}
-
-
-
-
-			RedTex = new Texture2D(Screen.width / 6, Screen.height / 4); ;
-			Color[] colorarray = RedTex.GetPixels();
-			Color newcolor = new Color(0.5f, 0, 0, 1);
-			for (var i = 0; i < colorarray.Length; ++i)
-			{
-				colorarray[i] = newcolor;
-			}
-
-			RedTex.SetPixels(colorarray);
-
-			RedTex.Apply();
-
-			BlackTex = Texture2D.blackTexture;
-			Color[] colorarray2 = BlackTex.GetPixels();
-			Color newcolor2 = new Color(0, 0, 0, 0.4f);
-			for (var i = 0; i < colorarray2.Length; ++i)
-			{
-				colorarray2[i] = newcolor2;
-			}
-
-			BlackTex.SetPixels(colorarray2);
-
-			BlackTex.Apply();
-
-			GreyTex = Texture2D.blackTexture;
-			Color[] colorarray3 = GreyTex.GetPixels();
-			Color newcolor3 = new Color(0.5f, 0.5f, 0.5f, 1);
-			for (var i = 0; i < colorarray3.Length; ++i)
-			{
-				colorarray3[i] = newcolor3;
-			}
-
-			GreyTex.SetPixels(colorarray3);
-
-			GreyTex.Apply();
-
-
-			GreenTex = new Texture2D(20, 10);
-			Color[] colorarray4 = GreenTex.GetPixels();
-			Color newcolor4 = new Color(0.2f, 0.6f, 0.2f, 1f);
-			for (var i = 0; i < colorarray4.Length; ++i)
-			{
-				colorarray4[i] = newcolor4;
-			}
-
-			GreenTex.SetPixels(colorarray4);
-
-			GreenTex.Apply();
-
-
-
-			whiteTex = new Texture2D(20, 10);
-			Color[] colorarray5 = whiteTex.GetPixels();
-			Color newcolor5 = new Color(1f, 1f, 1f, 0.3f);
-			for (var i = 0; i < colorarray5.Length; ++i)
-			{
-				colorarray5[i] = newcolor5;
-			}
-
-			whiteTex.SetPixels(colorarray5);
-
-			whiteTex.Apply();
-
-
-			TransTex = new Texture2D(20, 10);
-			Color[] colorarray6 = TransTex.GetPixels();
-			Color newcolor6 = new Color(1f, 1f, 1f, 0f);
-			for (var i = 0; i < colorarray6.Length; ++i)
-			{
-				colorarray6[i] = newcolor6;
-			}
-
-			TransTex.SetPixels(colorarray6);
-
-			TransTex.Apply();
-
-
-
-
 
 			SetupGuis();
 
@@ -350,7 +253,6 @@ namespace FrostyP_Game_Manager
 				if (InGameUI.instance.Connected)
 				{
 					GameManager.KeepNetworkActive();
-
 				}
 
 
@@ -572,7 +474,6 @@ namespace FrostyP_Game_Manager
 		public void Close()
         {
 			GameManager.TogglePlayerComponents(true);
-			Component.FindObjectOfType<SessionMarker>().ResetPlayerAtMarker();
 			Destroy(Activeobj);
 			camobj.SetActive(false);
 			openflag = false;
@@ -1486,7 +1387,7 @@ namespace FrostyP_Game_Manager
 				// check loaded bundles
 				foreach(AssetBundle asbun in AssetBundle.GetAllLoadedAssetBundles())
                 {
-					if (asbun.name == _savedObj.AssetBundleName)
+					if (asbun.name.ToLower() == _savedObj.AssetBundleName.ToLower())
 					{
 						GameObject _thisobj = Instantiate(asbun.LoadAsset(_savedObj.nameofGameObject)) as GameObject;
 						_thisobj.transform.position = new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]);
@@ -1523,19 +1424,22 @@ namespace FrostyP_Game_Manager
 						found = true;
 						placedobjects.Add(_new);
 					}
-                }
 
+
+
+                }
 
                 // if not returned, check file directory
                 if (!found)
                 {
-				foreach(FileInfo file in new DirectoryInfo(AssetbundlesDirectory).GetFiles())
-                {
-					if(file.Name == _savedObj.FileName)
+				  foreach(FileInfo file in new DirectoryInfo(AssetbundlesDirectory).GetFiles())
+                  {
+					if(file.Name.ToLower() == _savedObj.FileName.ToLower())
                     {
-						AssetBundle asbun = AssetBundle.LoadFromFile(file.FullName);
-							bundlesloaded.Add(new BundleData(asbun, file.Name));
-						GameObject _thisobj = Instantiate(asbun.LoadAsset(_savedObj.nameofGameObject)) as GameObject;
+							Debug.Log("Found in files");
+						AssetBundle loadedasbun = AssetBundle.LoadFromFile(file.FullName);
+							bundlesloaded.Add(new BundleData(loadedasbun, file.Name));
+						GameObject _thisobj = Instantiate(loadedasbun.LoadAsset(_savedObj.nameofGameObject)) as GameObject;
 						_thisobj.transform.position = new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]);
 						_thisobj.transform.eulerAngles = new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]);
 						if (_thisobj.GetComponent<Rigidbody>())
@@ -1548,7 +1452,7 @@ namespace FrostyP_Game_Manager
 						_thisobj.name.Replace("(Clone)", "");
 						DontDestroyOnLoad(_thisobj);
 
-							PlacedObject _new = new PlacedObject(_thisobj, new BundleData(asbun, _savedObj.FileName));
+							PlacedObject _new = new PlacedObject(_thisobj, new BundleData(loadedasbun, _savedObj.FileName));
 
 							if (InGameUI.instance.Connected)
 							{
@@ -1561,10 +1465,7 @@ namespace FrostyP_Game_Manager
 								NetgameObjects.Add(_newobj);
 
 								
-									ClientSend.SpawnObjectOnServer(_newobj);
-
-								
-
+							    ClientSend.SpawnObjectOnServer(_newobj);
 
 							}
 
@@ -1572,12 +1473,14 @@ namespace FrostyP_Game_Manager
 
 							placedobjects.Add(_new);
 
-						
-
 					}
-                }
+                  }
 
                 }
+
+
+
+
 
             }
 
@@ -1627,18 +1530,19 @@ namespace FrostyP_Game_Manager
 				GUIStyle BackG = new GUIStyle();
 				BackG.alignment = TextAnchor.MiddleCenter;
 				BackG.padding = new RectOffset(5, 5, 5, 5);
-				BackG.normal.background = whiteTex;
-				BackG.normal.textColor = Color.black;
+				BackG.normal.background = InGameUI.instance.BlackTex;
+				BackG.normal.textColor = Color.white;
+				BackG.fontStyle = FontStyle.Bold;
 				
 				
 				
 
 				GUIStyle buttonsstyle = new GUIStyle();
 				buttonsstyle.alignment = TextAnchor.MiddleCenter;
-				buttonsstyle.normal.textColor = Color.grey;
+				buttonsstyle.normal.textColor = Color.white;
 				buttonsstyle.hover.textColor = Color.white;
-				buttonsstyle.normal.background = whiteTex;
-				buttonsstyle.hover.background = GreenTex;
+				buttonsstyle.normal.background = InGameUI.instance.GreenTex;
+				buttonsstyle.hover.background = InGameUI.instance.GreyTex;
 				buttonsstyle.fontStyle = FontStyle.Bold;
 
 
@@ -1661,14 +1565,14 @@ namespace FrostyP_Game_Manager
 				GUILayout.Label($"Built by: ", BackG);
 				foreach(string c in LoadedSpotCreators)
                 {
-					GUILayout.Label(c, buttonsstyle);
+					GUILayout.Label(c, BackG);
                 }
 				GUILayout.Label($"For map: {ActiveSavedspot.MapName}", BackG);
 				GUILayout.Label($"Object count: {ActiveSavedspot.Objects.Count}", BackG);
 				GUILayout.Label($"Packs needed:", BackG);
 				foreach(string need in Loadedspotpackneeded)
                 {
-					GUILayout.Label(need, buttonsstyle);
+					GUILayout.Label(need, BackG);
                 }
 
 				GUILayout.EndArea();
@@ -1691,14 +1595,14 @@ namespace FrostyP_Game_Manager
 			headerstyle.normal.textColor = Color.black;
 			headerstyle.alignment = TextAnchor.MiddleCenter;
 
-			Myobjectstyle.hover.background = GreenTex;
+			Myobjectstyle.hover.background = InGameUI.instance.GreenTex;
 			Myobjectstyle.normal.textColor = Color.black;
-			Myobjectstyle.normal.background = whiteTex;
+			Myobjectstyle.normal.background = InGameUI.instance.whiteTex;
 			Myobjectstyle.alignment = TextAnchor.MiddleCenter;
 
 
 
-			Generalstyle.normal.background = whiteTex;
+			Generalstyle.normal.background = InGameUI.instance.whiteTex;
 			Generalstyle.normal.textColor = Color.black;
 			Generalstyle.alignment = TextAnchor.MiddleCenter;
 			Generalstyle.fontStyle = FontStyle.Bold;
@@ -1708,53 +1612,53 @@ namespace FrostyP_Game_Manager
 			skin.label.fontSize = 12;
 			skin.label.fontStyle = FontStyle.Bold;
 			skin.label.alignment = TextAnchor.MiddleCenter;
-			skin.label.normal.background = TransTex;
+			skin.label.normal.background = InGameUI.instance.TransTex;
 
 			skin.textField.alignment = TextAnchor.MiddleCenter;
 			skin.textField.normal.textColor = Color.red;
 			skin.textField.normal.background = Texture2D.whiteTexture;
-			skin.textField.focused.background = BlackTex;
+			skin.textField.focused.background = InGameUI.instance.BlackTex;
 			skin.textField.focused.textColor = Color.white;
 			skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 12);
 
 			skin.button.normal.textColor = Color.black;
 			skin.button.alignment = TextAnchor.MiddleCenter;
-			skin.button.normal.background = GreenTex;
-			skin.button.onNormal.background = GreyTex;
+			skin.button.normal.background = InGameUI.instance.GreenTex;
+			skin.button.onNormal.background = InGameUI.instance.GreyTex;
 			skin.button.onNormal.textColor = Color.red;
-			skin.button.onHover.background = GreenTex;
+			skin.button.onHover.background = InGameUI.instance.GreenTex;
 			skin.button.hover.textColor = Color.green;
 			skin.button.normal.background.wrapMode = TextureWrapMode.Clamp;
-			skin.button.hover.background = GreyTex;
+			skin.button.hover.background = InGameUI.instance.GreyTex;
 
 			skin.toggle.normal.textColor = Color.black;
 			skin.toggle.alignment = TextAnchor.MiddleCenter;
-			skin.toggle.normal.background = GreenTex;
-			skin.toggle.onNormal.background = GreyTex;
+			skin.toggle.normal.background = InGameUI.instance.GreenTex;
+			skin.toggle.onNormal.background = InGameUI.instance.GreyTex;
 			skin.toggle.onNormal.textColor = Color.black;
-			skin.toggle.onHover.background = GreenTex;
+			skin.toggle.onHover.background = InGameUI.instance.GreenTex;
 			skin.toggle.hover.textColor = Color.green;
 			skin.toggle.normal.background.wrapMode = TextureWrapMode.Clamp;
-			skin.toggle.hover.background = GreyTex;
+			skin.toggle.hover.background = InGameUI.instance.GreyTex;
 
 			skin.horizontalSlider.alignment = TextAnchor.MiddleCenter;
 			skin.horizontalSlider.normal.textColor = Color.black;
-			skin.horizontalSlider.normal.background = GreyTex;
-			skin.horizontalSliderThumb.normal.background = GreenTex;
+			skin.horizontalSlider.normal.background = InGameUI.instance.GreyTex;
+			skin.horizontalSliderThumb.normal.background = InGameUI.instance.GreenTex;
 			skin.horizontalSliderThumb.normal.background.wrapMode = TextureWrapMode.Clamp;
 			skin.horizontalSliderThumb.normal.textColor = Color.white;
 			skin.horizontalSliderThumb.fixedWidth = 20;
 			skin.horizontalSliderThumb.fixedHeight = 20;
-			skin.horizontalSliderThumb.hover.background = BlackTex;
+			skin.horizontalSliderThumb.hover.background = InGameUI.instance.BlackTex;
 
 			//skin.scrollView.normal.background = GreenTex;
-			skin.verticalScrollbarThumb.normal.background = GreenTex;
+			skin.verticalScrollbarThumb.normal.background = InGameUI.instance.GreenTex;
 			skin.verticalScrollbarThumb.alignment = TextAnchor.MiddleRight;
 			skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;
-			skin.verticalScrollbar.normal.background = GreyTex;
+			skin.verticalScrollbar.normal.background = InGameUI.instance.GreyTex;
 			skin.scrollView.alignment = TextAnchor.MiddleCenter;
 			skin.scrollView.padding = new RectOffset(15, 15, 5, 5);
-			skin.scrollView.normal.background = whiteTex;
+			skin.scrollView.normal.background = InGameUI.instance.whiteTex;
 
 			
 

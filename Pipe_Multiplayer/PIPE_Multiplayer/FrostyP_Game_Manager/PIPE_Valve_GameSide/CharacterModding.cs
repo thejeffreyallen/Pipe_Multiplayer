@@ -336,8 +336,11 @@ namespace PIPE_Valve_Console_Client
 			GUILayout.Space(10);
             if (GUILayout.Button("Remove"))
             {
+				if(part.DisplayName != "Hands/Feet" && part.DisplayName != "Head" && part.DisplayName != "Body")
+                {
 				part.Renderer.material.mainTexture = null;
 				part.Renderer.enabled = false;
+                }
             }
 				TexScroll = GUILayout.BeginScrollView(TexScroll);
 				GUILayout.Space(20);
@@ -508,7 +511,9 @@ namespace PIPE_Valve_Console_Client
 
 
 			BinaryFormatter bf = new BinaryFormatter();
-			bf.Serialize(File.OpenWrite(RidersaveDir + "RiderSave.FrostyPreset"), data);
+			Stream stream = File.OpenWrite(RidersaveDir + "RiderSave.FrostyPreset");
+			bf.Serialize(stream, data);
+			stream.Close();
 
 			Debug.Log("Completed Saving Rider");
 
@@ -523,7 +528,9 @@ namespace PIPE_Valve_Console_Client
 			if (File.Exists(RidersaveDir + "RiderSave.FrostyPreset"))
             {
 			BinaryFormatter bf = new BinaryFormatter();
-			load = (RiderSaveData)bf.Deserialize(File.OpenRead(RidersaveDir + "RiderSave.FrostyPreset"));
+				Stream stream = File.OpenRead(RidersaveDir + "RiderSave.FrostyPreset");
+			load = (RiderSaveData)bf.Deserialize(stream);
+				stream.Close();
 			
 
 

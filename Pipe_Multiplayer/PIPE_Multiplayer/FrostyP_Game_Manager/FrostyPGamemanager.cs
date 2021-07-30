@@ -67,19 +67,6 @@ namespace FrostyP_Game_Manager
 
 			};
 
-			if(!Directory.Exists(GameManager.MapsDir + "DLLs/"))
-            {
-				Directory.CreateDirectory(GameManager.MapsDir + "DLLs/");
-            }
-
-
-			DirectoryInfo Presetdirectoryinfo = new DirectoryInfo(RiderPhysics.instance.PresetDirectory);
-
-			if (!Presetdirectoryinfo.Exists)
-			{
-				Presetdirectoryinfo.Create();
-			}
-
 
 			OffStyle.alignment = TextAnchor.MiddleCenter;
 			OffStyle.normal.textColor = Color.black;

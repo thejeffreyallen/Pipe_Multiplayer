@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using System.IO;
 using FrostyP_Game_Manager;
@@ -44,7 +45,7 @@ namespace PIPE_Valve_Console_Client
         public static string GarageDir = Application.dataPath + "/GarageContent/";
         public static string PlayerModelsDir = Application.dataPath + "/Custom Players/";
         public static string TempDir = Rootdir + "Temp/";
-        public static string UpdateDir = Application.dataPath.Replace("PIPE_Data","") + "Mods/FrostyP Game Manager/Updates/";
+
         
 
         //patchaMapImporter
@@ -54,12 +55,30 @@ namespace PIPE_Valve_Console_Client
         //initialize mapImporter
         public void Awake()
         {
+            foreach(Transform t in GameObject.Find("BMXS Player Components").GetComponentsInChildren<Transform>(true))
+            {
+                DontDestroy(t.gameObject);
+                DontDestroyOnLoad(t.gameObject);
+            }
+
             instance = this;
             patcha = new GameObject();
             patcha.AddComponent<PatchaMapImporter.PatchaMapImporter>();
             mapImporter = patcha.GetComponent<PatchaMapImporter.PatchaMapImporter>();
 
-            Directory.CreateDirectory(UpdateDir);
+            
+            if (!Directory.Exists(TempDir))
+            {
+                Directory.CreateDirectory(TempDir);
+            }
+            if (!Directory.Exists(GameManager.MapsDir + "DLLs/"))
+            {
+                Directory.CreateDirectory(GameManager.MapsDir + "DLLs/");
+            }
+            if (!Directory.Exists(GameManager.PlayerModelsDir))
+            {
+                Directory.CreateDirectory(GameManager.PlayerModelsDir);
+            }
 
 
             BMXSPlayer = GameObject.Find("BMXS Player Components");
@@ -82,6 +101,7 @@ namespace PIPE_Valve_Console_Client
 
             };
 
+            Players = new Dictionary<uint, RemotePlayer>();
 
           
         }
@@ -90,19 +110,14 @@ namespace PIPE_Valve_Console_Client
         void Start()
         {
             
-            Players = new Dictionary<uint, RemotePlayer>();
-           
-            if (!Directory.Exists(TempDir))
-            {
-                Directory.CreateDirectory(TempDir);
-            }
-
-
             FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
             Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
             Prefab.AddComponent<RemotePlayer>();
             wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
-          
+
+            Component.FindObjectsOfType<SessionMarker>()[0].OnSetAtMarker.AddListener(DontWipeOutPlayersOnReset);
+
+
         }
         // make clones so theres always a reference model for each and its not our Original versions
         void SetupDaryienAndBMXBaseModels()
@@ -477,6 +492,10 @@ namespace PIPE_Valve_Console_Client
                  t.gameObject.SetActive(active);
                 }
             }
+            if (active)
+            {
+            BMXSPlayer.GetComponentInChildren<SessionMarker>(true).ResetPlayerAtMarker();
+            }
         }
 
          public static GameObject GetNewDaryien()
@@ -617,11 +636,11 @@ namespace PIPE_Valve_Console_Client
         public static void KeepNetworkActive()
         {
             // keep connection active while no rider is streaming
-            if (KeepAlivetimer < 2)
+            if (KeepAlivetimer < 10)
             {
                 KeepAlivetimer = KeepAlivetimer + Time.deltaTime;
             }
-            else if (KeepAlivetimer >= 2)
+            else if (KeepAlivetimer >= 10)
             {
                 ClientSend.KeepActive();
                 KeepAlivetimer = 0;
@@ -749,6 +768,17 @@ namespace PIPE_Valve_Console_Client
             DontDestroyOnLoad(g);
         }
 
+
+        public void DontWipeOutPlayersOnReset()
+        {
+            StartCoroutine(EnumDontWipeOutPlayersOnReset());
+        }
+        public IEnumerator EnumDontWipeOutPlayersOnReset()
+        {
+            LocalPlayer.instance.ServerActive = false;
+            yield return new WaitForSeconds(0.5f);
+            LocalPlayer.instance.ServerActive = true;
+        }
 
     }
 

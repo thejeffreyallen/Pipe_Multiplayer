@@ -100,7 +100,6 @@ namespace FrostyP_Game_Manager
             ReplayCam.SetActive(false);
             ReplayOpen = false;
             _MG = null;
-            Component.FindObjectOfType<SessionMarker>().ResetPlayerAtMarker();
             FrostyPGamemanager.instance.MenuShowing = 0;
             FrostyPGamemanager.instance.OpenMenu = true;
         }

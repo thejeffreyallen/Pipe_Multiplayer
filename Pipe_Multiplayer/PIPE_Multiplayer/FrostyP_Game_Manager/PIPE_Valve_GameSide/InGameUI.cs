@@ -178,7 +178,6 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
         private void Awake()
         {
            
@@ -326,9 +325,9 @@ namespace PIPE_Valve_Console_Client
                  {(int)FileTypeByNum.Garage,"Garage mesh" },
 
             };
-           
-           
 
+
+           
             if (!Directory.Exists(Playersavepath))
             {
                 Directory.CreateDirectory(Playersavepath);
@@ -338,13 +337,17 @@ namespace PIPE_Valve_Console_Client
                 PlayerSavedata = new PlayerSaveData(Username);
                 PlayerSavedata.savedservers = new List<SavedServer>();
                 BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
+                Stream stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
+                bf.Serialize(stream, PlayerSavedata);
+                stream.Close();
 
             }
             else if (File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
             {
                 BinaryFormatter bf = new BinaryFormatter();
-                PlayerSavedata = bf.Deserialize(File.OpenRead(Playersavepath + "PlayerData.FrostyPreset")) as PlayerSaveData;
+                Stream stream = File.OpenRead(Playersavepath + "PlayerData.FrostyPreset");
+                PlayerSavedata = bf.Deserialize(stream) as PlayerSaveData;
+                stream.Close();
 
                 Username = PlayerSavedata.Username;
                
@@ -425,6 +428,13 @@ namespace PIPE_Valve_Console_Client
                 
                 CamModes[cyclemodes]();
 
+
+                if (Connected)
+                {
+                    GameManager.KeepNetworkActive();
+                }
+
+
             }
 
             
@@ -448,7 +458,7 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
+       
         void OnGUI()
         {
 
@@ -1051,6 +1061,7 @@ namespace PIPE_Valve_Console_Client
                   {
                     SpecCamOBJ.SetActive(true);
                     IsSpectating = true;
+                    GameManager.TogglePlayerComponents(false);
                   }
 
 
@@ -1224,6 +1235,7 @@ namespace PIPE_Valve_Console_Client
             IsSpectating = false;
             SpecCamOBJ.transform.parent = null;
             SpecCamOBJ.SetActive(false);
+            GameManager.TogglePlayerComponents(true);
 
         }
 
@@ -1472,29 +1484,8 @@ namespace PIPE_Valve_Console_Client
             {
                 try
                 {
-                GUIStyle Playernamestyle = new GUIStyle();
-
-                Playernamestyle.alignment = TextAnchor.MiddleCenter;
-                Playernamestyle.fontStyle = FontStyle.Bold;
-                Playernamestyle.padding = new RectOffset(5, 5, 5, 5);
-                Playernamestyle.normal.background = TransTex;
-                        try
-                        {
-                            if(r.tm != null)
-                            {
-                              Playernamestyle.normal.textColor = r.tm.color;
-
-                            }
-
-                        }
-                        catch (Exception x)
-                        {
-                            Playernamestyle.normal.textColor = Color.black;
-                        }
-                Playernamestyle.hover.textColor = Color.green;
-                Playernamestyle.hover.background = whiteTex;
-
-                if (GUILayout.Button($"{r.username}",Playernamestyle))
+               
+                if (GUILayout.Button($"{r.username}",r.style))
                 {
                     IdofRidertoshow = r.id;
                     RiderInfoMenuOpen = true;
@@ -1584,21 +1575,21 @@ namespace PIPE_Valve_Console_Client
                        
                 if (mess.FromCode == 3)
                 {
-                  if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
+                 if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
                   {
                     GUILayout.Label(mess.Message, player.style);
 
                   }
                 }
-                    else
-                    {
+                else
+                {
                     GUIStyle style = new GUIStyle();
                     style.normal.textColor = MessageColour[mess.FromCode];
                     style.alignment = TextAnchor.MiddleCenter;
                     style.padding = new RectOffset(2, 2, 2, 2);
                     style.normal.background = whiteTex;
                     GUILayout.Label(mess.Message, style);
-                    }
+                }
 
                        
                 

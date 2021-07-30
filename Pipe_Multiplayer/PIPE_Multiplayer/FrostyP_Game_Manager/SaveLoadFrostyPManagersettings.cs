@@ -68,29 +68,6 @@ namespace FrostyP_Game_Manager
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         public List<PresetData> Load(string destination)
         {
             List<PresetData> loadedlist;

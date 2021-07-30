@@ -147,7 +147,7 @@ namespace FrostyP_Game_Manager
         {
             Destroy(RiderModel);
             Destroy(Bmx_Root);
-            PIPE_Valve_Console_Client.GameManager.TogglePlayerComponents(true);
+            GameManager.TogglePlayerComponents(true);
             mg = null;
             Cam.SetActive(false);
             FrostyPGamemanager.instance.MenuShowing = 0;

@@ -10,7 +10,7 @@ using PIPE_Valve_Console_Client;
 
 namespace FrostyP_Game_Manager
 {
-    class RiderPhysics : MonoBehaviour
+    public class RiderPhysics : MonoBehaviour
     {
         public static RiderPhysics instance;
 

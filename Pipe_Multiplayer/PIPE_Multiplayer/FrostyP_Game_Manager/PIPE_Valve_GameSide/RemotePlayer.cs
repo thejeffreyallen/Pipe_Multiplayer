@@ -95,6 +95,8 @@ namespace PIPE_Valve_Console_Client
                 style.padding = new RectOffset(10, 10, 2, 2);
                 style.fontStyle = FontStyle.Bold;
                 style.normal.background = InGameUI.instance.whiteTex;
+                style.hover.background = InGameUI.instance.BlackTex;
+                style.hover.textColor = Color.white;
 
 
             }
@@ -105,8 +107,6 @@ namespace PIPE_Valve_Console_Client
 
             
         }
-
-
 
         public void Initialize()
         {
@@ -147,7 +147,6 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-
 
         private void LateUpdate()
         {
@@ -196,7 +195,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         bool CheckThresholds()
         {
             bool value = false;
@@ -206,7 +204,6 @@ namespace PIPE_Valve_Console_Client
             }
             return value;
         }
-
 
         public GameObject DecideRider(string modelname)
         {
@@ -225,8 +222,6 @@ namespace PIPE_Valve_Console_Client
 
 
         }
-
-
 
         private bool RiderSetup()
         {
