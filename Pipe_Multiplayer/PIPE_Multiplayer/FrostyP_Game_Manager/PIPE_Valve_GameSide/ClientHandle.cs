@@ -268,11 +268,7 @@ namespace PIPE_Valve_Console_Client
                     }
 
 
-                    player.Audio.ShutdownAllSounds();
-                    GameManager.instance.DestroyObj(player.RiderModel);
-                    GameManager.instance.DestroyObj(player.BMX);
-                    GameManager.instance.DestroyObj(player.Audio);
-                    GameManager.instance.DestroyObj(player.nameSign);
+                    player.MasterShutdown();
 
 
 
@@ -318,18 +314,6 @@ namespace PIPE_Valve_Console_Client
 
                 }
                 
-
-
-
-
-
-
-
-
-                
-
-
-
                 foreach(Waitingrequest w in FileSyncing.WaitingRequests.ToArray())
                 {
                     if(w.player == _id)
@@ -338,7 +322,7 @@ namespace PIPE_Valve_Console_Client
                     }
                 }
 
-            
+               
             
 
             }

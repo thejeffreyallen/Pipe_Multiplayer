@@ -23,7 +23,7 @@ namespace PIPE_Valve_Online_Server
 
         public static string Rootdir = "Game Data/";
         static string TempDir = Rootdir + "Temp/";
-        public static string UpdateDir = Rootdir + "Update/";
+        public static string UpdateDir = Rootdir + $"FrostyPGameManager/Updates/{Server.VERSIONNUMBER}/";
         
         
         

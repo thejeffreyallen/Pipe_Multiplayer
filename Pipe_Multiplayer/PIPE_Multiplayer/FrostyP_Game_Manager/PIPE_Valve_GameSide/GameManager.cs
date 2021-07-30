@@ -104,8 +104,6 @@ namespace PIPE_Valve_Console_Client
             wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
           
         }
-
-
         // make clones so theres always a reference model for each and its not our Original versions
         void SetupDaryienAndBMXBaseModels()
         {

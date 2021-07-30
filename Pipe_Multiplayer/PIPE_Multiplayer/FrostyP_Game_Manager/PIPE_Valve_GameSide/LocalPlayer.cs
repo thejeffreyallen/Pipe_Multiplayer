@@ -16,7 +16,8 @@ namespace PIPE_Valve_Console_Client
         /// Master Switch to Send continuous data from FixedUpdate
         /// </summary>
         public bool ServerActive=false;
-        public float MovementThreshold = 0.01f;
+        public float DistanceThreshold = 0.01f;
+        float AnglesThreshold = 1f;
 
         //always daryien
         public GameObject DaryienOriginal;
@@ -81,8 +82,6 @@ namespace PIPE_Valve_Console_Client
             ActiveModel = DaryienOriginal;
             Bmx_Root = UnityEngine.GameObject.Find("BMX");
 
-           UnityEngine.GameObject.Find("BMXS Player Components").GetComponentInChildren<DrivableVehicle>(true).initOnStart = true;
-
             Riders_Transforms[0] = DaryienOriginal.transform;
             Riders_Transforms[1] = DaryienOriginal.transform.FindDeepChild("mixamorig:LeftUpLeg").transform;
             Riders_Transforms[2] = DaryienOriginal.transform.FindDeepChild("mixamorig:RightUpLeg").transform;
@@ -127,23 +126,32 @@ namespace PIPE_Valve_Console_Client
         public void CheckThreshold()
         {
             List<float> distances = new List<float>();
+            List<float> angles = new List<float>();
            
             distances.Add(Vector3.Distance(riderPositions[0], Riders_Transforms[0].position));
             bool send = false;
             for (int i = 1; i < 23 ; i++)
             {
                 distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
-                distances.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
+                angles.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
-            distances.Add(Vector3.Distance(riderPositions[23], Riders_Transforms[23].position));
-            for (int i = 24; i < 32; i++)
+            distances.Add(Vector3.Distance(riderPositions[25], Riders_Transforms[25].position));
+            distances.Add(Vector3.Distance(riderPositions[27], Riders_Transforms[27].position));
+            for (int i = 25; i < 32; i++)
             {
-                distances.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
+                angles.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
 
             for (int i = 0; i < distances.Count; i++)
             {
-                if (distances[i] > MovementThreshold)
+                if (distances[i] > DistanceThreshold)
+                {
+                    send = true;
+                }
+            }
+            for (int i = 0; i < angles.Count; i++)
+            {
+                if (angles[i] > AnglesThreshold)
                 {
                     send = true;
                 }
@@ -186,7 +194,7 @@ namespace PIPE_Valve_Console_Client
             // rot of fingers index2
             riderRotations[32] = Riders_Transforms[32].localEulerAngles;
             riderRotations[33] = Riders_Transforms[33].localEulerAngles;
-           
+           // Debug.Log("Trans send");
            ClientSend.SendMyTransforms(riderPositions, riderRotations, DateTime.Now.ToFileTimeUtc());
            
         }

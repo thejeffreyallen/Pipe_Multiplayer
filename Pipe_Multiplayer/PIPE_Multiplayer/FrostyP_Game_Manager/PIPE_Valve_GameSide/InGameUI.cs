@@ -179,10 +179,10 @@ namespace PIPE_Valve_Console_Client
 
 
 
-
-
         private void Awake()
         {
+           
+
             if (instance == null)
             {
                 instance = this;
@@ -444,7 +444,6 @@ namespace PIPE_Valve_Console_Client
                 }
             }
 
-
            
 
         }
@@ -456,6 +455,9 @@ namespace PIPE_Valve_Console_Client
 
             try
             {
+
+                
+
             
                if (Minigui)
                {
@@ -1582,8 +1584,11 @@ namespace PIPE_Valve_Console_Client
                        
                 if (mess.FromCode == 3)
                 {
-                 
-                 GUILayout.Label(mess.Message, GameManager.Players[mess.FromConnection].style);
+                  if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
+                  {
+                    GUILayout.Label(mess.Message, player.style);
+
+                  }
                 }
                     else
                     {
@@ -2131,8 +2136,8 @@ namespace PIPE_Valve_Console_Client
             if (UpdateDownloaded)
             {
                 GUILayout.Label($"{Versionofupdate} Update Downloaded!");
-              GUILayout.Label("Update files in Mods/FrostyPGameManager/Update/");
-              GUILayout.Label("Once the Game shuts down you can move them up one directory into Mods/FrostyPGameManager/ and overwrite current version");
+              GUILayout.Label($"{Versionofupdate} files for Mods/FrostyPGameManager/ have been saved to PIPE_Data/FrostyPGameManager/Updates/{Versionofupdate}/");
+              GUILayout.Label("Once the Game shuts down you can move them into Mods/FrostyPGameManager/ to overwrite current version of mod");
 
             }
 

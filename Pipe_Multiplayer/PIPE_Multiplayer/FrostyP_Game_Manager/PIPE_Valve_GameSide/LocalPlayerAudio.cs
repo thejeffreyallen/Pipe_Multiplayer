@@ -66,7 +66,7 @@ namespace PIPE_Valve_Console_Client
 
             foreach(FmodRiserByVel v in Risers)
             {
-                PlayThresholds.Add(v.name, 0);
+                PlayThresholds.Add(v.gameObject.name, 0);
             }
 
 
@@ -174,6 +174,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 if (RisersStateUpdate.Count > 0)
                 {
+                    Debug.Log("Riser send: " + RisersStateUpdate.Count);
                     ClientSend.SendAudioUpdate(RisersStateUpdate, 1);
                     RisersStateUpdate.Clear();
                 }
@@ -190,20 +191,17 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        void FixedUpdate()
-        {
-
-           
-
-        }
+       
 
 
         private bool PlayThreshold(string name, float finalvol)
            {
-              if(PlayThresholds[name] - finalvol > 0.02f | (PlayThresholds[name] - finalvol < -0.02f))
+              if(PlayThresholds[name] - finalvol > 0.01f | (PlayThresholds[name] - finalvol < -0.01f))
               {
+                
                 PlayThresholds[name] = finalvol;
                 return true;
+                
 
               }
               else
@@ -224,8 +222,7 @@ namespace PIPE_Valve_Console_Client
                 Vel.getValue(out float _Vel);
                 string soundname = riser.gameObject.name;
                 AudioStateUpdate update = new AudioStateUpdate(finalvol, finalpitch, state, soundname, _Vel,Valve.Sockets.SendFlags.Unreliable);
-
-                 if (PlayThreshold(riser.name,finalvol))
+                 if (PlayThreshold(riser.gameObject.name,finalvol + _Vel + finalpitch))
                  {
                     RisersStateUpdate.Add(update);
 
@@ -238,10 +235,8 @@ namespace PIPE_Valve_Console_Client
             {
                 riser.sound.getVolume(out float volume, out float finalvol);
                 riser.sound.getPitch(out float pitch, out float finalpitch);
-                riser.sound.getParameter("Velocity", out FMOD.Studio.ParameterInstance Vel);
-                Vel.getValue(out float _Vel);
                 string soundname = riser.gameObject.name;
-                AudioStateUpdate update = new AudioStateUpdate(finalvol, finalpitch, state, soundname, _Vel,Valve.Sockets.SendFlags.Reliable);
+                AudioStateUpdate update = new AudioStateUpdate(finalvol, finalpitch, state, soundname, 0,Valve.Sockets.SendFlags.Reliable);
                 RisersStateUpdate.Add(update);
 
             }
