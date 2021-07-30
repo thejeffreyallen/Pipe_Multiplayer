@@ -8,34 +8,37 @@ using System.Collections.Generic;
 public class RemoteLoadManager : MonoBehaviour
 {
     public static RemoteLoadManager instance;
+    private RemotePartMaster rpm;
 
     void Awake()
     {
         instance = this;
     }
 
+    
+
     public void Load(RemotePlayer player, SaveList loadList)
     {
         try
         {
-            RemotePartMaster pm = player.partMaster;
-            SetOriginalTextures(pm);
+            rpm = player.partMaster;
+            SetOriginalTextures(rpm);
             LoadBrakes(player, loadList);
             LoadHeightsAngles(player, loadList);
             LoadDriveSide(player, loadList);
             LoadMaterials(player, loadList);
-            LoadTireTread(pm, loadList);
+            LoadTireTread(rpm, loadList);
             foreach (PartColor p in loadList.partColors)
             {
-                pm.SetColor(player, p.partNum, new Color(p.r, p.g, p.b, p.a));
+                rpm.SetColor(player, p.partNum, new Color(p.r, p.g, p.b, p.a));
             }
             LoadMeshes(player, loadList);
             LoadTextures(player, loadList);
-            LoadPartPositions(pm, loadList);
+            LoadPartPositions(rpm, loadList);
 
             // Quick fix for weird normal map issue on left crank arm
-            Material m = pm.GetMaterial(pm.rightCrank);
-            pm.GetPart(pm.leftCrank).GetComponent<MeshRenderer>().material = m;
+            Material m = rpm.GetMaterial(rpm.rightCrank);
+            rpm.GetPart(rpm.leftCrank).GetComponent<MeshRenderer>().material = m;
             Resources.UnloadUnusedAssets();
         }
         catch (Exception e)
@@ -310,7 +313,7 @@ public class RemoteLoadManager : MonoBehaviour
                     }
                     else
                     {
-                       player.partMaster.SetMesh(pm.key, CustomMeshManager.instance.FindSpecific(pm.partName, pm.fileName));
+                       player.partMaster.SetMesh(pm.key, FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName));
                         continue;
                     }
                 }
@@ -318,163 +321,198 @@ public class RemoteLoadManager : MonoBehaviour
                 {
                     case "frame":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frame, CustomMeshManager.instance.frames[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frame, FindObjectOfType<CustomMeshManager>().frames[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frame, CustomMeshManager.instance.frames[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frame, FindObjectOfType<CustomMeshManager>().frames[0].mesh);
                         break;
                     case "bars":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.bars, CustomMeshManager.instance.bars[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.bars, FindObjectOfType<CustomMeshManager>().bars[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.bars, CustomMeshManager.instance.bars[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.bars, FindObjectOfType<CustomMeshManager>().bars[0].mesh);
                         break;
                     case "sprocket":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.sprocket, CustomMeshManager.instance.sprockets[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.sprocket, FindObjectOfType<CustomMeshManager>().sprockets[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.sprocket, CustomMeshManager.instance.sprockets[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.sprocket, FindObjectOfType<CustomMeshManager>().sprockets[0].mesh);
                         break;
                     case "stem":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
                         {
-                            player.partMaster.SetMesh(player.partMaster.stem, CustomMeshManager.instance.stems[pm.index].mesh);
-                            player.partMaster.SetMesh(player.partMaster.stemBolts, CustomMeshManager.instance.boltsStem[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.stem, FindObjectOfType<CustomMeshManager>().stems[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.stemBolts, FindObjectOfType<CustomMeshManager>().boltsStem[pm.index].mesh);
                         }
                         else if (pm.isCustom && !File.Exists(pm.fileName))
                         {
-                            player.partMaster.SetMesh(player.partMaster.stem, CustomMeshManager.instance.stems[0].mesh);
-                            player.partMaster.SetMesh(player.partMaster.stemBolts, CustomMeshManager.instance.boltsStem[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.stem, FindObjectOfType<CustomMeshManager>().stems[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.stemBolts, FindObjectOfType<CustomMeshManager>().boltsStem[0].mesh);
                         }
                         break;
                     case "cranks":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
                         {
-                            player.partMaster.SetMesh(player.partMaster.leftCrank, CustomMeshManager.instance.cranks[pm.index].mesh);
-                            player.partMaster.SetMesh(player.partMaster.rightCrank, CustomMeshManager.instance.cranks[pm.index].mesh);
-                            player.partMaster.SetMesh(player.partMaster.leftCrankBolt, CustomMeshManager.instance.boltsCrank[pm.index].mesh);
-                            player.partMaster.SetMesh(player.partMaster.rightCrankBolt, CustomMeshManager.instance.boltsCrank[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.leftCrank, FindObjectOfType<CustomMeshManager>().cranks[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rightCrank, FindObjectOfType<CustomMeshManager>().cranks[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.leftCrankBolt, FindObjectOfType<CustomMeshManager>().boltsCrank[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rightCrankBolt, FindObjectOfType<CustomMeshManager>().boltsCrank[pm.index].mesh);
                         }
                         else if (pm.isCustom && !File.Exists(pm.fileName))
                         {
-                            player.partMaster.SetMesh(player.partMaster.leftCrank, CustomMeshManager.instance.cranks[0].mesh);
-                            player.partMaster.SetMesh(player.partMaster.rightCrank, CustomMeshManager.instance.cranks[0].mesh);
-                            player.partMaster.SetMesh(player.partMaster.leftCrankBolt, CustomMeshManager.instance.boltsCrank[0].mesh);
-                            player.partMaster.SetMesh(player.partMaster.rightCrankBolt, CustomMeshManager.instance.boltsCrank[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.leftCrank, FindObjectOfType<CustomMeshManager>().cranks[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rightCrank, FindObjectOfType<CustomMeshManager>().cranks[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.leftCrankBolt, FindObjectOfType<CustomMeshManager>().boltsCrank[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rightCrankBolt, FindObjectOfType<CustomMeshManager>().boltsCrank[0].mesh);
                         }
                         break;
                     case "frontSpokes":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frontSpokes, CustomMeshManager.instance.spokes[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontSpokes, FindObjectOfType<CustomMeshManager>().spokes[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frontSpokes, CustomMeshManager.instance.spokes[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontSpokes, FindObjectOfType<CustomMeshManager>().spokes[0].mesh);
                         break;
                     case "rearSpokes":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.rearSpokes, CustomMeshManager.instance.spokes[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearSpokes, FindObjectOfType<CustomMeshManager>().spokes[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.rearSpokes, CustomMeshManager.instance.spokes[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearSpokes, FindObjectOfType<CustomMeshManager>().spokes[0].mesh);
                         break;
                     case "pedals":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
                         {
-                            player.partMaster.SetMesh(player.partMaster.leftPedal, CustomMeshManager.instance.pedals[pm.index].mesh);
-                            player.partMaster.SetMesh(player.partMaster.rightPedal, CustomMeshManager.instance.pedals[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.leftPedal, FindObjectOfType<CustomMeshManager>().pedals[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rightPedal, FindObjectOfType<CustomMeshManager>().pedals[pm.index].mesh);
                         }
                         else if (pm.isCustom && !File.Exists(pm.fileName))
                         {
-                            player.partMaster.SetMesh(player.partMaster.leftPedal, CustomMeshManager.instance.pedals[0].mesh);
-                            player.partMaster.SetMesh(player.partMaster.rightPedal, CustomMeshManager.instance.pedals[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.leftPedal, FindObjectOfType<CustomMeshManager>().pedals[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rightPedal, FindObjectOfType<CustomMeshManager>().pedals[0].mesh);
                         }
                         break;
                     case "forks":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.forks, CustomMeshManager.instance.forks[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.forks, FindObjectOfType<CustomMeshManager>().forks[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.forks, CustomMeshManager.instance.forks[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.forks, FindObjectOfType<CustomMeshManager>().forks[0].mesh);
                         break;
                     case "frontPegs":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frontPegs, CustomMeshManager.instance.pegs[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontPegs, FindObjectOfType<CustomMeshManager>().pegs[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frontPegs, CustomMeshManager.instance.pegs[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontPegs, FindObjectOfType<CustomMeshManager>().pegs[0].mesh);
                         break;
                     case "rearPegs":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.rearPegs, CustomMeshManager.instance.pegs[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearPegs, FindObjectOfType<CustomMeshManager>().pegs[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.rearPegs, CustomMeshManager.instance.pegs[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearPegs, FindObjectOfType<CustomMeshManager>().pegs[0].mesh);
                         break;
                     case "frontHub":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frontHub, CustomMeshManager.instance.hubs[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontHub, FindObjectOfType<CustomMeshManager>().hubs[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frontHub, CustomMeshManager.instance.hubs[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontHub, FindObjectOfType<CustomMeshManager>().hubs[0].mesh);
                         break;
                     case "rearHub":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.rearHub, CustomMeshManager.instance.hubs[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearHub, FindObjectOfType<CustomMeshManager>().hubs[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.rearHub, CustomMeshManager.instance.hubs[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearHub, FindObjectOfType<CustomMeshManager>().hubs[0].mesh);
                         break;
                     case "seat":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.seat, CustomMeshManager.instance.seats[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.seat, FindObjectOfType<CustomMeshManager>().seats[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.seat, CustomMeshManager.instance.seats[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.seat, FindObjectOfType<CustomMeshManager>().seats[0].mesh);
                         break;
                     case "frontRim":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frontRim, CustomMeshManager.instance.rims[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontRim, FindObjectOfType<CustomMeshManager>().rims[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frontRim, CustomMeshManager.instance.rims[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontRim, FindObjectOfType<CustomMeshManager>().rims[0].mesh);
                         break;
                     case "rearRim":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.rearRim, CustomMeshManager.instance.rims[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearRim, FindObjectOfType<CustomMeshManager>().rims[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.rearRim, CustomMeshManager.instance.rims[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearRim, FindObjectOfType<CustomMeshManager>().rims[0].mesh);
                         break;
                     case "frontSpokeAccessory":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frontAcc, CustomMeshManager.instance.accessories[pm.index].mesh);
+                        {
+                            player.partMaster.SetMesh(player.partMaster.frontAcc, FindObjectOfType<CustomMeshManager>().accessories[pm.index].mesh);
+                            Material[] mats = new Material[1];
+                            if (pm.index >= 0 && pm.index < 4)
+                            {
+                                mats[0] = FindObjectOfType<CustomMeshManager>().accMats[pm.index];
+                                player.partMaster.frontLightsOn = pm.index == 3 ? true : false;
+                            }
+                            else
+                            {
+                                mats[0] = FindObjectOfType<MaterialManager>().defaultMat;
+                            }
+                            player.partMaster.SetMaterials(player.partMaster.frontAcc, mats);
+
+                        }
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frontAcc, CustomMeshManager.instance.accessories[0].mesh);
+                        {
+                            player.partMaster.SetMesh(player.partMaster.frontAcc, FindObjectOfType<CustomMeshManager>().accessories[0].mesh);
+                            player.partMaster.SetMaterial(player.partMaster.frontAcc, FindObjectOfType<CustomMeshManager>().accMats[0]);
+                        }
                         break;
                     case "rearSpokeAccessory":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.rearAcc, CustomMeshManager.instance.accessories[pm.index].mesh);
+                        {
+                            player.partMaster.SetMesh(player.partMaster.rearAcc, FindObjectOfType<CustomMeshManager>().accessories[pm.index].mesh);
+                            Material[] mats = new Material[1];
+                            if (pm.index >= 0 && pm.index < 4)
+                            {
+                                mats[0] = FindObjectOfType<CustomMeshManager>().accMats[pm.index];
+                                player.partMaster.rearLightsOn = pm.index == 3 ? true : false;
+                            }
+                            else
+                            {
+                                mats[0] = FindObjectOfType<MaterialManager>().defaultMat;
+                            }
+                            player.partMaster.SetMaterials(player.partMaster.rearAcc, mats);
+
+
+                        }
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.rearAcc, CustomMeshManager.instance.accessories[0].mesh);
+                        {
+                            player.partMaster.SetMesh(player.partMaster.rearAcc, FindObjectOfType<CustomMeshManager>().accessories[0].mesh);
+                            player.partMaster.SetMaterial(player.partMaster.rearAcc, FindObjectOfType<CustomMeshManager>().accMats[0]);
+                        }
                         break;
                     case "barAccessory":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.barAcc, CustomMeshManager.instance.barAccessories[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.barAcc, FindObjectOfType<CustomMeshManager>().barAccessories[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.barAcc, CustomMeshManager.instance.barAccessories[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.barAcc, FindObjectOfType<CustomMeshManager>().barAccessories[0].mesh);
                         break;
                     case "frameAccessory":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frameAcc, CustomMeshManager.instance.frameAccessories[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frameAcc, FindObjectOfType<CustomMeshManager>().frameAccessories[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frameAcc, CustomMeshManager.instance.frameAccessories[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frameAcc, FindObjectOfType<CustomMeshManager>().frameAccessories[0].mesh);
                         break;
                     case "frontHubGuard":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.frontHubG, CustomMeshManager.instance.frontHubGuards[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontHubG, FindObjectOfType<CustomMeshManager>().frontHubGuards[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.frontHubG, CustomMeshManager.instance.frontHubGuards[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.frontHubG, FindObjectOfType<CustomMeshManager>().frontHubGuards[0].mesh);
                         break;
                     case "rearHubGuard":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.rearHubG, CustomMeshManager.instance.rearHubGuards[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearHubG, FindObjectOfType<CustomMeshManager>().rearHubGuards[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.rearHubG, CustomMeshManager.instance.rearHubGuards[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.rearHubG, FindObjectOfType<CustomMeshManager>().rearHubGuards[0].mesh);
                         break;
                     case "seatPost":
                         if ((pm.isCustom && File.Exists(pm.fileName)) || !pm.isCustom)
-                            player.partMaster.SetMesh(player.partMaster.seatPost, CustomMeshManager.instance.seatPosts[pm.index].mesh);
+                            player.partMaster.SetMesh(player.partMaster.seatPost, FindObjectOfType<CustomMeshManager>().seatPosts[pm.index].mesh);
                         else if (pm.isCustom && !File.Exists(pm.fileName))
-                            player.partMaster.SetMesh(player.partMaster.seatPost, CustomMeshManager.instance.seatPosts[0].mesh);
+                            player.partMaster.SetMesh(player.partMaster.seatPost, FindObjectOfType<CustomMeshManager>().seatPosts[0].mesh);
                         break;
                     default:
                         break;
