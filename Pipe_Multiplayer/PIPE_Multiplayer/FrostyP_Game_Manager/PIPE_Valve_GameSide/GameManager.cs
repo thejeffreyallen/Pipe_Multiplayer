@@ -39,6 +39,8 @@ namespace PIPE_Valve_Console_Client
         public static string PlayerModelsDir = Application.dataPath + "/Custom Players/";
         public static string TempDir = Rootdir + "Temp/";
 
+        GameObject lastwalkchar;
+
         //patchaMapImporter
         GameObject patcha;
         PatchaMapImporter.PatchaMapImporter mapImporter;
@@ -113,6 +115,14 @@ namespace PIPE_Valve_Console_Client
                 StartCoroutine(FixWalkBug());
             }
 
+        }
+
+        void OnGUI()
+        {
+            if (FindObjectsOfType<WalkingSetUp>().Length > 0)
+            {
+                GUILayout.Label("no: " + FindObjectsOfType<WalkingSetUp>().Length);
+            }
         }
 
         // make clones so theres always a reference model for each and its not our Original versions
@@ -767,7 +777,11 @@ namespace PIPE_Valve_Console_Client
 
         public void DontWipeOutPlayersOnReset()
         {
-            if(InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
+            if (FindObjectOfType<WalkingSetUp>())
+            {
+                Destroy(FindObjectOfType<WalkingSetUp>().gameObject);
+            }
+            if (InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
             {
              StartCoroutine(EnumDontWipeOutPlayersOnReset());
             }
@@ -783,8 +797,17 @@ namespace PIPE_Valve_Console_Client
         public IEnumerator FixWalkBug()
         {
             yield return new WaitForSeconds(0.2f);
-            GameObject g = Instantiate(FindObjectOfType<WalkingSetUp>().gameObject);
-            g.SetActive(true);
+            if (lastwalkchar)
+            {
+                Destroy(lastwalkchar);
+            }
+            if (FindObjectOfType<WalkingSetUp>())
+            {
+            lastwalkchar = Instantiate(FindObjectOfType<WalkingSetUp>().gameObject);
+            lastwalkchar.SetActive(true);
+            lastwalkchar.transform.parent = GameObject.Find("BMXS Player Components").transform;
+            }
+
         }
 
     }

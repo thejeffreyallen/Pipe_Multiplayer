@@ -39,11 +39,9 @@ namespace FrostyP_Game_Manager
 		private Pedaling pedalingmanager;
 		public int MaxPedalV;
 
-
-
 		//set by GUI, override statehopsettings
 
-		public float GravityMaxMin;
+		public float GravityMax;
 		public float nollieMin;
 		public float nollieMax;
 		public float hopMin;
@@ -160,7 +158,7 @@ namespace FrostyP_Game_Manager
 		private float MannysensitivityThresholdMaxd;
 
 		private BMXS_PStates.MannyState mannystate;
-		public float MaxMannyAngle;
+		
 		#endregion
 
 
@@ -170,7 +168,6 @@ namespace FrostyP_Game_Manager
 		Vector2 HopsScroll;
 		bool openmannysensitivity;
 		bool loadpresetsbool;
-		Vector2 PresetScroll;
 
 		public string PresetDirectory = Application.dataPath + "/FrostyPGameManager/Presets/";
 		string lastpresetselected = "Default";
@@ -369,9 +366,6 @@ namespace FrostyP_Game_Manager
 					mannynoseyController.holdTime = MannysensitivityThresholdMax;
 
 
-
-					mannystate.SetMaxMannyAngle(MaxMannyAngle, true);
-
 				}
 				else
 				{
@@ -539,7 +533,7 @@ namespace FrostyP_Game_Manager
 					havesavedpedalforce = true;
 				}
 
-				manager = UnityEngine.Component.FindObjectOfType<VehicleManager>();
+				manager = UnityEngine.Component.FindObjectsOfType<VehicleManager>()[0];
 				
 
 
@@ -970,11 +964,7 @@ namespace FrostyP_Game_Manager
 					GUILayout.Space(10);
 					MannysensitivityThresholdMax = GUILayout.HorizontalSlider(MannysensitivityThresholdMax, 0.01f, 0.5f);
 					GUILayout.Space(30);
-					//GUILayout.Label("Max Manny Angle " + mannystate.maxMannyAngle);
-					//GUILayout.Space(10);
-					//MaxMannyAngle = GUILayout.HorizontalSlider(MaxMannyAngle, 30f, 100f);
 				}
-
 
 				
 				GUILayout.Space(10);
