@@ -78,7 +78,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         // called by syncwindow, drops packets into outgoingtexturesegments
         public static void SendFileToServer(SendReceiveIndex index)
         {
@@ -371,7 +370,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         public static void CheckForMap(string name, string user)
         {
             bool got = false;
@@ -413,7 +411,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         public static bool CheckForFile(string nameoffile)
         {
             
@@ -436,9 +433,13 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
        public static void AddToRequestable(int Filetype, string nameoffile, uint player)
        {
+            if (nameoffile == "" | nameoffile == "e" | nameoffile == " ")
+            {
+                return;
+            }
+
             bool requested = false;
             foreach(SendReceiveIndex s in IncomingIndexes)
             {
@@ -455,6 +456,12 @@ namespace PIPE_Valve_Console_Client
         }
         public static void AddToRequestable(int Filetype, string nameoffile, int objectid, uint player)
         {
+            if(nameoffile == "" | nameoffile == "e" | nameoffile == " ")
+            {
+                return;
+            }
+
+
             bool requested = false;
             foreach (SendReceiveIndex s in IncomingIndexes)
             {
@@ -473,9 +480,6 @@ namespace PIPE_Valve_Console_Client
 
         }
        
-
-
-
     }
 
 
@@ -483,7 +487,7 @@ namespace PIPE_Valve_Console_Client
 
 
     /// <summary>
-    /// Used for storing a segment of a textures byte array until all have been received
+    /// Container for a segment of a file to be sent or just received
     /// </summary>
     [Serializable]
     public class FileSegment

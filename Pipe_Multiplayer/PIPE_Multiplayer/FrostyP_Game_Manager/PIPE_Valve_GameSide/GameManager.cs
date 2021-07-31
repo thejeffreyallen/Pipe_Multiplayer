@@ -25,18 +25,11 @@ namespace PIPE_Valve_Console_Client
         static float KeepAlivetimer = 0;
         List<string> RandomMessageOnSpawn;
 
-
-
-
-
         // FrostyMultiplayerAssets Bundle
         GameObject Prefab;
         public GameObject wheelcolliderobj;
         public AssetBundle FrostyAssets;
       
-
-
-
         // directories
         public static string Rootdir = Application.dataPath + "/FrostyPGameManager/";
         public static string TexturesDir = Rootdir + "Textures/";
@@ -46,21 +39,15 @@ namespace PIPE_Valve_Console_Client
         public static string PlayerModelsDir = Application.dataPath + "/Custom Players/";
         public static string TempDir = Rootdir + "Temp/";
 
-        
-
         //patchaMapImporter
         GameObject patcha;
         PatchaMapImporter.PatchaMapImporter mapImporter;
 
+
         //initialize mapImporter
         public void Awake()
         {
-            foreach(Transform t in GameObject.Find("BMXS Player Components").GetComponentsInChildren<Transform>(true))
-            {
-                DontDestroy(t.gameObject);
-                DontDestroyOnLoad(t.gameObject);
-            }
-
+           
             instance = this;
             patcha = new GameObject();
             patcha.AddComponent<PatchaMapImporter.PatchaMapImporter>();
@@ -109,7 +96,6 @@ namespace PIPE_Valve_Console_Client
         // Use this for initialization
         void Start()
         {
-            
             FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
             Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
             Prefab.AddComponent<RemotePlayer>();
@@ -119,6 +105,16 @@ namespace PIPE_Valve_Console_Client
 
 
         }
+
+        void Update()
+        {
+            if (MGInputManager.Y_Down())
+            {
+                StartCoroutine(FixWalkBug());
+            }
+
+        }
+
         // make clones so theres always a reference model for each and its not our Original versions
         void SetupDaryienAndBMXBaseModels()
         {
@@ -771,13 +767,24 @@ namespace PIPE_Valve_Console_Client
 
         public void DontWipeOutPlayersOnReset()
         {
-            StartCoroutine(EnumDontWipeOutPlayersOnReset());
+            if(InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
+            {
+             StartCoroutine(EnumDontWipeOutPlayersOnReset());
+            }
         }
         public IEnumerator EnumDontWipeOutPlayersOnReset()
         {
             LocalPlayer.instance.ServerActive = false;
             yield return new WaitForSeconds(0.5f);
             LocalPlayer.instance.ServerActive = true;
+           
+        }
+
+        public IEnumerator FixWalkBug()
+        {
+            yield return new WaitForSeconds(0.2f);
+            GameObject g = Instantiate(FindObjectOfType<WalkingSetUp>().gameObject);
+            g.SetActive(true);
         }
 
     }
