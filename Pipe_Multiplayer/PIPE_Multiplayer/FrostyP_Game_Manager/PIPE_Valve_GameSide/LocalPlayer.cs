@@ -33,9 +33,6 @@ namespace PIPE_Valve_Console_Client
 
         public string RiderModelname = "Daryien";
         public string RiderModelBundleName = "e";
-        public List<string[]> Assetnames = new List<string[]>();
-
-        
 
         LocalPlayerAudio Audio;
         DateTime LastTransformTime = DateTime.Now;

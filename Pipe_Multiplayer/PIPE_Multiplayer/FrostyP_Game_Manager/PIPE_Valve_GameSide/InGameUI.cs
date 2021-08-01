@@ -19,16 +19,15 @@ namespace PIPE_Valve_Console_Client
     {
         public GUISkin skin = (GUISkin)ScriptableObject.CreateInstance("GUISkin");
         public GUIStyle Generalstyle = new GUIStyle();
-        GUIStyle MiniLiveRidersStyle = new GUIStyle();
         GUIStyle SyncWindowStyle1 = new GUIStyle();
         GUIStyle SyncWindowStyle2 = new GUIStyle();
         GUIStyle SyncWindowStyle3 = new GUIStyle();
         GUIStyle MessagesBigStyle = new GUIStyle();
         GUIStyle MessagesSmallStyle = new GUIStyle();
-        GUIStyle MessagesTextStyle = new GUIStyle();
         GUIStyle CurrentMessagestyle;
         GUIStyle PlayeroptionsStyle = new GUIStyle();
-        GUIStyle Bottompanelstyle = new GUIStyle();
+        GUIStyle MiniPanelStyle = new GUIStyle();
+        GUIStyle MinipanelstyeImportant = new GUIStyle();
 
 
         public static GUIStyle BoxStyle = new GUIStyle();
@@ -118,7 +117,7 @@ namespace PIPE_Valve_Console_Client
         public bool PlayeroptionsOpen;
         public bool CollisionsToggle = true;
         string Collisionslabel = "Turn Collisions Off";
-        public bool PlayerObjectsToggle = true;
+        public bool AllPlayerObjectsVisibleToggle = true;
         string PlayerObjectsLabel = "Turn Objects Off";
         public bool PlayerTagsToggle = true;
         string PlayerTagsLabel = "Turn Objects Off";
@@ -136,9 +135,6 @@ namespace PIPE_Valve_Console_Client
         List<string> UpdateFiles;
         bool UpdateOpen;
         public bool UpdateDownloaded;
-
-
-
 
         public string Username = "Username...";
         public string Nickname = "Server 1";
@@ -176,6 +172,8 @@ namespace PIPE_Valve_Console_Client
         public Texture2D whiteTex;
         public Texture2D TransTex;
 
+        // players that are on my level but are toggled off
+        public List<uint> ToggledOffPlayersByMe = new List<uint>();
 
 
         private void Awake()
@@ -270,7 +268,7 @@ namespace PIPE_Valve_Console_Client
 
             whiteTex = new Texture2D(20, 10);
             Color[] colorarray5 = whiteTex.GetPixels();
-            Color newcolor5 = new Color(1f, 1f, 1f, 0.4f);
+            Color newcolor5 = new Color(1f, 1f, 1f, 0.5f);
             for (var i = 0; i < colorarray5.Length; ++i)
             {
                 colorarray5[i] = newcolor5;
@@ -577,6 +575,7 @@ namespace PIPE_Valve_Console_Client
 
             Resources.UnloadUnusedAssets();
             GameManager.instance.UnLoadOtherPlayerModels();
+            GameManager.instance.UpdatePlayersOnMyLevelToggledOff();
 
             if (IsSpectating)
             {
@@ -1027,7 +1026,7 @@ namespace PIPE_Valve_Console_Client
         }
         private IEnumerator WaitthenEnd()
         {
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(5);
            OnlineMenu = false;
             OfflineMenu = true;
             yield return null;
@@ -1244,21 +1243,23 @@ namespace PIPE_Valve_Console_Client
        public void MiniGUI()
         {
             GUI.skin = skin;
-            GUILayout.BeginArea(new Rect(new Vector2(50, 0), new Vector2(Screen.width - 100, Screen.height / 50)),BoxStyle);
+            GUILayout.BeginArea(new Rect(new Vector2(50, 0), new Vector2(Screen.width - 100, Screen.height / 55)),MiniPanelStyle);
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("return",Bottompanelstyle))
+            if (GUILayout.Button("return",MiniPanelStyle))
             {
                 Minigui = false;
                 OnlineMenu = true;
                 OfflineMenu = false;
                 FrostyPGamemanager.instance.OpenMenu = true;
-               
-               
             }
-            GUILayout.Label($"People Riding: {GameManager.Players.Count}",Bottompanelstyle);
-            GUILayout.Label($"Riders on this map: {GameManager.instance.RidersOnMyMap()}",Bottompanelstyle);
-            GUILayout.Label($"Status: {connectionstatelabels[(int)connectionstate]}",Bottompanelstyle);
-            GUILayout.Label($"Ping: {Ping}",Bottompanelstyle);
+            GUILayout.Label($"People Riding: {GameManager.Players.Count}",MiniPanelStyle);
+            GUILayout.Label($"On this map: {GameManager.instance.RidersOnMyMap()}",MiniPanelStyle);
+            GUILayout.Label($"Status: {connectionstatelabels[(int)connectionstate]}",MiniPanelStyle);
+            GUILayout.Label($"Ping: {Ping}",MiniPanelStyle);
+            if (ToggledOffPlayersByMe.Count > 0)
+            {
+            GUILayout.Label($"{ToggledOffPlayersByMe.Count} Invisible Players",MinipanelstyeImportant);
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
@@ -1782,8 +1783,8 @@ namespace PIPE_Valve_Console_Client
 
             GUILayout.Space(10);
             // player objects
-            PlayerObjectsToggle = GUILayout.Toggle(PlayerObjectsToggle, PlayerObjectsLabel, PlayeroptionsStyle);
-            if (PlayerObjectsToggle)
+            AllPlayerObjectsVisibleToggle = GUILayout.Toggle(AllPlayerObjectsVisibleToggle, PlayerObjectsLabel, PlayeroptionsStyle);
+            if (AllPlayerObjectsVisibleToggle)
             {
                 PlayerObjectsLabel = "Turn Off All Rider Objects";
                 foreach (RemotePlayer r in GameManager.Players.Values)
@@ -1794,7 +1795,7 @@ namespace PIPE_Valve_Console_Client
                     }
                 }
             }
-            if (!PlayerObjectsToggle)
+            if (!AllPlayerObjectsVisibleToggle)
             {
                 PlayerObjectsLabel = "Turn On All Rider Objects";
                 foreach (RemotePlayer r in GameManager.Players.Values)
@@ -1829,14 +1830,14 @@ namespace PIPE_Valve_Console_Client
         public void ShowBottomPanel()
         {
             
-            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/50)), new Vector2(Screen.width - 100, Screen.height/50)),BoxStyle);
+            GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/55)), new Vector2(Screen.width - 100, Screen.height/55)),MiniPanelStyle);
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"Connection State: {connectionstatelabels[(int)connectionstate]} ", Bottompanelstyle);
-            GUILayout.Label($"Ping: {Ping}",Bottompanelstyle);
-            GUILayout.Label($"Bytes out per/s: {Outbytespersec} ", Bottompanelstyle);
-            GUILayout.Label($"Bytes in per/s: {InBytespersec} ", Bottompanelstyle);
-            GUILayout.Label($"Pending Reliable: {Pendingreliable} ", Bottompanelstyle);
-            GUILayout.Label($"Pending Unreliable: {Pendingunreliable} ", Bottompanelstyle);
+            GUILayout.Label($"Connection State: {connectionstatelabels[(int)connectionstate]} ", MiniPanelStyle);
+            GUILayout.Label($"Ping: {Ping}",MiniPanelStyle);
+            GUILayout.Label($"Bytes out per/s: {Outbytespersec} ", MiniPanelStyle);
+            GUILayout.Label($"Bytes in per/s: {InBytespersec} ", MiniPanelStyle);
+            GUILayout.Label($"Pending Reliable: {Pendingreliable} ", MiniPanelStyle,GUILayout.MaxWidth(Screen.width / 9));
+            GUILayout.Label($"Pending Unreliable: {Pendingunreliable} ", MiniPanelStyle, GUILayout.MaxWidth(Screen.width / 9));
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
@@ -1850,12 +1851,25 @@ namespace PIPE_Valve_Console_Client
 
 
             //Bottompanelstyle.fixedWidth = Screen.width / 9;
-            Bottompanelstyle.alignment = TextAnchor.MiddleCenter;
-            Bottompanelstyle.fontStyle = FontStyle.Bold;
-            Bottompanelstyle.wordWrap = true;
-            Bottompanelstyle.hover.background = GreenTex;
-            Bottompanelstyle.padding = new RectOffset(0, 0, 0, 2);
-            Bottompanelstyle.fontSize = 11;
+            MiniPanelStyle.alignment = TextAnchor.MiddleLeft;
+            MiniPanelStyle.fontStyle = FontStyle.Bold;
+            MiniPanelStyle.wordWrap = true;
+            MiniPanelStyle.hover.background = GreenTex;
+            MiniPanelStyle.normal.background = BlackTex;
+            MiniPanelStyle.normal.textColor = Color.white;
+            MiniPanelStyle.padding = new RectOffset(5, 0, 0, 5);
+            MiniPanelStyle.fontSize = 11;
+
+            MinipanelstyeImportant.alignment = TextAnchor.MiddleLeft;
+            MinipanelstyeImportant.fontStyle = FontStyle.Bold;
+            MinipanelstyeImportant.wordWrap = true;
+            MinipanelstyeImportant.hover.background = GreenTex;
+            MinipanelstyeImportant.normal.background = BlackTex;
+            MinipanelstyeImportant.normal.textColor = Color.red;
+            MinipanelstyeImportant.padding = new RectOffset(5, 0, 0, 5);
+            MinipanelstyeImportant.fontSize = 11;
+
+
 
             // sync window
             SyncWindowStyle1.normal.background = GreyTex;
@@ -2002,31 +2016,14 @@ namespace PIPE_Valve_Console_Client
             skin.horizontalSliderThumb.fixedHeight = 20;
             skin.horizontalSliderThumb.hover.background = BlackTex;
 
-            skin.button.normal.textColor = Color.black;
-            skin.button.alignment = TextAnchor.MiddleCenter;
-            // skin.scrollView.normal.background = GreenTex;
+           
             skin.verticalScrollbarThumb.normal.background = GreenTex;
             skin.verticalScrollbarThumb.alignment = TextAnchor.MiddleRight;
             skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;
             skin.verticalScrollbar.normal.background = whiteTex;
             skin.verticalScrollbar.hover.background = GreenTex;
             skin.scrollView.alignment = TextAnchor.MiddleCenter;
-            // skin.scrollView.fixedWidth = Screen.width / 4;
 
-
-
-            MiniLiveRidersStyle = new GUIStyle();
-
-            MiniLiveRidersStyle.alignment = TextAnchor.MiddleCenter;
-            MiniLiveRidersStyle.fontStyle = FontStyle.Bold;
-            MiniLiveRidersStyle.padding = new RectOffset(5, 5, 5, 5);
-            MiniLiveRidersStyle.normal.background = GreenTex;
-            MiniLiveRidersStyle.normal.textColor = Color.black;
-            MiniLiveRidersStyle.onNormal.background = whiteTex;
-            MiniLiveRidersStyle.onNormal.textColor = Color.green;
-            MiniLiveRidersStyle.hover.background = GreyTex;
-            MiniLiveRidersStyle.hover.textColor = Color.black;
-            MiniLiveRidersStyle.onHover.background = GreyTex;
 
 
 

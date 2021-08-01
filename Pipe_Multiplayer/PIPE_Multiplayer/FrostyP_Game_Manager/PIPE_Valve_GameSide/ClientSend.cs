@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Text;
 using System.IO;
+using Valve.Sockets;
 
 
 namespace PIPE_Valve_Console_Client
@@ -79,6 +80,13 @@ namespace PIPE_Valve_Console_Client
             using(Packet _packet = new Packet((int)ClientPackets.SendAllParts))
             {
                 // rider
+                Vector3 currentpos = LocalPlayer.instance.ActiveModel.transform.position;
+                Vector3 currentrot = LocalPlayer.instance.ActiveModel.transform.eulerAngles;
+
+                _packet.Write(currentpos);
+                _packet.Write(currentrot);
+
+
                 if(LocalPlayer.instance.RiderModelname == "Daryien")
                 {
 
@@ -99,8 +107,27 @@ namespace PIPE_Valve_Console_Client
 
 
                 // Garage
-                _packet.Write(FullGear.GarageSave.Length);
-                _packet.Write(FullGear.GarageSave);
+                try
+                {
+                    if (FullGear.GarageSave.Length > 0)
+                    {
+                       _packet.Write(FullGear.GarageSave.Length);
+                       _packet.Write(FullGear.GarageSave);
+                    }
+                    else
+                    {
+                        InGameUI.instance.NewMessage(6, new TextMessage("couldn't send Garage Save, ensure preset loads as intended", (int)MessageColourByNum.Server, 1));
+                        InGameUI.instance.NewMessage(6, new TextMessage("Disconnecting..", (int)MessageColourByNum.Server, 1));
+                        InGameUI.instance.ShutdownAfterMessageFromServer();
+                        return;
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
 
 
 
@@ -140,7 +167,7 @@ namespace PIPE_Valve_Console_Client
 
 
                
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                SendToServer(_packet.ToArray(),SendFlags.Reliable);
                 Debug.Log($"Sent all gear and {FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count} objects");
                 LocalPlayer.instance.ServerActive = true;
             }
@@ -259,24 +286,32 @@ namespace PIPE_Valve_Console_Client
 
 
 
-        public static void SendAudioUpdate(List<AudioStateUpdate> updates, int code)
+        public static void SendAudioUpdate(List<AudioStateUpdate> updates, int Soundtype)
         {
 
             // Risers
-            if(code == 1)
+            if(Soundtype == 1)
             {
                 foreach (AudioStateUpdate update in updates)
                 {
                     using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
                     {
-                        _packet.Write(code);
 
-
+                        _packet.Write(Soundtype);
                         _packet.Write(update.nameofriser);
                         _packet.Write(update.playstate);
                         _packet.Write(update.Volume);
                         _packet.Write(update.pitch);
                         _packet.Write(update.Velocity);
+
+                        if(update.Sendflag == SendFlags.Reliable)
+                        {
+                            _packet.Write(1);
+                        }
+                        if (update.Sendflag == SendFlags.Unreliable)
+                        {
+                            _packet.Write(2);
+                        }
 
 
                         SendToServer(_packet.ToArray(),update.Sendflag);
@@ -287,18 +322,17 @@ namespace PIPE_Valve_Console_Client
             }
 
             // One Shots
-            if(code == 2)
+            if(Soundtype == 2)
             {
                 foreach (AudioStateUpdate update in updates)
                 {
                     using (Packet _packet = new Packet((int)ClientPackets.SendAudioUpdate))
                     {
-                        _packet.Write(code);
-
+                        _packet.Write(Soundtype);
                         _packet.Write(update.Path);
                         _packet.Write(update.Volume);
 
-                        SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                        SendToServer(_packet.ToArray(), update.Sendflag);
 
                     }
                 }

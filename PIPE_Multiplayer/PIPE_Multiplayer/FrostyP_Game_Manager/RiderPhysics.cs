@@ -175,15 +175,9 @@ namespace FrostyP_Game_Manager
 
 		private VehicleManager manager = null;
 
-		GUIStyle boxstyle = new GUIStyle();
 		GUIStyle Labelstyle = new GUIStyle();
 		
 		
-
-
-
-
-
 		void Start()
         {
 
@@ -191,8 +185,7 @@ namespace FrostyP_Game_Manager
 
 			mannynoseyController = UnityEngine.Component.FindObjectOfType<MannyNoseyPopInControl>();
 
-			boxstyle.normal.background = PIPE_Valve_Console_Client.InGameUI.instance.whiteTex;
-			boxstyle.padding = new RectOffset(15, 15, 5, 5);
+			
 
 			Labelstyle.normal.background = InGameUI.instance.TransTex;
 			Labelstyle.border = new RectOffset(0, 0, 0, 0);
@@ -203,16 +196,12 @@ namespace FrostyP_Game_Manager
 			Labelstyle.fontStyle = FontStyle.Bold;
 			Labelstyle.normal.textColor = Color.black;
 
-
 			Gravityvalue = Physics.gravity;
 
 
 			arrayofhopsettings = UnityEngine.Component.FindObjectsOfType<StateHopSetting>();
 			pedalingmanager = UnityEngine.Component.FindObjectOfType<Pedaling>();
 		}
-
-
-
 
 		public void Show()
         {
@@ -292,6 +281,7 @@ namespace FrostyP_Game_Manager
 					arrayofhopsettings = UnityEngine.Component.FindObjectsOfType<StateHopSetting>();
 				}
 
+				
 
 				// if defaults have been saved, update forces to GUI slider values, if not Save them then mark bool true
 				if (havesavedhopsettings)
@@ -542,7 +532,7 @@ namespace FrostyP_Game_Manager
 
 
 
-				GUILayout.BeginArea(new Rect(new Vector2(50,100), new Vector2(Screen.width/3,Screen.height-150)),boxstyle);
+				GUILayout.BeginArea(new Rect(new Vector2(50,100), new Vector2(Screen.width/3,Screen.height-150)),InGameUI.BoxStyle);
 
 
 
@@ -788,7 +778,7 @@ namespace FrostyP_Game_Manager
 				GUILayout.Label("Max Pedal Force : " + pedalingmanager.maxPedalVel.ToString(), Labelstyle);
 				MaxPedalV = Mathf.RoundToInt(GUILayout.HorizontalSlider(MaxPedalV, 5, 50));
 				GUILayout.EndHorizontal();
-
+				
 				GUILayout.Space(30);
 				GUILayout.BeginHorizontal();
 				opennollies = GUILayout.Toggle(opennollies, "Nollie Forces");

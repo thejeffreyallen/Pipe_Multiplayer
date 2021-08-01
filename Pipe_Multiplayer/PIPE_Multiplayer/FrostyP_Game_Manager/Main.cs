@@ -11,9 +11,6 @@ namespace FrostyP_Game_Manager
     internal static class Main
     {
 
-
-
-
         public static string modId;
         static GameObject GamemanOBJ;
         public static GameNetworking Network;

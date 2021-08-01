@@ -558,7 +558,7 @@ namespace FrostyP_Game_Manager
 
 		void ObjectsWindowShow()
         {
-			GUILayout.BeginArea(new Rect(new Vector2(Screen.width/3,150), new Vector2(Screen.width/3,Screen.height - 300)),InGameUI.BoxStyle);
+			GUILayout.BeginArea(new Rect(new Vector2(20,150), new Vector2(Screen.width/3,Screen.height - 300)),InGameUI.BoxStyle);
 			objectsloadtoggle = GUILayout.Toggle(objectsloadtoggle, objectsloaddisplay);
 			GUILayout.Space(10);
 			objectsscroll = GUILayout.BeginScrollView(objectsscroll);
@@ -868,7 +868,6 @@ namespace FrostyP_Game_Manager
             {
 						
 			         GameObject obj = GameObject.Instantiate(ActiveBundleData.Bundle.LoadAsset(Activeobj.name.Replace("(Clone)", ""))) as GameObject;
-			//obj.transform.DetachChildren();
             if (obj.GetComponent<Rigidbody>())
             {
 				obj.layer = 25;
@@ -1096,7 +1095,7 @@ namespace FrostyP_Game_Manager
 		void SaveLoadMenu()
         {
 
-			Rect box = new Rect(new Vector2(Screen.width /3, 50f), new Vector2(Screen.width / 3f, Screen.height - 100));
+			Rect box = new Rect(new Vector2(Screen.width / 3f, 50f), new Vector2(Screen.width / 3f, Screen.height - 100));
 			
 			GUILayout.BeginArea(box,InGameUI.BoxStyle);
 			Save_Load_Toggle = GUILayout.Toggle(Save_Load_Toggle, $"{SaveloadMode}");
@@ -1282,7 +1281,7 @@ namespace FrostyP_Game_Manager
 				GUILayout.Space(5);
 				GUILayout.Label("My Objects");
 				GUILayout.Space(5);
-				MyObjectsSaveScroll = GUILayout.BeginScrollView(MyObjectsSaveScroll);
+				MyObjectsSaveScroll = GUILayout.BeginScrollView(MyObjectsSaveScroll, GUILayout.MaxHeight(300), GUILayout.MinHeight(75));
 				
 				foreach (PlacedObject myobj in placedobjects.ToArray())
                 {
@@ -1322,7 +1321,7 @@ namespace FrostyP_Game_Manager
 
 				GUILayout.Space(15);
 				GUILayout.Label("Online Players:");
-				OtherPlayersScroll = GUILayout.BeginScrollView(OtherPlayersScroll);
+				OtherPlayersScroll = GUILayout.BeginScrollView(OtherPlayersScroll,GUILayout.MaxHeight(300),GUILayout.MinHeight(75));
 				if (InGameUI.instance.Connected)
                 {
 				foreach(RemotePlayer player in GameManager.Players.Values)
@@ -1651,7 +1650,6 @@ namespace FrostyP_Game_Manager
 			skin.horizontalSliderThumb.fixedHeight = 20;
 			skin.horizontalSliderThumb.hover.background = InGameUI.instance.BlackTex;
 
-			//skin.scrollView.normal.background = GreenTex;
 			skin.verticalScrollbarThumb.normal.background = InGameUI.instance.GreenTex;
 			skin.verticalScrollbarThumb.alignment = TextAnchor.MiddleRight;
 			skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;

@@ -15,8 +15,8 @@ namespace PIPE_Valve_Online_Server
         /// </summary>
         public static void Update()
         {
-           
-            
+            try
+            {
             // run any actions added by other threads, listen socket automatically adds incoming messages to be
             // processed at tick rate
             ThreadManager.UpdateMain();
@@ -140,6 +140,13 @@ namespace PIPE_Valve_Online_Server
                 }
             }
 
+
+            }
+            catch (Exception)
+            {
+               
+            }
+            
 
         }
 

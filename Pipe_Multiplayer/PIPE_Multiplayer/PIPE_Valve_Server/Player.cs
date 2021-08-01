@@ -22,8 +22,8 @@ namespace PIPE_Valve_Online_Server
 
        
 
-        public Vector3[] RiderPositions;
-        public Vector3[] RiderRotations;
+        public Vector3 RiderRootPosition;
+        public Vector3 RiderRootRotation;
 
         /// <summary>
         /// contains everything about bike
@@ -60,21 +60,6 @@ namespace PIPE_Valve_Online_Server
             Ridermodelbundlename = _ridermodelbundlename;
             MapName = currentlevel;
 
-            RiderRotations = new Vector3[32];
-            RiderPositions = new Vector3[32];
-
-            for (int i = 0; i < RiderPositions.Length; i++)
-            {
-                RiderPositions[i].X = 0;
-                RiderPositions[i].Y = 0;
-                RiderPositions[i].Z = 0;
-            }
-            for (int i = 0; i < RiderRotations.Length; i++)
-            {
-                RiderRotations[i].X = 0;
-                RiderRotations[i].Y = 0;
-                RiderRotations[i].Z = 0;
-            }
             PlayerObjects = new List<NetGameObject>();
             Gear = new GearUpdate();
             Gear.RiderTextures = new List<TextureInfo>();

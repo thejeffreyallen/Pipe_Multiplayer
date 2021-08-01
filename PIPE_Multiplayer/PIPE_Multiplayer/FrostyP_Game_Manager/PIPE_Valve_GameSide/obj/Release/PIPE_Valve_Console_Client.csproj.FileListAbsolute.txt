@@ -236,8 +236,6 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\Assembly-CSharp.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\BikeWorkshopMenu.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\com.unity.postprocessing.Runtime.dll
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\FrostyP_Game_Manager.dll
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\PatchaMapImporter.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\UnityEngine.AnimationModule.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\UnityEngine.AssetBundleModule.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\UnityEngine.AudioModule.dll
@@ -348,3 +346,5 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Valve_Console_Client.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Valve_Console_Client.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Valve_Console_Client.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\FrostyP_Game_Manager.dll
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\PatchaMapImporter.dll

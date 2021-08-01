@@ -9,7 +9,6 @@ namespace PIPE_Valve_Console_Client
     [Serializable]
     public class PlayerSaveData
     {
-
         public string Username;
         public List<SavedServer> savedservers;
 
@@ -17,19 +16,8 @@ namespace PIPE_Valve_Console_Client
 
         public PlayerSaveData(string _username)
         {
-
             Username = _username;
-            
         }
-
-
-
-
-
-
-       
-
-
 
     }
 
@@ -47,8 +35,6 @@ namespace PIPE_Valve_Console_Client
             PORT = _port;
             Nickname = _nickname;
         }
-
-
 
     }
 

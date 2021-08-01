@@ -14,8 +14,17 @@ namespace PIPE_Valve_Console_Client
     public class GameManager : MonoBehaviour
     {
         public static GameManager instance;
+        /// <summary>
+        /// RemotePlayers Reference Daryien
+        /// </summary>
         public static GameObject DaryienClone;
+        /// <summary>
+        /// RemotePlayers Reference BMX
+        /// </summary>
         public static GameObject BmxClone;
+        /// <summary>
+        /// Master BMXS Player Components
+        /// </summary>
         public static GameObject BMXSPlayer;
 
         public string MycurrentLevel = "Unknown";
@@ -115,14 +124,6 @@ namespace PIPE_Valve_Console_Client
                 StartCoroutine(FixWalkBug());
             }
 
-        }
-
-        void OnGUI()
-        {
-            if (FindObjectsOfType<WalkingSetUp>().Length > 0)
-            {
-                GUILayout.Label("no: " + FindObjectsOfType<WalkingSetUp>().Length);
-            }
         }
 
         // make clones so theres always a reference model for each and its not our Original versions
@@ -253,11 +254,11 @@ namespace PIPE_Valve_Console_Client
             foreach(RemotePlayer player in Players.Values)
             {
                if(player.id == _id)
-                {
+               {
                     // player already exists, clean out first
                     CleanUpOldPlayer(_id);
 
-                }
+               }
             }
             
 
@@ -275,6 +276,8 @@ namespace PIPE_Valve_Console_Client
                     r.CurrentMap = Currentmap;
                     r.Gear = Gear;
                     r.Objects = new List<NetGameObject>();
+                    r.StartupPos = _position;
+                    r.StartupRot = _rotation;
 
 
             // file checks
@@ -328,7 +331,15 @@ namespace PIPE_Valve_Console_Client
                 GetObject(_netobj);
                 if(_netobj._Gameobject != null)
                 {
+                    if (!InGameUI.instance.AllPlayerObjectsVisibleToggle)
+                    {
+                    _netobj._Gameobject.SetActive(false);
+                    }
+                    else
+                    {
                     _netobj._Gameobject.SetActive(_player.PlayerObjectsVisible);
+                    }
+                    
                 }
 
 
@@ -428,6 +439,8 @@ namespace PIPE_Valve_Console_Client
             }
             else
             {
+                try
+                {
                 // grab garage list, convert to byte[] and place in gear update, send garagesave aswell as forRidermodel bool (false to inidcate bike update)
                 SaveList List = GarageDeserialize(PlayerPrefs.GetString("lastPreset"));
                 BinaryFormatter bf = new BinaryFormatter();
@@ -441,6 +454,13 @@ namespace PIPE_Valve_Console_Client
 
                 gear.isRiderUpdate = false;
                
+
+                }
+                catch (System.Exception)
+                {
+                    InGameUI.instance.NewMessage(6, new TextMessage("Error Loading Garage Save", (int)MessageColourByNum.Server, 1));
+                   
+                }
             }
 
 
@@ -764,16 +784,34 @@ namespace PIPE_Valve_Console_Client
             return count;
         }
 
+        public void UpdatePlayersOnMyLevelToggledOff()
+        {
+            List<uint> ridersToBeAwareOf = new List<uint>();
+            foreach(RemotePlayer r in Players.Values)
+            {
+                if(r.CurrentMap.ToLower() == MycurrentLevel.ToLower())
+                {
+                    if (!r.PlayerIsVisible)
+                    {
+                        ridersToBeAwareOf.Add(r.id);
+                    }
+                }
+            }
+
+            InGameUI.instance.ToggledOffPlayersByMe = ridersToBeAwareOf;
+
+        }
+
         // A non-Monobehaviour wants to use a Mono function
         public void DestroyObj(Object g)
         {
             Destroy(g);
         }
+
         public void DontDestroy(GameObject g)
         {
             DontDestroyOnLoad(g);
         }
-
 
         public void DontWipeOutPlayersOnReset()
         {

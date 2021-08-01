@@ -56,14 +56,14 @@ namespace PIPE_Valve_Online_Server
 
         private static void SendToAllReadyToRoll(uint Exceptsender, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
-
-
-
+            // if sending player exists
+            if(Server.Players.TryGetValue(Exceptsender, out Player player))
+            {
             try
             {
                 foreach (Player Rider in Server.Players.Values.ToList())
                 {
-                    if (Rider.RiderID != Exceptsender && Rider.ReadytoRoll)
+                    if (Rider.RiderID != Exceptsender && Rider.ReadytoRoll && player.MapName.ToLower() == Rider.MapName.ToLower())
                     {
                         ThreadManager.ExecuteOnMainThread(() =>
                         {
@@ -78,6 +78,9 @@ namespace PIPE_Valve_Online_Server
             {
                 Console.WriteLine("Interupted while Sending to all" + x);
             }
+
+            }
+
 
         }
 
@@ -205,8 +208,8 @@ namespace PIPE_Valve_Online_Server
             {
                 _packet.Write(_player.RiderID);
                 _packet.Write(_player.Username);
-                _packet.Write(_player.RiderPositions[0]);
-                _packet.Write(_player.RiderRotations[0]);
+                _packet.Write(_player.RiderRootPosition);
+                _packet.Write(_player.RiderRootRotation);
                 _packet.Write(_player.Ridermodel);
                 _packet.Write(_player.Ridermodelbundlename);
                 _packet.Write(_player.MapName);
@@ -260,8 +263,10 @@ namespace PIPE_Valve_Online_Server
             int count = 0;
             foreach(Player __player in _players.ToList())
             {
+               
                 if(__player.RiderID != _toclient)
                 {
+
                 listof5.Add(__player);
                 count++;
                 }
@@ -276,8 +281,8 @@ namespace PIPE_Valve_Online_Server
                         {
                             _packet.Write(_player.RiderID);
                             _packet.Write(_player.Username);
-                            _packet.Write(_player.RiderPositions[0]);
-                            _packet.Write(_player.RiderRotations[0]);
+                            _packet.Write(_player.RiderRootPosition);
+                            _packet.Write(_player.RiderRootRotation);
                             _packet.Write(_player.Ridermodel);
                             _packet.Write(_player.Ridermodelbundlename);
                             _packet.Write(_player.MapName);
@@ -301,13 +306,14 @@ namespace PIPE_Valve_Online_Server
                             // garage
                             _packet.Write(_player.Gear.Garagesave.Length);
                             _packet.Write(_player.Gear.Garagesave);
+                            
 
 
                         }
 
                         try
                         {
-                       SendtoOne(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                            SendtoOne(_toclient, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
                             listof5.Clear();
                             Console.WriteLine("Player bundle sent");
                         }
@@ -407,21 +413,18 @@ namespace PIPE_Valve_Online_Server
 
 
 
-        public static void SendAudioUpdate(uint _from, byte[] lastupdate)
+        public static void SendAudioUpdate(uint _from, byte[] Relayedpacket,Valve.Sockets.SendFlags flag)
         {
-            using(Packet _packet = new Packet((int)ServerPacket.SendAudioUpdate))
-            {
-                _packet.Write(_from);
-                _packet.Write(lastupdate);
+           
                 try
                 {
-           SendToAllReadyToRoll(_from,_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                  SendToAllReadyToRoll(_from, Relayedpacket, flag);
                 }
                 catch (Exception x)
                 {
                     Console.WriteLine("Failed Audio relay, player left?  :" + x);
                 }
-            }
+            
             
         }
 

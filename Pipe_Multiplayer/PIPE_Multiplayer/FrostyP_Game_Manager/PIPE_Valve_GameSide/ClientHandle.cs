@@ -322,7 +322,7 @@ namespace PIPE_Valve_Console_Client
                     }
                 }
 
-               
+                GameManager.instance.UpdatePlayersOnMyLevelToggledOff();
             
 
             }
@@ -527,10 +527,6 @@ namespace PIPE_Valve_Console_Client
                 }
 
 
-                // bike root pos and rot
-               // Positions[23] = ClientPacket.ReadVector3();
-               // Rotations[23] = ClientPacket.ReadVector3();
-
                     Positions[24] = ClientPacket.ReadVector3();
                     Rotations[24] = ClientPacket.ReadVector3();
 
@@ -603,24 +599,20 @@ namespace PIPE_Valve_Console_Client
                 try
                 {
                     uint _from = (uint)_packet.ReadLong();
-                    int senderspacketcode = _packet.ReadInt();
-
                     int RiserorOneshot = _packet.ReadInt();
 
                 if(RiserorOneshot == 1)
                 {
                    
-                        string nameofriser = _packet.ReadString();
-                        int playstate = _packet.ReadInt();
+                            string nameofriser = _packet.ReadString();
+                            int playstate = _packet.ReadInt();
                             float volume = _packet.ReadFloat();
                             float pitch = _packet.ReadFloat();
                             float Velocity = _packet.ReadFloat();
 
                             AudioStateUpdate update = new AudioStateUpdate(volume, pitch, playstate, nameofriser, Velocity);
                        
-                                try
-                                {
-
+                               
                                 if (GameManager.Players.TryGetValue(_from, out RemotePlayer player))
                                 {
                                     if (player.MasterActive)
@@ -630,14 +622,6 @@ namespace PIPE_Valve_Console_Client
                                     }
 
                                 }
-
-
-                                }
-                                catch (Exception e) {
-                                    Debug.Log("Error in ClientHandle.RecieveAudioForAPlayer :" + e.Message + e.StackTrace);
-                                }
-                            
-                        
 
                     
 

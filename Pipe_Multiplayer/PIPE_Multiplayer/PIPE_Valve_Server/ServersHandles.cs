@@ -42,6 +42,9 @@ namespace PIPE_Valve_Online_Server
             catch(Exception x)
             { 
             Console.WriteLine($"couldnt get map name, using {CurrentLevel} in their package: {x}");
+                    Server.server.CloseConnection(_from);
+                    return;
+
             }
             try
             {
@@ -51,7 +54,8 @@ namespace PIPE_Valve_Online_Server
             catch (Exception x)
             {
                 Console.WriteLine($"no Version number found from {name}, cut off");
-                    Server.server.CloseConnection(_from);
+                Server.server.CloseConnection(_from);
+                return;
             }
 
             if (Ridermodel.ToLower().Contains("prefab"))
@@ -123,8 +127,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-
         public static void ReceiveAllParts(uint _from, Packet _packet)
         {
             Console.WriteLine("Receiving Player Data");
@@ -132,46 +134,54 @@ namespace PIPE_Valve_Online_Server
 
             try
             {
-
-
-                // rider
-            List<TextureInfo> RiderTexnames = new List<TextureInfo>();
-
-                if(Server.Players[_from].Ridermodel == "Daryien")
+                if(Server.Players.TryGetValue(_from, out Player _player))
                 {
-                 int Ridertexcount = _packet.ReadInt();
-                if (Ridertexcount > 0)
-                {
+                    // rider
+                    
+                    Vector3 pos = _packet.ReadVector3();
+                    Vector3 rot = _packet.ReadVector3();
 
-                   for (int i = 0; i < Ridertexcount; i++)
+
+                   List<TextureInfo> RiderTexnames = new List<TextureInfo>();
+
+                   if(_player.Ridermodel == "Daryien")
                    {
-                   string Texname = _packet.ReadString();
-                   string ParentG_O = _packet.ReadString();
-                        int matnum = _packet.ReadInt();
-                        RiderTexnames.Add(new TextureInfo(Texname, ParentG_O,false,matnum));
-                   }
+                     int Ridertexcount = _packet.ReadInt();
+                     if (Ridertexcount > 0)
+                     {
+
+                         for (int i = 0; i < Ridertexcount; i++)
+                         {
+                           string Texname = _packet.ReadString();
+                           string ParentG_O = _packet.ReadString();
+                           int matnum = _packet.ReadInt();
+                           RiderTexnames.Add(new TextureInfo(Texname, ParentG_O,false,matnum));
+                         }
 
                     
-                }
+                     }
 
 
-                }
+                   }
 
-                // bike ( garage )
+                     // bike ( garage )
 
-                int bytecount = _packet.ReadInt();
-                byte[] bytes = _packet.ReadBytes(bytecount);
-                Console.WriteLine($"Garage Save bytes: {bytes.Length}");
-                SaveList glist = new SaveList();
-                   glist = ServerData.DeserialiseGarage(bytes);
+                     int bytecount = _packet.ReadInt();
+                    if(bytecount == 0)
+                    {
+                        ServerSend.DisconnectPlayer("Server encountered error reading your Garage save data, check that your preset works as intended and that your logging on messages show the correct preset being sent", _from);
+                        return;
+                    }
 
-                if(glist == null)
-                {
-                    Console.WriteLine("Fail to cast garage save: Receive all parts");
-                }
-               
+                     byte[] bytes = _packet.ReadBytes(bytecount);
+                     Console.WriteLine($"Garage Save bytes: {bytes.Length}");
+                     SaveList glist = new SaveList();
+                     glist = ServerData.DeserialiseGarage(bytes);
 
-
+                     if(glist == null)
+                     {
+                       Console.WriteLine("Fail to cast garage save: Receive all parts");
+                     }
 
 
 
@@ -216,24 +226,17 @@ namespace PIPE_Valve_Online_Server
 
             ///// Add all data to the players Loadout, created by the new Player assigned to this connection in Welcome
 
-            if(!Server.Players.TryGetValue(_from,out Player player))
-                {
-                    return;
-                }
-                else
-                {
-                    if(player.Ridermodel == "Daryien")
+           
+                    if(_player.Ridermodel == "Daryien")
                     {
-                    player.Gear.RiderTextures = RiderTexnames;
+                    _player.Gear.RiderTextures = RiderTexnames;
                     }
 
-                    player.Gear.Garagesave = bytes;
+                    _player.Gear.Garagesave = bytes;
+                    _player.RiderRootPosition = pos;
+                    _player.RiderRootRotation = rot;
 
-
-                }
-           
-
-
+                
            
 
 
@@ -244,9 +247,9 @@ namespace PIPE_Valve_Online_Server
                 {
                     ServerData.FileCheckAndRequest(RiderTexnames[i].Nameoftexture, _from);
                 }
-                for (int i = 0; i < player.PlayerObjects.Count; i++)
+                for (int i = 0; i < _player.PlayerObjects.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(player.PlayerObjects[i].NameOfFile, _from);
+                    ServerData.FileCheckAndRequest(_player.PlayerObjects[i].NameOfFile, _from);
                 }
 
                 if(glist != null && glist.partMeshes != null)
@@ -279,77 +282,91 @@ namespace PIPE_Valve_Online_Server
 
 
 
-                Console.WriteLine("Done");
+                          Console.WriteLine("Done");
 
 
 
 
 
-            // Start setup for every player but this one --------------------    
-                Console.WriteLine($"Telling others about this player..");
+                        // Start setup for every player but this one --------------------    
+                        Console.WriteLine($"Telling others about this player..");
                     
-                foreach (Player c in Server.Players.Values.ToList())
-            {
-                if (c.RiderID != _from)
-                {
-                    ServerSend.SetupNewPlayer(c.RiderID, Server.Players[_from]);
-                   
-                }
-            }
-
-            foreach (Player p in Server.Players.Values.ToList())
-            {
-                if (p.RiderID != _from)
-                {
-                    foreach (NetGameObject n in player.PlayerObjects)
-                    {
-                    ServerSend.SpawnAnObject(p.RiderID, _from, n);
-
-                    }
-
-                }
-            }
-
-
-
-
-
-            // if theres players, run setup all, collects playerinfo in groups of five max and sends, then send all player objects
-            if (Server.Players.Count > 1)
-            {
-                Console.WriteLine($"Telling {Server.Players[_from].Username} about {Server.Players.Count - 1} other players");
-                ServerSend.SetupAllOnlinePlayers(_from, Server.Players.Values.ToList());
-
-                foreach(Player p in Server.Players.Values)
-                {
-                    if(p.RiderID != _from)
-                    {
-                    if (p.PlayerObjects.Count > 0)
-                    {
-                        foreach(NetGameObject n in p.PlayerObjects)
+                        foreach (Player c in Server.Players.Values.ToList())
                         {
-                            ServerSend.SpawnAnObject(_from, p.RiderID, n);
+                           if (c.RiderID != _from)
+                           {
+                             ServerSend.SetupNewPlayer(c.RiderID, Server.Players[_from]);
+                   
+                           }
                         }
-                    }
 
-                    }
+                        foreach (Player p in Server.Players.Values.ToList())
+                        {
+                            if (p.RiderID != _from)
+                            {
+                               foreach (NetGameObject n in _player.PlayerObjects)
+                               {
+                                 ServerSend.SpawnAnObject(p.RiderID, _from, n);
+
+                               }
+
+                            }
+                        }
+
+
+
+
+
+                      // if theres players, run setup all, collects playerinfo in groups of five max and sends, then send all player objects
+                      if (Server.Players.Count > 1)
+                      {
+                           Console.WriteLine($"Telling {_player.Username} about {Server.Players.Count - 1} other players");
+                           ServerSend.SetupAllOnlinePlayers(_from, Server.Players.Values.ToList());
+
+                           foreach(Player p in Server.Players.Values)
+                           {
+                              if(p.RiderID != _from)
+                              {
+                                 if (p.PlayerObjects.Count > 0)
+                                 {
+                                    foreach(NetGameObject n in p.PlayerObjects)
+                                    {
+                                       ServerSend.SpawnAnObject(_from, p.RiderID, n);
+                                    }
+                                 }
+
+                              }
+                           }
+                      }
+
+                       _player.ReadytoRoll = true;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 }
-            }
-
-            Server.Players[_from].ReadytoRoll = true;
 
 
             }
             catch(Exception x)
             {
                 Console.WriteLine($"Receive all parts error: {x}");
+                ServerSend.DisconnectPlayer("Error with your Rider/Garage Data", _from);
             }
 
 
 
         }
-
-
 
         public static void PlayerRequestedFile(uint _from, Packet _packet)
         {
@@ -431,9 +448,6 @@ namespace PIPE_Valve_Online_Server
             
 
         }
-
-
-
 
         public static void ReceiveMapname(uint _from, Packet _packet)
         {
@@ -653,13 +667,22 @@ namespace PIPE_Valve_Online_Server
             Server.server.GetQuickConnectionStatus(_from, ref info);
             int _ping = info.ping;
 
-           
             if (Server.Players.Count > 1)
             {
                 try
                 {
-
                     ServerSend.SendATransformUpdate(_from, _packet,ServerStamp, _ping);
+
+                    // store root
+
+                    long stamp = _packet.ReadLong();
+                    Vector3 pos = _packet.ReadVector3();
+                    Vector3 rot = _packet.ReadVector3();
+                    if(Server.Players.TryGetValue(_from, out Player player))
+                    {
+                        player.RiderRootPosition = pos;
+                        player.RiderRootRotation = rot;
+                    }
 
                 }
                 catch (Exception x)
@@ -674,22 +697,85 @@ namespace PIPE_Valve_Online_Server
 
         public static void ReceiveAudioUpdate(uint _from, Packet _packet)
         {
-            
+
            
             try
             {
-               
-                if (Server.Players.Count > 1)
+            int code = _packet.ReadInt();
+
+
+                if(code == 1)
                 {
-               ServerSend.SendAudioUpdate(_from, _packet.ToArray());
+
+                    string nameofriser = _packet.ReadString();
+                    int playstate = _packet.ReadInt();
+                    float vol = _packet.ReadFloat();
+                    float pitch = _packet.ReadFloat();
+                    float vel = _packet.ReadFloat();
+                    int flagcode = _packet.ReadInt();
+
+
+                  if (Server.Players.Count > 1)
+                  {
+                    using (Packet outpacket = new Packet((int)ServerPacket.SendAudioUpdate))
+                    {
+                        outpacket.Write(_from);
+                        outpacket.Write(code);
+                        outpacket.Write(nameofriser);
+                        outpacket.Write(playstate);
+                        outpacket.Write(vol);
+                        outpacket.Write(pitch);
+                        outpacket.Write(vel);
+
+
+                        if (flagcode == 1)
+                        {
+                          ServerSend.SendAudioUpdate(_from,outpacket.ToArray(),SendFlags.Reliable);
+                        }
+                        else if(flagcode == 2)
+                        {
+                            ServerSend.SendAudioUpdate(_from, outpacket.ToArray(), SendFlags.Unreliable);
+                        }
+
+
+                    }
+
+
+                  }
+
+
                 }
+                if(code == 2)
+                {
+                  string nameofoneshot = _packet.ReadString();
+                  float volofoneshot = _packet.ReadFloat();
+
+                    if (Server.Players.Count > 1)
+                    {
+                        using (Packet outpacket = new Packet((int)ServerPacket.SendAudioUpdate))
+                        {
+                            outpacket.Write(_from);
+                            outpacket.Write(code);
+                            outpacket.Write(nameofoneshot);
+                            outpacket.Write(volofoneshot);
+
+                            ServerSend.SendAudioUpdate(_from, outpacket.ToArray(), SendFlags.Reliable);
+                        }
+
+
+                    }
+
+
+                }
+
+
             }
             catch (Exception x)
             {
                 Console.WriteLine("Failed audio relay, Player left? :   " + x);
             }
             
-            // avoids the possiblilty of referencing player[_from] when it doesnt exist
+           
 
 
 

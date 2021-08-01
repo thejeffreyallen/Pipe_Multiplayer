@@ -98,7 +98,7 @@ namespace PIPE_Valve_Console_Client
 
                                 if(ThisSoundpath != LastSoundPath)
                                 {
-                                 OneShotUpdates.Add(new AudioStateUpdate(finalvol, ThisSoundpath));
+                                 OneShotUpdates.Add(new AudioStateUpdate(finalvol, ThisSoundpath,Valve.Sockets.SendFlags.Reliable));
 
                                 }
 
@@ -194,9 +194,9 @@ namespace PIPE_Valve_Console_Client
        
 
 
-        private bool PlayThreshold(string name, float finalvol)
+           private bool PlayThreshold(string name, float finalvol)
            {
-              if(PlayThresholds[name] - finalvol > 0.001f | (PlayThresholds[name] - finalvol < -0.001f))
+              if(PlayThresholds[name] - finalvol > 0.0005f | (PlayThresholds[name] - finalvol < -0.0005f))
               {
                 
                 PlayThresholds[name] = finalvol;
@@ -211,8 +211,6 @@ namespace PIPE_Valve_Console_Client
 
            }
           
-
-
             // all fired by the state of a riserbyVel above and add their data to StatesUpdate list for sending
             void Playing(int state, FmodRiserByVel riser)
             {

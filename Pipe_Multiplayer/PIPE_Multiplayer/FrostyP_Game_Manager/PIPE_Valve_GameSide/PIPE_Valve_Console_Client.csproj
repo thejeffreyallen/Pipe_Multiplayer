@@ -146,7 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioStateUpdate.cs" />
-    <Compile Include="BMXSaveData.cs" />
     <Compile Include="CharacterModding.cs" />
     <Compile Include="ClientHandle.cs" />
     <Compile Include="ClientSend.cs" />

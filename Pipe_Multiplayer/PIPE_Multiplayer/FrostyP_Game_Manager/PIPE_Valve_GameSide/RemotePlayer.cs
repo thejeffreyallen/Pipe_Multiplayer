@@ -43,6 +43,8 @@ namespace PIPE_Valve_Console_Client
         public bool InviteToSpawnLive;
         public Vector3 spawnpos;
         public Vector3 spawnrot;
+        public Vector3 StartupPos = new Vector3();
+        public Vector3 StartupRot = new Vector3();
 
         public float PlayersFrameRate;
         private float _playerframerate;
@@ -100,7 +102,7 @@ namespace PIPE_Valve_Console_Client
 
 
             }
-            catch (Exception x)
+            catch (Exception)
             {
 
             }
@@ -134,7 +136,10 @@ namespace PIPE_Valve_Console_Client
                 Debug.Log("Error with Ridersetup()");
                 }
 
-
+                RiderModel.transform.position = StartupPos;
+                RiderModel.transform.eulerAngles = StartupRot;
+                BMX.transform.position = StartupPos;
+                BMX.transform.eulerAngles = StartupRot;
                 partMaster = gameObject.GetComponent<RemotePartMaster>(); // initialize the part master part list.
                 brakesManager = gameObject.GetComponent<RemoteBrakesManager>();
                 StartCoroutine(Initialiseafterwait());
@@ -148,13 +153,13 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        private void LateUpdate()
+        private void Update()
         {
             if (MasterActive)
             {
                 try
                 {
-
+                   
                   if (nameSign != null && RiderModel != null && Camera.current!= null)
                   {
 			       nameSign.transform.rotation = Camera.current.transform.rotation;
@@ -192,7 +197,7 @@ namespace PIPE_Valve_Console_Client
                     Debug.Log($"Rider LateUpdate Error" + x);
                 }
             }
-
+           
         }
 
         bool CheckThresholds()
@@ -378,7 +383,6 @@ namespace PIPE_Valve_Console_Client
                     }
 
 
-
                     // rider
                     Riders_Transforms[0].position = Vector3.MoveTowards(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0], (float)(Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[1].Positions[0]) / timespan / (1 / Time.deltaTime)));
                     Riders_Transforms[0].rotation = Quaternion.RotateTowards(Riders_Transforms[0].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[0]), Quaternion.Angle(Riders_Transforms[0].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[0])) / timespan / (1 / Time.deltaTime));
@@ -509,9 +513,11 @@ namespace PIPE_Valve_Console_Client
             BMX.SetActive(value);
             ChangePlayerTagVisible(value);
             ChangeObjectsVisible(value);
+            MasterActive = value;
             PlayerIsVisible = value;
+            GameManager.instance.UpdatePlayersOnMyLevelToggledOff();
         }
-        
+
         public void UpdateDaryien()
         {
             
@@ -636,10 +642,11 @@ namespace PIPE_Valve_Console_Client
 
             
 
-            ChangePlayerVisibilty(CurrentMap == UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            ChangePlayerVisibilty(CurrentMap == GameManager.instance.MycurrentLevel);
             ChangeCollideStatus(InGameUI.instance.CollisionsToggle);
 
             Debug.Log($"{username} completed setup"); MasterActive = true;
+           
         }
 
         private void DestroyNormal()
