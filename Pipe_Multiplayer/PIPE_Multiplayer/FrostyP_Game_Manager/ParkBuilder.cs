@@ -226,7 +226,7 @@ namespace FrostyP_Game_Manager
 		}
 
         // Update is called once per frame
-        void LateUpdate()
+        void Update()
         {
 
             if (openflag)
@@ -867,7 +867,7 @@ namespace FrostyP_Game_Manager
             if (!REgrabbed)
             {
 						
-			         GameObject obj = GameObject.Instantiate(ActiveBundleData.Bundle.LoadAsset(Activeobj.name.Replace("(Clone)", ""))) as GameObject;
+			 GameObject obj = GameObject.Instantiate(Activeobj) as GameObject;
             if (obj.GetComponent<Rigidbody>())
             {
 				obj.layer = 25;
@@ -890,7 +890,7 @@ namespace FrostyP_Game_Manager
 				NetGameObject _newobj = new NetGameObject(Activeobj.name.Replace("(Clone)",""), ActiveBundleData.FileName, ActiveBundleData.Bundle.name, Activeobj.transform.eulerAngles, Activeobj.transform.position, Activeobj.transform.localScale, false, ID, obj);
 				NetgameObjects.Add(_newobj);
 
-            if (InGameUI.instance.Connected && NetgameObjects.Count < 10)
+            if (InGameUI.instance.Connected && NetgameObjects.Count < 30)
             {
 				ClientSend.SpawnObjectOnServer(_newobj);
 			

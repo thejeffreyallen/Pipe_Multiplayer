@@ -38,6 +38,17 @@ namespace PIPE_Valve_Console_Client
         FMOD.Studio.EventInstance FootBrake;
         FMOD.Studio.EventInstance Cassette;
 
+        // riser timeouts
+        Stopwatch sliderwatch = new Stopwatch();
+        Stopwatch tireswatch = new Stopwatch();
+        Stopwatch railsinglewatch = new Stopwatch();
+        Stopwatch raildoublewatch = new Stopwatch();
+        Stopwatch ledgesinglewatch = new Stopwatch();
+        Stopwatch ledgedoublewatch = new Stopwatch();
+        Stopwatch singletirewatch = new Stopwatch();
+        Stopwatch footbrakewatch = new Stopwatch();
+        Stopwatch cassettewatch = new Stopwatch();
+        Dictionary<Stopwatch, FMOD.Studio.EventInstance> listofwatches = new Dictionary<Stopwatch, FMOD.Studio.EventInstance>();
        
         delegate void Handler(AudioStateUpdate update);
         private Dictionary<string, Handler> StateHandlers;
@@ -80,6 +91,19 @@ namespace PIPE_Valve_Console_Client
             Cassette = FMODUnity.RuntimeManager.CreateInstance(cassettepath);
             singleTire = FMODUnity.RuntimeManager.CreateInstance(singletirepath);
             Slider = FMODUnity.RuntimeManager.CreateInstance(sliderpath);
+
+            listofwatches.Add(sliderwatch,Slider);
+            listofwatches.Add(tireswatch,Tires);
+            listofwatches.Add(railsinglewatch,RailSingle);
+            listofwatches.Add(raildoublewatch,RailDouble);
+            listofwatches.Add(ledgesinglewatch,LedgeSingle);
+            listofwatches.Add(ledgedoublewatch,LedgeDouble);
+            listofwatches.Add(singletirewatch,singleTire);
+            listofwatches.Add(footbrakewatch,FootBrake);
+            listofwatches.Add(cassettewatch,Cassette);
+            
+
+
         }
 
 
@@ -144,8 +168,20 @@ namespace PIPE_Valve_Console_Client
                     
                     IncomingOneShotUpdates.RemoveAt(i);
                 }
-             }  
+             }
 
+
+                foreach(Stopwatch s in listofwatches.Keys)
+                {
+                    if (s.IsRunning)
+                    {
+                        if (s.Elapsed.TotalSeconds > 1)
+                        {
+                            listofwatches[s].stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                            s.Reset();
+                        }
+                    }
+                }
             
 
             }
@@ -205,6 +241,8 @@ namespace PIPE_Valve_Console_Client
                 Tires.setVolume(update.Volume);
                 Tires.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                tireswatch.Reset();
+                tireswatch.Start();
 
             }
 
@@ -224,6 +262,8 @@ namespace PIPE_Valve_Console_Client
                 Tires.setVolume(update.Volume);
                 Tires.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                tireswatch.Reset();
+                tireswatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -233,6 +273,7 @@ namespace PIPE_Valve_Console_Client
                 Tires.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 Tires.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                tireswatch.Reset();
 
             }
 
@@ -244,10 +285,13 @@ namespace PIPE_Valve_Console_Client
                     Tires.setVolume(update.Volume);
                     Tires.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    Tires.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                     
                 }
                 Tires.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                if (tireswatch.IsRunning)
+                {
+                    tireswatch.Reset();
+                }
                 
             }
 
@@ -287,7 +331,8 @@ namespace PIPE_Valve_Console_Client
                 RailSingle.setVolume(update.Volume);
                 RailSingle.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
-
+                railsinglewatch.Reset();
+                railsinglewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STARTING)
@@ -306,6 +351,8 @@ namespace PIPE_Valve_Console_Client
                 RailSingle.setVolume(update.Volume);
                 RailSingle.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                railsinglewatch.Reset();
+                railsinglewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -315,7 +362,7 @@ namespace PIPE_Valve_Console_Client
                 RailSingle.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 RailSingle.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-                
+                railsinglewatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPED)
@@ -326,11 +373,11 @@ namespace PIPE_Valve_Console_Client
                     RailSingle.setVolume(update.Volume);
                     RailSingle.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    RailSingle.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                     
                 }
                 RailSingle.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                 RailSingle.release();
+                railsinglewatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -369,6 +416,8 @@ namespace PIPE_Valve_Console_Client
                 RailDouble.setVolume(update.Volume);
                 RailDouble.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                raildoublewatch.Reset();
+                raildoublewatch.Start();
 
             }
 
@@ -388,6 +437,8 @@ namespace PIPE_Valve_Console_Client
                 RailDouble.setVolume(update.Volume);
                 RailDouble.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                raildoublewatch.Reset();
+                raildoublewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -397,6 +448,7 @@ namespace PIPE_Valve_Console_Client
                 RailDouble.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 RailDouble.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                raildoublewatch.Reset();
 
             }
 
@@ -408,11 +460,11 @@ namespace PIPE_Valve_Console_Client
                     RailDouble.setVolume(update.Volume);
                     RailDouble.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    RailDouble.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                     
                 }
                 RailDouble.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                
+                raildoublewatch.Reset();
+
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -451,6 +503,8 @@ namespace PIPE_Valve_Console_Client
                 LedgeSingle.setVolume(update.Volume);
                 LedgeSingle.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                ledgesinglewatch.Reset();
+                ledgesinglewatch.Start();
 
             }
 
@@ -470,6 +524,8 @@ namespace PIPE_Valve_Console_Client
                 LedgeSingle.setVolume(update.Volume);
                 LedgeSingle.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                ledgesinglewatch.Reset();
+                ledgesinglewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -479,7 +535,7 @@ namespace PIPE_Valve_Console_Client
                 LedgeSingle.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 LedgeSingle.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-
+                ledgesinglewatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPED)
@@ -490,11 +546,12 @@ namespace PIPE_Valve_Console_Client
                     LedgeSingle.setVolume(update.Volume);
                     LedgeSingle.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    LedgeSingle.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                    
                     
                 }
                 LedgeSingle.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-               
+                ledgesinglewatch.Reset();
+
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -531,6 +588,8 @@ namespace PIPE_Valve_Console_Client
                 LedgeDouble.setVolume(update.Volume);
                 LedgeDouble.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                ledgedoublewatch.Reset();
+                ledgedoublewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STARTING)
@@ -549,6 +608,8 @@ namespace PIPE_Valve_Console_Client
                 LedgeDouble.setVolume(update.Volume);
                 LedgeDouble.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                ledgedoublewatch.Reset();
+                ledgedoublewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -558,6 +619,7 @@ namespace PIPE_Valve_Console_Client
                 LedgeDouble.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 LedgeDouble.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                ledgedoublewatch.Reset();
 
             }
 
@@ -569,11 +631,11 @@ namespace PIPE_Valve_Console_Client
                     LedgeDouble.setVolume(update.Volume);
                     LedgeDouble.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    LedgeDouble.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                 }
 
                 LedgeDouble.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                
+                ledgedoublewatch.Reset();
+
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -610,6 +672,8 @@ namespace PIPE_Valve_Console_Client
                 FootBrake.setVolume(update.Volume);
                 FootBrake.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                footbrakewatch.Reset();
+                footbrakewatch.Start();
 
             }
 
@@ -629,6 +693,8 @@ namespace PIPE_Valve_Console_Client
                 FootBrake.setVolume(update.Volume);
                 FootBrake.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                footbrakewatch.Reset();
+                footbrakewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -638,6 +704,7 @@ namespace PIPE_Valve_Console_Client
                 FootBrake.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 FootBrake.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                footbrakewatch.Reset();
 
             }
 
@@ -649,11 +716,9 @@ namespace PIPE_Valve_Console_Client
                     FootBrake.setVolume(update.Volume);
                     FootBrake.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    FootBrake.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                   // FootBrake.release();
                 }
                 FootBrake.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-               // FootBrake.release();
+                footbrakewatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -689,6 +754,8 @@ namespace PIPE_Valve_Console_Client
                 Cassette.setVolume(update.Volume);
                 Cassette.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                cassettewatch.Reset();
+                cassettewatch.Start();
 
             }
 
@@ -708,6 +775,8 @@ namespace PIPE_Valve_Console_Client
                 Cassette.setVolume(update.Volume);
                 Cassette.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                cassettewatch.Reset();
+                cassettewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -717,6 +786,7 @@ namespace PIPE_Valve_Console_Client
                 Cassette.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 Cassette.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                cassettewatch.Reset();
 
             }
 
@@ -728,11 +798,10 @@ namespace PIPE_Valve_Console_Client
                     Cassette.setVolume(update.Volume);
                     Cassette.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    Cassette.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                    
                 }
                 Cassette.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-               // Cassette.release();
+                cassettewatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -769,6 +838,8 @@ namespace PIPE_Valve_Console_Client
                 singleTire.setVolume(update.Volume);
                 singleTire.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                singletirewatch.Reset();
+                singletirewatch.Start();
 
             }
 
@@ -788,6 +859,8 @@ namespace PIPE_Valve_Console_Client
                 singleTire.setVolume(update.Volume);
                 singleTire.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                singletirewatch.Reset();
+                singletirewatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -797,6 +870,8 @@ namespace PIPE_Valve_Console_Client
                 singleTire.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 singleTire.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+
+                singletirewatch.Reset();
 
             }
 
@@ -808,11 +883,11 @@ namespace PIPE_Valve_Console_Client
                     singleTire.setVolume(update.Volume);
                     singleTire.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    singleTire.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
                    
                 }
                 singleTire.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-              //  singleTire.release();
+
+                singletirewatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)
@@ -849,6 +924,8 @@ namespace PIPE_Valve_Console_Client
                 Slider.setVolume(update.Volume);
                 Slider.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                sliderwatch.Reset();
+                sliderwatch.Start();
 
             }
 
@@ -868,6 +945,8 @@ namespace PIPE_Valve_Console_Client
                 Slider.setVolume(update.Volume);
                 Slider.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
+                sliderwatch.Reset();
+                sliderwatch.Start();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.STOPPING)
@@ -877,6 +956,7 @@ namespace PIPE_Valve_Console_Client
                 Slider.setPitch(update.pitch);
                 Vel.setValue(update.Velocity);
                 Slider.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                sliderwatch.Reset();
 
             }
 
@@ -888,11 +968,9 @@ namespace PIPE_Valve_Console_Client
                     Slider.setVolume(update.Volume);
                     Slider.setPitch(update.pitch);
                     Vel.setValue(update.Velocity);
-                    Slider.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-                   // Slider.release();
                 }
                 Slider.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-              //  Slider.release();
+                sliderwatch.Reset();
             }
 
             if (update.playstate == (int)FMOD.Studio.PLAYBACK_STATE.SUSTAINING)

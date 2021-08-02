@@ -70,7 +70,7 @@ namespace PIPE_Valve_Console_Client
             }
 
         }
-       
+
         // Grabs all of Daryiens Bones on Start, and the bikes, stores in Rider_Transforms[] for sending
         public bool InitialiseLocalRider()
         {

@@ -182,8 +182,10 @@ namespace PIPE_Valve_Console_Client
 
 
 
-		 // do connection status on tickrate to log to IngameGUI info about ping, connection state etc, alternative to client.runcallbacks()
-			ConnectionStatus();
+			// do connection status on tickrate to log to IngameGUI info about ping, connection state etc, alternative to client.runcallbacks()
+			
+			 ConnectionStatus();
+			
 
 			
 			
@@ -465,14 +467,17 @@ namespace PIPE_Valve_Console_Client
 			// if there is a connection and were in online mode, extract data from the Valve quick connectionstatus
 			if(InGameUI.instance.Connected && constat.state == Valve.Sockets.ConnectionState.Connected)
             {
-				InGameUI.instance.Ping = constat.ping;
-				InGameUI.instance.Pendingreliable = constat.pendingReliable;
-				InGameUI.instance.Pendingunreliable = constat.pendingUnreliable;
-				InGameUI.instance.Outbytespersec = constat.outBytesPerSecond;
-				InGameUI.instance.InBytespersec = constat.inBytesPerSecond;
-				InGameUI.instance.connectionstate = constat.state;
-				InGameUI.instance.connectionqualitylocal = constat.connectionQualityLocal;
-				InGameUI.instance.connectionqualityremote = constat.connectionQualityRemote;
+				SendToUnityThread.instance.ExecuteOnMainThread(() =>
+				{
+					InGameUI.instance.Ping = constat.ping;
+					InGameUI.instance.Pendingreliable = constat.pendingReliable;
+					InGameUI.instance.Pendingunreliable = constat.pendingUnreliable;
+					InGameUI.instance.Outbytespersec = constat.outBytesPerSecond;
+					InGameUI.instance.InBytespersec = constat.inBytesPerSecond;
+					InGameUI.instance.connectionstate = constat.state;
+					InGameUI.instance.connectionqualitylocal = constat.connectionQualityLocal;
+					InGameUI.instance.connectionqualityremote = constat.connectionQualityRemote;
+				});
 				
 				
             }

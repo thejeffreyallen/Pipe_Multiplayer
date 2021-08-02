@@ -667,31 +667,38 @@ namespace PIPE_Valve_Online_Server
             Server.server.GetQuickConnectionStatus(_from, ref info);
             int _ping = info.ping;
 
+            try
+            {
+
+
+                // if there's players, send on
             if (Server.Players.Count > 1)
             {
-                try
-                {
-                    ServerSend.SendATransformUpdate(_from, _packet,ServerStamp, _ping);
-
-                    // store root
-
-                    long stamp = _packet.ReadLong();
-                    Vector3 pos = _packet.ReadVector3();
-                    Vector3 rot = _packet.ReadVector3();
-                    if(Server.Players.TryGetValue(_from, out Player player))
-                    {
-                        player.RiderRootPosition = pos;
-                        player.RiderRootRotation = rot;
-                    }
-
-                }
-                catch (Exception x)
-                {
-                    Console.Write("Failed Transform relay! Player left?  : " + x);
-                }
-
+              ServerSend.SendATransformUpdate(_from, _packet,ServerStamp, _ping);
             }
 
+
+                // store latest root for initialization
+                long stamp = _packet.ReadLong();
+                Vector3 pos = _packet.ReadVector3();
+                Vector3 rot = _packet.ReadVector3();
+
+                if (Server.Players.TryGetValue(_from, out Player player))
+                {
+                    player.RiderRootPosition = pos;
+                    player.RiderRootRotation = rot;
+                }
+
+
+
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
 
         }
 

@@ -188,40 +188,72 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write(rotations[0]);
                 for (int i = 1; i < 23; i++)
                 {
-
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].x * (int)PosMult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].y * (int)PosMult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[i].z * (int)PosMult))));
-
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * (int)Rotmult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * (int)Rotmult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * (int)Rotmult))));
+                  _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * (int)Rotmult))));
+                  _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * (int)Rotmult))));
+                  _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * (int)Rotmult))));
 
                 }
+                // Hip Joint
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[20].x * PosMult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[20].y * PosMult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[20].z * PosMult))));
 
-               
+
                 // bike joint
                 _packet.Write(positions[24]);
                 _packet.Write(rotations[24]);
 
                 //bars joint
                 _packet.Write(positions[25]);
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[25].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[25].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[25].z * Rotmult))));
+
+
+
+                // drivetrain
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[26].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[26].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[26].z * Rotmult))));
+
                 // frame joint
                 _packet.Write(positions[27]);
-
-
-                for (int i = 25; i < 34; i++)
-                {
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].x * Rotmult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].y * Rotmult))));
-                    _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[i].z * Rotmult))));
-
-                }
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[27].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[27].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[27].z * Rotmult))));
 
 
 
+                // front and back wheel joint local X
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[28].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[28].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[28].z * Rotmult))));
 
-                SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Unreliable | Valve.Sockets.SendFlags.NoDelay);
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[29].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[29].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[29].z * Rotmult))));
+
+
+                // left and right pedal joint local X
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[30].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[30].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[30].z * Rotmult))));
+
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[31].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[31].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[31].z * Rotmult))));
+
+                // left and right finger index2 local X
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].z * Rotmult))));
+
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[33].x * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].y * Rotmult))));
+                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].z * Rotmult))));
+
+
+                SendToServer(_packet.ToArray(), SendFlags.Unreliable | SendFlags.NoDelay);
 
             }
 

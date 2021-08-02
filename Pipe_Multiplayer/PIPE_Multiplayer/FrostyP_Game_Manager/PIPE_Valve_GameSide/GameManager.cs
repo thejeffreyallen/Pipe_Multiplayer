@@ -123,6 +123,13 @@ namespace PIPE_Valve_Console_Client
             {
                 StartCoroutine(FixWalkBug());
             }
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                if (InGameUI.instance.IsSpectating)
+                {
+                    InGameUI.instance.SpectateExit();
+                }
+            }
 
         }
 

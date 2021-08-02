@@ -473,7 +473,7 @@ namespace PIPE_Valve_Console_Client
 
 
                     // positions to be filled
-                Vector3[] Positions = new Vector3[32];
+                Vector3[] Positions = new Vector3[28];
                 Vector3[] Rotations = new Vector3[34];
 
 
@@ -486,26 +486,6 @@ namespace PIPE_Valve_Console_Client
                     // rider locals
                 for (int i = 1; i < 23; i++)
                 {
-                    SystemHalf.Half x = ClientPacket.ReadShort();
-                    SystemHalf.Half y = ClientPacket.ReadShort();
-                    SystemHalf.Half z = ClientPacket.ReadShort();
-
-                        
-                        if (SystemHalf.HalfHelper.IsInfinity(x) | SystemHalf.HalfHelper.IsNaN(x))
-                        {
-                            x = 0;
-                        }
-                        if (SystemHalf.HalfHelper.IsInfinity(y) | SystemHalf.HalfHelper.IsNaN(y))
-                        {
-                            y = 0;
-                        }
-                        if (SystemHalf.HalfHelper.IsInfinity(z) | SystemHalf.HalfHelper.IsNaN(z))
-                        {
-                            z = 0;
-                        }
-                        
-                        Positions[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(x) / DividePos, SystemHalf.HalfHelper.HalfToSingle(y) / DividePos, SystemHalf.HalfHelper.HalfToSingle(z) / DividePos);
-                       
                     SystemHalf.Half _x = ClientPacket.ReadShort();
                     SystemHalf.Half _y = ClientPacket.ReadShort();
                     SystemHalf.Half _z = ClientPacket.ReadShort();
@@ -526,40 +506,36 @@ namespace PIPE_Valve_Console_Client
                         Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_y) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_z) / DivideRot);
                 }
 
+                    // hip joint
+                    Positions[20] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos));
 
+                    // bike joint
                     Positions[24] = ClientPacket.ReadVector3();
                     Rotations[24] = ClientPacket.ReadVector3();
 
+                    // bars joint
                     Positions[25] = ClientPacket.ReadVector3();
+                    Rotations[25] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
+
+                    // Drivetrain local X
+                    Rotations[26] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
+
+                    // frame joint
                     Positions[27] = ClientPacket.ReadVector3();
+                    Rotations[27] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
 
-                    // bike locals
-                    for (int i = 25; i < 34; i++)
-                    {
-                 
-                    SystemHalf.Half _x = ClientPacket.ReadShort();
-                    SystemHalf.Half _y = ClientPacket.ReadShort();
-                    SystemHalf.Half _z = ClientPacket.ReadShort();
+                    // front and back wheel local X
+                    Rotations[28] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
+                    Rotations[29] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
 
+                    // left and right pedal local x
+                    Rotations[30] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
+                    Rotations[31] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
 
-                        if (SystemHalf.HalfHelper.IsInfinity(_x) | SystemHalf.HalfHelper.IsNaN(_x))
-                        {
-                            _x = 0;
-                        }
-                        if (SystemHalf.HalfHelper.IsInfinity(_y) | SystemHalf.HalfHelper.IsNaN(_y))
-                        {
-                            _y = 0;
-                        }
-                        if (SystemHalf.HalfHelper.IsInfinity(_z) | SystemHalf.HalfHelper.IsNaN(_z))
-                        {
-                            _z = 0;
-                        }
+                    // left and right finger index2 local x
+                    Rotations[32] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
+                    Rotations[33] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
 
-                        Rotations[i] = new Vector3(SystemHalf.HalfHelper.HalfToSingle(_x) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_y) / DivideRot, SystemHalf.HalfHelper.HalfToSingle(_z) / DivideRot);
-
-                    }
-
-                   
 
                     try
                     {
