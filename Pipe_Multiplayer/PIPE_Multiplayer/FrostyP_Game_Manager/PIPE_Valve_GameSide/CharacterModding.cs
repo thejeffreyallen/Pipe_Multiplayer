@@ -167,7 +167,7 @@ namespace PIPE_Valve_Console_Client
 
 			
 
-			GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 70), new Vector2(Screen.width / 2, Screen.height / 20)), InGameUI.BoxStyle);
+			GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 10 + (Screen.height/45)), new Vector2(Screen.width / 2, Screen.height / 20)), InGameUI.BoxStyle);
 			GUILayout.Label("Rider Setup");
 			GUILayout.Space(5);
 			GUILayout.BeginHorizontal();
@@ -334,14 +334,15 @@ namespace PIPE_Valve_Console_Client
         {
 			GUILayout.Label($"{part.DisplayName}");
 			GUILayout.Space(10);
-            if (GUILayout.Button("Remove"))
-            {
-				if(part.DisplayName != "Hands/Feet" && part.DisplayName != "Head" && part.DisplayName != "Body")
-                {
-				part.Renderer.material.mainTexture = null;
-				part.Renderer.enabled = false;
-                }
-            }
+
+			if (part.DisplayName != "Hands/Feet" && part.DisplayName != "Head" && part.DisplayName != "Body")
+			{
+				if (GUILayout.Button("Remove"))
+				{
+					part.Renderer.material.mainTexture = null;
+					part.Renderer.enabled = false;
+				}
+			}
 				TexScroll = GUILayout.BeginScrollView(TexScroll);
 				GUILayout.Space(20);
 				for (int i = 0; i < part.BaseTexs.Length; i++)
@@ -366,7 +367,7 @@ namespace PIPE_Valve_Console_Client
 			   {
 				part.Renderer.enabled = true;
 			    part.Renderer.materials[part.MatNum].mainTexture = part.BaseTexs[texNum];
-					part.Renderer.materials[part.MatNum].color = new Color(1, 1, 1, 1);
+				part.Renderer.materials[part.MatNum].color = new Color(1, 1, 1, 1);
 			   }
 
 

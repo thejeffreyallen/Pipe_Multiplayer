@@ -642,29 +642,37 @@ namespace FrostyP_Game_Manager
 
 			GUILayout.BeginArea(new Rect(new Vector2(Screen.width/4,Screen.height/4), new Vector2(Screen.width/2,Screen.height/2)),InGameUI.BoxStyle);
 
-			GUILayout.Label("Make your own Assets",headerstyle);
+			GUILayout.Label("Make your own Assets");
 			GUILayout.Space(20);
-			GUILayout.Label(" parkbuilder will recognise and load any Assetbundles that do not contain Scenes. To do this follow the steps \n for creating a map, using the mapscript that creates an assetbundle",Generalstyle);
-			GUILayout.Label(" but dont mark your scene as a bundle item, make each object in", Generalstyle);
-			GUILayout.Label(" your scene a prefab by dragging from hierarchy to assets,", Generalstyle);
-			GUILayout.Label(" then mark each prefab as part of your assetbundle, build bundle and", Generalstyle);
-			GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show below.", Generalstyle);
-			GUILayout.Label(" make your objects positions 0,0,0 and square so that theyre root", Generalstyle);
-			GUILayout.Label(" position can be found again later", Generalstyle);
-
+			GUILayout.Label(" parkbuilder will recognise and load any Assetbundles that do not contain Scenes. To do this follow the steps \n for creating a map using the mapscript that creates an assetbundle,");
+			GUILayout.Label(" but dont mark your scene as a bundle item, make each object in");
+			GUILayout.Label(" your scene a prefab by dragging from hierarchy to assets,");
+			GUILayout.Label(" then mark each prefab as part of your assetbundle, build bundle and");
+			GUILayout.Label(" put in ParkBuilder/AssetBundles/, they should then show in Objects/Bundles.");
+			GUILayout.Space(10);
+			GUILayout.Label(" make your objects positions 0,0,0 and square so that theyre root");
+			GUILayout.Label(" position can be found again later");
+			GUILayout.Space(10);
+			GUILayout.Label("Select placed object from MyObjects to live stream movement when online.");
 			GUILayout.EndArea();
 		}
 
 		void ControlHelp()
         {
 			GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, Screen.height / 4), new Vector2(Screen.width / 2, Screen.height / 2)),InGameUI.BoxStyle);
-			GUILayout.Label("Controls", Generalstyle);
+			GUILayout.Label("Controls : (xbox Controller)");
 			GUILayout.Space(20);
-			GUILayout.Label("A to Place : B to Replace : Y to change speed",Generalstyle);
-			GUILayout.Label("LB/RB to Spin", Generalstyle);
-			GUILayout.Label("Hold LT for height and Cam distance", Generalstyle);
-			GUILayout.Label("Hold RT for Fine Rotate", Generalstyle);
-			GUILayout.Label("LStick click to Reset", Generalstyle);
+			GUILayout.Label("A to Place an object : B to Replace object where it was : Y to change speed");
+			GUILayout.Space(5);
+			GUILayout.Label("LB/RB to quick spin");
+			GUILayout.Space(5);
+			GUILayout.Label("Hold LT for height adjust (L stick) and Cam distance (R stick)");
+			GUILayout.Space(5);
+			GUILayout.Label("Hold RT for Fine Rotating");
+			GUILayout.Space(5);
+			GUILayout.Label("LStick click to Reset object to root position");
+			GUILayout.Space(5);
+			GUILayout.Label("Select placed object from MyObjects to live stream movement when online");
 			GUILayout.EndArea();
 		}
 
@@ -1526,16 +1534,13 @@ namespace FrostyP_Game_Manager
             {
 				Rect box = new Rect(new Vector2(Screen.width / 3, Screen.height / 4), new Vector2(Screen.width / 3f, Screen.height / 2));
 
-				GUIStyle BackG = new GUIStyle();
-				BackG.alignment = TextAnchor.MiddleCenter;
-				BackG.padding = new RectOffset(5, 5, 5, 5);
-				BackG.normal.background = InGameUI.instance.BlackTex;
-				BackG.normal.textColor = Color.white;
-				BackG.fontStyle = FontStyle.Bold;
+				GUIStyle titles = new GUIStyle();
+				titles.alignment = TextAnchor.MiddleRight;
+				titles.padding = new RectOffset(5, 5, 5, 5);
+				titles.normal.background = InGameUI.instance.BlackTex;
+				titles.normal.textColor = Color.white;
+				titles.fontStyle = FontStyle.Bold;
 				
-				
-				
-
 				GUIStyle buttonsstyle = new GUIStyle();
 				buttonsstyle.alignment = TextAnchor.MiddleCenter;
 				buttonsstyle.normal.textColor = Color.white;
@@ -1544,8 +1549,12 @@ namespace FrostyP_Game_Manager
 				buttonsstyle.hover.background = InGameUI.instance.GreyTex;
 				buttonsstyle.fontStyle = FontStyle.Bold;
 
+				GUIStyle content = new GUIStyle();
+				content.normal.textColor = Color.green;
+				content.alignment = TextAnchor.MiddleCenter;
+				content.padding = new RectOffset(5, 5, 5, 5);
 
-				GUILayout.BeginArea(box,BackG);
+				GUILayout.BeginArea(box,titles);
                 if (GUILayout.Button("Setup",buttonsstyle))
                 {
 					LoadedSpotSetup(ActiveSavedspot);
@@ -1560,18 +1569,31 @@ namespace FrostyP_Game_Manager
 				}
 				GUILayout.Space(20);
 
-				GUILayout.Label(ActiveSavedspot.NameOfSpot);
-				GUILayout.Label($"Built by: ", BackG);
+				GUILayout.Label(ActiveSavedspot.NameOfSpot, content);
+				GUILayout.Space(5);
+				GUILayout.BeginHorizontal();
+				GUILayout.Label($"Built by: ", titles, GUILayout.MaxWidth(80));
 				foreach(string c in LoadedSpotCreators)
                 {
-					GUILayout.Label(c, BackG);
+					GUILayout.Label(c, content);
                 }
-				GUILayout.Label($"For map: {ActiveSavedspot.MapName}", BackG);
-				GUILayout.Label($"Object count: {ActiveSavedspot.Objects.Count}", BackG);
-				GUILayout.Label($"Packs needed:", BackG);
+				GUILayout.EndHorizontal();
+				GUILayout.Space(5);
+				GUILayout.BeginHorizontal();
+				GUILayout.Label($"For map: ", titles, GUILayout.MaxWidth(80));
+				GUILayout.Label($"{ActiveSavedspot.MapName}", content);
+				GUILayout.EndHorizontal();
+				GUILayout.Space(5);
+				GUILayout.BeginHorizontal();
+				GUILayout.Label($"Object count:", titles, GUILayout.MaxWidth(100));
+				GUILayout.Label($" {ActiveSavedspot.Objects.Count}", content, GUILayout.MaxWidth(30));
+				GUILayout.EndHorizontal();
+				GUILayout.Space(5);
+
+				GUILayout.Label($"Packs needed:");
 				foreach(string need in Loadedspotpackneeded)
                 {
-					GUILayout.Label(need, BackG);
+					GUILayout.Label(need, content);
                 }
 
 				GUILayout.EndArea();
@@ -1607,12 +1629,13 @@ namespace FrostyP_Game_Manager
 			Generalstyle.fontStyle = FontStyle.Bold;
 			
 
-			skin.label.normal.textColor = Color.black;
+			skin.label.normal.textColor = Color.white;
 			skin.label.fontSize = 12;
 			skin.label.fontStyle = FontStyle.Bold;
 			skin.label.alignment = TextAnchor.MiddleCenter;
 			skin.label.normal.background = InGameUI.instance.TransTex;
 
+			skin.textField.padding = new RectOffset(2, 2, 2, 2);
 			skin.textField.alignment = TextAnchor.MiddleCenter;
 			skin.textField.normal.textColor = Color.red;
 			skin.textField.normal.background = Texture2D.whiteTexture;

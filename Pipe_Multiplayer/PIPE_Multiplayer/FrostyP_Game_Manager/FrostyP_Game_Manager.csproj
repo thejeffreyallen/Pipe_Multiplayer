@@ -101,6 +101,7 @@
   <ItemGroup>
     <Compile Include="CameraSettings.cs" />
     <Compile Include="Consolelog.cs" />
+    <Compile Include="PhysicsProfile.cs" />
     <Compile Include="ReplayMode.cs" />
     <Compile Include="RiderPhysics.cs" />
     <Compile Include="SavedGameObject.cs" />
@@ -110,7 +111,7 @@
     <Compile Include="PresetData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SavedSpot.cs" />
-    <Compile Include="SaveLoadFrostyPManagersettings.cs" />
+    <Compile Include="SaveLoad.cs" />
     <Compile Include="ParkSaveLoad.cs" />
     <Compile Include="Teleport.cs" />
   </ItemGroup>

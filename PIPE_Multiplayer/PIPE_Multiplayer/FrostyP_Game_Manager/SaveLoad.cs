@@ -8,12 +8,13 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FrostyP_Game_Manager
 {
-    public class SaveLoadFrostyPManagersettings : MonoBehaviour
+    public static class SaveLoad
     {
-        
 
+      
+        // Cam Settings
 
-       public void Save(string users_name_for_preset, List<PresetData> list, string directory)
+       public static void Save(string users_name_for_preset, List<PresetData> list, string directory)
         {
             string destination = directory;
             
@@ -68,7 +69,7 @@ namespace FrostyP_Game_Manager
 
         }
 
-        public List<PresetData> Load(string destination)
+        public static List<PresetData> Load(string destination)
         {
             List<PresetData> loadedlist;
             loadedlist = new List<PresetData>();
@@ -93,7 +94,43 @@ namespace FrostyP_Game_Manager
         }
 
 
+        // Rider Physics
 
+        public static void SavePhysics(PhysicsProfile profile)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            Stream stream = File.OpenWrite(RiderPhysics.instance.PresetDirectory + profile.name + ".Physics");
+
+            bf.Serialize(stream, profile);
+            stream.Close();
+            Debug.Log($"Saved physics profile: {profile.name}");
+
+
+        }
+
+        public static PhysicsProfile LoadPhysics(FileInfo file)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            Stream stream = File.OpenRead(file.FullName);
+            PhysicsProfile profile = bf.Deserialize(stream) as PhysicsProfile;
+            stream.Close();
+            return profile;
+
+        }
+
+        public static void SaveActive(PhysicsProfile profile)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            Stream stream = File.OpenWrite(RiderPhysics.instance.LastLoadedDir + "Active.Physics");
+
+            bf.Serialize(stream, profile);
+            stream.Close();
+            Debug.Log($"Saved Active profile: {profile.name}");
+
+
+        }
+
+       
 
 
 

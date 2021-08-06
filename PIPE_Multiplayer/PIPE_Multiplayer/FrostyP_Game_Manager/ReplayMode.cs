@@ -181,13 +181,12 @@ namespace FrostyP_Game_Manager
                 // rotation
                 currentrot = CamMarkers[CurrentCamPosition].CamRot;
                 Targetrot = CamMarkers[CurrentCamTargetPosition].CamRot;
-                RotAxis =  Vector3.Cross(Targetrot,currentrot).normalized;
-                angle = Vector3.SignedAngle(currentrot, Targetrot,RotAxis);
-                Quaternion angleaxis = Quaternion.AngleAxis(angle, RotAxis);
+                RotAxis = -(Targetrot - currentrot).normalized;
+                angle = Vector3.Angle(currentrot, Targetrot);
 
-                Vector3 Rot = RotAxis * (float)(angle * PercentAong);
+                Rot = RotAxis * (float)(angle * PercentAong);
 
-                ReplayCam.transform.eulerAngles = Vector3.Lerp(currentrot,currentrot + Rot,1);
+                ReplayCam.transform.eulerAngles = currentrot + Rot;
 
 
                 if (MGInputManager.LTrigger() > 0.1f)
@@ -534,9 +533,9 @@ namespace FrostyP_Game_Manager
                       
 
                     // Keep 30 seconds of my footage
-                    if (MyPlayersPoisitions.Count > 1600)
+                    if (MyPlayersPoisitions.Count > 1000)
                     {
-                        MyPlayersPoisitions.RemoveRange(0, MyPlayersPoisitions.Count - 1600);
+                        MyPlayersPoisitions.RemoveRange(0, MyPlayersPoisitions.Count - 1000);
                     }
                     else
                     {
@@ -580,9 +579,9 @@ namespace FrostyP_Game_Manager
                             if (player.MasterActive)
                             {
 
-                            if (player.ReplayPostions.Count > 1600)
+                            if (player.ReplayPostions.Count > 1000)
                             {
-                                player.ReplayPostions.RemoveRange(0, player.ReplayPostions.Count + 1 - 1600);
+                                player.ReplayPostions.RemoveRange(0, player.ReplayPostions.Count - 1000);
                             }
                             else
                             {
@@ -636,12 +635,6 @@ namespace FrostyP_Game_Manager
         void FixedUpdate()
         {
            
-            // if not open, record data
-            if (!ReplayOpen && Tracking)
-            {
-
-            }
-
             if (ReplayOpen)
             {
 
@@ -731,8 +724,6 @@ namespace FrostyP_Game_Manager
 
 
             }
-
-
 
         }
        

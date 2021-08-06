@@ -283,13 +283,13 @@ namespace PIPE_Valve_Online_Server
 
 
                           Console.WriteLine("Done");
+                    ServerSend.SendTextFromServerToOne(_from, "Player Data good..");
 
 
 
 
-
-                        // Start setup for every player but this one --------------------    
-                        Console.WriteLine($"Telling others about this player..");
+                    // Start setup for every player but this one --------------------    
+                    Console.WriteLine($"Telling others about this player..");
                     
                         foreach (Player c in Server.Players.Values.ToList())
                         {
@@ -340,6 +340,7 @@ namespace PIPE_Valve_Online_Server
                       }
 
                        _player.ReadytoRoll = true;
+                    ServerSend.SendTextFromServerToOne(_from, "Ready to Roll!");
 
 
 

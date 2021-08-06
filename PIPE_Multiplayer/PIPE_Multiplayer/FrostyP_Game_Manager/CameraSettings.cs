@@ -70,12 +70,6 @@ namespace FrostyP_Game_Manager
 			instance = this;
 
 
-			boxstyle.normal.background = PIPE_Valve_Console_Client.InGameUI.instance.whiteTex;
-			boxstyle.padding = new RectOffset(17, 17, 5, 5);
-
-
-
-
 			Component.FindObjectsOfType<SessionMarker>()[0].OnSetAtMarker.AddListener(ResetFOV);
 
 			newbloomthreshsaved = 1;
@@ -109,10 +103,6 @@ namespace FrostyP_Game_Manager
 
 		public void Show()
 		{
-
-			
-
-
 			if (!Camera.current.gameObject.GetComponent<PostProcessVolume>())
 			{
 				volume = Camera.current.gameObject.AddComponent<PostProcessVolume>();
@@ -179,18 +169,12 @@ namespace FrostyP_Game_Manager
 				}
 
 
-
-
-
-
-
 				// depth of field updating
 				depthoffield.enabled.value = true;
 				depthoffield.focusDistance.overrideState = true;
 				depthoffield.aperture.overrideState = true;
 				depthoffield.focusDistance.value = focusdistanceCAMSETTING;
 				depthoffield.aperture.value = apertureCAMSETTING;
-
 
 				// colorgrade updating
 				ColorGrade.enabled.value = true;
@@ -208,7 +192,6 @@ namespace FrostyP_Game_Manager
 				ColorGrade.brightness.value = BrightnessNewCAMSETTING;
 				ColorGrade.temperature.value = temperatureNewCAMSETTING;
 
-
 				// bloom updating
 				bloom.active = true;
 				bloom.enabled.value = true;
@@ -217,9 +200,7 @@ namespace FrostyP_Game_Manager
 				bloom.intensity.overrideState = true;
 				bloom.intensity.value = newbloomintvalueCAMSETTING;
 
-
 				// vignette updating
-
 				Vignette.active = true;
 				Vignette.enabled.value = true;
 				Vignette.intensity.overrideState = true;
@@ -235,13 +216,7 @@ namespace FrostyP_Game_Manager
 				Grain.lumContrib.value = GrainLightcontribCAMSETTING;
 				Grain.size.value = GrainSizeCAMSETTING;
 
-
-				// SSR
-				
-
-
 			}
-
 
 			// fov updating
 			Camera.current.fieldOfView = CamFOVCAMSETTING;
@@ -251,7 +226,7 @@ namespace FrostyP_Game_Manager
 
 			////////////////////////////////////////////////
 
-			GUILayout.BeginArea(new Rect(new Vector2(50, 100), new Vector2(Screen.width / 3, Screen.height - 150)), boxstyle);
+			GUILayout.BeginArea(new Rect(new Vector2(50, 100), new Vector2(Screen.width / 3, Screen.height - 150)), PIPE_Valve_Console_Client.InGameUI.BoxStyle);
 
 			if (GUILayout.Button("Close Camera Setup"))
 			{
@@ -259,7 +234,7 @@ namespace FrostyP_Game_Manager
 				FrostyPGamemanager.instance.MenuShowing = 0;
 			}
 			GUILayout.Space(10);
-			GUILayout.Label(lastpresetselectedCAM + " Profile active");
+			GUILayout.Label(lastpresetselectedCAM + " Profile active", PIPE_Valve_Console_Client.InGameUI.instance.Generalstyle);
 			GUILayout.Space(20);
 			if (GUILayout.Button("Default all Cam settings"))
 			{
@@ -281,52 +256,47 @@ namespace FrostyP_Game_Manager
 			}
 
 
-			GUILayout.Label("Camera FOV = " + CamFOVCAMSETTING);
+			GUILayout.Label("Camera FOV = " + CamFOVCAMSETTING , PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			CamFOVCAMSETTING = GUILayout.HorizontalSlider(CamFOVCAMSETTING, 40, 120);
-			GUILayout.Label("Bloom Intensity = " + newbloomintvalueCAMSETTING);
+			GUILayout.Label("Bloom Intensity = " + newbloomintvalueCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			newbloomintvalueCAMSETTING = GUILayout.HorizontalSlider(newbloomintvalueCAMSETTING, 0, 1f);
-			GUILayout.Label("Bloom Threshold = " + newbloomvalueCAMSETTING);
+			GUILayout.Label("Bloom Threshold = " + newbloomvalueCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			newbloomvalueCAMSETTING = GUILayout.HorizontalSlider(newbloomvalueCAMSETTING, 0, 10);
-			GUILayout.Label("Aperture (0-16) = " + apertureCAMSETTING);
+			GUILayout.Label("Aperture (0-16) = " + apertureCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			apertureCAMSETTING = GUILayout.HorizontalSlider(apertureCAMSETTING, 0, 16);
-			GUILayout.Label("Focus Distance (0-10) = " + focusdistanceCAMSETTING);
+			GUILayout.Label("Focus Distance (0-10) = " + focusdistanceCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			focusdistanceCAMSETTING = GUILayout.HorizontalSlider(focusdistanceCAMSETTING, 0, 10);
-			GUILayout.Label("Contrast (0-75) = " + ContrastNewCAMSETTING);
+			GUILayout.Label("Contrast (0-75) = " + ContrastNewCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			ContrastNewCAMSETTING = GUILayout.HorizontalSlider(ContrastNewCAMSETTING, 0, 75);
-			GUILayout.Label("Saturation (-100 - 50) = " + SaturationNewCAMSETTING);
+			GUILayout.Label("Saturation (-100 - 50) = " + SaturationNewCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			SaturationNewCAMSETTING = GUILayout.HorizontalSlider(SaturationNewCAMSETTING, -100, 50);
-			GUILayout.Label("Brightness (-50 - 50) = " + BrightnessNewCAMSETTING);
+			GUILayout.Label("Brightness (-50 - 50) = " + BrightnessNewCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			BrightnessNewCAMSETTING = GUILayout.HorizontalSlider(BrightnessNewCAMSETTING, -50, 50);
-			GUILayout.Label("Temperature (-30 - 30) = " + temperatureNewCAMSETTING);
+			GUILayout.Label("Temperature (-30 - 30) = " + temperatureNewCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			temperatureNewCAMSETTING = GUILayout.HorizontalSlider(temperatureNewCAMSETTING, -30, 30);
 
-			GUILayout.Label("Vignette Intensity (0 - 1) = " + vignetteintensityCAMSETTING);
+			GUILayout.Label("Vignette Intensity (0 - 1) = " + vignetteintensityCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			vignetteintensityCAMSETTING = GUILayout.HorizontalSlider(vignetteintensityCAMSETTING, 0, 1f);
 
-			GUILayout.Label("Vignette Roundness (0 - 1) = " + VignetteRoundnessCAMSETTING);
+			GUILayout.Label("Vignette Roundness (0 - 1) = " + VignetteRoundnessCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			VignetteRoundnessCAMSETTING = GUILayout.HorizontalSlider(VignetteRoundnessCAMSETTING, 0, 1);
 
-			GUILayout.Label("Grain Intensity (0 - 1) = " + GrainIntensityCAMSETTING);
+			GUILayout.Label("Grain Intensity (0 - 1) = " + GrainIntensityCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			GrainIntensityCAMSETTING = GUILayout.HorizontalSlider(GrainIntensityCAMSETTING, 0, 1);
 
-			GUILayout.Label("Grain Light contribution (0 - 1) = " + GrainLightcontribCAMSETTING);
+			GUILayout.Label("Grain Light contribution (0 - 1) = " + GrainLightcontribCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			GrainLightcontribCAMSETTING = GUILayout.HorizontalSlider(GrainLightcontribCAMSETTING, 0, 1);
 
-			GUILayout.Label("Grain Size (0 - 1) = " + GrainSizeCAMSETTING);
+			GUILayout.Label("Grain Size (0 - 1) = " + GrainSizeCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			GrainSizeCAMSETTING = GUILayout.HorizontalSlider(GrainSizeCAMSETTING, 0, 1);
 
-			GUILayout.Label("Hue Shift (-50 - 50) = " + HueShiftCAMSETTING);
+			GUILayout.Label("Hue Shift (-50 - 50) = " + HueShiftCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			HueShiftCAMSETTING = GUILayout.HorizontalSlider(HueShiftCAMSETTING, -50, 50);
 
 			
 
 			GUILayout.Space(50);
 
-
-
-
-			GUILayout.Label( "Save/Load ");
-			
 				//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      SAVE GAME /////////////////////////////////////////////////////////
 				GUILayout.Space(20);
 				GUILayout.BeginHorizontal();
@@ -376,8 +346,7 @@ namespace FrostyP_Game_Manager
 						}
 					}
 
-					SaveLoadFrostyPManagersettings getsavescript = new SaveLoadFrostyPManagersettings();
-					getsavescript.Save(userpresetnameCAM, Camsavelist, PresetDirectory);
+					SaveLoad.Save(userpresetnameCAM, Camsavelist, PresetDirectory);
 
 
 				}
@@ -389,11 +358,10 @@ namespace FrostyP_Game_Manager
 
 
 				GUILayout.Space(30);
-				GUILayout.Label("Saved Presets:", FrostyPGamemanager.instance.Generalstyle);
+				GUILayout.Label("Saved Presets:", PIPE_Valve_Console_Client.InGameUI.instance.Generalstyle);
 				GUILayout.Space(10);
 				SaveloadScroll = GUILayout.BeginScrollView(SaveloadScroll,boxstyle);
-				GUILayout.Space(10);
-
+				
 				////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   LOAD GAME  ///////////////////////////////////////////////////////////////////////////////////
 				DirectoryInfo Directinfo = new DirectoryInfo(PresetDirectory);
 				FileInfo[] camfilestoload = Directinfo.GetFiles();
@@ -411,8 +379,7 @@ namespace FrostyP_Game_Manager
 						if (GUILayout.Button(file.Name.Remove(file.Name.Length - 16, 16)))
 						{
 							MemberInfo[] members = this.GetType().GetMembers();
-							SaveLoadFrostyPManagersettings loader = new SaveLoadFrostyPManagersettings();
-							List<PresetData> loadedlist = loader.Load(file.FullName);
+							List<PresetData> loadedlist = SaveLoad.Load(file.FullName);
 
 
 
@@ -519,8 +486,7 @@ namespace FrostyP_Game_Manager
 						{
 
 							MemberInfo[] members = this.GetType().GetMembers();
-							SaveLoadFrostyPManagersettings loader = new SaveLoadFrostyPManagersettings();
-							List<PresetData> loadedlist = loader.Load(file[i].FullName);
+							List<PresetData> loadedlist = SaveLoad.Load(file[i].FullName);
 
 
 

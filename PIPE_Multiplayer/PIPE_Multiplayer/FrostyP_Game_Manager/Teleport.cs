@@ -66,9 +66,9 @@ namespace FrostyP_Game_Manager
 
         public void Show()
         {
-            GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 50), new Vector2(Screen.width / 2, Screen.height / 20)),boxstyle);
+            GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 10 + (Screen.height/50)), new Vector2(Screen.width / 2, Screen.height / 20)),boxstyle);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("LB/RB Rotate : A to Place",labels);
+            GUILayout.Label("LB/RB Rotate : A to Place : Pad shortcut (Xbox) - LT + RT + RS + LS ",labels);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Movespeed",labels);

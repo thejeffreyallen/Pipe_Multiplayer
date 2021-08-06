@@ -26,7 +26,7 @@ namespace PIPE_Valve_Console_Client
         GUIStyle MessagesSmallStyle = new GUIStyle();
         GUIStyle CurrentMessagestyle;
         GUIStyle PlayeroptionsStyle = new GUIStyle();
-        GUIStyle MiniPanelStyle = new GUIStyle();
+        public GUIStyle MiniPanelStyle = new GUIStyle();
         GUIStyle MinipanelstyeImportant = new GUIStyle();
 
 
@@ -49,6 +49,7 @@ namespace PIPE_Valve_Console_Client
         delegate void CamMode();
         Dictionary<int, CamMode> CamModes;
         public int cyclemodes = 0;
+        Dictionary<int, string> CamModeDisplays;
 
 
         // connection status
@@ -60,6 +61,7 @@ namespace PIPE_Valve_Console_Client
         public ConnectionState connectionstate;
         public float connectionqualitylocal;
         public float connectionqualityremote;
+        public int SendRate;
 
 
 
@@ -88,7 +90,7 @@ namespace PIPE_Valve_Console_Client
 
         // live riders
         Vector2 liveridersscroll;
-        Rect LiveRiderBox;
+        bool LiveRiderToggle;
 
         // Messages
         Vector2 Messagesscroll;
@@ -128,6 +130,7 @@ namespace PIPE_Valve_Console_Client
 
         // bottom panel
         bool BottompanelOpen = true;
+        public string currentGaragePreset = "None";
 
 
         // Update window
@@ -197,6 +200,15 @@ namespace PIPE_Valve_Console_Client
                 {2,SpectateTripodFullManual },
 
             };
+            CamModeDisplays = new Dictionary<int, string>
+            {
+                {0,"Auto-Follow / Free Move" },
+                {1,"Tripod / Auto Look At" },
+                {2,"Tripod / Full Manual" },
+
+            };
+
+
 
             connectionstatelabels = new Dictionary<int, string>()
             {
@@ -241,7 +253,7 @@ namespace PIPE_Valve_Console_Client
 
             GreyTex = new Texture2D(2, 2);
             Color[] colorarray3 = GreyTex.GetPixels();
-            Color newcolor3 = new Color(0.5f, 0.5f, 0.5f, 1);
+            Color newcolor3 = new Color(0.3f, 0.3f, 0.3f, 1);
             for (var i = 0; i < colorarray3.Length; ++i)
             {
                 colorarray3[i] = newcolor3;
@@ -268,7 +280,7 @@ namespace PIPE_Valve_Console_Client
 
             whiteTex = new Texture2D(20, 10);
             Color[] colorarray5 = whiteTex.GetPixels();
-            Color newcolor5 = new Color(1f, 1f, 1f, 0.5f);
+            Color newcolor5 = new Color(1f, 1f, 1f, 0.7f);
             for (var i = 0; i < colorarray5.Length; ++i)
             {
                 colorarray5[i] = newcolor5;
@@ -464,15 +476,18 @@ namespace PIPE_Valve_Console_Client
             try
             {
 
-                
 
+                if (IsSpectating)
+                {
+                    ShowSpectate();
+                }
             
                if (Minigui)
                {
                 MiniGUI();
                }
 
-               if(OnlineMenu && !Minigui && FrostyPGamemanager.instance.OpenMenu)
+               if(OnlineMenu && !Minigui && FrostyPGamemanager.instance.OpenMenu && FrostyPGamemanager.instance.MenuShowing == 5)
                {
                 LiveRiders();
                 MessagesShow();
@@ -588,21 +603,21 @@ namespace PIPE_Valve_Console_Client
         public void ClientsOfflineMenu()
         {
 
-
+            GUI.skin = skin;
             GUILayout.BeginArea(new Rect(new Vector2(Screen.width/3,Screen.height/4), new Vector2(Screen.width/3,Screen.height/2)),BoxStyle);
             GUILayout.Space(10);
             // setup stuff before connecting
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Username");
+            GUILayout.Label("Username", GUILayout.MaxWidth(100));
             Username = GUILayout.TextField(Username);
             GUILayout.EndHorizontal();
             GUILayout.Space(20);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("IP:");
+            GUILayout.Label("IP:", GUILayout.MaxWidth(100));
             desiredIP = GUILayout.TextField(desiredIP);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("PORT:");
+            GUILayout.Label("PORT:", GUILayout.MaxWidth(100));
             if (desiredIP != "")
             {
                 GameNetworking.instance.ip = desiredIP;
@@ -688,7 +703,6 @@ namespace PIPE_Valve_Console_Client
                     BinaryFormatter bf = new BinaryFormatter();
                     Stream _stream;
                     _stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
-
                     bf.Serialize(_stream, PlayerSavedata);
                     _stream.Close();
 
@@ -739,25 +753,23 @@ namespace PIPE_Valve_Console_Client
             GUILayout.EndHorizontal();
             GUILayout.Space(40);
 
-          
                 GUILayout.Space(15);
                 GUILayout.BeginHorizontal();
                 if(GUILayout.Button($"Save current setup as"))
                 {
 
-                        if(PlayerSavedata.savedservers == null)
-                        {
-                            PlayerSavedata.savedservers = new List<SavedServer>();
-                        }
+                    if(PlayerSavedata.savedservers == null)
+                    {
+                     PlayerSavedata.savedservers = new List<SavedServer>();
+                    }
 
                     if(PlayerSavedata != null)
                     {
-
-
-                        PlayerSavedata.savedservers.Add(new SavedServer(desiredIP, desiredport, Nickname));
-                        BinaryFormatter bf = new BinaryFormatter();
-                        bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
-                        
+                     PlayerSavedata.savedservers.Add(new SavedServer(desiredIP, desiredport, Nickname));
+                     BinaryFormatter bf = new BinaryFormatter();
+                     Stream stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
+                     bf.Serialize(stream, PlayerSavedata);
+                     stream.Close();
                     }
                 }
                 Nickname = GUILayout.TextField(Nickname);
@@ -768,6 +780,14 @@ namespace PIPE_Valve_Console_Client
                 GUILayout.Space(10);
                 if (PlayerSavedata != null && PlayerSavedata.savedservers != null)
                 {
+                GUIStyle removestyle = new GUIStyle();
+                removestyle.normal.background = RedTex;
+                removestyle.hover.background = GreyTex;
+                removestyle.alignment = TextAnchor.MiddleCenter;
+                removestyle.normal.textColor = Color.white;
+                removestyle.hover.textColor = Color.white;
+
+
                  savedserversscroll = GUILayout.BeginScrollView(savedserversscroll);
                     foreach(SavedServer s in PlayerSavedata.savedservers.ToArray())
                     {
@@ -778,25 +798,19 @@ namespace PIPE_Valve_Console_Client
                             desiredport = s.PORT;
                         }
                         GUILayout.Space(5);
-                        if (GUILayout.Button("Remove :" + s.Nickname))
+                        if (GUILayout.Button("Remove :" + s.Nickname,removestyle))
                         {
-                            PlayerSavedata.savedservers.Remove(s);
-                            
-                                
-                                BinaryFormatter bf = new BinaryFormatter();
-                                bf.Serialize(File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset"), PlayerSavedata);
-
-
-                            
-
+                          PlayerSavedata.savedservers.Remove(s);
+                          BinaryFormatter bf = new BinaryFormatter();
+                          Stream stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
+                          bf.Serialize(stream, PlayerSavedata);
+                          stream.Close();
                         }
                         GUILayout.EndHorizontal();
                         GUILayout.Space(10);
                     }
                  GUILayout.EndScrollView();
                 }
-
-
 
             GUILayout.Space(35);
             GUILayout.Space(40);
@@ -815,7 +829,7 @@ namespace PIPE_Valve_Console_Client
         {
 
             GUILayout.Space(20);
-            GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 50), new Vector2(Screen.width / 2, Screen.height / 20)));
+            GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 5 + (Screen.height/50)), new Vector2(Screen.width / 2, Screen.height / 20)));
             GUILayout.BeginHorizontal();
             PlayeroptionsOpen = GUILayout.Toggle(PlayeroptionsOpen,"Options");
             GUILayout.Space(2);
@@ -829,15 +843,11 @@ namespace PIPE_Valve_Console_Client
             GUILayout.Space(2);
             if (IsSpectating)
             {
-                
-                GUILayout.Label($"player: {cycleplayerslist[cyclecounter].username}  CamMode: {cyclemodes}");
-                if(GUILayout.Button("End Spectate"))
+                if (GUILayout.Button("End Spectate"))
                 {
                     SpectateExit();
                 }
                
-
-
             }
             else
             {
@@ -1045,10 +1055,14 @@ namespace PIPE_Valve_Console_Client
             {
                 if (!got && rem.RiderModel)
                 {
-                    Targetrider = rem.RiderModel;
-                    ControlObj.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
-                    SpecCamOBJ.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
-                    got = true;
+                        if (rem.PlayerIsVisible)
+                        {
+                          Targetrider = rem.RiderModel;
+                          ControlObj.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
+                          SpecCamOBJ.transform.position = rem.RiderModel.transform.position + (Vector3.back * 2) + (Vector3.up);
+                          got = true;
+
+                        }
                 }
                 cycleplayerslist.Add(rem);
             }
@@ -1059,6 +1073,7 @@ namespace PIPE_Valve_Console_Client
                   if (got)
                   {
                     SpecCamOBJ.SetActive(true);
+                    FrostyPGamemanager.instance.OpenMenu = false;
                     IsSpectating = true;
                     GameManager.TogglePlayerComponents(false);
                   }
@@ -1232,6 +1247,7 @@ namespace PIPE_Valve_Console_Client
             }
             cyclecounter = 0;
             IsSpectating = false;
+            FrostyPGamemanager.instance.OpenMenu = true;
             SpecCamOBJ.transform.parent = null;
             SpecCamOBJ.SetActive(false);
             GameManager.TogglePlayerComponents(true);
@@ -1240,12 +1256,31 @@ namespace PIPE_Valve_Console_Client
 
         // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+        public void ShowSpectate()
+        {
+            GUI.skin = skin;
+            GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 5), new Vector2(Screen.width / 2, 20)),MiniPanelStyle);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"CamMode: {CamModeDisplays[cyclemodes]}");
+            GUILayout.Space(10);
+            GUILayout.Label($"player: { cycleplayerslist[cyclecounter].username} ");
+            GUILayout.Space(10);
+            if (GUILayout.Button("End Spectate"))
+            {
+                SpectateExit();
+            }
+            GUILayout.Space(10);
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+        }
+
+
        public void MiniGUI()
         {
             GUI.skin = skin;
             GUILayout.BeginArea(new Rect(new Vector2(50, 0), new Vector2(Screen.width - 100, Screen.height / 55)),MiniPanelStyle);
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("return",MiniPanelStyle))
+            if (GUILayout.Button("return",MinipanelstyeImportant))
             {
                 Minigui = false;
                 OnlineMenu = true;
@@ -1255,7 +1290,9 @@ namespace PIPE_Valve_Console_Client
             GUILayout.Label($"People Riding: {GameManager.Players.Count}",MiniPanelStyle);
             GUILayout.Label($"On this map: {GameManager.instance.RidersOnMyMap()}",MiniPanelStyle);
             GUILayout.Label($"Status: {connectionstatelabels[(int)connectionstate]}",MiniPanelStyle);
-            GUILayout.Label($"Ping: {Ping}",MiniPanelStyle);
+            GUILayout.Label($"Ping: {Ping / 1000} secs",MiniPanelStyle);
+            GUILayout.Label($"Average delay: {GameManager.instance.GetAveragePing() / 1000} secs", MiniPanelStyle);
+            GUILayout.Label($"Physics Profile: {RiderPhysics.instance.SelectedProfile}", MiniPanelStyle);
             if (ToggledOffPlayersByMe.Count > 0)
             {
             GUILayout.Label($"{ToggledOffPlayersByMe.Count} Invisible Players",MinipanelstyeImportant);
@@ -1320,7 +1357,7 @@ namespace PIPE_Valve_Console_Client
                 
                     if(GameManager.Players.TryGetValue(IdofRidertoshow,out RemotePlayer player))
                     {
-                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 15), new Vector2(400, 400)),BoxStyle);
+                        GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 2 - 100, Screen.height / 10), new Vector2(400, 400)),BoxStyle);
                         GUILayout.Label($"{player.username}", Generalstyle);
                         GUILayout.Label($"Riding at: {player.CurrentMap}" ,Generalstyle);
                         GUILayout.Label($"As: {player.CurrentModelName}",Generalstyle);
@@ -1439,9 +1476,13 @@ namespace PIPE_Valve_Console_Client
                            
                             foreach (NetGameObject n in player.Objects)
                             {
+                                if(n._Gameobject!= null)
+                                {
                                 if (GUILayout.Button($"Vote off {n.NameofObject}"))
                                 {
                                     ClientSend.VoteToRemoveObject(n.ObjectID, IdofRidertoshow);
+                                }
+
                                 }
                             }
 
@@ -1474,35 +1515,212 @@ namespace PIPE_Valve_Console_Client
         {
             try
             {
-            LiveRiderBox = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 12), new Vector2(Screen.width / 6.5f, Screen.height/3));
-            GUI.skin = skin;
-            GUILayout.BeginArea(LiveRiderBox,BoxStyle);
-            GUILayout.Label("Live Rider list:", Generalstyle);
-            liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
-            if (GameManager.Players.Count > 0)
-            {
-            foreach (RemotePlayer r in GameManager.Players.Values)
-            {
-                try
+                GUI.skin = skin;
+                Rect _box;
+
+                if (LiveRiderToggle)
                 {
-               
-                if (GUILayout.Button($"{r.username}",r.style))
-                {
-                    IdofRidertoshow = r.id;
-                    RiderInfoMenuOpen = true;
-                }
+                    Dictionary<string, List<RemotePlayer>> PlayersAtMap = new Dictionary<string, List<RemotePlayer>>();
+                    foreach (RemotePlayer player in GameManager.Players.Values)
+                    {
+                        bool foundmap = false;
+                        foreach (string map in PlayersAtMap.Keys)
+                        {
+                            if (map.ToLower() == player.CurrentMap.ToLower())
+                            {
+                                foundmap = true;
+                                bool imin = false;
+                                foreach (RemotePlayer inlist in PlayersAtMap[map])
+                                {
+                                    if (inlist.id == player.id)
+                                    {
+                                        imin = true;
+                                    }
+                                    if (!imin)
+                                    {
+                                        PlayersAtMap[map].Add(player);
+                                    }
+
+
+                                }
+
+                            }
+                        }
+                        if (!foundmap)
+                        {
+                            List<RemotePlayer> list = new List<RemotePlayer>();
+                            list.Add(player);
+                            PlayersAtMap.Add(player.CurrentMap, list);
+                        }
+
+                    }
+                    float averageping = GameManager.instance.GetAveragePing();
+                    string mostpop = "none";
+                    int mostpopridercount = 0;
+                    foreach(string map in PlayersAtMap.Keys)
+                    {
+                        if (PlayersAtMap[map].Count > mostpopridercount)
+                        {
+                            mostpop = map;
+                            mostpopridercount = PlayersAtMap[map].Count;
+                            if (mostpop.ToLower().Contains("pipe_modhunt"))
+                            {
+                                mostpop = "Ride The Pipe Official level";
+                            }
+                            if (mostpop.ToLower().Contains("chuck"))
+                            {
+                                mostpop = "Community centre Official level";
+                            }
+
+                        }
+                    }
+
+                    GUIStyle title = new GUIStyle();
+                    title.alignment = TextAnchor.MiddleLeft;
+                    title.fontSize = 12;
+                    title.fontStyle = FontStyle.Bold;
+                    title.normal.textColor = Color.white;
+                    title.margin = new RectOffset(0, 0, 0, 0);
+                    title.padding = new RectOffset(0, 0, 0, 0);
+                    title.wordWrap = true;
+                    title.stretchWidth = true;
+                   
+                    GUIStyle Contentleft = new GUIStyle();
+                    Contentleft.alignment = TextAnchor.MiddleLeft;
+                    Contentleft.fontSize = 12;
+                    Contentleft.fontStyle = FontStyle.Bold;
+                    Contentleft.normal.textColor = Color.green;
+                    Contentleft.margin = new RectOffset(0, 0, 0, 0);
+                    Contentleft.padding = new RectOffset(0, 0, 0, 0);
+                    Contentleft.wordWrap = true;
+                    Contentleft.stretchWidth = true;
+
+                    GUIStyle Contentright = new GUIStyle();
+                    Contentright.alignment = TextAnchor.MiddleRight;
+                    Contentright.fontSize = 12;
+                    Contentright.fontStyle = FontStyle.Bold;
+                    Contentright.normal.textColor = Color.green;
+                    Contentright.margin = new RectOffset(0, 0, 0, 0);
+                    Contentright.padding = new RectOffset(0, 0, 0, 0);
+                    Contentright.wordWrap = true;
+                    Contentright.stretchWidth = true;
+
+
+                    GUIStyle box = new GUIStyle();
+                    box.alignment = TextAnchor.MiddleLeft;
+                    box.normal.background = BlackTex;
+                    box.padding = new RectOffset(5, 5, 5, 5);
+                    box.wordWrap = true;
+
+                    GUIStyle toggle = new GUIStyle();
+                    toggle.onNormal.background = GreenTex;
+                    toggle.onHover.background = RedTex;
+                    toggle.onNormal.textColor = Color.black;
+                    toggle.onHover.textColor = Color.white;
+
+
+                    _box = new Rect(new Vector2(Screen.width / 8 * 3, Screen.height / 4), new Vector2(Screen.width / 4, Screen.height / 4));
+                    CurrentMessagestyle = MessagesBigStyle;
+                    Messageslabel = "Rider Overview";
+                    GUILayout.BeginArea(_box,box);
+                    LiveRiderToggle = GUILayout.Toggle(LiveRiderToggle,Messageslabel, toggle);
+                    GUILayout.Space(20);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label($"{GameManager.Players.Count} ",Contentright, GUILayout.MaxWidth(30));
+                    GUILayout.Label($" Online Riders", title, GUILayout.MaxWidth(80));
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(10);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label($"Most popular map:", title, GUILayout.MaxWidth(140));
+                    GUILayout.Label($"{mostpop}", Contentleft, GUILayout.MinWidth(50), GUILayout.MaxWidth(200));
+                    GUILayout.Label($" :", title, GUILayout.MaxWidth(10));
+                    GUILayout.Label($" {mostpopridercount} ",Contentleft, GUILayout.MaxWidth(30));
+                    GUILayout.Label($" Riders there", title, GUILayout.MaxWidth(100));
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(10);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label($"Average Rider to Rider delay: ", title, GUILayout.MaxWidth(200));
+                    GUILayout.Label($"{averageping /1000}",Contentleft, GUILayout.MinWidth(10), GUILayout.MaxWidth(50));
+                    GUILayout.Label($" Seconds", title, GUILayout.MinWidth(20), GUILayout.MaxWidth(60));
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(10);
+                    liveridersscroll = GUILayout.BeginScrollView(liveridersscroll,SyncWindowStyle1);
+                    foreach (string mapname in PlayersAtMap.Keys)
+                    {
+                        string maplabel = mapname;
+                        if (maplabel.ToLower().Contains("pipe_modhunt"))
+                        {
+                            maplabel = "Ride The Pipe Official level";
+                        }
+                        if (maplabel.ToLower().Contains("chuck"))
+                        {
+                            maplabel = "Community centre Official level";
+                        }
+
+                        GUILayout.Space(5);
+                        GUILayout.Label($"Session at {maplabel}:",title);
+                        GUILayout.Space(5);
+                        string names = "";
+                        foreach(RemotePlayer player in PlayersAtMap[mapname])
+                        {
+                            if(names != "")
+                            {
+                            names = names + ", " + player.username;
+                                if (names.Length > 400)
+                                {
+                                    names = names + "\n";
+                                }
+                            }
+                            else
+                            {
+                                names = player.username;
+                            }
+                        }
+                        names = names + " in session ";
+
+                        GUILayout.Label(names,Contentleft);
+                        GUILayout.Space(5);
+                    }
+                    GUILayout.EndScrollView();
+                    GUILayout.EndArea();
+
 
                 }
-                catch (Exception x)
+                else
                 {
-                    Debug.Log("Live Rider issue : " + x);
+                    _box = new Rect(new Vector2(10, 100), new Vector2(Screen.width / 7f, Screen.height / 2));
+                    CurrentMessagestyle = MessagesSmallStyle;
+                    Messageslabel = "Riders";
+                GUILayout.BeginArea(_box);
+                LiveRiderToggle = GUILayout.Toggle(LiveRiderToggle, Messageslabel,MessagesSmallStyle);
+                GUILayout.Space(10);
+                liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
+                    if (GameManager.Players.Count > 0)
+                    {
+                     foreach (RemotePlayer r in GameManager.Players.Values)
+                  {
+                     try
+                     {
+                        if (GUILayout.Button($"{r.username}",r.style))
+                        {
+                          IdofRidertoshow = r.id;
+                          RiderInfoMenuOpen = true;
+                        }
+                     }
+                     catch (Exception x)
+                     {
+                       Debug.Log("Live Rider issue : " + x);
+                     }
+
+                  }
+                    }
+                    else
+                    {
+                        GUILayout.Label("No Riders Online");
+                    }
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
                 }
-
-            }
-
-            }
-            GUILayout.EndScrollView();
-            GUILayout.EndArea();
 
 
             }
@@ -1526,7 +1744,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 else
                 {
-                  _box = new Rect(new Vector2(Screen.width / 6 * 5, Screen.height / 2), new Vector2(Screen.width / 6.5f, Screen.height / 8));
+                  _box = new Rect(new Vector2(Screen.width - (Screen.width/7) - 10,100), new Vector2(Screen.width / 7f, Screen.height / 2));
                     CurrentMessagestyle = MessagesSmallStyle;
                     Messageslabel = "Messages";
                 }
@@ -1595,7 +1813,6 @@ namespace PIPE_Valve_Console_Client
                        
                 
             }
-
 
             }
 
@@ -1833,12 +2050,15 @@ namespace PIPE_Valve_Console_Client
             GUILayout.BeginArea(new Rect(new Vector2(50,Screen.height - (Screen.height/55)), new Vector2(Screen.width - 100, Screen.height/55)),MiniPanelStyle);
             GUILayout.BeginHorizontal();
             GUILayout.Label($"Connection State: {connectionstatelabels[(int)connectionstate]} ", MiniPanelStyle);
-            GUILayout.Label($"Ping: {Ping}",MiniPanelStyle);
-            GUILayout.Label($"Bytes out per/s: {Outbytespersec} ", MiniPanelStyle);
-            GUILayout.Label($"Bytes in per/s: {InBytespersec} ", MiniPanelStyle);
+            GUILayout.Label($"Garage preset: {currentGaragePreset} ", MiniPanelStyle);
+            GUILayout.Label($"Physics Profile: {RiderPhysics.instance.SelectedProfile}", MiniPanelStyle);
+            GUILayout.Label($"Ping: {Ping/1000} secs",MiniPanelStyle);
+            GUILayout.Label($"Average delay: {GameManager.instance.GetAveragePing() /1000} secs", MiniPanelStyle);
+            GUILayout.Label($"KB out /s: {Outbytespersec / 1000} ", MiniPanelStyle);
+            GUILayout.Label($"KB in /s: {InBytespersec / 1000} ", MiniPanelStyle);
             GUILayout.Label($"Pending Reliable: {Pendingreliable} ", MiniPanelStyle,GUILayout.MaxWidth(Screen.width / 9));
             GUILayout.Label($"Pending Unreliable: {Pendingunreliable} ", MiniPanelStyle, GUILayout.MaxWidth(Screen.width / 9));
-
+            
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
@@ -1847,33 +2067,34 @@ namespace PIPE_Valve_Console_Client
         {
             // box style
             BoxStyle.padding = new RectOffset(10, 10, 5, 5);
-            BoxStyle.normal.background = whiteTex;
+            BoxStyle.normal.background = BlackTex;
 
 
             //Bottompanelstyle.fixedWidth = Screen.width / 9;
             MiniPanelStyle.alignment = TextAnchor.MiddleLeft;
             MiniPanelStyle.fontStyle = FontStyle.Bold;
             MiniPanelStyle.wordWrap = true;
-            MiniPanelStyle.hover.background = GreenTex;
             MiniPanelStyle.normal.background = BlackTex;
             MiniPanelStyle.normal.textColor = Color.white;
-            MiniPanelStyle.padding = new RectOffset(5, 0, 0, 5);
+            MiniPanelStyle.padding = new RectOffset(5, 0, 2, 2);
             MiniPanelStyle.fontSize = 11;
+            MiniPanelStyle.margin = new RectOffset(0, 0, 0, 0);
 
-            MinipanelstyeImportant.alignment = TextAnchor.MiddleLeft;
+            MinipanelstyeImportant.alignment = TextAnchor.MiddleCenter;
             MinipanelstyeImportant.fontStyle = FontStyle.Bold;
             MinipanelstyeImportant.wordWrap = true;
             MinipanelstyeImportant.hover.background = GreenTex;
             MinipanelstyeImportant.normal.background = BlackTex;
             MinipanelstyeImportant.normal.textColor = Color.red;
-            MinipanelstyeImportant.padding = new RectOffset(5, 0, 0, 5);
+            MinipanelstyeImportant.padding = new RectOffset(0, 0, 0, 5);
             MinipanelstyeImportant.fontSize = 11;
+            MinipanelstyeImportant.margin = new RectOffset(0, 0, 0, 0);
 
 
 
             // sync window
             SyncWindowStyle1.normal.background = GreyTex;
-            SyncWindowStyle1.normal.textColor = Color.black;
+            SyncWindowStyle1.normal.textColor = Color.white;
             SyncWindowStyle1.fontStyle = FontStyle.Bold;
             SyncWindowStyle1.padding = new RectOffset(10, 10, 0, 0);
             SyncWindowStyle1.alignment = TextAnchor.MiddleCenter;
@@ -1882,7 +2103,7 @@ namespace PIPE_Valve_Console_Client
             SyncWindowStyle2.normal.background = GreyTex;
             SyncWindowStyle2.hover.background = GreenTex;
             SyncWindowStyle2.onHover.background = RedTex;
-            SyncWindowStyle2.normal.textColor = Color.black;
+            SyncWindowStyle2.normal.textColor = Color.white;
             SyncWindowStyle2.padding = new RectOffset(10, 10, 2, 2);
             SyncWindowStyle2.alignment = TextAnchor.MiddleCenter;
 
@@ -1935,12 +2156,13 @@ namespace PIPE_Valve_Console_Client
 
 
             // general
-           // Generalstyle.normal.background = GreyTex;
-            Generalstyle.normal.textColor = Color.black;
+            Generalstyle.normal.background = BlackTex;
+            Generalstyle.normal.textColor = Color.white;
 
             Generalstyle.alignment = TextAnchor.MiddleCenter;
             Generalstyle.fontStyle = FontStyle.Bold;
             Generalstyle.hover.background = GreenTex;
+            Generalstyle.hover.textColor = Color.black;
             Generalstyle.onHover.background = RedTex;
 
             
@@ -1953,11 +2175,11 @@ namespace PIPE_Valve_Console_Client
 
 
             // skin
-            skin.label.normal.textColor = Color.black;
+            skin.label.normal.textColor = Color.white;
             skin.label.fontSize = 15;
             skin.label.fontStyle = FontStyle.Bold;
             skin.label.alignment = TextAnchor.MiddleCenter;
-            skin.label.normal.background = TransTex;
+            skin.label.normal.background = BlackTex;
 
 
 
@@ -1965,10 +2187,14 @@ namespace PIPE_Valve_Console_Client
             skin.textField.normal.textColor = Color.red;
             skin.textField.hover.textColor = Color.white;
             skin.textField.normal.background = whiteTex;
+            skin.textField.active.background = BlackTex;
+            skin.textField.onNormal.background = BlackTex;
             skin.textField.focused.background = BlackTex;
+            skin.textField.onFocused.background = BlackTex;
+            skin.textField.onActive.background = BlackTex;
             skin.textField.focused.textColor = Color.white;
             skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
-            skin.textField.padding = new RectOffset(10, 10, 10, 10);
+            skin.textField.padding = new RectOffset(2, 2, 2, 2);
 
 
             skin.textArea.alignment = TextAnchor.MiddleCenter;
@@ -1992,6 +2218,7 @@ namespace PIPE_Valve_Console_Client
             skin.button.hover.textColor = Color.green;
             skin.button.normal.background.wrapMode = TextureWrapMode.Clamp;
             skin.button.hover.background = GreyTex;
+            skin.button.padding = new RectOffset(5,5,0,0);
 
 
 
@@ -2022,9 +2249,27 @@ namespace PIPE_Valve_Console_Client
             skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;
             skin.verticalScrollbar.normal.background = whiteTex;
             skin.verticalScrollbar.hover.background = GreenTex;
-            skin.scrollView.alignment = TextAnchor.MiddleCenter;
 
+            
+            skin.scrollView.padding = new RectOffset(15, 15, 5, 5);
+            skin.scrollView.alignment = TextAnchor.UpperCenter;
 
+            skin.verticalScrollbarThumb.normal.background =GreenTex;
+            skin.verticalScrollbarThumb.hover.background = GreyTex;
+            //skin.verticalScrollbarThumb.fixedHeight = 20;
+            skin.verticalScrollbarThumb.fixedWidth = 14;
+            skin.verticalScrollbarThumb.normal.background.wrapMode = TextureWrapMode.Clamp;
+            skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;
+            skin.verticalScrollbarThumb.alignment = TextAnchor.MiddleRight;
+
+           // skin.scrollView.normal.background = GreyTex;
+            skin.verticalSliderThumb.normal.background = GreenTex;
+            skin.verticalSliderThumb.hover.background = BlackTex;
+            //skin.verticalSliderThumb.fixedHeight = 20;
+            skin.verticalSliderThumb.fixedWidth = 14;
+            skin.verticalSlider.alignment = TextAnchor.MiddleRight;
+            skin.verticalSliderThumb.alignment = TextAnchor.MiddleRight;
+           
 
 
         }

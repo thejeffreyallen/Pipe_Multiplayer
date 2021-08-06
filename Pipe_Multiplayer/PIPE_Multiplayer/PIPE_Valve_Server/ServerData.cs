@@ -365,11 +365,16 @@ namespace PIPE_Valve_Online_Server
                     asAscii = asAscii.Trim(Path.GetInvalidPathChars());
 
 
-                    if (asAscii.ToLower() == Filename.ToLower())
+                        if (asAscii.ToLower() == Filename.ToLower())
                         {
+
+                           if(!file.FullName.Contains("Temp") && !file.Name.Contains(".temp"))
+                           {
                             found = true;
-                        asciiname = asAscii;
-                           // Console.WriteLine($"Matched {s.Nameoftexture} to {file.Name}");
+                            asciiname = asAscii;
+
+                           }
+                           
                         }
                     }
                      

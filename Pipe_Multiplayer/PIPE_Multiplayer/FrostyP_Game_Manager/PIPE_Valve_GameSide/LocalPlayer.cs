@@ -61,7 +61,7 @@ namespace PIPE_Valve_Console_Client
             // Independently measures timespan to guarantee position updates are spaced appropriately
             if (InGameUI.instance.Connected && ServerActive)
             {
-                if((DateTime.Now - LastTransformTime).TotalMilliseconds >= 16f)
+                if((DateTime.Now - LastTransformTime).TotalMilliseconds > 15.00f)
                 {
                     CheckThreshold();
                     LastTransformTime = DateTime.Now;

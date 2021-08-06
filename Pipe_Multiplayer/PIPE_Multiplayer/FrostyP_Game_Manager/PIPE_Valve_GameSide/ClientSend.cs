@@ -33,15 +33,6 @@ namespace PIPE_Valve_Console_Client
         }
        
 
-
-
-
-
-
-
-
-
-
         #region Sendable_ messages
 
         public static void WelcomeReceived()
@@ -412,11 +403,12 @@ namespace PIPE_Valve_Console_Client
                 }
                 else
                 {
+                    LocalPlayer.instance.ServerActive = false;
                     //bike
                     _packet.Write(gear.GarageSave.Length);
                     _packet.Write(gear.GarageSave);
                     InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Sent Garage preset: {PlayerPrefs.GetString("lastPreset")}", (int)MessageColourByNum.System, 1));
-
+                    LocalPlayer.instance.ServerActive = true;
                 }
 
 

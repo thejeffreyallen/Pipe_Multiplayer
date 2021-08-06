@@ -765,7 +765,7 @@ public class RemoteLoadManager : MonoBehaviour
 
     public void SetLHD(RemotePartMaster pm)
     {
-        pm.GetPart(pm.rearWheel).transform.localRotation = (Quaternion.Euler(0, 0, 90f));
+        pm.GetPart(pm.rearWheel).transform.localRotation = (Quaternion.Euler(0, 180, 0f));
         pm.GetPart(pm.chain).transform.localPosition = (new Vector3(0, 0, 0));
         pm.GetPart(pm.sprocket).transform.localPosition = (new Vector3(-0.0402f, 0.0013f, 0.0001f));
         pm.GetPart(pm.sprocket).transform.localRotation = (Quaternion.Euler(0, 0, 0));

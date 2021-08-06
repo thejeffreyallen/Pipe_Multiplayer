@@ -254,12 +254,12 @@ namespace PIPE_Valve_Console_Client
                         {
                             if (InGameUI.instance.cycleplayerslist[i].id == _id)
                             {
-                                InGameUI.instance.cycleplayerslist.RemoveAt(i);
                                 if (InGameUI.instance.Targetrider == player.RiderModel)
                                 {
-                                    InGameUI.instance.SpectateExit();
+                                   InGameUI.instance.SpectateExit();
                                 }
 
+                                InGameUI.instance.cycleplayerslist.RemoveAt(i);
 
                             }
                         }

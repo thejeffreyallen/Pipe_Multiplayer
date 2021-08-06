@@ -213,9 +213,10 @@ namespace PIPE_Valve_Console_Client
 			address.SetAddress(_ip,(ushort)port);
 			ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 2048576;
+				int sendRateMax = 12048576;
 				int sendBufferSize = 40485760;
-
+				//int MTUDatasize = 600000;
+				//int MTUPacketsize = 600000;
 
 				unsafe
 			{
@@ -290,16 +291,20 @@ namespace PIPE_Valve_Console_Client
 				address.SetAddress(FrostyIP, (ushort)frostyport);
 				ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 2048576;
-				int sendBufferSize = 10485760;
-
+				int sendRateMax = 12048576;
+				int sendBufferSize = 40485760;
+				//int MTUDatasize = 600000;
+				//int MTUPacketsize = 600000;
 
 				unsafe
 				{
 					utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
 					utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 					utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
+					//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
+					//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
 				}
+
 
 				if (ServerThread == null && !ServerLoopIsRunning)
 				{
@@ -469,6 +474,7 @@ namespace PIPE_Valve_Console_Client
             {
 				SendToUnityThread.instance.ExecuteOnMainThread(() =>
 				{
+					
 					InGameUI.instance.Ping = constat.ping;
 					InGameUI.instance.Pendingreliable = constat.pendingReliable;
 					InGameUI.instance.Pendingunreliable = constat.pendingUnreliable;
@@ -477,6 +483,8 @@ namespace PIPE_Valve_Console_Client
 					InGameUI.instance.connectionstate = constat.state;
 					InGameUI.instance.connectionqualitylocal = constat.connectionQualityLocal;
 					InGameUI.instance.connectionqualityremote = constat.connectionQualityRemote;
+					InGameUI.instance.SendRate = constat.sendRateBytesPerSecond;
+					
 				});
 				
 				

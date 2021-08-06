@@ -52,10 +52,14 @@ namespace PIPE_Valve_Console_Client
         // last transform data
         public float MyLastPing;
         public float PlayerLastPing;
-        public DateTime LastServerStamp = DateTime.Now;
-        public DateTime LastPlayerStamp = DateTime.Now;
+        public DateTime LastServerStamp;
+        public DateTime LastPlayerStamp;
         public Vector3[] lastpos = new Vector3[28];
         private Vector3[] lastrot = new Vector3[34];
+        private DateTime LastTimeAtReceive = DateTime.Now;
+        private float deltatime = Time.deltaTime;
+        bool MoveTwice = false;
+        float RemainingTimeSpan = 0.001f;
 
         public bool PlayerTagVisible = true;
         public bool PlayerCollides = true;
@@ -73,7 +77,6 @@ namespace PIPE_Valve_Console_Client
             IncomingTransformUpdates = new List<IncomingTransformUpdate>();
             ReplayPostions = new List<IncomingTransformUpdate>();
         }
-
 
         // Call initiation once on start, inititation to reoccur until resolved
         private void Start()
@@ -175,42 +178,28 @@ namespace PIPE_Valve_Console_Client
                    SetupSuccess = RiderSetup();
                   }
 
+                    if (MoveTwice)
+                    {
+                        InterpolateRider();
+                        CheckThresholds();
+                        MoveTwice = false;
+                    }
+                    else
+                    {
+                     CheckThresholds();
+                    }
+
                   InterpolateRider();
+                  CheckThresholds();
 
 
                   // whole second behind, dump most updates causing jump to latest
                   if (IncomingTransformUpdates.Count > 60)
                   {
-                        IncomingTransformUpdates.RemoveRange(0, IncomingTransformUpdates.Count - 3);
+                        IncomingTransformUpdates.RemoveRange(0, IncomingTransformUpdates.Count - 10);
                   }
 
 
-                  if (CheckThresholds())
-                  {
-                        // update reference update then remove from list
-                        Array.Copy(IncomingTransformUpdates[0].Positions, lastpos, IncomingTransformUpdates[0].Positions.Length);
-                        Array.Copy(IncomingTransformUpdates[0].Rotations, lastrot, IncomingTransformUpdates[0].Rotations.Length);
-                        MyLastPing = InGameUI.instance.Ping;
-                        LastPlayerStamp = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp);
-                        LastServerStamp = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].ServerTimeStamp);
-                        PlayerLastPing = IncomingTransformUpdates[0].Ping;
-
-                        IncomingTransformUpdates.RemoveAt(0);
-
-                        // low fps support
-                        if (IncomingTransformUpdates.Count > 15)
-                        {
-                            // net updates run at 60fps or lower, if your fps is lower than that, you need to dump updates
-                            if (Time.deltaTime > 0.017)
-                            {
-                                IncomingTransformUpdates.RemoveAt(0);
-                            }
-                        }
-
-                  }
-
-                   
-                  
 
                 }
                 catch (Exception x )
@@ -221,14 +210,71 @@ namespace PIPE_Valve_Console_Client
            
         }
 
-        bool CheckThresholds()
+        void CheckThresholds()
         {
             bool value = false;
-            if (IncomingTransformUpdates.Count > 0)
+            if (IncomingTransformUpdates.Count > 1)
             {
-                value = Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < 0.01f;
+                value = Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) < (Vector3.Distance(lastpos[0], IncomingTransformUpdates[0].Positions[0]) / 100);
             }
-            return value;
+
+            if (value)
+            {
+                // copy update data to LastData
+                Array.Copy(IncomingTransformUpdates[0].Positions, lastpos, IncomingTransformUpdates[0].Positions.Length);
+                Array.Copy(IncomingTransformUpdates[0].Rotations, lastrot, IncomingTransformUpdates[0].Rotations.Length);
+                MyLastPing = InGameUI.instance.Ping;
+                LastPlayerStamp = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp);
+                LastServerStamp = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].ServerTimeStamp);
+                PlayerLastPing = IncomingTransformUpdates[0].Ping;
+                LastTimeAtReceive = IncomingTransformUpdates[0].TimeAtReceive;
+
+               
+
+                // Remove Update weve reached
+                IncomingTransformUpdates.RemoveAt(0);
+
+                // if FPS of this machine is not high enough to keep up, dump more than one update
+                if (IncomingTransformUpdates.Count > 20)
+                {
+                    // if deltatime is bigger than deltatime of this players framerate 
+                    if (Time.deltaTime > (1/PlayersFrameRate))
+                    {
+                        IncomingTransformUpdates.RemoveAt(0);
+                    }
+                }
+
+
+                // Alter real world Velocity to buffer lag out
+
+                float PlayerPingDifference = IncomingTransformUpdates[0].Ping - PlayerLastPing;
+                float MyPingDifference = InGameUI.instance.Ping - MyLastPing;
+                RemainingTimeSpan = RemainingTimeSpan + (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp) - LastPlayerStamp).TotalSeconds;
+                if (IncomingTransformUpdates.Count < 10)
+                {
+                   RemainingTimeSpan = RemainingTimeSpan + ((10 - IncomingTransformUpdates.Count) / 1000);
+                }
+                // if were more than 10 updates behind, remove half difference in ms
+                if (IncomingTransformUpdates.Count >= 10 && IncomingTransformUpdates.Count < 20)
+                {
+                    RemainingTimeSpan = RemainingTimeSpan + ((19 - IncomingTransformUpdates.Count) / 1000 / 2);
+                }
+
+                // if player current ping is larger than last ping, add half the difference in ms to the timespan within reason
+                if (PlayerPingDifference > 0 && PlayerPingDifference < 5)
+                {
+                    RemainingTimeSpan = RemainingTimeSpan + ((PlayerPingDifference / 1000)/2);
+                }
+
+                if (MyPingDifference > 0 && MyPingDifference < 5)
+                {
+                    RemainingTimeSpan = RemainingTimeSpan + ((MyPingDifference / 1000) /2);
+                }
+
+                RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan, 0.00001f, 0.032f);
+
+            }
+
         }
 
         public GameObject DecideRider(string modelname)
@@ -377,84 +423,80 @@ namespace PIPE_Valve_Console_Client
                 {
 
                     #region build data
-                    DateTime ServerCurrent = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].ServerTimeStamp);
-                    DateTime PlayertimeCurrent = DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp);
+
                     int PingCurrent = IncomingTransformUpdates[0].Ping;
+                    if(LastPlayerStamp== null)
+                    {
+                        LastPlayerStamp = DateTime.Now.Subtract(TimeSpan.FromSeconds(0.016f));
+                    }
 
                       R2RPing = IncomingTransformUpdates[IncomingTransformUpdates.Count-1].Ping + InGameUI.instance.Ping;
                     float rate = (1.000f / (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp).Subtract(TimeSpan.FromMilliseconds(IncomingTransformUpdates[0].Ping)) - LastPlayerStamp.Subtract(TimeSpan.FromMilliseconds(PlayerLastPing))).TotalSeconds);
                     PlayersFrameRate = rate;
 
-                    float timespan = Mathf.Clamp((float)(PlayertimeCurrent - LastPlayerStamp).TotalSeconds,0.001f,0.5f);
-                    float PlayerPingDifference = PingCurrent - PlayerLastPing;
-                    float MyPingDifference = InGameUI.instance.Ping - MyLastPing;
-
-                    // if player current ping is larger than last ping, add half the difference in ms to the timespan within reason
-                    if (PlayerPingDifference > 0 && PlayerPingDifference < 20)
-                    {
-                        timespan = timespan + ((PlayerPingDifference / 1000)/2);
-                    }
-                    // do the same for my ping
-                    if(MyPingDifference >0 && MyPingDifference < 20)
-                    {
-                        timespan = timespan + ((MyPingDifference / 1000) /2);
-                    }
-                    // if were less than 5 updates behind, add 1-4ms to timespan
-                    if (IncomingTransformUpdates.Count < 5)
-                    {
-                        timespan = timespan + (IncomingTransformUpdates.Count / 1000 / 2);
-                    }
                     #endregion
 
 
                     #region Do Movement
+                    RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan, 0.00001f, 0.032f);
+
+                    // will this movement make it to the destination, if not, keep track of remaining time span
+                    if(RemainingTimeSpan > Time.deltaTime && RemainingTimeSpan < Time.deltaTime * 2)
+                    {
+                        MoveTwice = true;
+                    }
+                    
+                    
+
 
                     // rider
-                    Riders_Transforms[0].position = Vector3.MoveTowards(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0], (float)(Vector3.Distance(lastpos[0], IncomingTransformUpdates[0].Positions[0]) / timespan * (1 / Time.deltaTime)));
-                    Riders_Transforms[0].rotation = Quaternion.RotateTowards(Riders_Transforms[0].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[0]), Quaternion.Angle(Quaternion.Euler(lastrot[0]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[0])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[0].position = Vector3.MoveTowards(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0], (float)(Vector3.Distance(Riders_Transforms[0].position, IncomingTransformUpdates[0].Positions[0]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[0].rotation = Quaternion.RotateTowards(Riders_Transforms[0].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[0]), (float)Quaternion.Angle(Riders_Transforms[0].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[0])) / RemainingTimeSpan * Time.deltaTime);
                     
                     // rider locals
                    for (int i = 1; i < 23; i++)
                    { 
-                     Riders_Transforms[i].localRotation = Quaternion.RotateTowards(Riders_Transforms[i].localRotation,Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i]),Quaternion.Angle(Quaternion.Euler(lastrot[i]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i])) / timespan * (1/Time.deltaTime));
+                     Riders_Transforms[i].localRotation = Quaternion.RotateTowards(Riders_Transforms[i].localRotation,Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i]), (float)Quaternion.Angle(Riders_Transforms[i].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[i])) / RemainingTimeSpan * Time.deltaTime);
                    }
 
                     // hip joint
-                    Riders_Transforms[20].localPosition = Vector3.MoveTowards(Riders_Transforms[20].localPosition, IncomingTransformUpdates[0].Positions[20], (float)(Vector3.Distance(lastpos[20], IncomingTransformUpdates[0].Positions[20]) / timespan * (1 / Time.deltaTime)));
+                    Riders_Transforms[20].localPosition = Vector3.MoveTowards(Riders_Transforms[20].localPosition, IncomingTransformUpdates[0].Positions[20], (float)Vector3.Distance(Riders_Transforms[20].localPosition, IncomingTransformUpdates[0].Positions[20]) / RemainingTimeSpan * Time.deltaTime);
 
                     // bike joint
-                    Riders_Transforms[24].position = Vector3.MoveTowards(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24], (float)(Vector3.Distance(lastpos[24], IncomingTransformUpdates[0].Positions[24]) / timespan * (1 / Time.deltaTime)));
-                    Riders_Transforms[24].rotation = Quaternion.RotateTowards(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24]), Quaternion.Angle(Quaternion.Euler(lastrot[24]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[24].position = Vector3.MoveTowards(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24], (float)(Vector3.Distance(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[24].rotation = Quaternion.RotateTowards(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24]), (float)Quaternion.Angle(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24])) / RemainingTimeSpan * Time.deltaTime);
 
                     // bars joint
-                    Riders_Transforms[25].position = Vector3.MoveTowards(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25], (float)(Vector3.Distance(lastpos[25], IncomingTransformUpdates[0].Positions[25]) / timespan * (1 / Time.deltaTime)));
-                    Riders_Transforms[25].localRotation = Quaternion.RotateTowards(Riders_Transforms[25].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[25]), Quaternion.Angle(Quaternion.Euler(lastrot[25]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[25])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[25].position = Vector3.MoveTowards(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25], (float)(Vector3.Distance(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[25].localRotation = Quaternion.RotateTowards(Riders_Transforms[25].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[25]), (float)Quaternion.Angle(Riders_Transforms[25].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[25])) / RemainingTimeSpan * Time.deltaTime);
 
                     // Drivetrain
-                    Riders_Transforms[26].localRotation = Quaternion.RotateTowards(Riders_Transforms[26].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[26]), Quaternion.Angle(Quaternion.Euler(lastrot[26]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[26])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[26].localRotation = Quaternion.RotateTowards(Riders_Transforms[26].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[26]), (float)Quaternion.Angle(Riders_Transforms[26].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[26])) / RemainingTimeSpan * Time.deltaTime);
 
                     // frame joint
-                    Riders_Transforms[27].position = Vector3.MoveTowards(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27], (float)(Vector3.Distance(lastpos[27], IncomingTransformUpdates[0].Positions[27]) / timespan * (1 / Time.deltaTime)));
-                    Riders_Transforms[27].localRotation = Quaternion.RotateTowards(Riders_Transforms[27].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[27]), Quaternion.Angle(Quaternion.Euler(lastrot[27]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[27])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[27].position = Vector3.MoveTowards(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27], (float)(Vector3.Distance(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[27].localRotation = Quaternion.RotateTowards(Riders_Transforms[27].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[27]), (float)Quaternion.Angle(Riders_Transforms[27].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[27])) / RemainingTimeSpan * Time.deltaTime);
 
                     // front wheel
-                    Riders_Transforms[28].localRotation = Quaternion.RotateTowards(Riders_Transforms[28].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[28]), Quaternion.Angle(Quaternion.Euler(lastrot[28]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[28])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[28].localRotation = Quaternion.RotateTowards(Riders_Transforms[28].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[28]), (float)Quaternion.Angle(Riders_Transforms[28].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[28])) / RemainingTimeSpan * Time.deltaTime);
 
                     // back wheel
-                    Riders_Transforms[29].localRotation = Quaternion.RotateTowards(Riders_Transforms[29].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[29]), Quaternion.Angle(Quaternion.Euler(lastrot[29]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[29])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[29].localRotation = Quaternion.RotateTowards(Riders_Transforms[29].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[29]), (float)Quaternion.Angle(Riders_Transforms[29].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[29])) / RemainingTimeSpan * Time.deltaTime);
 
                     // left pedal
-                    Riders_Transforms[30].localRotation = Quaternion.RotateTowards(Riders_Transforms[30].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[30]), Quaternion.Angle(Quaternion.Euler(lastrot[30]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[30])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[30].localRotation = Quaternion.RotateTowards(Riders_Transforms[30].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[30]), (float)Quaternion.Angle(Riders_Transforms[30].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[30])) / RemainingTimeSpan * Time.deltaTime);
 
                     // right pedal
-                    Riders_Transforms[31].localRotation = Quaternion.RotateTowards(Riders_Transforms[31].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[31]), Quaternion.Angle(Quaternion.Euler(lastrot[31]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[31])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[31].localRotation = Quaternion.RotateTowards(Riders_Transforms[31].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[31]), (float)Quaternion.Angle(Riders_Transforms[31].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[31])) / RemainingTimeSpan * Time.deltaTime);
 
                     // left fingers index2
-                    Riders_Transforms[32].localRotation = Quaternion.RotateTowards(Riders_Transforms[32].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[32]), Quaternion.Angle(Quaternion.Euler(lastrot[32]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[32])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[32].localRotation = Quaternion.RotateTowards(Riders_Transforms[32].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[32]), (float)Quaternion.Angle(Riders_Transforms[32].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[32])) / RemainingTimeSpan * Time.deltaTime);
 
                     // right fingers index 2
-                    Riders_Transforms[33].localRotation = Quaternion.RotateTowards(Riders_Transforms[33].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[33]), Quaternion.Angle(Quaternion.Euler(lastrot[33]), Quaternion.Euler(IncomingTransformUpdates[0].Rotations[33])) / timespan * (1 / Time.deltaTime));
+                    Riders_Transforms[33].localRotation = Quaternion.RotateTowards(Riders_Transforms[33].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[33]), (float)Quaternion.Angle(Riders_Transforms[33].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[33])) / RemainingTimeSpan * Time.deltaTime);
 
+
+                    RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan - Time.deltaTime ,0.00001f,0.032f);
                     #endregion
 
                 }
@@ -525,11 +567,7 @@ namespace PIPE_Valve_Console_Client
 
                     }
 
-                    if(n._Gameobject == null && value)
-                    {
-                    GameManager.instance.GetObject(n);
-                    }
-
+                    
                 }
             
 
@@ -611,9 +649,10 @@ namespace PIPE_Valve_Console_Client
            
             try
             {
+                MasterActive = false;
             // do garage setup
             GameManager.DoGarageSetup(this, Gear.GarageSave);
-
+                MasterActive = true;
             }
             catch (Exception x )
             {
@@ -710,7 +749,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-
         // called by receiving model file after failure to load
         public void UpdateModel()
         {
@@ -806,7 +844,7 @@ namespace PIPE_Valve_Console_Client
         public int Ping;
         public long ServerTimeStamp;
         public long Playertimestamp;
-
+        public DateTime TimeAtReceive;
 
         /// <summary>
         /// used to store transform update for this player along with timestamp from the moment this player sent it. Class found in RemotePlayer
@@ -829,6 +867,7 @@ namespace PIPE_Valve_Console_Client
             Ping = _ping;
             ServerTimeStamp = _serverstamp;
             Playertimestamp = _playertimestamp;
+            TimeAtReceive = DateTime.Now;
         }
 
     }
