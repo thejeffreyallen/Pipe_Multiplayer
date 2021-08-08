@@ -124,7 +124,7 @@ namespace PIPE_Valve_Online_Server
     {
         public bool isRiderUpdate;
         public List<TextureInfo> RiderTextures;
-
+        public bool Capforward;
         public byte[] Garagesave;
 
 

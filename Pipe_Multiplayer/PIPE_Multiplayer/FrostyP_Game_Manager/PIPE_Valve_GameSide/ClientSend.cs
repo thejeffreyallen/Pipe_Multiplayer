@@ -94,6 +94,8 @@ namespace PIPE_Valve_Console_Client
                 }
 
 
+                    _packet.Write(FullGear.Capisforward);
+
                 }
 
 
@@ -400,6 +402,7 @@ namespace PIPE_Valve_Console_Client
 
                 }
 
+                    _packet.Write(gear.Capisforward);
                 }
                 else
                 {

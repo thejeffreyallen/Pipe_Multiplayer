@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -22,21 +21,22 @@ namespace FrostyP_Game_Manager
 		public int MenuShowing;
 
 		// GUI
-		
 		public GUIStyle Generalstyle = new GUIStyle();
 		public GameObject Onlineobj;
-		GUIStyle OffStyle = new GUIStyle();
-		GUIStyle OnStyle = new GUIStyle();
 		
 		// menu paramters
 		public bool OpenMenu;
 
+		List<string> popups = new List<string>();
+		bool Popup;
 
-		
-		
+
+
+
 
 		void Start()
 		{
+			
 			style = new GUIStyle();
 			style.normal.background = InGameUI.instance.BlackTex;
 			style.alignment = TextAnchor.MiddleCenter;
@@ -69,34 +69,13 @@ namespace FrostyP_Game_Manager
 			};
 
 
-			OffStyle.alignment = TextAnchor.MiddleCenter;
-			OffStyle.normal.textColor = Color.black;
-			OffStyle.normal.background = InGameUI.instance.GreenTex;
-			OffStyle.hover.textColor = Color.green;
-			OffStyle.hover.background = InGameUI.instance.GreyTex;
-
-			OnStyle.alignment = TextAnchor.MiddleCenter;
-			OnStyle.normal.textColor = Color.green;
-			OnStyle.normal.background = InGameUI.instance.GreyTex;
-			OnStyle.hover.textColor = Color.red;
-			OnStyle.hover.background = InGameUI.instance.GreenTex;
-
-
-
-
+			
 			Generalstyle.normal.background = InGameUI.instance.whiteTex; 
 			Generalstyle.normal.textColor = Color.black;
 
 			Generalstyle.alignment = TextAnchor.MiddleCenter;
 			Generalstyle.fontStyle = FontStyle.Bold;
-			//Generalstyle.fontSize = 16;
-			//Generalstyle.border.left = 5;
-			//Generalstyle.border.right = 5;
-			//Generalstyle.margin.left = 5;
-			//Generalstyle.margin.right = 5;
-
 			
-
 			OpenMenu = true;
 		}
 
@@ -140,7 +119,8 @@ namespace FrostyP_Game_Manager
 
 				GUILayout.BeginArea(new Rect(new Vector2(Screen.width/4,5),new Vector2(Screen.width/2,Screen.height/50)));
 				GUILayout.BeginHorizontal();
-
+				
+				GUILayout.Space(5);
 				if (GUILayout.Button("About", style))
 				{
 					if(MenuShowing != 6)
@@ -175,11 +155,22 @@ namespace FrostyP_Game_Manager
 				// Rider Setup Tab
 				if (GUILayout.Button("Rider", style))
 				{
-					
-					GUILayout.Space(20);
-					GUILayout.Label("Rider Clothing:", Generalstyle);
+					if(LocalPlayer.instance.RiderRoot.GetComponentsInChildren<Transform>().Length < 70)
+                    {
+					if(MenuShowing != 1)
+                    {
 					CharacterModding.instance.RiderSetupOpen();
-					GUILayout.Space(20);
+                    }
+                    else
+                    {
+						CharacterModding.instance.Close();
+                    }
+
+                    }
+                    else
+                    {
+						PopUpMessage(("Rider setup only available for Daryien"));
+                    }
 				}
 				GUILayout.Space(5);
 				// Bmx Setup Tab
@@ -195,6 +186,7 @@ namespace FrostyP_Game_Manager
 				// camera tab
 				if (GUILayout.Button("Camera", style))
                 {
+					
 					if(MenuShowing != 3)
                     {
 					MenuShowing = 3;
@@ -243,12 +235,17 @@ namespace FrostyP_Game_Manager
 				 Menus[MenuShowing]();
                 }
 
+                if (Popup)
+                {
+					PopupShow();
+                }
+
+
 			}
 
 
 
 		}
-
 
 		public void ShowAbout()
         {
@@ -281,6 +278,31 @@ namespace FrostyP_Game_Manager
 			GUILayout.EndArea();
 
 		}
+
+		public void PopUpMessage(string message)
+        {
+			popups.Add(message);
+			Popup = true;
+			StartCoroutine(PopUpMessageEnum(message));
+        }
+		IEnumerator PopUpMessageEnum(string mess)
+        {
+			yield return new WaitForSeconds(2);
+			popups.Remove(mess);
+			Popup = false;
+
+        }
+		void PopupShow()
+        {
+            if (popups.Count > 0)
+            {
+				GUILayout.BeginArea(new Rect(new Vector2(Screen.width/8*3,Screen.height/8*3), new Vector2(Screen.width/4,100)),InGameUI.BoxStyle);
+				GUILayout.Label(popups[0]);
+				GUILayout.EndArea();
+
+            }
+        }
+
 
 	}
 }

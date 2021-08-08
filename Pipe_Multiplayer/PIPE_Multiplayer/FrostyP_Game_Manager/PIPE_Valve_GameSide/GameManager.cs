@@ -46,6 +46,7 @@ namespace PIPE_Valve_Console_Client
         public static string ParkAssetsDir = Rootdir + "ParkBuilder/Assetbundles/";
         public static string GarageDir = Application.dataPath + "/GarageContent/";
         public static string PlayerModelsDir = Application.dataPath + "/Custom Players/";
+        public static string UpdateDir = Application.dataPath + "/FrostyPGameManager/Updates/";
         public static string TempDir = Rootdir + "Temp/";
 
         GameObject lastwalkchar;
@@ -69,13 +70,17 @@ namespace PIPE_Valve_Console_Client
             {
                 Directory.CreateDirectory(TempDir);
             }
-            if (!Directory.Exists(GameManager.MapsDir + "DLLs/"))
+            if (!Directory.Exists(MapsDir + "DLLs/"))
             {
-                Directory.CreateDirectory(GameManager.MapsDir + "DLLs/");
+                Directory.CreateDirectory(MapsDir + "DLLs/");
             }
-            if (!Directory.Exists(GameManager.PlayerModelsDir))
+            if (!Directory.Exists(PlayerModelsDir))
             {
-                Directory.CreateDirectory(GameManager.PlayerModelsDir);
+                Directory.CreateDirectory(PlayerModelsDir);
+            }
+            if (!Directory.Exists(UpdateDir))
+            {
+                Directory.CreateDirectory(UpdateDir);
             }
 
 
@@ -91,10 +96,12 @@ namespace PIPE_Valve_Console_Client
                 {"'s about" },
                 {"'s here" },
                 { " showed up" },
-                {" is rollin" },
+                {" 's rollin" },
                 {"'s gonna send it" },
                 {"'s about to go off" },
                 {"'s warming up" },
+                {" shreds" },
+                {"'s on the way" },
 
 
             };
@@ -442,6 +449,7 @@ namespace PIPE_Valve_Console_Client
                
                 gear.RiderTextures = list;
                 gear.isRiderUpdate = true;
+                gear.Capisforward = CharacterModding.instance.CapisForward;
 
             }
             else

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace FrostyP_Game_Manager
 {
-	class CameraSettings : MonoBehaviour
+	public class CameraSettings : MonoBehaviour
 	{
 		public static CameraSettings instance;
 
@@ -101,8 +101,23 @@ namespace FrostyP_Game_Manager
 
 		}
 
+		void Update()
+        {
+            if (MGInputManager.Back_Down())
+            {
+				ChangeFOVWithBackButton();
+            }
+        }
+		
+
 		public void Show()
 		{
+
+			if(Camera.current.gameObject != PIPE_Valve_Console_Client.CharacterModding.instance.Cam)
+            {
+
+
+
 			if (!Camera.current.gameObject.GetComponent<PostProcessVolume>())
 			{
 				volume = Camera.current.gameObject.AddComponent<PostProcessVolume>();
@@ -224,6 +239,10 @@ namespace FrostyP_Game_Manager
 
 
 
+            }
+
+
+
 			////////////////////////////////////////////////
 
 			GUILayout.BeginArea(new Rect(new Vector2(50, 100), new Vector2(Screen.width / 3, Screen.height - 150)), PIPE_Valve_Console_Client.InGameUI.BoxStyle);
@@ -231,7 +250,15 @@ namespace FrostyP_Game_Manager
 			if (GUILayout.Button("Close Camera Setup"))
 			{
 				ReplayMode.instance.OpenCamSettings = false;
+
+                if (PIPE_Valve_Console_Client.InGameUI.instance.IsSpectating)
+                {
+				PIPE_Valve_Console_Client.InGameUI.instance.ShowCamSettingsOverride = false;
+				}
+                else
+                {
 				FrostyPGamemanager.instance.MenuShowing = 0;
+                }
 			}
 			GUILayout.Space(10);
 			GUILayout.Label(lastpresetselectedCAM + " Profile active", PIPE_Valve_Console_Client.InGameUI.instance.Generalstyle);
@@ -447,21 +474,20 @@ namespace FrostyP_Game_Manager
 
 		void ResetFOV()
 		{
+			
 			StartCoroutine(WaitThenLerpFOV());
 
 		}
 		IEnumerator WaitThenLerpFOV()
 		{
-
 			yield return new WaitForSeconds(1f);
 			float time = 0f;
 			float transitionTime = 1f;
 			Camera Cam = Camera.current;
-			float resetfov = Cam.fieldOfView;
 			while (time < transitionTime)
 			{
 				yield return new WaitForEndOfFrame();
-				Cam.fieldOfView = Mathf.Lerp(resetfov, CamFOVCAMSETTING, time / transitionTime);
+				Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView,CamFOVCAMSETTING, time / transitionTime);
 				time += Time.deltaTime;
 			}
 			Cam.fieldOfView = CamFOVCAMSETTING;
@@ -469,7 +495,17 @@ namespace FrostyP_Game_Manager
 
 		}
 
+		// Reset CamFov Setting as user changes Cam position (first person, hybrid etc) to be the standard fov of that mode
+		void ChangeFOVWithBackButton()
+        {
+			StartCoroutine(WaitThenChangeFOVWithBack());
+        }
+		IEnumerator WaitThenChangeFOVWithBack()
+        {
+			yield return new WaitForSeconds(0.7f);
+			CamFOVCAMSETTING = Camera.current.fieldOfView;
 
+        }
 
 		void LoadLastUsedCam()
 		{

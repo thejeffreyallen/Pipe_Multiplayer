@@ -27,8 +27,6 @@ namespace FrostyP_Game_Manager
 		ParkSaveLoad _ParkSaveLoad = new ParkSaveLoad();
 
 		
-		Vector2 scrollPosition;
-		
 
 		public class Camspeed
         {
@@ -430,9 +428,6 @@ namespace FrostyP_Game_Manager
             }
         }
 
-      
-
-	
 		/// <summary>
 		/// Call to open ParkBuilder
 		/// </summary>
@@ -480,7 +475,6 @@ namespace FrostyP_Game_Manager
 			FrostyPGamemanager.instance.OpenMenu = true;
 		}
 
-
         /// <summary>
         /// gives list of fileinfo's from Assetbundles directory
         /// </summary>
@@ -494,11 +488,9 @@ namespace FrostyP_Game_Manager
             }
 
 
-			return listofbundles.GetFiles();
+			return listofbundles.GetFiles("*.*",SearchOption.AllDirectories);
 
         }
-
-
 
 		// called by clicking a button
 		void SpawnNewObject(GameObject obj, BundleData _bunddata, Vector3 pos)
@@ -522,8 +514,6 @@ namespace FrostyP_Game_Manager
 				Debug.Log(x);
             }
 		}
-
-
 
 		/// <summary>
 		/// kills activeobj and makes given placed obj the target
@@ -555,10 +545,9 @@ namespace FrostyP_Game_Manager
 
 		}
 
-
 		void ObjectsWindowShow()
         {
-			GUILayout.BeginArea(new Rect(new Vector2(20,150), new Vector2(Screen.width/3,Screen.height - 300)),InGameUI.BoxStyle);
+			GUILayout.BeginArea(new Rect(new Vector2(10,150), new Vector2(Screen.width/3-200,Screen.height - 300)),InGameUI.BoxStyle);
 			objectsloadtoggle = GUILayout.Toggle(objectsloadtoggle, objectsloaddisplay);
 			GUILayout.Space(10);
 			objectsscroll = GUILayout.BeginScrollView(objectsscroll);
@@ -635,7 +624,6 @@ namespace FrostyP_Game_Manager
 			GUILayout.EndScrollView();
 			GUILayout.EndArea();
         }
-
 
 		void HelpShow()
         {
@@ -861,8 +849,6 @@ namespace FrostyP_Game_Manager
 
 		}
 
-
-
 		// instantiates a clone of current object, adds PLACED to its name for later reference then re-targets activeobj to the live version
 		void PlaceObject()
         {
@@ -942,7 +928,6 @@ namespace FrostyP_Game_Manager
 
 
         }
-
 
 		void MoveObject()
         {
@@ -1027,10 +1012,6 @@ namespace FrostyP_Game_Manager
             
 
         }
-
- 
-
-
 
 		int GiveUniqueNumber()
         {
@@ -1605,8 +1586,6 @@ namespace FrostyP_Game_Manager
 			// add to pop up message list
         }
 		
-
-
 		void SetupGuis()
         {
 
@@ -1687,9 +1666,6 @@ namespace FrostyP_Game_Manager
 
 		}
 
-
-
-
 	}
 
 
@@ -1729,7 +1705,6 @@ namespace FrostyP_Game_Manager
 
     }
 
-
 	public class BundleData
     {
 		
@@ -1756,20 +1731,20 @@ namespace FrostyP_Game_Manager
 
     }
 
-		public class PlacedObject
-        {
-			public GameObject Object;
-			public BundleData BundleData;
-		    public int ObjectId = 0;
-		    public uint OwnerID = 0;
+	public class PlacedObject
+    {
+	 public GameObject Object;
+	 public BundleData BundleData;
+	 public int ObjectId = 0;
+	 public uint OwnerID = 0;
 
-			public PlacedObject(GameObject GO,BundleData Bundata)
-            {
-				Object = GO;
-				BundleData = Bundata;
-            }
+	  public PlacedObject(GameObject GO,BundleData Bundata)
+      {
+		Object = GO;
+		BundleData = Bundata;
+      }
 
-        }
+    }
 
 
 

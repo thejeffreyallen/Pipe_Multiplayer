@@ -227,6 +227,7 @@ namespace PIPE_Valve_Online_Server
                     }
                 }
 
+                    _packet.Write(_player.Gear.Capforward);
                 }
 
 
@@ -301,6 +302,7 @@ namespace PIPE_Valve_Online_Server
                                 }
                             }
 
+                                _packet.Write(_player.Gear.Capforward);
                             }
 
                             // garage

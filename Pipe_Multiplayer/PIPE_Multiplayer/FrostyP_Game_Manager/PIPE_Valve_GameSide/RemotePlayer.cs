@@ -92,7 +92,7 @@ namespace PIPE_Valve_Console_Client
             nameSign.transform.parent = RiderModel.transform;
             tm = nameSign.AddComponent<TextMesh>();
 
-            tm.color = new Color(UnityEngine.Random.Range(0.01f, 0.99f), UnityEngine.Random.Range(0.01f, 0.99f), UnityEngine.Random.Range(0.01f, 0.99f));
+            tm.color = new Color(UnityEngine.Random.Range(0.3f, 0.9f), UnityEngine.Random.Range(0.3f, 0.9f), UnityEngine.Random.Range(0.3f, 0.9f));
             tm.fontStyle = FontStyle.Bold;
             tm.alignment = TextAlignment.Center;
             tm.anchor = TextAnchor.MiddleCenter;
@@ -101,12 +101,11 @@ namespace PIPE_Valve_Console_Client
             tm.text = username;
 
                 style.normal.textColor = tm.color;
-                style.alignment = TextAnchor.MiddleCenter;
                 style.padding = new RectOffset(10, 10, 2, 2);
                 style.fontStyle = FontStyle.Bold;
-                style.normal.background = InGameUI.instance.whiteTex;
-                style.hover.background = InGameUI.instance.BlackTex;
-                style.hover.textColor = Color.white;
+                style.normal.background = InGameUI.instance.BlackTex;
+                style.hover.background = InGameUI.instance.whiteTex;
+                style.hover.textColor = Color.black;
 
 
             }
@@ -178,16 +177,16 @@ namespace PIPE_Valve_Console_Client
                    SetupSuccess = RiderSetup();
                   }
 
-                    if (MoveTwice)
-                    {
-                        InterpolateRider();
-                        CheckThresholds();
-                        MoveTwice = false;
-                    }
-                    else
-                    {
-                     CheckThresholds();
-                    }
+                  if (MoveTwice)
+                  {
+                    InterpolateRider();
+                    CheckThresholds();
+                    MoveTwice = false;
+                  }
+                  else
+                  {
+                   CheckThresholds();
+                  }
 
                   InterpolateRider();
                   CheckThresholds();
@@ -196,7 +195,7 @@ namespace PIPE_Valve_Console_Client
                   // whole second behind, dump most updates causing jump to latest
                   if (IncomingTransformUpdates.Count > 60)
                   {
-                        IncomingTransformUpdates.RemoveRange(0, IncomingTransformUpdates.Count - 10);
+                    IncomingTransformUpdates.RemoveRange(0, IncomingTransformUpdates.Count - 10);
                   }
 
 
@@ -221,6 +220,7 @@ namespace PIPE_Valve_Console_Client
             if (value)
             {
                 // copy update data to LastData
+                RemainingTimeSpan = RemainingTimeSpan + (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[1].Playertimestamp) - DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp)).TotalSeconds;
                 Array.Copy(IncomingTransformUpdates[0].Positions, lastpos, IncomingTransformUpdates[0].Positions.Length);
                 Array.Copy(IncomingTransformUpdates[0].Rotations, lastrot, IncomingTransformUpdates[0].Rotations.Length);
                 MyLastPing = InGameUI.instance.Ping;
@@ -249,17 +249,11 @@ namespace PIPE_Valve_Console_Client
 
                 float PlayerPingDifference = IncomingTransformUpdates[0].Ping - PlayerLastPing;
                 float MyPingDifference = InGameUI.instance.Ping - MyLastPing;
-                RemainingTimeSpan = RemainingTimeSpan + (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp) - LastPlayerStamp).TotalSeconds;
                 if (IncomingTransformUpdates.Count < 10)
                 {
-                   RemainingTimeSpan = RemainingTimeSpan + ((10 - IncomingTransformUpdates.Count) / 1000);
+                   RemainingTimeSpan = RemainingTimeSpan + ((10 - IncomingTransformUpdates.Count) / 1000 / 4);
                 }
-                // if were more than 10 updates behind, remove half difference in ms
-                if (IncomingTransformUpdates.Count >= 10 && IncomingTransformUpdates.Count < 20)
-                {
-                    RemainingTimeSpan = RemainingTimeSpan + ((19 - IncomingTransformUpdates.Count) / 1000 / 2);
-                }
-
+               
                 // if player current ping is larger than last ping, add half the difference in ms to the timespan within reason
                 if (PlayerPingDifference > 0 && PlayerPingDifference < 5)
                 {
@@ -271,9 +265,12 @@ namespace PIPE_Valve_Console_Client
                     RemainingTimeSpan = RemainingTimeSpan + ((MyPingDifference / 1000) /2);
                 }
 
-                RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan, 0.00001f, 0.032f);
 
             }
+
+
+               // cap move time
+                RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan, 0f, 0.032f);
 
         }
 
@@ -438,10 +435,10 @@ namespace PIPE_Valve_Console_Client
 
 
                     #region Do Movement
-                    RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan, 0.00001f, 0.032f);
+                    RemainingTimeSpan = Mathf.Clamp(RemainingTimeSpan, 0.000001f, 0.032f);
 
                     // will this movement make it to the destination, if not, keep track of remaining time span
-                    if(RemainingTimeSpan > Time.deltaTime && RemainingTimeSpan < Time.deltaTime * 2)
+                    if(RemainingTimeSpan < Time.deltaTime | RemainingTimeSpan - Time.deltaTime < Time.deltaTime)
                     {
                         MoveTwice = true;
                     }
@@ -463,18 +460,18 @@ namespace PIPE_Valve_Console_Client
                     Riders_Transforms[20].localPosition = Vector3.MoveTowards(Riders_Transforms[20].localPosition, IncomingTransformUpdates[0].Positions[20], (float)Vector3.Distance(Riders_Transforms[20].localPosition, IncomingTransformUpdates[0].Positions[20]) / RemainingTimeSpan * Time.deltaTime);
 
                     // bike joint
-                    Riders_Transforms[24].position = Vector3.MoveTowards(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24], (float)(Vector3.Distance(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[24].position = Vector3.MoveTowards(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24], (float)Vector3.Distance(Riders_Transforms[24].position, IncomingTransformUpdates[0].Positions[24]) / RemainingTimeSpan * Time.deltaTime);
                     Riders_Transforms[24].rotation = Quaternion.RotateTowards(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24]), (float)Quaternion.Angle(Riders_Transforms[24].rotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[24])) / RemainingTimeSpan * Time.deltaTime);
 
                     // bars joint
-                    Riders_Transforms[25].position = Vector3.MoveTowards(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25], (float)(Vector3.Distance(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[25].position = Vector3.MoveTowards(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25], (float)Vector3.Distance(Riders_Transforms[25].position, IncomingTransformUpdates[0].Positions[25]) / RemainingTimeSpan * Time.deltaTime);
                     Riders_Transforms[25].localRotation = Quaternion.RotateTowards(Riders_Transforms[25].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[25]), (float)Quaternion.Angle(Riders_Transforms[25].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[25])) / RemainingTimeSpan * Time.deltaTime);
 
                     // Drivetrain
                     Riders_Transforms[26].localRotation = Quaternion.RotateTowards(Riders_Transforms[26].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[26]), (float)Quaternion.Angle(Riders_Transforms[26].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[26])) / RemainingTimeSpan * Time.deltaTime);
 
                     // frame joint
-                    Riders_Transforms[27].position = Vector3.MoveTowards(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27], (float)(Vector3.Distance(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27]) / RemainingTimeSpan * Time.deltaTime));
+                    Riders_Transforms[27].position = Vector3.MoveTowards(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27], (float)Vector3.Distance(Riders_Transforms[27].position, IncomingTransformUpdates[0].Positions[27]) / RemainingTimeSpan * Time.deltaTime);
                     Riders_Transforms[27].localRotation = Quaternion.RotateTowards(Riders_Transforms[27].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[27]), (float)Quaternion.Angle(Riders_Transforms[27].localRotation, Quaternion.Euler(IncomingTransformUpdates[0].Rotations[27])) / RemainingTimeSpan * Time.deltaTime);
 
                     // front wheel
@@ -604,6 +601,7 @@ namespace PIPE_Valve_Console_Client
 
                 try
                 {
+                    CharacterModding.instance.FlipCap(!Gear.Capisforward, this);
                     
                    foreach (TextureInfo t in Gear.RiderTextures)
                    {
@@ -629,6 +627,8 @@ namespace PIPE_Valve_Console_Client
                        
 
                    }
+
+
             
                   InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Updated {username}'s Rider..", 1, 1));
                 }

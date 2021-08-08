@@ -49,7 +49,7 @@ namespace PIPE_Valve_Console_Client
             string CurrentModel = _packet.ReadString();
             string RidermodelBundlename = _packet.ReadString();
             string currentmap = _packet.ReadString();
-
+            bool capforward = true;
 
 
             if (CurrentModel == "Daryien")
@@ -66,6 +66,7 @@ namespace PIPE_Valve_Console_Client
                     }
                 }
 
+               capforward = _packet.ReadBool();
             }
 
             int garagesaveByteSize = _packet.ReadInt();
@@ -81,6 +82,7 @@ namespace PIPE_Valve_Console_Client
 
             _gear = new GearUpdate();
             _gear.RiderTextures = RiderTextures;
+            _gear.Capisforward = capforward;
             _gear.GarageSave = garagesave;
             GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation,currentmap,_gear);
 
@@ -110,7 +112,7 @@ namespace PIPE_Valve_Console_Client
                 string CurrentModel = _packet.ReadString();
                 string RidermodelBundlename = _packet.ReadString();
                 string currentmap = _packet.ReadString();
-
+                bool capforward = true;
 
 
                
@@ -130,6 +132,7 @@ namespace PIPE_Valve_Console_Client
                     }
                 }
 
+                    capforward = _packet.ReadBool();
                 }
 
                 int garagesaveByteSize = _packet.ReadInt();
@@ -145,6 +148,7 @@ namespace PIPE_Valve_Console_Client
 
                 _gear = new GearUpdate();
                 _gear.GarageSave = garagesave;
+                _gear.Capisforward = capforward;
                 _gear.RiderTextures = RiderTextures;
                 GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, currentmap, _gear);
 
@@ -258,8 +262,12 @@ namespace PIPE_Valve_Console_Client
                                 {
                                    InGameUI.instance.SpectateExit();
                                 }
+                                else
+                                {
+                                 InGameUI.instance.cycleplayerslist.RemoveAt(i);
 
-                                InGameUI.instance.cycleplayerslist.RemoveAt(i);
+                                }
+
 
                             }
                         }
@@ -389,10 +397,12 @@ namespace PIPE_Valve_Console_Client
                     }
                 }
 
+                bool Capforward = _packet.ReadBool();
 
                 if(GameManager.Players.TryGetValue(_from, out RemotePlayer player))
                 {
                     player.Gear.RiderTextures = RiderTextures;
+                    player.Gear.Capisforward = Capforward;
                     player.UpdateDaryien();
                 }
 

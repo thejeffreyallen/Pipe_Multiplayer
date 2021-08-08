@@ -68,7 +68,7 @@ namespace FrostyP_Game_Manager
         {
             GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 10 + (Screen.height/50)), new Vector2(Screen.width / 2, Screen.height / 20)),boxstyle);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("LB/RB Rotate : A to Place : Pad shortcut (Xbox) - LT + RT + RS + LS ",labels);
+            GUILayout.Label("LB/RB Rotate : A to Place : Pad shortcut (Xbox) - LT + RT + RS hold then LS ",labels);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Movespeed",labels);
@@ -84,7 +84,7 @@ namespace FrostyP_Game_Manager
 
             Cam.transform.LookAt(RiderModel.transform.FindDeepChild("mixamorig:Head"));
 
-            Cam.transform.position = Vector3.Lerp(Cam.transform.position, RiderModel.transform.position + (RiderModel.transform.up * 2) + (-RiderModel.transform.forward * 4),Time.deltaTime);
+            Cam.transform.position = Vector3.Lerp(Cam.transform.position, RiderModel.transform.position + (RiderModel.transform.up * 2) + (-RiderModel.transform.forward * 4), movespeed * Time.deltaTime);
 ;
 
             RiderModel.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * movespeed, MGInputManager.RStickY() * Time.deltaTime * movespeed, MGInputManager.LStickY() * Time.deltaTime * movespeed);

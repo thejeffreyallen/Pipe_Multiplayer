@@ -22,13 +22,9 @@ namespace PIPE_Valve_Console_Client
         GUIStyle SyncWindowStyle1 = new GUIStyle();
         GUIStyle SyncWindowStyle2 = new GUIStyle();
         GUIStyle SyncWindowStyle3 = new GUIStyle();
-        GUIStyle MessagesBigStyle = new GUIStyle();
-        GUIStyle MessagesSmallStyle = new GUIStyle();
-        GUIStyle CurrentMessagestyle;
         GUIStyle PlayeroptionsStyle = new GUIStyle();
         public GUIStyle MiniPanelStyle = new GUIStyle();
         GUIStyle MinipanelstyeImportant = new GUIStyle();
-
 
         public static GUIStyle BoxStyle = new GUIStyle();
 
@@ -50,7 +46,8 @@ namespace PIPE_Valve_Console_Client
         Dictionary<int, CamMode> CamModes;
         public int cyclemodes = 0;
         Dictionary<int, string> CamModeDisplays;
-
+        public bool ShowCamSettingsOverride;
+        public bool SpectateShowGUI = true;
 
         // connection status
         public float Ping = 0;
@@ -62,8 +59,6 @@ namespace PIPE_Valve_Console_Client
         public float connectionqualitylocal;
         public float connectionqualityremote;
         public int SendRate;
-
-
 
         // Admin mode
         string Adminpass = "Admin Password..";
@@ -78,15 +73,11 @@ namespace PIPE_Valve_Console_Client
         Vector2 BootPlayerScroll;
         string Banword = "word to ban..";
 
-
-
-
         // MiniGUI
         Vector2 minguiscroll;
 
         // saved servers
         Vector2 savedserversscroll;
-
 
         // live riders
         Vector2 liveridersscroll;
@@ -100,8 +91,6 @@ namespace PIPE_Valve_Console_Client
         // Riderinfo
         Vector2 Riderinfoscroll;
         
-
-
         // FileSync
         /// <summary>
         /// give number, get displayable word for that FileType
@@ -113,7 +102,6 @@ namespace PIPE_Valve_Console_Client
         int InPacketsTotal = 0;
         int OutPacketsTotal = 0;
         int OutPacketsSent = 0;
-
 
         // playeroptions
         public bool PlayeroptionsOpen;
@@ -127,11 +115,9 @@ namespace PIPE_Valve_Console_Client
         string BottompanelLabel = "Turn Bottom Panel Off";
         Dictionary<int, string> connectionstatelabels = new Dictionary<int, string>();
 
-
         // bottom panel
         bool BottompanelOpen = true;
         public string currentGaragePreset = "None";
-
 
         // Update window
         float Versionofupdate;
@@ -141,10 +127,6 @@ namespace PIPE_Valve_Console_Client
 
         public string Username = "Username...";
         public string Nickname = "Server 1";
-
-        public string Key;
-        public string IV;
-
 
         /// <summary>
         /// In Online mode
@@ -165,8 +147,6 @@ namespace PIPE_Valve_Console_Client
         public List<TextMessage> Messages = new List<TextMessage>();
         public string Messagetosend = "Send a message to all...";
         Dictionary<int, Color> MessageColour;
-
-
 
         public Texture2D RedTex;
         public Texture2D BlackTex;
@@ -382,6 +362,12 @@ namespace PIPE_Valve_Console_Client
         {
             if (IsSpectating)
             {
+                if (Input.GetKeyDown(KeyCode.H))
+                {
+                    SpectateShowGUI = !SpectateShowGUI;
+                }
+
+
                 if (MGInputManager.RB_Down())
                 {
                     if (cycleplayerslist.Count > 1)
@@ -468,7 +454,6 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-       
         void OnGUI()
         {
 
@@ -479,7 +464,14 @@ namespace PIPE_Valve_Console_Client
 
                 if (IsSpectating)
                 {
-                    ShowSpectate();
+                    if (SpectateShowGUI)
+                    {
+                     ShowSpectate();
+                    if (ShowCamSettingsOverride)
+                    {
+                        CameraSettings.instance.Show();
+                    }
+                    }
                 }
             
                if (Minigui)
@@ -596,6 +588,8 @@ namespace PIPE_Valve_Console_Client
             {
                 SpectateExit();
             }
+            this.StopAllCoroutines();
+            Messages.Clear();
             // Server learns of disconnection itself and tells everyone
 
         }
@@ -693,7 +687,7 @@ namespace PIPE_Valve_Console_Client
             GUILayout.Space(5);
 
 
-            if (GUILayout.Button("Connect to FrostyP"))
+            if (GUILayout.Button("Connect to FrostyP (UK)"))
             {
                 
                 InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying FrostyP..", 1, 0));
@@ -1001,13 +995,16 @@ namespace PIPE_Valve_Console_Client
         public void NewMessage(int _secs, TextMessage message)
         {
             // if message is too long, add line breaks
-            if (message.Message.Length > 40)
+            int length = MessagesToggle ? 80 : 35;
+
+
+            if (message.Message.Length > length)
             {
                 char[] chars = message.Message.ToCharArray();
                 int counter = 0;
                 for (int i = 0; i < chars.Length; i++)
                 {
-                    if(counter == 40)
+                    if(counter == length)
                     {
                        message.Message = message.Message.Insert(i, "\n");
                         counter = 0;
@@ -1086,35 +1083,37 @@ namespace PIPE_Valve_Console_Client
         public void SpectateAutoFollowFreeMove()
         {
             float speed = 15;
-           
+            float smoothtime = 15f * Time.deltaTime;
 
-           SpecCamOBJ.transform.parent = Targetrider.transform;
-            ControlObj.transform.position = Targetrider.transform.position + Targetrider.transform.TransformDirection(Vector3.up);
          
-                SpecCamOBJ.transform.LookAt(ControlObj.transform);
-                //ControlObj.transform.LookAt(Ridersmoothfollower.transform);
+            ControlObj.transform.parent = Targetrider.transform;
+         
+                SpecCamOBJ.transform.LookAt(Targetrider.transform.FindDeepChild("mixamorig:Head"));
+            Vector3 vel = (ControlObj.transform.position - SpecCamOBJ.transform.position);
+            SpecCamOBJ.transform.position = Vector3.SmoothDamp(SpecCamOBJ.transform.position, ControlObj.transform.position, ref vel, smoothtime);
+            ControlObj.transform.LookAt(Targetrider.transform);
             
             if(MGInputManager.RStickX()> 0.15f | MGInputManager.RStickX() < -0.15f)
             {
                 
-                SpecCamOBJ.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
+                ControlObj.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
             }
             if (MGInputManager.LStickY() > 0.15f)
             {
 
-                Vector3 dir = -(SpecCamOBJ.transform.position - Targetrider.transform.position).normalized;
-               SpecCamOBJ.gameObject.transform.position = Vector3.MoveTowards(SpecCamOBJ.transform.position, SpecCamOBJ.transform.position + dir, Time.deltaTime * 5);
+                Vector3 dir = -(ControlObj.transform.position - Targetrider.transform.position).normalized;
+              ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 5);
             }
             if (MGInputManager.LStickY() < -0.15f)
             {
-                Vector3 dir = (SpecCamOBJ.transform.position - Targetrider.transform.position).normalized;
-                SpecCamOBJ.gameObject.transform.position = Vector3.MoveTowards(SpecCamOBJ.transform.position, SpecCamOBJ.transform.position + dir, Time.deltaTime * 5);
+                Vector3 dir = (ControlObj.transform.position - Targetrider.transform.position).normalized;
+                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 5);
             }
 
 
             if (MGInputManager.RStickY() > 0.15f | MGInputManager.RStickY() < -0.15f)
             {
-               SpecCamOBJ.gameObject.transform.RotateAround(Targetrider.transform.position, SpecCamOBJ.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
+               ControlObj.gameObject.transform.RotateAround(Targetrider.transform.position, ControlObj.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
             }
 
 
@@ -1130,9 +1129,8 @@ namespace PIPE_Valve_Console_Client
             ControlObj.transform.parent = null;
             SpecCamOBJ.transform.parent = null;
 
-            ControlObj.transform.position = Vector3.Lerp(ControlObj.transform.position, Targetrider.transform.position +  Vector3.up, Vector3.Distance(ControlObj.transform.position, Targetrider.transform.position + Vector3.up) * 4 * Time.deltaTime);
+            ControlObj.transform.position = Vector3.Lerp(ControlObj.transform.position, Targetrider.transform.position +  Vector3.up, Vector3.Distance(ControlObj.transform.position, Targetrider.transform.position + Vector3.up) * 6 * Time.deltaTime);
             Cam.transform.LookAt(ControlObj.transform);
-            ControlObj.transform.LookAt(ControlObj.transform);
            
 
             float zoomspeed = 15f;
@@ -1248,7 +1246,7 @@ namespace PIPE_Valve_Console_Client
             cyclecounter = 0;
             IsSpectating = false;
             FrostyPGamemanager.instance.OpenMenu = true;
-            SpecCamOBJ.transform.parent = null;
+            ControlObj.transform.parent = null;
             SpecCamOBJ.SetActive(false);
             GameManager.TogglePlayerComponents(true);
 
@@ -1261,9 +1259,15 @@ namespace PIPE_Valve_Console_Client
             GUI.skin = skin;
             GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 5), new Vector2(Screen.width / 2, 20)),MiniPanelStyle);
             GUILayout.BeginHorizontal();
+            GUILayout.Label($"H to Hide : ");
             GUILayout.Label($"CamMode: {CamModeDisplays[cyclemodes]}");
             GUILayout.Space(10);
             GUILayout.Label($"player: { cycleplayerslist[cyclecounter].username} ");
+            GUILayout.Space(10);
+            if (GUILayout.Button("Cam Settings"))
+            {
+                ShowCamSettingsOverride = !ShowCamSettingsOverride;
+            }
             GUILayout.Space(10);
             if (GUILayout.Button("End Spectate"))
             {
@@ -1273,7 +1277,6 @@ namespace PIPE_Valve_Console_Client
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
-
 
        public void MiniGUI()
         {
@@ -1619,8 +1622,7 @@ namespace PIPE_Valve_Console_Client
                     toggle.onHover.textColor = Color.white;
 
 
-                    _box = new Rect(new Vector2(Screen.width / 8 * 3, Screen.height / 4), new Vector2(Screen.width / 4, Screen.height / 4));
-                    CurrentMessagestyle = MessagesBigStyle;
+                    _box = new Rect(new Vector2(10, 100), new Vector2(Screen.width / 3.5f, Screen.height / 4*3f));
                     Messageslabel = "Rider Overview";
                     GUILayout.BeginArea(_box,box);
                     LiveRiderToggle = GUILayout.Toggle(LiveRiderToggle,Messageslabel, toggle);
@@ -1644,6 +1646,8 @@ namespace PIPE_Valve_Console_Client
                     GUILayout.Label($" Seconds", title, GUILayout.MinWidth(20), GUILayout.MaxWidth(60));
                     GUILayout.EndHorizontal();
                     GUILayout.Space(10);
+                    GUILayout.Label("Sessions:",title);
+                    GUILayout.Space(2);
                     liveridersscroll = GUILayout.BeginScrollView(liveridersscroll,SyncWindowStyle1);
                     foreach (string mapname in PlayersAtMap.Keys)
                     {
@@ -1689,10 +1693,10 @@ namespace PIPE_Valve_Console_Client
                 else
                 {
                     _box = new Rect(new Vector2(10, 100), new Vector2(Screen.width / 7f, Screen.height / 2));
-                    CurrentMessagestyle = MessagesSmallStyle;
+                    
                     Messageslabel = "Riders";
-                GUILayout.BeginArea(_box);
-                LiveRiderToggle = GUILayout.Toggle(LiveRiderToggle, Messageslabel,MessagesSmallStyle);
+                GUILayout.BeginArea(_box,BoxStyle);
+                LiveRiderToggle = GUILayout.Toggle(LiveRiderToggle, Messageslabel);
                 GUILayout.Space(10);
                 liveridersscroll = GUILayout.BeginScrollView(liveridersscroll);
                     if (GameManager.Players.Count > 0)
@@ -1735,36 +1739,71 @@ namespace PIPE_Valve_Console_Client
         {
             try
             {
+
+                GUIStyle Toggle = new GUIStyle();
+                Toggle.alignment = TextAnchor.MiddleCenter;
                 Rect _box;
+
+                GUIStyle scroll = new GUIStyle();
+                scroll.padding = new RectOffset(5, 5, 5, 5);
+                
+
+
                 if (MessagesToggle)
                 {
                   _box = new Rect(new Vector2(Screen.width/3, Screen.height/3-40), new Vector2(Screen.width / 3, Screen.height / 3 * 2));
-                    CurrentMessagestyle = MessagesBigStyle;
-                    Messageslabel = "Minimise Messages";
+                Toggle.normal.background = RedTex;
+                Toggle.hover.background = whiteTex;
+                Toggle.normal.textColor = Color.white;
+                Toggle.hover.textColor = Color.black;
+               
+                    Toggle.fixedWidth = 100;
+                    Toggle.fixedHeight = 35;
+                    scroll.alignment = TextAnchor.MiddleLeft;
+                    Messageslabel = "Minimise";
                 }
                 else
                 {
                   _box = new Rect(new Vector2(Screen.width - (Screen.width/7) - 10,100), new Vector2(Screen.width / 7f, Screen.height / 2));
-                    CurrentMessagestyle = MessagesSmallStyle;
+                    Toggle.normal.background = GreenTex;
+                    Toggle.hover.background = whiteTex;
+                    Toggle.normal.textColor = Color.white;
+                    Toggle.hover.textColor = Color.black;
+                    scroll.alignment = TextAnchor.MiddleCenter;
                     Messageslabel = "Messages";
                 }
 
 
+                GUIStyle send = new GUIStyle();
+                send.normal.background = GreenTex;
+                send.hover.background = whiteTex;
+                send.normal.textColor = Color.white;
+                send.hover.textColor = Color.black;
+                send.fixedWidth = 100;
+                send.fixedHeight = 35;
+                send.alignment = TextAnchor.MiddleCenter;
 
-            GUI.skin = skin;
-            GUILayout.BeginArea(_box);
+
+                
+
+
+                GUI.skin = skin;
+            GUILayout.BeginArea(_box,BoxStyle);
 
 
                 GUILayout.BeginHorizontal();
-            MessagesToggle = GUILayout.Toggle(MessagesToggle,Messageslabel,CurrentMessagestyle);
+                if (GUILayout.Button(Messageslabel, Toggle))
+                {
+                    MessagesToggle = !MessagesToggle;
+                    ChangeMessagesLength(MessagesToggle);
+                }
 
-                GUILayout.Space(10);
                 if (MessagesToggle)
                 {
-                   // MessagesBigStyle.alignment = TextAnchor.MiddleCenter;
+                    GUILayout.Space(5);
                     try
                     {
-                    Messagetosend = GUILayout.TextArea(Messagetosend,200);
+                    Messagetosend = GUILayout.TextArea(Messagetosend,200,GUILayout.MaxWidth(Screen.width/4));
 
                     }
                     catch (UnityException x)
@@ -1772,7 +1811,7 @@ namespace PIPE_Valve_Console_Client
                         Debug.Log("Text area error : " + x);
                     }
                     GUILayout.Space(5);
-                    if (GUILayout.Button("Send",CurrentMessagestyle))
+                    if (GUILayout.Button("Send",send))
                     {
                         if (Messagetosend != null && Messagetosend != "")
                         {
@@ -1781,11 +1820,11 @@ namespace PIPE_Valve_Console_Client
 
                         }
                     }
-                    GUILayout.Space(20);
+                   
                 }
                 GUILayout.EndHorizontal();
                 GUILayout.Space(20);
-                Messagesscroll = GUILayout.BeginScrollView(Messagesscroll);
+                Messagesscroll = GUILayout.BeginScrollView(Messagesscroll,scroll);
 
             if (Messages.Count > 0)
             {
@@ -1796,6 +1835,7 @@ namespace PIPE_Valve_Console_Client
                 {
                  if(GameManager.Players.TryGetValue(mess.FromConnection,out RemotePlayer player))
                   {
+                    player.style.alignment = scroll.alignment;
                     GUILayout.Label(mess.Message, player.style);
 
                   }
@@ -1804,9 +1844,9 @@ namespace PIPE_Valve_Console_Client
                 {
                     GUIStyle style = new GUIStyle();
                     style.normal.textColor = MessageColour[mess.FromCode];
-                    style.alignment = TextAnchor.MiddleCenter;
+                    style.alignment = scroll.alignment;
                     style.padding = new RectOffset(2, 2, 2, 2);
-                    style.normal.background = whiteTex;
+                    style.normal.background = TransTex;
                     GUILayout.Label(mess.Message, style);
                 }
 
@@ -1825,6 +1865,38 @@ namespace PIPE_Valve_Console_Client
             catch(Exception e)
             {
                 Debug.Log(e);
+            }
+        }
+
+        /// <summary>
+        /// Replaces all new line markers to make text fit each message window
+        /// </summary>
+        /// <param name="MakeLonger"></param>
+        void ChangeMessagesLength(bool MakeLonger)
+        {
+            int length = MakeLonger ? 80 : 35;
+
+
+            foreach(TextMessage mess in Messages)
+            {
+                mess.Message = mess.Message.Replace("\n", "");
+
+                if (mess.Message.Length > length)
+                {
+                    char[] chars = mess.Message.ToCharArray();
+                    int counter = 0;
+                    for (int i = 0; i < chars.Length; i++)
+                    {
+                        if (counter == length)
+                        {
+                            mess.Message = mess.Message.Insert(i, "\n");
+                            counter = 0;
+                        }
+                        counter++;
+                    }
+                }
+
+
             }
         }
 
@@ -2066,8 +2138,9 @@ namespace PIPE_Valve_Console_Client
         void SetupGuis()
         {
             // box style
-            BoxStyle.padding = new RectOffset(10, 10, 5, 5);
+            BoxStyle.padding = new RectOffset(10, 10, 2, 2);
             BoxStyle.normal.background = BlackTex;
+            BoxStyle.alignment = TextAnchor.UpperCenter;
 
 
             //Bottompanelstyle.fixedWidth = Screen.width / 9;
@@ -2112,30 +2185,6 @@ namespace PIPE_Valve_Console_Client
             SyncWindowStyle3.normal.textColor = Color.black;
             SyncWindowStyle3.padding = new RectOffset(10, 10, 0, 0);
 
-
-
-
-
-            // messages
-            MessagesBigStyle.normal.background = whiteTex;
-            MessagesBigStyle.fontStyle = FontStyle.Bold;
-            MessagesBigStyle.alignment = TextAnchor.MiddleCenter;
-            MessagesBigStyle.onHover.background = RedTex;
-            MessagesBigStyle.hover.background = GreenTex;
-            MessagesBigStyle.padding = new RectOffset(5, 5, 5, 5);
-            MessagesBigStyle.clipping = TextClipping.Clip;
-            MessagesBigStyle.stretchWidth = false;
-            MessagesBigStyle.wordWrap = true;
-
-
-            MessagesSmallStyle.normal.background = whiteTex;
-            MessagesSmallStyle.alignment = TextAnchor.UpperCenter;
-            MessagesSmallStyle.hover.background = GreenTex;
-
-           
-
-
-
             // player options
             PlayeroptionsStyle.normal.background = RedTex;
             PlayeroptionsStyle.hover.background = GreenTex;
@@ -2143,16 +2192,6 @@ namespace PIPE_Valve_Console_Client
             PlayeroptionsStyle.onNormal.background = GreenTex;
             PlayeroptionsStyle.alignment = TextAnchor.MiddleCenter;
             PlayeroptionsStyle.fontStyle = FontStyle.Bold;
-
-
-
-
-
-
-
-
-
-
 
 
             // general
@@ -2165,15 +2204,6 @@ namespace PIPE_Valve_Console_Client
             Generalstyle.hover.textColor = Color.black;
             Generalstyle.onHover.background = RedTex;
 
-            
-
-
-
-
-
-
-
-
             // skin
             skin.label.normal.textColor = Color.white;
             skin.label.fontSize = 15;
@@ -2185,53 +2215,52 @@ namespace PIPE_Valve_Console_Client
 
             skin.textField.alignment = TextAnchor.MiddleCenter;
             skin.textField.normal.textColor = Color.red;
-            skin.textField.hover.textColor = Color.white;
+            skin.textField.hover.textColor = Color.black;
+            skin.textField.focused.textColor = Color.green;
             skin.textField.normal.background = whiteTex;
-            skin.textField.active.background = BlackTex;
-            skin.textField.onNormal.background = BlackTex;
-            skin.textField.focused.background = BlackTex;
-            skin.textField.onFocused.background = BlackTex;
-            skin.textField.onActive.background = BlackTex;
-            skin.textField.focused.textColor = Color.white;
+            skin.textField.active.background = whiteTex;
+            skin.textField.onNormal.background = whiteTex;
+            skin.textField.focused.background = whiteTex;
+            skin.textField.onFocused.background = whiteTex;
+            skin.textField.onActive.background = whiteTex;
             skin.textField.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
             skin.textField.padding = new RectOffset(2, 2, 2, 2);
 
 
             skin.textArea.alignment = TextAnchor.MiddleCenter;
             skin.textArea.normal.textColor = Color.red;
-            skin.textArea.hover.textColor = Color.white;
+            skin.textArea.hover.textColor = Color.black;
             skin.textArea.normal.background = whiteTex;
-            skin.textArea.focused.background = BlackTex;
-            skin.textArea.focused.textColor = Color.white;
+            skin.textArea.focused.background = whiteTex;
+            skin.textArea.focused.textColor = Color.green;
             skin.textArea.font = Font.CreateDynamicFontFromOSFont("Arial", 14);
             skin.textArea.padding = new RectOffset(10, 10, 10, 10);
             skin.textArea.clipping = TextClipping.Clip;
             skin.textArea.wordWrap = true;
 
 
-            skin.button.normal.textColor = Color.black;
+            skin.button.normal.textColor = Color.white;
             skin.button.alignment = TextAnchor.MiddleCenter;
             skin.button.normal.background = GreenTex;
             skin.button.onNormal.background = GreyTex;
             skin.button.onNormal.textColor = Color.red;
             skin.button.onHover.background = GreenTex;
-            skin.button.hover.textColor = Color.green;
+            skin.button.hover.textColor = Color.black;
             skin.button.normal.background.wrapMode = TextureWrapMode.Clamp;
-            skin.button.hover.background = GreyTex;
+            skin.button.hover.background = whiteTex;
             skin.button.padding = new RectOffset(5,5,0,0);
 
 
 
-            skin.toggle.normal.textColor = Color.black;
+            skin.toggle.normal.textColor = Color.white;
             skin.toggle.alignment = TextAnchor.MiddleCenter;
             skin.toggle.normal.background = GreenTex;
             skin.toggle.onNormal.background = GreyTex;
             skin.toggle.onNormal.textColor = Color.black;
             skin.toggle.onHover.background = GreenTex;
-            skin.toggle.hover.textColor = Color.green;
-            skin.toggle.normal.background.wrapMode = TextureWrapMode.Clamp;
-            skin.toggle.hover.background = GreyTex;
-
+            skin.toggle.hover.textColor = Color.black;
+            skin.toggle.hover.background = whiteTex;
+            skin.toggle.padding = new RectOffset(0, 0, 0, 0);
 
             skin.horizontalSlider.alignment = TextAnchor.MiddleCenter;
             skin.horizontalSlider.normal.textColor = Color.black;
@@ -2251,21 +2280,19 @@ namespace PIPE_Valve_Console_Client
             skin.verticalScrollbar.hover.background = GreenTex;
 
             
-            skin.scrollView.padding = new RectOffset(15, 15, 5, 5);
+            skin.scrollView.padding = new RectOffset(5, 5, 5, 5);
             skin.scrollView.alignment = TextAnchor.UpperCenter;
 
             skin.verticalScrollbarThumb.normal.background =GreenTex;
             skin.verticalScrollbarThumb.hover.background = GreyTex;
-            //skin.verticalScrollbarThumb.fixedHeight = 20;
             skin.verticalScrollbarThumb.fixedWidth = 14;
             skin.verticalScrollbarThumb.normal.background.wrapMode = TextureWrapMode.Clamp;
             skin.verticalScrollbar.alignment = TextAnchor.MiddleRight;
             skin.verticalScrollbarThumb.alignment = TextAnchor.MiddleRight;
 
-           // skin.scrollView.normal.background = GreyTex;
+          
             skin.verticalSliderThumb.normal.background = GreenTex;
             skin.verticalSliderThumb.hover.background = BlackTex;
-            //skin.verticalSliderThumb.fixedHeight = 20;
             skin.verticalSliderThumb.fixedWidth = 14;
             skin.verticalSlider.alignment = TextAnchor.MiddleRight;
             skin.verticalSliderThumb.alignment = TextAnchor.MiddleRight;
@@ -2314,13 +2341,27 @@ namespace PIPE_Valve_Console_Client
             bool downloading = false;
             int totalpackets = 0;
             int currentpackets = 0;
+            int gotfiles = 0;
             foreach(SendReceiveIndex f in FileSyncing.IncomingIndexes)
             {
-                if(f.NameOfFile == "FrostyP_Game_Manager.dll" | f.NameOfFile == "FrostyP_Game_Manager.pdb" | f.NameOfFile == "PIPE_Valve_Console_Client.dll" | f.NameOfFile == "PIPE_Valve_Console_Client.pdb")
-                {
+                
                     downloading = true;
-                    totalpackets = f.TotalPacketsinFile;
-                    currentpackets = f.PacketNumbersStored.Count;
+                    totalpackets = totalpackets + f.TotalPacketsinFile;
+                    currentpackets = currentpackets + f.PacketNumbersStored.Count;
+
+                
+            }
+
+            if (Directory.Exists(GameManager.UpdateDir))
+            {
+                if(Directory.Exists(GameManager.UpdateDir + Versionofupdate + "/"))
+                {
+                    gotfiles = new DirectoryInfo(GameManager.UpdateDir + Versionofupdate + "/").GetFiles().Length;
+
+                if (new DirectoryInfo(GameManager.UpdateDir + Versionofupdate + "/").GetFiles().Length == UpdateFiles.Count)
+                {
+                    UpdateDownloaded = true;
+                }
 
                 }
             }
@@ -2362,6 +2403,7 @@ namespace PIPE_Valve_Console_Client
             // if in progress
             if (downloading && !UpdateDownloaded)
             {
+                GUILayout.Label($"Files: {gotfiles} of {UpdateFiles.Count}");
               GUILayout.Label($"{currentpackets} of {totalpackets} received");
             }
 

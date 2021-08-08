@@ -39,5 +39,6 @@ namespace PIPE_Valve_Console_Client
         public byte[] handsfeetbytes;
         public string handsfeetimagename;
         public string handsfeetParentname;
+        public bool CapisForward;
     }
 }

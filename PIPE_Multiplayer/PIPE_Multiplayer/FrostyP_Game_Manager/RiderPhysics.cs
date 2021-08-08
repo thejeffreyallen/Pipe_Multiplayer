@@ -314,8 +314,6 @@ namespace FrostyP_Game_Manager
 			try
 			{
 
-                
-
 				if (arrayofhopsettings != null)
 				{
 					foreach (StateHopSetting set in arrayofhopsettings)

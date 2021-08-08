@@ -140,6 +140,7 @@ namespace PIPE_Valve_Online_Server
                     
                     Vector3 pos = _packet.ReadVector3();
                     Vector3 rot = _packet.ReadVector3();
+                    bool capforward = true;
 
 
                    List<TextureInfo> RiderTexnames = new List<TextureInfo>();
@@ -161,7 +162,7 @@ namespace PIPE_Valve_Online_Server
                     
                      }
 
-
+                        capforward = _packet.ReadBool();
                    }
 
                      // bike ( garage )
@@ -231,7 +232,7 @@ namespace PIPE_Valve_Online_Server
                     {
                     _player.Gear.RiderTextures = RiderTexnames;
                     }
-
+                    _player.Gear.Capforward = capforward;
                     _player.Gear.Garagesave = bytes;
                     _player.RiderRootPosition = pos;
                     _player.RiderRootRotation = rot;
@@ -561,13 +562,15 @@ namespace PIPE_Valve_Online_Server
                     RidersTextures.Add(new TextureInfo(nameoftex, nameofgo, false, matnum));
                 }
 
+                bool capforward = _packet.ReadBool();
+
                 for (int i = 0; i < RidersTextures.Count; i++)
                 {
                     ServerData.FileCheckAndRequest(RidersTextures[i].Nameoftexture, _from);
                 }
 
 
-                
+                player.Gear.Capforward = capforward;
                 player.Gear.RiderTextures = RidersTextures;
 
             }
@@ -640,7 +643,7 @@ namespace PIPE_Valve_Online_Server
 
                     }
 
-
+                    ServersPacket.Write(player.Gear.Capforward);
 
                 }
                 else
