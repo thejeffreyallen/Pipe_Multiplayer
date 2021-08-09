@@ -359,3 +359,4 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\obj\Release\FrostyP_Game_Manager.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\obj\Release\FrostyP_Game_Manager.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\obj\Release\FrostyP_Game_Manager.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\bin\Release\PatchaMapImporter.pdb

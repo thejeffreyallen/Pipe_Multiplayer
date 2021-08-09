@@ -112,4 +112,3 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\b
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\UnityEngine.XRModule.xml
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\BikeWorkshopMenu.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\BikeWorkshopMenu.pdb
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csprojAssemblyReference.cache

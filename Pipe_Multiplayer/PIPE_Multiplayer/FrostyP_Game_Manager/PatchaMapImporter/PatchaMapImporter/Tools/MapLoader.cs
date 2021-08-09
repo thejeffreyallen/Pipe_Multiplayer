@@ -17,7 +17,7 @@ namespace PatchaMapImporter.Tools
 	/// Full credits to lineryder / mayhem & Volution modding team for the original PipeworksMapImporter
 	/// https://discord.gg/S89swkZ
 	/// </summary>
-	class MapLoader
+	public class MapLoader
 	{
 		/// <summary>
 		/// Construct with the MonoBehavior script class
@@ -59,6 +59,8 @@ namespace PatchaMapImporter.Tools
 				Log.Write($"ML: unloading previous bundle...");
 				_bundle.Unload(true);
 			}
+			mapimporter._loadedMap = map;
+			mapimporter.currentMap = map.Filename;
 
 			//load assets
 			Log.Write($"ML: loading assets from '{mapFilename}'...");
@@ -110,6 +112,6 @@ namespace PatchaMapImporter.Tools
 		private readonly MonoBehaviour _parent;
 		private AssetBundle _bundle = null;
 		private AsyncOperation _async = null;
-
+		public PatchaMapImporter mapimporter;
 	}
 }

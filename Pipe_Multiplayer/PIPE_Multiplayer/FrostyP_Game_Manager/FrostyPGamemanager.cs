@@ -86,8 +86,15 @@ namespace FrostyP_Game_Manager
 			if (Input.GetKeyDown(KeyCode.G))
 			{
 				OpenMenu = !OpenMenu;
+                if (MainManager.instance.isOpen)
+                {
+					OpenMenu = false;
+                }
+
+
 			}
 
+			// Teleport shortcut
             if (MGInputManager.LeftStick_Down())
             {
                 if (MGInputManager.LTrigger() > 0.5f)
@@ -102,7 +109,7 @@ namespace FrostyP_Game_Manager
                 }
             }
 
-
+            
 
 		}
 
@@ -258,17 +265,18 @@ namespace FrostyP_Game_Manager
 			GUILayout.Label("G toggles Menu: L toggles Patcha, B toggles Volution Garage, P toggles Pipeworks Player Importer", Generalstyle);
 			GUILayout.EndHorizontal();
 			GUILayout.Space(10);
-			GUILayout.Label("Creating a Server");
+			GUILayout.Label("Creating a Server Basic Setup");
 			GUILayout.Space(10);
 			GUILayout.Label("1) Start Server App, ensure it's allowed through you Firewall", Generalstyle);
 			GUILayout.Label("2) Enter a player limit, a tick rate (60 - 120), any port number (7777 standard) and any password, then press enter to boot", Generalstyle);
-			GUILayout.Label("3) In game, if Server is on your PC connect to 127.0.0.1, with chosen port number", Generalstyle);
-			GUILayout.Label("If the server is on your local network, connect to Server Pc's local IP (192.168.???.???) found in Pc's Network Settings (IPv4)", Generalstyle);
-			GUILayout.Label("You should then see the Server app responding and logging your data", Generalstyle);
+			GUILayout.Label("3) In game, if Server is on your PC connect to 127.0.0.1(this PC), with chosen port number", Generalstyle);
+			GUILayout.Label("You should then see the Server app responding and logging your data, Your Online", Generalstyle);
+			GUILayout.Space(10);
+			GUILayout.Label("If the server is on your local network, connect to Server Pc's local IP (192.168.???.???) found in Server Pc's Network Settings (IPv4)", Generalstyle);
 			GUILayout.Label("Any other local players connected to your LAN can also connect to Server Pc's local IP", Generalstyle);
 			GUILayout.Space(10);
 
-			GUILayout.Label("To Accept Remote players, you must tell your router that any data received on chosen port should be directed straight to Local IP of Server Pc", Generalstyle);
+			GUILayout.Label("4) To Accept Remote players, you must tell your router that any data received on chosen port should be directed straight to Local IP of Server Pc", Generalstyle);
 			GUILayout.Label("This option should be called PortForwarding in your Router's Browser App", Generalstyle);
 			GUILayout.Label("PortForwarding allows anyone through your Routers security and straight on to your Pc's Firewalls, security etc", Generalstyle);
 			GUILayout.Label("Sharing an open Socket (Ip and port combination) publically without protection should be avoided", Generalstyle);

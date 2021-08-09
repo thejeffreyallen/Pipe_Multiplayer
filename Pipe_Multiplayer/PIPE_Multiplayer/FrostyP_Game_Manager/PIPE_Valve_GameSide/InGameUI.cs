@@ -1433,10 +1433,15 @@ namespace PIPE_Valve_Console_Client
                             }
                         }
                         GUILayout.Space(10);
+                        if (GUILayout.Button("Jump to Map",Generalstyle))
+                        {
+                            GameManager.instance.JumpToPlayerMap(player.CurrentMap);
+                        }
 
                         // accept spawn offer if one has been offered
                         if (player.InviteToSpawnLive)
                         {
+                            GUILayout.Space(10);
                             if (GUILayout.Button("Spawn on rider"))
                             {
                               SessionMarker marker = FindObjectOfType<SessionMarker>();
@@ -1445,6 +1450,7 @@ namespace PIPE_Valve_Console_Client
 
                                 marker.ResetPlayerAtMarker();
                             }
+                            GUILayout.Space(10);
                         }
 
                         if (player.Objects.Count > 0)
@@ -1490,8 +1496,10 @@ namespace PIPE_Valve_Console_Client
                             GUILayout.Space(10);
                         }
 
+                        GUILayout.Space(10);
                         if (GUILayout.Button("Close"))
                         {
+                            IdofRidertoshow = 0;
                             RiderInfoMenuOpen = false;
                         }
                         GUILayout.EndArea();
@@ -1589,6 +1597,8 @@ namespace PIPE_Valve_Console_Client
                     Contentleft.fontSize = 12;
                     Contentleft.fontStyle = FontStyle.Bold;
                     Contentleft.normal.textColor = Color.green;
+                    Contentleft.hover.background = GreenTex;
+                    Contentleft.hover.textColor = Color.white;
                     Contentleft.margin = new RectOffset(0, 0, 0, 0);
                     Contentleft.padding = new RectOffset(0, 0, 0, 0);
                     Contentleft.wordWrap = true;
@@ -1630,7 +1640,10 @@ namespace PIPE_Valve_Console_Client
                     GUILayout.Space(10);
                     GUILayout.BeginHorizontal();
                     GUILayout.Label($"Most popular map:", title, GUILayout.MaxWidth(140));
-                    GUILayout.Label($"{mostpop}", Contentleft, GUILayout.MinWidth(50), GUILayout.MaxWidth(200));
+                   if(GUILayout.Button($"{mostpop}", Contentleft, GUILayout.MinWidth(50), GUILayout.MaxWidth(200)))
+                   {
+                        GameManager.instance.JumpToPlayerMap(mostpop);
+                   }
                     GUILayout.Label($" :", title, GUILayout.MaxWidth(10));
                     GUILayout.Label($" {mostpopridercount} ",Contentleft, GUILayout.MaxWidth(30));
                     GUILayout.Label($" Riders there", title, GUILayout.MaxWidth(100));
@@ -1698,13 +1711,21 @@ namespace PIPE_Valve_Console_Client
                     if (GameManager.Players.Count > 0)
                     {
                      foreach (RemotePlayer r in GameManager.Players.Values)
-                  {
+                     {
                      try
                      {
                         if (GUILayout.Button($"{r.username}",r.style))
                         {
-                          IdofRidertoshow = r.id;
-                          RiderInfoMenuOpen = true;
+                           if(IdofRidertoshow != r.id)
+                           {
+                             IdofRidertoshow = r.id;
+                             RiderInfoMenuOpen = true;
+                           }
+                           else
+                           {
+                            IdofRidertoshow = 0;
+                            RiderInfoMenuOpen = false;
+                           }
                         }
                      }
                      catch (Exception x)
@@ -1712,7 +1733,7 @@ namespace PIPE_Valve_Console_Client
                        Debug.Log("Live Rider issue : " + x);
                      }
 
-                  }
+                     }
                     }
                     else
                     {

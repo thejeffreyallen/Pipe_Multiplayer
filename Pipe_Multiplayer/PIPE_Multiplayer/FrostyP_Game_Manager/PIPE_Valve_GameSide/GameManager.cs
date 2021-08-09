@@ -132,10 +132,20 @@ namespace PIPE_Valve_Console_Client
             }
             if (Input.GetKeyDown(KeyCode.B))
             {
+
                 if (InGameUI.instance.IsSpectating)
                 {
                     InGameUI.instance.SpectateExit();
                 }
+                if (!MenuManager.instance.saveMenu.activeInHierarchy)
+                {
+                FrostyPGamemanager.instance.OpenMenu = MainManager.instance.isOpen;
+                }
+                else
+                {
+                    FrostyPGamemanager.instance.OpenMenu = false;
+                }
+                
             }
 
         }
@@ -809,6 +819,27 @@ namespace PIPE_Valve_Console_Client
                 {
                     tounload[i].Unload(true);
                 }
+            }
+
+
+        }
+
+        public void JumpToPlayerMap(string name)
+        {
+            bool found = false;
+            foreach(FileInfo map in new DirectoryInfo(MapsDir).GetFiles())
+            {
+                if(map.Name.ToLower() == name.ToLower())
+                {
+                    found = true;
+                  mapImporter._mapLoader.Load(new PatchaMapImporter.Models.Map(map.Name));
+                   
+                }
+            }
+
+            if (!found)
+            {
+                InGameUI.instance.NewMessage(10, new TextMessage("Cant match that Map name, Check Patcha", (int)MessageColourByNum.System, 1));
             }
 
 

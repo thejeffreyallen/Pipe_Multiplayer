@@ -268,9 +268,9 @@ namespace PIPE_Valve_Online_Server
 
 							foreach(uint watch in TimeoutWatches.Keys)
                             {
-                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 40)
+                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 120)
                                 {
-									Console.WriteLine("Watch Error, Timeout watch reached 15 seconds");
+									Console.WriteLine("Watch Error, Timeout watch went over 125 seconds");
 									TimeoutWatches[watch].Reset();
 
 

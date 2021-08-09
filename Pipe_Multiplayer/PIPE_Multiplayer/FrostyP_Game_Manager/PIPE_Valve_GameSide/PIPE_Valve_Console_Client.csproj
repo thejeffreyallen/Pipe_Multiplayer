@@ -79,8 +79,9 @@
     <Reference Include="FrostyP_Game_Manager">
       <HintPath>..\bin\Release\FrostyP_Game_Manager.dll</HintPath>
     </Reference>
-    <Reference Include="PatchaMapImporter">
-      <HintPath>..\bin\Release\PatchaMapImporter.dll</HintPath>
+    <Reference Include="PatchaMapImporter, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />

@@ -48,7 +48,7 @@ namespace FrostyP_Game_Manager
         Vector3 Rot;
 
         bool HideGUI;
-
+        public float mult = 50;
 
         public void Open()
         {
@@ -119,10 +119,11 @@ namespace FrostyP_Game_Manager
 
         void TriggerScrollEditMode()
         {
+         
            
             if (MGInputManager.LTrigger() > 0.1f)
             {
-                if(CurrentShowingPosition != StartFrame)
+                if(CurrentShowingPosition - 1 != StartFrame)
                 {
 
 
@@ -130,7 +131,7 @@ namespace FrostyP_Game_Manager
                 if (MyPlayersPoisitions.Count > CurrentShowingPosition)
                 {
                         // plug in Position Data to rider
-                    Playspeed = MGInputManager.LTrigger() * Time.deltaTime * 150;
+                    Playspeed = MGInputManager.LTrigger();
                     MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayersPoisitions[CurrentShowingPosition - 1].Positions[0], Vector3.Distance(MyPlayersPoisitions[CurrentShowingPosition].Positions[0], MyPlayersPoisitions[CurrentShowingPosition - 1].Positions[0]) * Playspeed);
                     MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition - 1].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition].Rotations[0]), Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition - 1].Rotations[0])) * Playspeed);
                     for (int i = 1; i < 23; i++)
@@ -155,7 +156,7 @@ namespace FrostyP_Game_Manager
                 }
 
 
-                if (Vector3.Distance(MyRidersTrans[0].position, MyPlayersPoisitions[CurrentShowingPosition-1].Positions[0])<0.001f)
+                if (Vector3.Distance(MyRidersTrans[0].position, MyPlayersPoisitions[CurrentShowingPosition-1].Positions[0])<0.001f && Vector3.Distance(MyRidersTrans[23].position, MyPlayersPoisitions[CurrentShowingPosition-1].Positions[23]) < 0.001f && Vector3.Distance(MyRidersTrans[24].localPosition, MyPlayersPoisitions[CurrentShowingPosition - 1].Positions[24]) < 0.001f)
                 {
                     if(CurrentShowingPosition<= StartFrame)
                     {
@@ -176,7 +177,7 @@ namespace FrostyP_Game_Manager
             if (MGInputManager.RTrigger() > 0.1f)
             {
 
-                if (CurrentShowingPosition + 1 != EndFrame)
+                if (CurrentShowingPosition != EndFrame)
                 {
 
 
@@ -184,7 +185,7 @@ namespace FrostyP_Game_Manager
                     if (MyPlayersPoisitions.Count > CurrentShowingPosition)
                     {
                         // plug in Position Data to rider
-                        Playspeed = MGInputManager.RTrigger() * Time.deltaTime * 150;
+                        Playspeed = MGInputManager.RTrigger();
 
                         MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayersPoisitions[CurrentShowingPosition].Positions[0], Vector3.Distance(MyPlayersPoisitions[CurrentShowingPosition].Positions[0], MyPlayersPoisitions[CurrentShowingPosition + 1].Positions[0]) * Playspeed);
                         MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition].Rotations[0]), Quaternion.Euler(MyPlayersPoisitions[CurrentShowingPosition + 1].Rotations[0])) * Playspeed);
@@ -210,7 +211,7 @@ namespace FrostyP_Game_Manager
                     }
 
 
-                    if (Vector3.Distance(MyRidersTrans[0].position, MyPlayersPoisitions[CurrentShowingPosition].Positions[0]) < 0.001f)
+                    if (Vector3.Distance(MyRidersTrans[0].position, MyPlayersPoisitions[CurrentShowingPosition].Positions[0]) < 0.001f && Vector3.Distance(MyRidersTrans[23].position, MyPlayersPoisitions[CurrentShowingPosition].Positions[23]) < 0.001f && Vector3.Distance(MyRidersTrans[24].localPosition, MyPlayersPoisitions[CurrentShowingPosition].Positions[24]) < 0.001f)
                     {
                         if (CurrentShowingPosition >= EndFrame)
                         {
@@ -393,6 +394,9 @@ namespace FrostyP_Game_Manager
             GUILayout.BeginArea(new Rect(new Vector2(150, Screen.height - (Screen.height/20) - 50), new Vector2(Screen.width - 300, Screen.height / 20)),InGameUI.BoxStyle);
             GUILayout.BeginHorizontal();
             GUILayout.Label("H to Hide");
+            GUILayout.Space(5);
+            mult = GUILayout.HorizontalSlider(mult, 0, 200);
+            GUILayout.Space(5);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Space(5);

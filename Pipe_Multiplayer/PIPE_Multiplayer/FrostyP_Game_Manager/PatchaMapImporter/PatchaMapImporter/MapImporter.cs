@@ -19,6 +19,7 @@ namespace PatchaMapImporter
 		void Start()
 		{
 			_mapLoader = new MapLoader(MapsDirectory, this);
+			_mapLoader.mapimporter = this;
 			_mapManager = new MapManager(MapsDirectory);
 		}
 
@@ -27,7 +28,7 @@ namespace PatchaMapImporter
 		/// </summary>
 		void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.L) && !_editUiVisible) _mainUiVisible = !_mainUiVisible;
+			if (Input.GetKeyDown(KeyCode.L) && !_editUiVisible && !MainManager.instance.isOpen) _mainUiVisible = !_mainUiVisible;
 			if (Input.GetKeyDown(KeyCode.E) && _editedMap != null) _editUiVisible = !_editUiVisible;
 		}
 
@@ -169,7 +170,7 @@ namespace PatchaMapImporter
         }
 
 		//main ui vars
-		private bool _mainUiVisible = false;
+		public bool _mainUiVisible = false;
 		private Vector2 _mainUiScrollPos = Vector2.zero;
 		static private readonly Texture2D _logoPatcha = TextureHelpers.MakeTextureFromData(EmbeddedRessourceHelper.ReadResourceFile("PatchaMapImporter.Assets.patcha-128.png"), 128, 128);
 
@@ -181,11 +182,11 @@ namespace PatchaMapImporter
 
 		//--privates-------------------------
 
-		private MapLoader _mapLoader;
+		public MapLoader _mapLoader;
 		private MapManager _mapManager;
-		private Map _editedMap;
-		private Map _loadedMap;
-        private string currentMap = "";
+		public Map _editedMap;
+		public Map _loadedMap;
+        public string currentMap = "";
 
 	}
 }
