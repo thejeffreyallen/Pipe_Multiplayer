@@ -654,7 +654,7 @@ namespace PIPE_Valve_Console_Client
                 {
                 if (CharacterModding.instance.LoadRiderSetup() == 0)
                 {
-                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your Rider, Select a texture for all rider parts and save for sync of Daryien", 4, 0));
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load Daryien Save, Select a texture for all Daryien parts and save for sync of custom Daryien", 4, 0));
                 }
                 else
                 {
@@ -706,15 +706,11 @@ namespace PIPE_Valve_Console_Client
                 // detects if ridermodel has changed from daryien and if so re-aligns to be tracking new rig and updates modelname and bundlename
                 LocalPlayer.RiderTrackingSetup();
 
-
-
-                
-
                 if (LocalPlayer.RiderModelname == "Daryien")
                 {
                     if (CharacterModding.instance.LoadRiderSetup() == 0)
                     {
-                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load your Rider, Select a texture for all rider parts and save for sync of Daryien", 4, 0));
+                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load Daryien Save, Select a texture for all Daryien parts and save for sync of custom Daryien", 4, 0));
                     }
                     else
                     {

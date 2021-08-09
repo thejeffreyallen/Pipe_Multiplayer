@@ -536,6 +536,7 @@ namespace PIPE_Valve_Console_Client
 			   {
 				part.Renderer.enabled = true;
 				part.Renderer.materials[part.MatNum].EnableKeyword("_ALPHATEST_ON");
+				part.Renderer.materials[part.MatNum].SetFloat("_Cutoff", 0.2f);
 				part.Renderer.materials[part.MatNum].mainTexture = SetTex(part.BaseTexs[texNum]);
 				part.Renderer.materials[part.MatNum].color = new Color(1, 1, 1, 1);
 			   }
@@ -579,9 +580,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Shirt"].material.mainTexture)
             {
+                try
+                {
 			data.Shirtbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Shirt"].material.mainTexture);
 			data.shirtimagename = Rider_Materials["Shirt"].material.mainTexture.name;
 			data.shirtParentname = "Shirt";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Shirt in SaveData");
+					return;
+                }
             }
             else
             {
@@ -592,9 +602,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Bottoms"].material.mainTexture)
             {
+                try
+                {
 			data.bottomsbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Bottoms"].material.mainTexture);
 			data.bottomsimagename = Rider_Materials["Bottoms"].material.mainTexture.name;
 			data.bottomsParentname = "Bottoms";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Bottoms in SaveData");
+					return;
+				}
             }
             else
             {
@@ -605,9 +624,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Shoes"].material.mainTexture)
             {
+                try
+                {
 			data.shoesbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Shoes"].material.mainTexture);
 			data.shoesimagename = Rider_Materials["Shoes"].material.mainTexture.name;
 			data.shoesParentname = "Shoes";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Shoes in SaveData");
+					return;
+				}
             }
             else
             {
@@ -618,9 +646,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Cap"].material.mainTexture)
             {
+                try
+                {
 			data.hatbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Cap"].material.mainTexture);
 			data.hatimagename = Rider_Materials["Cap"].material.mainTexture.name;
 			data.hatParentname = "Cap";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Cap in SaveData");
+					return;
+				}
             }
             else
             {
@@ -631,9 +668,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Body"].materials[0].mainTexture)
             {
+                try
+                {
 			data.headbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Body"].materials[0].mainTexture);
 			data.headimagename = Rider_Materials["Body"].materials[0].mainTexture.name;
 			data.headParentname = "Body";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Head in SaveData");
+					return;
+				}
             }
             else
             {
@@ -644,9 +690,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Body"].materials[1].mainTexture)
             {
+                try
+                {
 			data.bodybytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Body"].materials[1].mainTexture);
 			data.bodyimagename = Rider_Materials["Body"].materials[1].mainTexture.name;
 			data.bodyParentname = "Body";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Body in SaveData");
+					return;
+				}
             }
             else
             {
@@ -657,9 +712,18 @@ namespace PIPE_Valve_Console_Client
 
             if (Rider_Materials["Body"].materials[2].mainTexture)
             {
+                try
+                {
 			data.handsfeetbytes = ImageConversion.EncodeToPNG((Texture2D)Rider_Materials["Body"].materials[2].mainTexture);
 			data.handsfeetimagename = Rider_Materials["Body"].materials[2].mainTexture.name;
 			data.handsfeetParentname = "Body";
+
+                }
+                catch (System.Exception)
+                {
+					FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Cannot use Official Hands/Feet in SaveData");
+					return;
+				}
             }
             else
             {
@@ -686,7 +750,7 @@ namespace PIPE_Valve_Console_Client
 			stream.Close();
 
 			Debug.Log("Completed Saving Rider");
-
+			FrostyP_Game_Manager.FrostyPGamemanager.instance.PopUpMessage("Saved Daryien");
 
 
 		}

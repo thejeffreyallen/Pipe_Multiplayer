@@ -351,7 +351,7 @@ namespace PIPE_Valve_Online_Server
         {
            
                     bool found = false;
-                if (Filename.ToLower() != "e" && Filename != "" && Filename != " ")
+                if (Filename.ToLower() != "e" && Filename != "" && Filename != " " && Filename != "stock")
                 {
 
                 string asciiname = null;

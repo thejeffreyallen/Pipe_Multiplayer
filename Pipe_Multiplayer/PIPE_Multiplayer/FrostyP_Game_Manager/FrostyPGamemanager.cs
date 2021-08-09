@@ -13,6 +13,7 @@ namespace FrostyP_Game_Manager
 		public static FrostyPGamemanager instance;
 
 		public GUIStyle style;
+		Vector2 popupscroll;
 
 
 		// Menu Controller
@@ -296,8 +297,13 @@ namespace FrostyP_Game_Manager
         {
             if (popups.Count > 0)
             {
-				GUILayout.BeginArea(new Rect(new Vector2(Screen.width/8*3,Screen.height/8*3), new Vector2(Screen.width/4,100)),InGameUI.BoxStyle);
-				GUILayout.Label(popups[0]);
+				GUILayout.BeginArea(new Rect(new Vector2(Screen.width/8*3,Screen.height/8*3), new Vector2(Screen.width/5,150)),InGameUI.BoxStyle);
+				popupscroll = GUILayout.BeginScrollView(popupscroll);
+                for (int i = 0; i < popups.Count; i++)
+                {
+				GUILayout.Label(popups[i]);
+                }
+				GUILayout.EndScrollView();
 				GUILayout.EndArea();
 
             }

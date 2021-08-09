@@ -298,9 +298,14 @@ namespace PIPE_Valve_Console_Client
             FileSyncing.CheckForMap(Currentmap, _username);
             for (int i = 0; i < Gear.RiderTextures.Count; i++)
             {
-                if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture))
+                if(Gear.RiderTextures[i].Nameoftexture != "stock" && Gear.RiderTextures[i].Nameoftexture != "e")
                 {
+
+                    if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture))
+                    {
                     FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture,_id);
+                    }
+
                 }
             }
 
@@ -430,12 +435,33 @@ namespace PIPE_Valve_Console_Client
                     {
                         if(r.materials[i].mainTexture != null)
                         {
+
+                            // check there not the stock texs
+                            byte[] bytes = null;
+                            try
+                            {
+                              bytes = ImageConversion.EncodeToPNG((Texture2D)r.materials[i].mainTexture);
+                            }
+                            catch (System.Exception)
+                            {
+
+                            }
+
+                            if(bytes != null)
+                            {
                             string inputString = r.materials[i].mainTexture.name;
                             string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
                             asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
                             asciifile = asciifile.Trim(Path.GetInvalidPathChars());
 
                             list.Add(new TextureInfo(asciifile, r.gameObject.name, false, i));
+
+                            }
+                            else
+                            {
+                                list.Add(new TextureInfo("stock", r.gameObject.name, false, i));
+                            }
+
                         }
                         else
                         {
@@ -456,7 +482,7 @@ namespace PIPE_Valve_Console_Client
             {
                 try
                 {
-                // grab garage list, convert to byte[] and place in gear update, send garagesave aswell as forRidermodel bool (false to inidcate bike update)
+               
                 string preset = PlayerPrefs.GetString("lastPreset");
                 InGameUI.instance.currentGaragePreset = preset;
                 SaveList List = GarageDeserialize(preset);

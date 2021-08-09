@@ -57,7 +57,6 @@ namespace PIPE_Valve_Console_Client
         public Vector3[] lastpos = new Vector3[28];
         private Vector3[] lastrot = new Vector3[34];
         private DateTime LastTimeAtReceive = DateTime.Now;
-        private float deltatime = Time.deltaTime;
         bool MoveTwice = false;
         float RemainingTimeSpan = 0.001f;
 
@@ -220,7 +219,7 @@ namespace PIPE_Valve_Console_Client
             if (value)
             {
                 // copy update data to LastData
-                RemainingTimeSpan = RemainingTimeSpan + (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[1].Playertimestamp) - DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp)).TotalSeconds;
+                RemainingTimeSpan = RemainingTimeSpan + (float)(DateTime.FromFileTimeUtc(IncomingTransformUpdates[0].Playertimestamp) - LastPlayerStamp).TotalSeconds;
                 Array.Copy(IncomingTransformUpdates[0].Positions, lastpos, IncomingTransformUpdates[0].Positions.Length);
                 Array.Copy(IncomingTransformUpdates[0].Rotations, lastrot, IncomingTransformUpdates[0].Rotations.Length);
                 MyLastPing = InGameUI.instance.Ping;
@@ -251,18 +250,18 @@ namespace PIPE_Valve_Console_Client
                 float MyPingDifference = InGameUI.instance.Ping - MyLastPing;
                 if (IncomingTransformUpdates.Count < 10)
                 {
-                   RemainingTimeSpan = RemainingTimeSpan + ((10 - IncomingTransformUpdates.Count) / 1000 / 4);
+                  // RemainingTimeSpan = RemainingTimeSpan + ((10 - IncomingTransformUpdates.Count) / 1000 / 4);
                 }
                
                 // if player current ping is larger than last ping, add half the difference in ms to the timespan within reason
                 if (PlayerPingDifference > 0 && PlayerPingDifference < 5)
                 {
-                    RemainingTimeSpan = RemainingTimeSpan + ((PlayerPingDifference / 1000)/2);
+                   // RemainingTimeSpan = RemainingTimeSpan + ((PlayerPingDifference / 1000)/2);
                 }
 
                 if (MyPingDifference > 0 && MyPingDifference < 5)
                 {
-                    RemainingTimeSpan = RemainingTimeSpan + ((MyPingDifference / 1000) /2);
+                   // RemainingTimeSpan = RemainingTimeSpan + ((MyPingDifference / 1000) /2);
                 }
 
 
@@ -605,6 +604,10 @@ namespace PIPE_Valve_Console_Client
                     
                    foreach (TextureInfo t in Gear.RiderTextures)
                    {
+                        // if stock, do nothing
+                        if(t.Nameoftexture != "stock")
+                        {
+
                         if(t.Nameoftexture.ToLower() != "e")
                         {
                         if (FileSyncing.CheckForFile(t.Nameoftexture))
@@ -625,6 +628,8 @@ namespace PIPE_Valve_Console_Client
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = null;
                         }
                        
+
+                        }
 
                    }
 
