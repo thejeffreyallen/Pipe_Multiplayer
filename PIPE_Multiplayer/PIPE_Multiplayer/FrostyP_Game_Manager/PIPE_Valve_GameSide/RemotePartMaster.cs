@@ -622,6 +622,11 @@ namespace PIPE_Valve_Console_Client
             if (partList.ContainsKey(key))
             {
                 Debug.Log($"Set part {key}");
+                if (GetPart(key) == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.SetPosition()");
+                    return;
+                }
                 GetPart(key).transform.localPosition = pos;
 
             }
