@@ -88,6 +88,13 @@ namespace PIPE_Valve_Console_Client
         public int frameAcc = 51;
         public int frontHubG = 52;
         public int rearHubG = 53;
+        public int rightGripFlange = 54;
+        public int leftGripFlange = 55;
+        public int leftPedalTarget = 56;
+        public int rightPedalTarget = 57;
+        public int leftPedalJoint = 58;
+        public int rightPedalJoint = 59;
+        public int driveTrain = 60;
 
         GameObject accFront;
         GameObject accRear;
@@ -136,83 +143,83 @@ namespace PIPE_Valve_Console_Client
 
                 foreach (Transform t in barsJoint)
                 {
-                    Debug.Log(t.gameObject.name);
                     switch (t.gameObject.name)
                     {
                         case "Pegs Mesh":
-                            ints.Add(frontPegs);
                             partList.Add(frontPegs, t.gameObject);
                             break;
                         case "Nipples Mesh":
-                            ints.Add(frontNipples);
                             partList.Add(frontNipples, t.gameObject);
                             break;
                         case "Spokes Mesh":
-                            ints.Add(frontSpokes);
                             partList.Add(frontSpokes, t.gameObject);
                             break;
                         case "Rim Mesh":
-                            ints.Add(frontRim);
                             partList.Add(frontRim, t.gameObject);
                             break;
                         case "Hub Mesh":
-                            ints.Add(frontHub);
                             partList.Add(frontHub, t.gameObject);
                             break;
                         case "Tire Mesh":
-                            ints.Add(frontTire);
                             partList.Add(frontTire, t.gameObject);
                             break;
                         case "Left Anchor":
-                            ints.Add(leftAnchor);
                             partList.Add(leftAnchor, t.gameObject);
                             break;
                         case "Right Anchor":
-                            ints.Add(rightAnchor);
                             partList.Add(rightAnchor, t.gameObject);
                             break;
                         case "Stem Bolts Mesh":
-                            ints.Add(stemBolts);
                             partList.Add(stemBolts, t.gameObject);
                             break;
                         case "Bars Mesh":
-                            ints.Add(bars);
                             partList.Add(bars, t.gameObject);
                             break;
                         case "BMX:Wheel":
-                            ints.Add(frontWheel);
                             partList.Add(frontWheel, t.gameObject);
                             break;
                         case "Bar Ends Mesh":
-                            ints.Add(barEnds);
                             partList.Add(barEnds, t.gameObject);
                             break;
                         case "Left Grip":
-                            ints.Add(leftGrip);
                             Transform[] tran1 = t.gameObject.GetComponentsInChildren<Transform>();
-                            if (tran1[0].gameObject.name == "Left Grip Mesh") partList.Add(leftGrip, tran1[0].gameObject);
-                            else partList.Add(leftGrip, tran1[1].gameObject);
+                            if (tran1[0].gameObject.name == "Left Grip Mesh")
+                            {
+                                partList.Add(leftGrip, tran1[0].gameObject);
+                            }
+                            else
+                            {
+                                partList.Add(leftGrip, tran1[1].gameObject);
+                            }
                             break;
                         case "Right Grip":
-                            ints.Add(rightGrip);
                             Transform[] tran2 = t.gameObject.GetComponentsInChildren<Transform>();
-                            if (tran2[0].gameObject.name == "Left Grip Mesh") partList.Add(rightGrip, tran2[0].gameObject);
-                            else partList.Add(rightGrip, tran2[1].gameObject);
+                            if (tran2[0].gameObject.name == "Left Grip Mesh")
+                            {
+                                partList.Add(rightGrip, tran2[0].gameObject);
+                            }
+                            else
+                            {
+                                partList.Add(rightGrip, tran2[1].gameObject);
+                            }
+                            break;
+                        case "Left Grip Mesh 01":
+                            partList.Add(leftGripFlange, t.gameObject);
+                            break;
+                        case "Right Grip Mesh 01":
+                            partList.Add(rightGripFlange, t.gameObject);
                             break;
                         case "Forks Mesh":
-                            ints.Add(forks);
                             partList.Add(forks, t.gameObject);
                             break;
                         case "Headset Mesh":
-                            ints.Add(headSet);
                             partList.Add(headSet, t.gameObject);
                             break;
                         case "Stem Mesh":
-                            ints.Add(stem);
-                            if (!(t.gameObject.GetComponent<MeshFilter>() == null)) partList.Add(stem, t.gameObject);
+                            if (!(t.gameObject.GetComponent<MeshFilter>() == null))
+                                partList.Add(stem, t.gameObject);
                             break;
                         case "Headset Spacers Mesh":
-                            ints.Add(headSetSpacers);
                             partList.Add(headSetSpacers, t.gameObject);
                             break;
                         default:
@@ -223,93 +230,72 @@ namespace PIPE_Valve_Console_Client
 
                 foreach (Transform t in frameJoint)
                 {
-                    Debug.Log(t.gameObject.name);
                     switch (t.gameObject.name)
                     {
                         case "Pegs Mesh":
-                            ints.Add(rearPegs);
                             partList.Add(rearPegs, t.gameObject);
                             break;
                         case "Nipples Mesh":
-                            ints.Add(rearNipples);
                             partList.Add(rearNipples, t.gameObject);
                             break;
                         case "BMX:Wheel 1":
-                            ints.Add(rearWheel);
                             partList.Add(rearWheel, t.gameObject);
                             break;
                         case "Spokes Mesh":
-                            ints.Add(rearSpokes);
                             partList.Add(rearSpokes, t.gameObject);
                             break;
                         case "Rim Mesh":
-                            ints.Add(rearRim);
                             partList.Add(rearRim, t.gameObject);
                             break;
                         case "Hub Mesh":
-                            ints.Add(rearHub);
                             partList.Add(rearHub, t.gameObject);
                             break;
                         case "Tire Mesh":
-                            ints.Add(rearTire);
                             partList.Add(rearTire, t.gameObject);
                             break;
                         case "Seat Post":
-                            ints.Add(seatPost);
                             partList.Add(seatPost, t.gameObject);
                             break;
                         case "Seat Post Anchor":
-                            ints.Add(seatPostAnchor);
+                            //Fix the seatpost angle
+                            t.eulerAngles = new Vector3(t.eulerAngles.x + 0.274f, 0f, 0f);
                             partList.Add(seatPostAnchor, t.gameObject);
                             break;
                         case "Seat Mesh":
-                            ints.Add(seat);
                             partList.Add(seat, t.gameObject);
                             break;
                         case "Seat Clamp Mesh":
-                            ints.Add(seatClamp);
                             partList.Add(seatClamp, t.gameObject);
                             break;
                         case "Seat_Clamp_Bolt":
-                            ints.Add(seatClampBolt);
                             partList.Add(seatClampBolt, t.gameObject);
                             break;
                         case "Chain Mesh":
-                            ints.Add(chain);
                             partList.Add(chain, t.gameObject);
                             break;
                         case "Frame Mesh":
-                            ints.Add(frame);
-                            if (!partList.TryGetValue(0, out GameObject obj)) partList.Add(frame, t.gameObject);
+                            partList.Add(frame, t.gameObject);
                             break;
                         case "BB Mesh":
-                            ints.Add(bottomBracket);
                             partList.Add(bottomBracket, t.gameObject);
                             break;
                         case "Right Crank Arm Mesh":
-                            ints.Add(rightCrank);
                             partList.Add(rightCrank, t.gameObject);
                             break;
                         case "Left Crank Arm Mesh":
-                            ints.Add(leftCrank);
                             partList.Add(leftCrank, t.gameObject);
                             break;
                         case "Sprocket Mesh":
-                            ints.Add(sprocket);
                             partList.Add(sprocket, t.gameObject);
                             break;
                         case "Right_Crankarm_Cap":
-                            ints.Add(rightCrankBolt);
                             partList.Add(rightCrankBolt, t.gameObject);
                             break;
                         case "Left_Crankarm_Cap":
-                            ints.Add(leftCrankBolt);
                             partList.Add(leftCrankBolt, t.gameObject);
                             break;
                         case "BMX:LeftPedal_Joint":
-                            ints.Add(leftPedal);
-                            ints.Add(leftPedalAxle);
-                            ints.Add(leftPedalCap);
+                            partList.Add(leftPedalJoint, t.gameObject);
                             Transform[] tran1 = t.gameObject.GetComponentsInChildren<Transform>();
                             foreach (Transform tr in tran1)
                             {
@@ -319,13 +305,13 @@ namespace PIPE_Valve_Console_Client
                                     partList.Add(leftPedalAxle, tr.gameObject);
                                 if (tr.gameObject.name.Equals("Pedal Cap Mesh"))
                                     partList.Add(leftPedalCap, tr.gameObject);
+                                if (tr.gameObject.name.Equals("leftPedalTarget"))
+                                    partList.Add(leftPedalTarget, tr.gameObject);
 
                             }
                             break;
                         case "BMX:RightPedal_Joint":
-                            ints.Add(rightPedal);
-                            ints.Add(rightPedalAxle);
-                            ints.Add(rightPedalCap);
+                            partList.Add(rightPedalJoint, t.gameObject);
                             Transform[] tran2 = t.gameObject.GetComponentsInChildren<Transform>();
                             foreach (Transform tr in tran2)
                             {
@@ -335,21 +321,22 @@ namespace PIPE_Valve_Console_Client
                                     partList.Add(rightPedalAxle, tr.gameObject);
                                 if (tr.gameObject.name.Equals("Pedal Cap Mesh"))
                                     partList.Add(rightPedalCap, tr.gameObject);
+                                if (tr.gameObject.name.Equals("leftPedalTarget"))
+                                    partList.Add(rightPedalTarget, tr.gameObject);
 
                             }
+                            break;
+                        case "BMX:DriveTrain_Joint":
+                            partList.Add(driveTrain, t.gameObject);
                             break;
                         default:
                             break;
                     }
                 }
-                ints.Add(barsJ);
-                ints.Add(frameJ);
-                ints.Add(frontWheelCol);
-                ints.Add(rearWheelCol);
-                partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
-                partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
-
-
+                partList.Add(barsJ, GameObject.Find("BMX:Bars_Joint"));
+                partList.Add(frameJ, GameObject.Find("BMX:Frame_Joint"));
+                partList.Add(frontWheelCol, GameObject.Find("FrontWheelCollider"));
+                partList.Add(rearWheelCol, GameObject.Find("BackWheelCollider"));
             }
             catch (Exception e)
             {
@@ -430,14 +417,25 @@ namespace PIPE_Valve_Console_Client
         }
 
 
-        public void SetMaterialData(int key, float glossiness, float glossMapScale)
+        public void SetMaterialData(int key, float glossiness, float glossMapScale, float metallic, float texTileX, float texTileY, float normTileX, float normTileY, float metTileX, float metTileY)
         {
-            Material[] materials = GetMaterials(key);
-            if (materials == null)
-                return;
-            materials[0].SetFloat("_Glossiness", glossiness);
-            materials[0].SetFloat("_GlossMapScale", glossMapScale);
-            SetMaterials(key, materials);
+            try
+            {
+                Material[] material = GetMaterials(key);
+                if (material == null)
+                    return;
+                material[0].SetFloat("_Glossiness", glossiness);
+                material[0].SetFloat("_GlossMapScale", glossMapScale);
+                material[0].SetFloat("_Metallic", metallic);
+                material[0].SetTextureScale("_MainTex", new Vector2(texTileX, texTileY));
+                material[0].SetTextureScale("_BumpMap", new Vector2(normTileX, normTileY));
+                material[0].SetTextureScale("_MetallicGlossMap", new Vector2(metTileX, metTileY));
+                SetMaterials(key, material);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Error in SetMaterialData(). " + e.Message + "\n" + e.StackTrace);
+            }
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ public class RemoteLoadManager : MonoBehaviour
         instance = this;
     }
 
-    
+
 
     public void Load(RemotePlayer player, SaveList loadList)
     {
@@ -96,29 +96,29 @@ public class RemoteLoadManager : MonoBehaviour
 
                     }
 
-                   
+
                 }
                 else
                 {
 
-                if (!p.url.Equals("") && !p.url.Equals("."))
-                {
-                    if (!p.metallic && !p.normal)
-                        SetTexture(player, p.partNum, p.url);
-                    else if (p.normal)
-                        SetNormal(player, p.partNum, p.url);
-                    else
-                        SetMetallic(player, p.partNum, p.url);
-                }
-                else if (p.url.Equals("."))
-                {
-                    if (!p.metallic && !p.normal)
-                        TextureManager.instance.RemoveTexture(p.partNum);
-                    else if (p.normal)
-                        TextureManager.instance.RemoveNormal(p.partNum);
-                    else
-                        TextureManager.instance.RemoveMetallic(p.partNum);
-                }
+                    if (!p.url.Equals("") && !p.url.Equals("."))
+                    {
+                        if (!p.metallic && !p.normal)
+                            SetTexture(player, p.partNum, p.url);
+                        else if (p.normal)
+                            SetNormal(player, p.partNum, p.url);
+                        else
+                            SetMetallic(player, p.partNum, p.url);
+                    }
+                    else if (p.url.Equals("."))
+                    {
+                        if (!p.metallic && !p.normal)
+                            TextureManager.instance.RemoveTexture(p.partNum);
+                        else if (p.normal)
+                            TextureManager.instance.RemoveNormal(p.partNum);
+                        else
+                            TextureManager.instance.RemoveMetallic(p.partNum);
+                    }
 
                 }
 
@@ -296,10 +296,10 @@ public class RemoteLoadManager : MonoBehaviour
             foreach (PartMesh pm in loadList.partMeshes)
             {
                 string fullPath = Application.dataPath + "/GarageContent/" + pm.fileName;
-                Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index);
+                //Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index);
                 if (pm.isCustom)
                 {
-                    
+
                     if (!File.Exists(fullPath))
                     {
                         FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, pm.fileName, player.id);
@@ -768,27 +768,29 @@ public class RemoteLoadManager : MonoBehaviour
             defaultMats[0] = matman.defaultMat;
             foreach (PartMaterial p in loadList.partMaterials)
             {
-                int key = PartNumToKey(p.partNum);
-                switch (p.matID)
+                List<int> keys = PartNumToKey(p.partNum);
+                foreach (int k in keys)
                 {
-                    case 0:
-                        Debug.Log("Setting material " + defaultMats[0].name + " on " + player.partMaster.GetPart(key).name);
-                        player.partMaster.SetMaterials(key, defaultMats);
-                        break;
-                    case 7:
-                        Debug.Log("Skipping material on " + player.partMaster.GetPart(key).name);
-                        break;
-                    case 9:
-                        Debug.Log("Skipping material on " + player.partMaster.GetPart(key).name);
-                        break;
-                    default:
-                        Material[] temp = new Material[1];
-                        temp[0] = matman.customMats[p.matID - 1];
-                        Debug.Log("Setting material " + matman.customMats[p.matID - 1].name + " on " + player.partMaster.GetPart(key).name);
-                        player.partMaster.SetMaterials(key, temp);
-                        break;
+                    switch (p.matID)
+                    {
+                        case 0:
+                            Debug.Log("Setting material " + defaultMats[0].name + " on " + player.partMaster.GetPart(k).name);
+                            player.partMaster.SetMaterials(k, defaultMats);
+                            break;
+                        case 7:
+                            Debug.Log("Skipping material on " + player.partMaster.GetPart(k).name);
+                            break;
+                        case 9:
+                            Debug.Log("Skipping material on " + player.partMaster.GetPart(k).name);
+                            break;
+                        default:
+                            Material[] temp = new Material[1];
+                            temp[0] = matman.customMats[p.matID - 1];
+                            Debug.Log("Setting material " + matman.customMats[p.matID - 1].name + " on " + player.partMaster.GetPart(k).name);
+                            player.partMaster.SetMaterials(k, temp);
+                            break;
+                    }
                 }
-
             }
             SetMaterialHelper(player.partMaster, player.partMaster.seatPost, loadList.seatPostMat);
             SetMaterialHelper(player.partMaster, player.partMaster.frontTire, loadList.frontTireMat);
@@ -813,7 +815,7 @@ public class RemoteLoadManager : MonoBehaviour
 
             foreach (MatData matData in loadList.matData)
             {
-                player.partMaster.SetMaterialData(matData.key, matData.glossiness, matData.glossMapScale);
+                player.partMaster.SetMaterialData(matData.key, matData.glossiness, matData.glossMapScale, matData.metallic, matData.texTileX, matData.texTileY, matData.normTileX, matData.normTileY, matData.metTileX, matData.metTileY);
             }
         }
         catch (Exception e)
@@ -822,77 +824,86 @@ public class RemoteLoadManager : MonoBehaviour
         }
     }
 
-    public int PartNumToKey(int partNum)
+    public List<int> PartNumToKey(int partNum)
     {
-        int key;
+        List<int> keys = new List<int>();
         PartMaster pm = FindObjectOfType<PartMaster>();
         switch (partNum)
         {
             case 0:
-                key = pm.frame;
+                keys.Add(pm.frame);
                 break;
             case 1:
-                key = pm.forks;
+                keys.Add(pm.forks);
                 break;
             case 2:
-                key = pm.frontRim;
+                keys.Add(pm.frontRim);
+                keys.Add(pm.rearRim);
                 break;
             case 3:
-                key = pm.frontTire;
+                keys.Add(pm.frontTire);
+                keys.Add(pm.rearTire);
                 break;
             case 4:
-                key = pm.frontTire;
+                keys.Add(pm.frontTire);
+                keys.Add(pm.rearTire);
                 break;
             case 5:
-                key = pm.frontSpokes;
+                keys.Add(pm.frontSpokes);
+                keys.Add(pm.rearSpokes);
                 break;
             case 6:
-                key = pm.frontNipples;
+                keys.Add(pm.frontNipples);
+                keys.Add(pm.rearNipples);
                 break;
             case 7:
-                key = pm.bars;
+                keys.Add(pm.bars);
                 break;
             case 8:
-                key = pm.leftGrip;
+                keys.Add(pm.leftGrip);
+                keys.Add(pm.rightGrip);
                 break;
             case 9:
-                key = pm.barEnds;
+                keys.Add(pm.barEnds);
                 break;
             case 10:
-                key = pm.headSet;
+                keys.Add(pm.headSet);
                 break;
             case 11:
-                key = pm.headSetSpacers;
+                keys.Add(pm.headSetSpacers);
                 break;
             case 12:
-                key = pm.stem;
+                keys.Add(pm.stem);
                 break;
             case 13:
-                key = pm.stemBolts;
+                keys.Add(pm.stemBolts);
                 break;
             case 14:
-                key = pm.frontPegs;
+                keys.Add(pm.frontPegs);
+                keys.Add(pm.rearPegs);
                 break;
             case 15:
-                key = pm.bottomBracket;
+                keys.Add(pm.bottomBracket);
                 break;
             case 16:
-                key = pm.leftCrank;
+                keys.Add(pm.leftCrank);
+                keys.Add(pm.rightCrank);
                 break;
             case 17:
-                key = pm.frontHub;
+                keys.Add(pm.frontHub);
+                keys.Add(pm.rearHub);
                 break;
             case 18:
-                key = pm.leftPedal;
+                keys.Add(pm.leftPedal);
+                keys.Add(pm.rightPedal);
                 break;
             case 19:
-                key = pm.sprocket;
+                keys.Add(pm.sprocket);
                 break;
             default:
-                key = -1;
                 break;
         }
-        return key;
+        return keys;
     }
 
     public void SetMaterialHelper(RemotePartMaster pm, int key, int mat, int index = 0)
@@ -914,7 +925,7 @@ public class RemoteLoadManager : MonoBehaviour
             temp[index] = matman.customMats[mat - 1];
             pm.SetMaterials(key, temp);
         }
-            
+
     }
 
     private void LoadBrakes(RemotePlayer player, SaveList loadList)
