@@ -739,9 +739,17 @@ namespace PIPE_Valve_Console_Client
         {
           // stagger out the initial rider build in case many are spawning at once somehow?
             yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,1.2f));
-
+            try
+            {
             partMaster.InitPartList(BMX);
             partMaster.AccessoriesSetup();
+                
+
+            }
+            catch (Exception)
+            {
+
+            }
 
             if (CurrentModelName == "Daryien")
             {
@@ -751,8 +759,16 @@ namespace PIPE_Valve_Console_Client
             }
 
             // do bike
+            try
+            {
             DestroyNormal();
             UpdateBMX();
+
+            }
+            catch (Exception)
+            {
+
+            }
 
             nameSign.transform.parent = RiderModel.transform.FindDeepChild("mixamorig:Head");
             nameSign.transform.localPosition = new Vector3(0, 0.35f, 0);

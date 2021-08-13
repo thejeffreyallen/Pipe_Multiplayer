@@ -291,7 +291,6 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\UnityEngine.XRModule.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\dnlib.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\BikeWorkshopMenu.pdb
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\FrostyP_Game_Manager.pdb
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\PatchaMapImporter.pdb
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\UnityEngine.xml
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\UnityEngine.AnimationModule.xml
@@ -348,3 +347,4 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Valve_Console_Client.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Valve_Console_Client.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Valve_Console_Client.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\FrostyP_Game_Manager.pdb

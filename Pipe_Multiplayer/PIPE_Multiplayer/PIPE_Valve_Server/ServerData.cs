@@ -310,7 +310,7 @@ namespace PIPE_Valve_Online_Server
 
 
                 if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
-                File.Move(TempDir + name, mypath + InIndex.NameOfFile);
+                File.Move(TempDir + name, mypath + name);
                 File.Delete(TempDir + name + ".temp");
                 
                 // Tell Anyone that i've asked to send this file that i have it now ,if still online
@@ -353,7 +353,13 @@ namespace PIPE_Valve_Online_Server
 
         public static void FileCheckAndRequest(string Filename, uint _fromclient)
         {
-                 string name = Filename;
+            int lastslash = Filename.LastIndexOf("/");
+            if (lastslash != -1)
+            {
+                Filename = Filename.Remove(0, lastslash + 1);
+            }
+
+            string name = Filename;
                  Filename = ConvertToUnicode(name);
                     bool found = false;
                 if (Filename.ToLower() != "e" && Filename != "" && Filename != " " && Filename != "stock")
