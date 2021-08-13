@@ -744,19 +744,19 @@ namespace PIPE_Valve_Console_Client
             partMaster.InitPartList(BMX);
             partMaster.AccessoriesSetup();
                 
-
-            }
-            catch (Exception)
-            {
-
-            }
-
             if (CurrentModelName == "Daryien")
             {
                 RiderModel.transform.FindDeepChild("pants_geo").GetComponent<SkinnedMeshRenderer>().material.EnableKeyword("_ALPHATEST_ON");
                 RiderModel.transform.FindDeepChild("shirt_geo").GetComponent<SkinnedMeshRenderer>().material.EnableKeyword("_ALPHATEST_ON");
                 UpdateDaryien();
             }
+
+            }
+            catch (Exception)
+            {
+                
+            }
+
 
             // do bike
             try
