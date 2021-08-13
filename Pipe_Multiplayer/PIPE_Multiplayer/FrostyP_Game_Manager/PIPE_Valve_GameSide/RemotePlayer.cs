@@ -102,7 +102,7 @@ namespace PIPE_Valve_Console_Client
                 style.hover.background = InGameUI.instance.whiteTex;
                 style.hover.textColor = Color.black;
 
-
+                StartCoroutine(Initialiseafterwait());
             }
             catch (Exception)
             {
@@ -144,7 +144,7 @@ namespace PIPE_Valve_Console_Client
                 BMX.transform.eulerAngles = StartupRot;
                 partMaster = gameObject.GetComponent<RemotePartMaster>(); // initialize the part master part list.
                 brakesManager = gameObject.GetComponent<RemoteBrakesManager>();
-                StartCoroutine(Initialiseafterwait());
+                
             }
 
             catch (Exception x)
