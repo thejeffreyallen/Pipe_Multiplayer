@@ -22,7 +22,7 @@ namespace PIPE_Valve_Online_Server
         {
             ThreadManager.ExecuteOnMainThread(() =>
             {
-                Server.server.SendMessageToConnection(toclient, bytes, sendflag);
+                Server.Connection.SendMessageToConnection(toclient, bytes, sendflag);
             });
         }
        
@@ -40,7 +40,7 @@ namespace PIPE_Valve_Online_Server
                         ThreadManager.ExecuteOnMainThread(() =>
                         {
 
-                            Server.server.SendMessageToConnection(client.RiderID, bytes, sendflag);
+                            Server.Connection.SendMessageToConnection(client.RiderID, bytes, sendflag);
                             
                         });
                 }
@@ -68,7 +68,7 @@ namespace PIPE_Valve_Online_Server
                         ThreadManager.ExecuteOnMainThread(() =>
                         {
 
-                            Server.server.SendMessageToConnection(Rider.RiderID, bytes, sendflag);
+                            Server.Connection.SendMessageToConnection(Rider.RiderID, bytes, sendflag);
                         });
                     }
                 }
@@ -109,7 +109,7 @@ namespace PIPE_Valve_Online_Server
              
 
 
-                Server.server.SendMessageToConnection(ClientID, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                Server.Connection.SendMessageToConnection(ClientID, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
 
            
@@ -637,7 +637,7 @@ namespace PIPE_Valve_Online_Server
             using(Packet _packet = new Packet((int)ServerPacket.AdminStream))
             {
                 // Total Reliable messages pending
-                _packet.Write(Server.PendingReliableForConnection(Server.pollGroup));
+                _packet.Write(Server.PendingReliableForConnection(Server.ConnectedRiders));
 
 
                 SendtoOne(to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);

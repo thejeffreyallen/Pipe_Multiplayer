@@ -111,6 +111,7 @@ namespace FrostyP_Game_Manager
 		bool controlmenu;
 		bool objectswindow;
 		bool objectsloadtoggle;
+		bool SceneWindowToggle;
 		string objectsloaddisplay;
 		bool REgrabbed = false;
 		bool StreamingObjectData = false;
@@ -127,9 +128,11 @@ namespace FrostyP_Game_Manager
 
 		public string AssetbundlesDirectory = Application.dataPath + "/FrostyPGameManager/ParkBuilder/Assetbundles/";
 		public string ParksDirectory = Application.dataPath + "/FrostyPGameManager/ParkBuilder/Parks/";
+		public string SkyboxDirectory = Application.dataPath + "/FrostyPGameManager/ParkBuilder/SkyBoxes/";
 
 
-		
+
+
 		public List<PlacedObject> placedobjects = new List<PlacedObject>();
 		public List<NetGameObject> NetgameObjects = new List<NetGameObject>();
 		
@@ -163,7 +166,29 @@ namespace FrostyP_Game_Manager
 		public SavedSpot ActiveSavedspot;
 		List<string> LoadedSpotCreators;
 		List<string> Loadedspotpackneeded;
-		
+
+
+		// Scene Adjustment
+		Light ShowingLight = null;
+		GameObject LightSphere;
+		Vector2 Scenescroll;
+		bool LightsToggle;
+		bool skyboxToggle;
+		float Skyr;
+		float Skyg;
+		float Skyb;
+		Vector2 Skyboxscroll;
+		Material DefaultSky;
+		List<RotatingLight> Rotatinglights = new List<RotatingLight>();
+		string Xval = "0";
+		string Yval = "0";
+		string Zval = "0";
+
+
+		// Directional light panel
+		float x;
+		float y;
+		float z;
 
 
 		void Awake()
@@ -182,6 +207,10 @@ namespace FrostyP_Game_Manager
 			{
 			 Directory.CreateDirectory(AssetbundlesDirectory);
 			}
+			if (!Directory.Exists(SkyboxDirectory))
+			{
+				Directory.CreateDirectory(SkyboxDirectory);
+			}
 
 
 			camobj = Instantiate(Camera.main.gameObject);
@@ -192,6 +221,9 @@ namespace FrostyP_Game_Manager
 			// make ghost object that rotates to camera obj only on Y
 			controlobjforcam = new GameObject();
 			DontDestroyOnLoad(controlobjforcam);
+			LightSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			DontDestroyOnLoad(LightSphere);
+			LightSphere.SetActive(false);
 		}
 
 		// Use this for initialization
@@ -217,8 +249,8 @@ namespace FrostyP_Game_Manager
 
 			SetupGuis();
 
-			
-			
+
+			DefaultSky = RenderSettings.skybox;
 
 
 		}
@@ -226,9 +258,11 @@ namespace FrostyP_Game_Manager
         // Update is called once per frame
         void Update()
         {
-
+            
             if (openflag)
             {
+                if (!SceneWindowToggle)
+                {
 
 				Controls();
 
@@ -237,14 +271,24 @@ namespace FrostyP_Game_Manager
 					ReplaceOnBButton();
                 }
 
-
-				
 				if (Activeobj != null)
 				{
 					camFarPos = new Vector3(Activeobj.transform.position.x, Activeobj.transform.position.y + 10, Activeobj.transform.position.z - 50);
 					//ShowAxisofObject();
 
 				}
+
+
+
+				}
+                else
+                {
+					YtoChangeSpeed();
+				}
+
+
+
+
 
 
 				// send keepactive packet every 2 seconds to stop timeout on server
@@ -282,12 +326,27 @@ namespace FrostyP_Game_Manager
                 
             }
 
-           
+			if (Rotatinglights.Count > 0)
+			{
+				
+                for (int i = 0; i < Rotatinglights.ToArray().Length; i++)
+                {
+                    if (Rotatinglights[i].light)
+                    {
+						Rotatinglights[i].light.gameObject.transform.Rotate(Rotatinglights[i].Rotateamount.x * Time.fixedDeltaTime, Rotatinglights[i].Rotateamount.y * Time.fixedDeltaTime, Rotatinglights[i].Rotateamount.z * Time.fixedDeltaTime);
+                    }
+                    else
+                    {
+						Rotatinglights.RemoveAt(i);
+                    }
+                }
+
+			}
 
 
 
 
-        }
+		}
 
         void OnGUI()
         {
@@ -322,7 +381,14 @@ namespace FrostyP_Game_Manager
 					ShowLoadedSpot();
                 }
 
-
+                if (SceneWindowToggle)
+                {
+				 SceneSetupShow();
+                }
+                    else
+                    {
+						LightSphere.SetActive(false);
+                    }
 
 					//--------------------------------------------
 
@@ -392,8 +458,9 @@ namespace FrostyP_Game_Manager
 				    SaveLoadOpen = GUILayout.Toggle(SaveLoadOpen, "Save/Load", FrostyPGamemanager.instance.style);
 					GUILayout.Space(2);
 					objectswindow = GUILayout.Toggle(objectswindow, "Objects/Bundles", FrostyPGamemanager.instance.style);
-                    
-				GUILayout.Space(2);
+					GUILayout.Space(2);
+					SceneWindowToggle = GUILayout.Toggle(SceneWindowToggle, "Scene", FrostyPGamemanager.instance.style);
+					GUILayout.Space(2);
 				if (GUILayout.Button("Return to game", FrostyPGamemanager.instance.style))
                 {
 				Close();
@@ -436,6 +503,7 @@ namespace FrostyP_Game_Manager
 			Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			Activeobj.name = "Pointer";
 			Activeobj.transform.position = _playerscurrentpos;
+			controlobjforcam.transform.position = Activeobj.transform.position;
 
 			GameManager.TogglePlayerComponents(false);
 			openflag = true;
@@ -666,46 +734,34 @@ namespace FrostyP_Game_Manager
 
 		void Controls()
         {
-			controlobjforcam.transform.position = camobj.transform.position;
-			controlobjforcam.transform.eulerAngles = new Vector3(0, camobj.transform.eulerAngles.y, 0);
-
-
 			camobj.transform.LookAt(Activeobj.transform, Vector3.up);
+			CamFollow();
 
+			Vector3 dir = (camobj.transform.position - Activeobj.transform.position).normalized;
+			Vector3 vel = controlobjforcam.transform.position - Activeobj.transform.position;
 
-			var Zofobject = controlobjforcam.transform.up;
-			var Xofobject = controlobjforcam.transform.right;
-			var YofObject = controlobjforcam.transform.forward;
-
-
+			controlobjforcam.transform.position = Vector3.SmoothDamp(controlobjforcam.transform.position, Activeobj.transform.position + (dir * Camdistance), ref vel, 0.01f);
 
 
 			// if L trigger is off, Lstick moves object
 			if (MGInputManager.LTrigger() < 0.2f && MGInputManager.RTrigger() < 0.2f)
 			{
-				//GUILayout.Space(20);
-				//GUILayout.Label("L Stick to move, Rstick to rotate cam around object, A to place - Y to change speed");
-				//GUILayout.Space(10);
-				//GUILayout.Label(" RB an LB to spin object 45 - Lstick click to reset rotation");
-				//GUILayout.Label(" RT or LT For other functions");
-
-
+				
 
 				// move function for live object
 
 				MoveObject();
-				CamFollow();
 
-				float speed = 40;
+				float speed = 80;
 				if(MGInputManager.RStickX()>0.2f | MGInputManager.RStickX() < -0.2f)
                 {
-				camobj.transform.RotateAround(Activeobj.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed);
+				controlobjforcam.transform.RotateAround(Activeobj.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed);
 
                 }
 
 				if (MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
 				{
-					camobj.transform.RotateAround(Activeobj.transform.position, camobj.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed);
+					controlobjforcam.transform.RotateAround(Activeobj.transform.position, camobj.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed);
 				}
 
 
@@ -733,32 +789,19 @@ namespace FrostyP_Game_Manager
 			}
 
 
+					
 
 			// if Ltrigger is on, Lstick moves object up and down
 			if (MGInputManager.LTrigger() > 0.4f && MGInputManager.RTrigger() < 0.2f)
 			{
 				//GUILayout.Label("L Stick for Height adjust, Rstick for pan in/out");
-				Activeobj.transform.position = Activeobj.transform.position + controlobjforcam.transform.up * MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value;
+				Activeobj.transform.position = Activeobj.transform.position + Vector3.up * MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value;
 
-
+				Camdistance = Mathf.Clamp(Camdistance, 2, 100);
+				Camdistance = Camdistance + -MGInputManager.RStickY() * Time.deltaTime * 10;
 
 				// pan in and out with R stick
-				if (Vector3.Distance(camobj.transform.position, Activeobj.transform.position) > Camdistance)
-				{
-					camobj.transform.position = Vector3.MoveTowards(camobj.transform.position, Activeobj.transform.position, Time.deltaTime * 5);
-
-				}
-				if (Vector3.Distance(camobj.transform.position, Activeobj.transform.position) < Camdistance)
-				{
-					Vector3 dir = (camobj.transform.position - Activeobj.transform.position).normalized;
-					camobj.transform.position = camobj.transform.position + dir * 10 * Time.deltaTime;
-
-
-				}
-
-				Camdistance = Mathf.Clamp(Camdistance, 5, 100);
-				Camdistance = Mathf.Lerp(Camdistance, Camdistance + (-MGInputManager.RStickY()), 15 * Time.fixedDeltaTime);
-
+				
 			}
 
 
@@ -775,19 +818,14 @@ namespace FrostyP_Game_Manager
 
 
 
+			YtoChangeSpeed();
+
+
+
 			if (MGInputManager.LTrigger() < 0.2f && Activeobj != null && MGInputManager.A_Down())
 			{
 				PlaceObject();
 			}
-			
-
-			if (MGInputManager.Y_Down())
-			{
-				currentcamspeed = camspeed.Change(currentcamspeed);
-			}
-			
-
-
 
 
 
@@ -849,7 +887,7 @@ namespace FrostyP_Game_Manager
 
 		}
 
-		// instantiates a clone of current object, adds PLACED to its name for later reference then re-targets activeobj to the live version
+		
 		void PlaceObject()
         {
             try
@@ -943,7 +981,7 @@ namespace FrostyP_Game_Manager
 			Y = MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value;
             }
 
-			Activeobj.transform.position = Activeobj.transform.position + transform.TransformDirection(controlobjforcam.transform.forward) * Y + transform.TransformDirection(controlobjforcam.transform.right) * X;
+			Activeobj.transform.position = Activeobj.transform.position + (camobj.transform.forward * Y) + (camobj.transform.right * X);
         }
 
 		void ShowAxisofObject()
@@ -987,12 +1025,11 @@ namespace FrostyP_Game_Manager
 
 		void CamFollow()
         {
-            if (Vector3.Distance(camobj.transform.position, Activeobj.transform.position) > Camdistance)
-            {
-				Vector3 dir = -(camobj.transform.position - Activeobj.transform.position).normalized;
-				camobj.transform.position = camobj.transform.position + dir * 10 * Time.deltaTime;
+          
+				
+		camobj.transform.position = Vector3.Lerp(camobj.transform.position, controlobjforcam.transform.position,100 * Time.deltaTime);
 
-			}
+			
         }
 
 		void ReplaceOnBButton()
@@ -1581,11 +1618,392 @@ namespace FrostyP_Game_Manager
 			}
         }
 
-		public void PopUpMessage(string message)
+		public void SceneSetupShow()
         {
-			// add to pop up message list
+			Light[] lights = FindObjectsOfType<Light>();
+			GUIStyle buttonsstyle = new GUIStyle();
+			buttonsstyle.alignment = TextAnchor.MiddleCenter;
+			buttonsstyle.normal.textColor = Color.white;
+			buttonsstyle.hover.textColor = Color.white;
+			buttonsstyle.normal.background = InGameUI.instance.GreenTex;
+			buttonsstyle.hover.background = InGameUI.instance.GreyTex;
+			buttonsstyle.fontStyle = FontStyle.Bold;
+
+			GUILayout.BeginArea(new Rect(new Vector2(10, Screen.height / 4), new Vector2(Screen.width / 3f, Screen.height / 2)),InGameUI.BoxStyle);
+			Scenescroll = GUILayout.BeginScrollView(Scenescroll);
+			if(lights != null && ShowingLight == null)
+            {
+				LightsToggle = GUILayout.Toggle(LightsToggle, "Lights");
+                if (LightsToggle)
+                {
+				  GUILayout.Label("Lights");
+
+			      foreach(Light light in lights)
+                  {
+				if(GUILayout.Button($"{light.name} : {light.type.ToString()}",buttonsstyle))
+                {
+						if(ShowingLight != light)
+                        {
+						  x = light.gameObject.transform.eulerAngles.x;
+						  y = light.gameObject.transform.eulerAngles.y;
+						  z = light.gameObject.transform.eulerAngles.z;
+
+						 ShowingLight = light;
+                        }
+                        else
+                        {
+							ShowingLight = null;
+                        }
+                }
+                  }
+
+					GUILayout.Space(20);
+                }
+
+
+            }
+            else
+            {
+                if (GUILayout.Button("close"))
+                {
+					ShowingLight = null;
+                }
+            }
+
+            if (ShowingLight)
+            {
+			 LightAdjustment(ShowingLight);
+            }
+
+            else if(!LightsToggle)
+            {
+				GUILayout.Space(10);
+				skyboxToggle = GUILayout.Toggle(skyboxToggle, "Environment");
+                if (skyboxToggle)
+                {
+			     SetEnvironment();
+                }
+			    else
+                {
+			 	FreeCam();
+                }
+
+            }
+
+			GUILayout.EndScrollView();
+			GUILayout.EndArea();
+
         }
-		
+
+		void LightAdjustment(Light light)
+        {
+			LightSphere.SetActive(true);
+			LightSphere.transform.position = light.gameObject.transform.position;
+			
+            
+
+
+			GUILayout.Space(10);
+			//label
+            switch (light.type)
+            {
+				case LightType.Directional:
+			    GUILayout.Label($" name:{light.name} | Type:{light.type.ToString()} | ShadowType:{light.shadows.ToString()} | Rotation:{light.gameObject.transform.eulerAngles.ToString()}");
+					FreeCam();
+					DirectionalLightRotatePanel(light);
+				break;
+
+				case LightType.Spot:
+					GUILayout.Label($"{light.name} : {light.type.ToString()} : {light.shadows.ToString()} shadows : Rotation {light.gameObject.transform.eulerAngles.ToString()} : Position  {light.gameObject.transform.position.ToString()}");
+					MoveLight(light);
+					FocusCamOnLight();
+					break;
+
+				case LightType.Point:
+					GUILayout.Label($"{light.name} : {light.type.ToString()} : {light.shadows.ToString()} shadows : Rotation {light.gameObject.transform.eulerAngles.ToString()} : Position  {light.gameObject.transform.position.ToString()}");
+					MoveLight(light);
+					FocusCamOnLight();
+					break;
+
+				case LightType.Area:
+					GUILayout.Label($"{light.name} : {light.type.ToString()} : {light.shadows.ToString()} shadows : Rotation {light.gameObject.transform.eulerAngles.ToString()} : Position  {light.gameObject.transform.position.ToString()}");
+					MoveLight(light);
+					FocusCamOnLight();
+					break;
+				    
+			}
+			GUILayout.Space(20);
+
+			LightIntensity(light);
+			
+
+
+
+        }
+
+		void FreeCam()
+        {
+            
+				if (MGInputManager.LTrigger() < 0.5f)
+                {
+                if (MGInputManager.LStickX() > 0.1f| MGInputManager.LStickX() < -0.1f| MGInputManager.RStickY()>0.1f| MGInputManager.RStickY()<-0.1f| MGInputManager.LStickY()>0.1f| MGInputManager.LStickY()<-0.1f)
+                {
+					camobj.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.RStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
+					camobj.transform.Rotate(0, MGInputManager.RStickX(), 0);
+                }
+
+				}
+                else
+                {
+				camobj.transform.Rotate(MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.RStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.LStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
+                }
+			
+        }
+
+		void FocusCamOnLight()
+        {
+			camobj.transform.LookAt(ShowingLight.gameObject.transform);
+            if (MGInputManager.RTrigger() > 0.5f)
+            {
+				camobj.transform.Rotate(ShowingLight.gameObject.transform.up, camspeed.speeds[currentcamspeed].value * Time.deltaTime * MGInputManager.RStickX());
+            }
+			Vector3 vel = camobj.transform.position - ShowingLight.transform.position;
+			camobj.transform.position = Vector3.SmoothDamp(camobj.transform.position, ShowingLight.gameObject.transform.position + (-ShowingLight.gameObject.transform.right * 3),ref vel,0.1f);
+        }
+
+		void DirectionalLightRotatePanel(Light light)
+        {
+			GUILayout.Space(10);
+			GUILayout.Label("Rotation");
+
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("X:");
+			x = GUILayout.HorizontalSlider(x, 0, 360);
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Y:");
+			y = GUILayout.HorizontalSlider(y, 0, 360);
+			GUILayout.EndHorizontal();
+
+
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Z:");
+			z = GUILayout.HorizontalSlider(z, 0, 360);
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(10);
+			GUILayout.Label("Auto-Rotate");
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("X:");
+			
+			bool Xb = float.TryParse(Xval = GUILayout.TextField(Xval),out float Xres);
+			GUILayout.Label("Y:");
+			bool Yb = float.TryParse(Yval = GUILayout.TextField(Yval), out float Yres);
+			GUILayout.Label("Z:");
+			bool Zb = float.TryParse(Zval = GUILayout.TextField(Zval), out float Zres);
+
+			GUILayout.EndHorizontal();
+			GUILayout.BeginHorizontal();
+			if (GUILayout.Button("Start/Update"))
+            {
+				if(Xb && Yb && Zb)
+                {
+					bool inalready = false;
+                    for (int i = 0; i < Rotatinglights.Count; i++)
+                    {
+						if(Rotatinglights[i].light == light)
+                        {
+							Rotatinglights[i].Rotateamount = new Vector3(Xres, Yres, Zres);
+							inalready = true;
+                        }
+                    }
+
+                    if (!inalready)
+                    {
+						Rotatinglights.Add(new RotatingLight(light,new Vector3(Xres,Yres,Zres)));
+                    }
+
+                }
+
+            }
+			if (GUILayout.Button("Stop"))
+			{
+				for (int i = 0; i < Rotatinglights.ToArray().Length; i++)
+				{
+					if (Rotatinglights[i].light == light)
+					{
+						Rotatinglights.RemoveAt(i);
+					}
+				}
+			}
+			GUILayout.EndHorizontal();
+			bool found = false;
+            for (int i = 0; i < Rotatinglights.Count; i++)
+            {
+				if(Rotatinglights[i].light == light)
+                {
+					found = true;
+                }
+            }
+
+            if (!found)
+            {
+			light.gameObject.transform.eulerAngles = new Vector3(x, y, z);
+
+            }
+
+        }
+
+		void MoveLight(Light light)
+        {
+			
+			if (MGInputManager.LTrigger() < 0.5f)
+            {
+				light.gameObject.transform.position = light.gameObject.transform.position + (camobj.transform.forward * MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value) + (camobj.transform.right * MGInputManager.LStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value) + (camobj.transform.up * MGInputManager.RStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
+
+			}
+			//rotate current light if trigger is down
+			if (MGInputManager.LTrigger() > 0.5f)
+			{
+				light.gameObject.transform.Rotate(MGInputManager.LStickY() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.LStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value, MGInputManager.RStickX() * Time.deltaTime * camspeed.speeds[currentcamspeed].value);
+			}
+		}
+
+		void LightIntensity(Light light)
+        {
+			if(GUILayout.Button("Toggle On/Off"))
+            {
+				light.enabled = !light.enabled;
+            }
+			GUILayout.Space(10);
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Intensity: ");
+			light.intensity = GUILayout.HorizontalSlider(light.intensity, 0, 2);
+			GUILayout.EndHorizontal();
+			if(light.type != LightType.Directional)
+            {
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Range: ");
+			light.range = GUILayout.HorizontalSlider(light.range, 0, 100);
+			GUILayout.EndHorizontal();
+
+
+            }
+
+			DynamicGI.UpdateEnvironment();
+		}
+
+		void SetEnvironment()
+        {
+			GUILayout.Label("Ambient Color");
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("R:");
+			Skyr = GUILayout.HorizontalSlider(Skyr, 0, 1);
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("G:");
+			Skyg = GUILayout.HorizontalSlider(Skyg, 0, 1);
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("B:");
+			Skyb = GUILayout.HorizontalSlider(Skyb, 0, 1);
+			GUILayout.EndHorizontal();
+
+			
+
+			GUILayout.Space(10);
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Ambient Intensity:");
+			RenderSettings.ambientIntensity = GUILayout.HorizontalSlider(RenderSettings.ambientIntensity,0,1);
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(10);
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Reflection intensity:");
+			RenderSettings.reflectionIntensity = GUILayout.HorizontalSlider(RenderSettings.reflectionIntensity, 0, 1);
+			GUILayout.EndHorizontal();
+
+            if (RenderSettings.skybox)
+            {
+
+			GUILayout.Space(10);
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("SkyBox Exposure:");
+			RenderSettings.skybox.SetFloat("_Exposure", GUILayout.HorizontalSlider(RenderSettings.skybox.GetFloat("_Exposure"), 0, 2));
+			GUILayout.EndHorizontal();
+
+            }
+
+
+
+
+			GUILayout.Space(10);
+			RenderSettings.fog = GUILayout.Toggle(RenderSettings.fog, "Toggle Fog");
+
+			GUILayout.Space(10);
+			GUILayout.BeginHorizontal();
+			RenderSettings.fogMode = FogMode.Exponential;
+			GUILayout.Label("Fog density");
+			RenderSettings.fogDensity = GUILayout.HorizontalSlider(RenderSettings.fogDensity, 0, 0.1f);
+			GUILayout.EndHorizontal();
+
+			RenderSettings.ambientSkyColor = new Color(Skyr,Skyg,Skyb);
+            if (RenderSettings.skybox)
+            {
+			RenderSettings.skybox.color = new Color(Skyr, Skyg, Skyb);
+
+            }
+
+
+			//RenderSettings.skybox.ma
+			GUILayout.Space(20);
+			GUILayout.Label("SkyBoxes:");
+			GUILayout.Space(10);
+			Skyboxscroll = GUILayout.BeginScrollView(Skyboxscroll);
+            if (GUILayout.Button("Default"))
+            {
+				RenderSettings.skybox = DefaultSky;
+				DynamicGI.UpdateEnvironment();
+			}
+
+            if (GUILayout.Button("Remove"))
+            {
+				RenderSettings.skybox = null;
+				DynamicGI.UpdateEnvironment();
+            }
+			GUILayout.Space(10);
+			foreach (FileInfo file in new DirectoryInfo(SkyboxDirectory).GetFiles())
+            {
+				if(GUILayout.Button($"Load {file.Name}"))
+                {
+					SetSkyboxTexture(file);
+                }
+            }
+			GUILayout.EndScrollView();
+			DynamicGI.UpdateEnvironment();
+
+
+
+        }
+
+		void SetSkyboxTexture(FileInfo file)
+        {
+			Texture2D image = new Texture2D(2, 2);
+			byte[] bytes = File.ReadAllBytes(file.FullName);
+
+			ImageConversion.LoadImage(image, bytes);
+			image.name = file.Name;
+			Material mat = GameManager.PanoMat;
+			mat.mainTexture = image;
+
+			RenderSettings.skybox = mat;
+			DynamicGI.UpdateEnvironment();
+			
+        }
+
 		void SetupGuis()
         {
 
@@ -1664,6 +2082,14 @@ namespace FrostyP_Game_Manager
 
 
 
+		}
+
+		void YtoChangeSpeed()
+        {
+			if (MGInputManager.Y_Down())
+			{
+				currentcamspeed = camspeed.Change(currentcamspeed);
+			}
 		}
 
 	}
@@ -1746,6 +2172,19 @@ namespace FrostyP_Game_Manager
 
     }
 
+	public class RotatingLight
+    {
+		public Light light;
+		public Vector3 Rotateamount;
 
+
+		public RotatingLight(Light _light, Vector3 rotation)
+        {
+			light = _light;
+			Rotateamount = rotation;
+        }
+
+
+    }
 
 }

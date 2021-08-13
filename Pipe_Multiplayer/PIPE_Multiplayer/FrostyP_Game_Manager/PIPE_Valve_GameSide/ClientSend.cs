@@ -49,7 +49,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(GameNetworking.instance.VERSIONNUMBER);
 
 
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(_packet.ToArray(), SendFlags.Reliable);
                 }
 
            
@@ -163,17 +163,20 @@ namespace PIPE_Valve_Console_Client
                 SendToServer(_packet.ToArray(),SendFlags.Reliable);
                 Debug.Log($"Sent all gear and {FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count} objects");
                 LocalPlayer.instance.ServerActive = true;
+                LocalPlayer.instance.SendWatch.Start();
             }
 
         }
 
-        public static void SendMyTransforms(Vector3[] positions, Vector3[] rotations, long _TimeStamp)
+       
+        public static void SendMyTransforms(Vector3[] positions, Vector3[] rotations, long _TimeStamp, float elapsed)
         {
 
             using (Packet _packet = new Packet((int)ClientPackets.TransformUpdate))
             {
 
                 _packet.Write(_TimeStamp);
+                _packet.Write(elapsed);
 
 
                 // rider root and locals
@@ -187,9 +190,7 @@ namespace PIPE_Valve_Console_Client
 
                 }
                 // Hip Joint
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[20].x * PosMult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[20].y * PosMult))));
-                _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((positions[20].z * PosMult))));
+                _packet.Write(positions[20]);
 
 
                 // bike joint
@@ -245,9 +246,9 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].y * Rotmult))));
                 _packet.Write((short)(SystemHalf.HalfHelper.SingleToHalf((rotations[32].z * Rotmult))));
 
-
-                SendToServer(_packet.ToArray(), SendFlags.Unreliable | SendFlags.NoDelay);
-
+               
+                SendToServer(_packet.ToArray(), SendFlags.Unreliable);
+               
             }
 
 
@@ -374,6 +375,8 @@ namespace PIPE_Valve_Console_Client
         {
             using(Packet _packet = new Packet((int)ClientPackets.SendTextMessage))
             {
+                _message = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(_message));
+                
                 _packet.Write(_message);
 
 
@@ -428,11 +431,9 @@ namespace PIPE_Valve_Console_Client
         {
             using (Packet _packet = new Packet((int)ClientPackets.SendMapName))
             {
-                string inputString = name;
-                string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8,Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty),new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-
-                Debug.Log($"Sent {asAscii}");
-                _packet.Write(asAscii);
+              
+                Debug.Log($"Sent {name}");
+                _packet.Write(name);
               
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
@@ -485,20 +486,20 @@ namespace PIPE_Valve_Console_Client
         public static void SpawnObjectOnServer(FrostyP_Game_Manager.NetGameObject _netobj)
         {
             string nameoffileinput = _netobj.NameOfFile;
-            string nameoffileascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameoffileinput)));
-            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidFileNameChars());
-            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidPathChars());
+            string NameofFileUnicode = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(nameoffileinput));
+            NameofFileUnicode = NameofFileUnicode.Trim(Path.GetInvalidFileNameChars());
+            NameofFileUnicode = NameofFileUnicode.Trim(Path.GetInvalidPathChars());
 
             string nameofassetbuninput = _netobj.NameofAssetBundle;
-            string nameofassetbunascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameofassetbuninput)));
-            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidFileNameChars());
-            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidPathChars());
+            string NameofBundleUnicode = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(nameofassetbuninput));
+            NameofBundleUnicode = NameofBundleUnicode.Trim(Path.GetInvalidFileNameChars());
+            NameofBundleUnicode = NameofBundleUnicode.Trim(Path.GetInvalidPathChars());
 
             using (Packet _packet = new Packet((int)ClientPackets.SpawnObject))
             {
                 _packet.Write(_netobj.NameofObject);
-                _packet.Write(nameoffileascii);
-                _packet.Write(nameofassetbunascii);
+                _packet.Write(NameofFileUnicode);
+                _packet.Write(NameofBundleUnicode);
 
                 _packet.Write(_netobj.Position);
                 _packet.Write(_netobj.Rotation);

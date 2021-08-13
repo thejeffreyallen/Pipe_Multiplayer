@@ -11,6 +11,11 @@ using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace PIPE_Valve_Online_Server
 {
@@ -22,76 +27,55 @@ namespace PIPE_Valve_Online_Server
     {
 		#region Servers data
 
-		
+		[JsonProperty]
 		public static float VERSIONNUMBER { get;} = 2.14f;
-
-
 		public static List<BanProfile> BanProfiles = new List<BanProfile>();
-		
-
 		/// <summary>
 		/// Timers linked to connection ID, every message received resets the timer related to the sender of the message, 60second timeout will close the connection
 		/// </summary>
 		public static Dictionary<uint, Stopwatch> TimeoutWatches = new Dictionary<uint, Stopwatch>();
-
-
-		
-
-
 		/// <summary>
 		/// Switch For main thread loop
 		/// </summary>
 		static bool isRunning = true;
-
-
+		[JsonProperty]
 		public static int MaxPlayers;
-
-
 		/// <summary>
 		/// Internal Callbacks etc with info about connection
 		/// </summary>
 		public static NetworkingUtils utils;
-
-
-
 		/// <summary>
 		/// Actual Socket that sends and receives
 		/// </summary>
-		public static NetworkingSockets server;
-
-
+		public static NetworkingSockets Connection;
         // connected clients
-		public static uint pollGroup;
-
-		
-
+		public static uint ConnectedRiders;
 		/// <summary>
 		/// A PacketHandler is any fuction that takes in a uint and a Packet
 		/// </summary>
 		/// <param name="_fromClient"></param>
 		/// <param name="_packet"></param>
 		public delegate void PacketHandler(uint _fromClient, Packet _packet);
-
-
 		/// <summary>
 		/// PacketHandlers linked with an Int key, incoming messages fire PacketHandlers[packetcode] which is a function that takes in uint(from connection) and Packet(received bytes)
 		/// </summary>
 		public static Dictionary<int, PacketHandler> packetHandlers;
-
 		/// <summary>
 		/// Live players on server
 		/// </summary>
 		public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
-		
+		#endregion
+
+		#region Publicised Data
+
+		[JsonProperty]
+		public static string ServerName = "Server Name";
+		[JsonProperty]
+		public static int Port = 7777;
+       
+
         #endregion
-
-
-
-
-
-
-
 
 
         // creates any data needed at startup
@@ -133,6 +117,35 @@ namespace PIPE_Valve_Online_Server
 		}
 
 
+		public static void PostRequest()
+		{
+			var url = "https://pipe-multiplayerservers.herokuapp.com/api/server/1";
+
+			var httpRequest = (HttpWebRequest)WebRequest.Create(url);
+
+			httpRequest.Method = "POST";
+			httpRequest.AllowWriteStreamBuffering = true;
+			httpRequest.KeepAlive = false;
+
+			httpRequest.Accept = "application/json";
+			httpRequest.ContentType = "application/json";
+
+			   var data = @"{""Id"": 78912,""Server"": ""1"",""IP"": 00.00.00}";
+			;
+           
+			using (var streamWriter = new StreamWriter(httpRequest.GetRequestStream()))
+			{
+				streamWriter.Write(data);
+			}
+
+			var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+			using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+			{
+				var result = streamReader.ReadToEnd();
+			}
+
+			Console.WriteLine(httpResponse.StatusCode);
+		}
 
 
 
@@ -144,7 +157,7 @@ namespace PIPE_Valve_Online_Server
 		{
 			Console.Write("Booting...");
 			MaxPlayers = _MaxPlayers;
-
+			Port = port;
 			// boots up Valve dependencies (GameNetworkingSockets etc)
 			Library.Initialize();
 
@@ -153,9 +166,9 @@ namespace PIPE_Valve_Online_Server
 
 			utils = new NetworkingUtils();
 
-			server = new NetworkingSockets();
+			Connection = new NetworkingSockets();
 
-			pollGroup = server.CreatePollGroup();
+			ConnectedRiders = Connection.CreatePollGroup();
 
 			int sendRateMin = 600000;
 			int sendRateMax = 65400000;
@@ -163,8 +176,8 @@ namespace PIPE_Valve_Online_Server
 
 			unsafe
 			{
-				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(pollGroup), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(ConnectedRiders), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
+				utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(ConnectedRiders), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
 				utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
 				
 			}
@@ -217,7 +230,7 @@ namespace PIPE_Valve_Online_Server
 
 			
 
-			uint listenSocket = server.CreateListenSocket(ref address);
+			uint listenSocket = Connection.CreateListenSocket(ref address);
 
 			Console.WriteLine("Ready and listening for connections..");
 			
@@ -238,11 +251,11 @@ namespace PIPE_Valve_Online_Server
 			
 
 
-				if (server != null) GC.KeepAlive(server);
+				if (Connection != null) GC.KeepAlive(Connection);
 
 				
-				server.RunCallbacks();
-				int netMessagesCount = server.ReceiveMessagesOnPollGroup(pollGroup, netMessages, maxMessages);
+				Connection.RunCallbacks();
+				int netMessagesCount = Connection.ReceiveMessagesOnPollGroup(ConnectedRiders, netMessages, maxMessages);
 					
 				// if theres messages, add them to secondary thread for processing at tick rate
 				if (netMessagesCount > 0)
@@ -304,7 +317,7 @@ namespace PIPE_Valve_Online_Server
 
 
 			// shutdown
-			server.DestroyPollGroup(pollGroup);
+			Connection.DestroyPollGroup(ConnectedRiders);
 			Library.Deinitialize();
 
 		}
@@ -316,7 +329,7 @@ namespace PIPE_Valve_Online_Server
 		public static int PendingReliableForConnection(uint _player)
 		{
 			ConnectionStatus constat = new ConnectionStatus();
-			server.GetQuickConnectionStatus(_player, ref constat);
+			Connection.GetQuickConnectionStatus(_player, ref constat);
 
 			return constat.pendingReliable;
 
@@ -334,7 +347,7 @@ namespace PIPE_Valve_Online_Server
 			
 			if(Players.Values.Count >= MaxPlayers)
             {
-				server.CloseConnection(info.connection);
+				Connection.CloseConnection(info.connection);
 				Console.WriteLine("Player refused connection due to MaxPlayer cap");
 				return;
 			}
@@ -342,14 +355,14 @@ namespace PIPE_Valve_Online_Server
                 {
 					if (ban.IP == info.connectionInfo.address.GetIP())
                     {
-						server.CloseConnection(info.connection);
+						Connection.CloseConnection(info.connection);
 						
 						Console.WriteLine($"{ban.Username} refused a connection due to Ban: {info.connectionInfo.address.GetIP()}");
 						return;
                     }
 					if (ban.ConnId == info.connection)
 					{
-						server.CloseConnection(info.connection);
+						Connection.CloseConnection(info.connection);
 
 						Console.WriteLine($"{ban.Username} refused a connection due to Ban: {info.connection}");
 						return;
@@ -361,8 +374,8 @@ namespace PIPE_Valve_Online_Server
 
 
 
-			server.AcceptConnection(info.connection);
-			server.SetConnectionPollGroup(pollGroup, info.connection);
+			Connection.AcceptConnection(info.connection);
+			Connection.SetConnectionPollGroup(ConnectedRiders, info.connection);
 
            
 		}
@@ -410,8 +423,8 @@ namespace PIPE_Valve_Online_Server
 		public static void DisconnectPlayerAndCleanUp(uint ClientThatDisconnected)
         {
 			// cut connection
-			server.CloseConnection(ClientThatDisconnected);
-			server.FlushMessagesOnConnection(ClientThatDisconnected);
+			Connection.CloseConnection(ClientThatDisconnected);
+			Connection.FlushMessagesOnConnection(ClientThatDisconnected);
 
 			// find and remove PlayerData
 			foreach (Player p in Server.Players.Values.ToList())

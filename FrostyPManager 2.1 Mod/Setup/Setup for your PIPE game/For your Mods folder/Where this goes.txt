@@ -1,5 +1,0 @@
-Copy the whole FrostyP Game Manager folder and paste into YourPipeFolder/Mods/      overwriting any existing version of FrostyPmanager
-
-copy PipeWorks PI to Mods aswell if you dont it
-
-Remove PipeWorks MI and Patcha Map importer if you have them, Patcha is integrated, still use the L key to toggle in game

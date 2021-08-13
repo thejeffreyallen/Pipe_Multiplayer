@@ -8,10 +8,6 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\o
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csproj.CopyComplete
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.exe
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.pdb
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.dll
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.pdb
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.dll.config
-E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\PIPE Server GUI.exe.config
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\UnityEngine.CoreModule.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\UnityEngine.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\UnityEngine.ParticleSystemModule.dll
@@ -112,3 +108,5 @@ E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\b
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\UnityEngine.XRModule.xml
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\BikeWorkshopMenu.dll
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\BikeWorkshopMenu.pdb
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\bin\Release\Newtonsoft.Json.dll
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Valve_Server\obj\Release\PIPE_Valve_Online_Server.csprojAssemblyReference.cache

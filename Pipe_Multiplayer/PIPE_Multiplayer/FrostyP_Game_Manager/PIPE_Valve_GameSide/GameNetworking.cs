@@ -120,10 +120,6 @@ namespace PIPE_Valve_Console_Client
 
 		}
 
-
-		
-
-
 		/// <summary>
 		/// Receiving System loop for network
 		/// </summary>
@@ -155,14 +151,18 @@ namespace PIPE_Valve_Console_Client
 						byte[] bytes = new byte[netMessage.length];
 						netMessage.CopyTo(bytes);
 					
+	 				
 			           SendToUnityThread.instance.ExecuteOnMainThread(() =>
 				       {
 
 						 using (Packet _packet = new Packet(bytes))
 						 {
-							int _packetId = _packet.ReadInt();
-							
-								packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet, see Packet class on both server and game side to find codes, see Start() for setup of Gameside Codes
+							   int _packetId = _packet.ReadInt();
+
+
+						    packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet, see Packet class on both server and game side to find codes, see Start() for setup of Gameside Codes
+
+							  
 						 }
 
 					
@@ -183,7 +183,6 @@ namespace PIPE_Valve_Console_Client
 
 
 			// do connection status on tickrate to log to IngameGUI info about ping, connection state etc, alternative to client.runcallbacks()
-			
 			 ConnectionStatus();
 			
 
@@ -474,7 +473,7 @@ namespace PIPE_Valve_Console_Client
             {
 				SendToUnityThread.instance.ExecuteOnMainThread(() =>
 				{
-					
+					InGameUI.instance.LastPing = InGameUI.instance.Ping;
 					InGameUI.instance.Ping = constat.ping;
 					InGameUI.instance.Pendingreliable = constat.pendingReliable;
 					InGameUI.instance.Pendingunreliable = constat.pendingUnreliable;

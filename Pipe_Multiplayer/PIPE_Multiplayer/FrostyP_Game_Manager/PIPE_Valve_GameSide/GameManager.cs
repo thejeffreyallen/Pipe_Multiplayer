@@ -55,6 +55,9 @@ namespace PIPE_Valve_Console_Client
         GameObject patcha;
         PatchaMapImporter.PatchaMapImporter mapImporter;
 
+        // Panoramic skybox shader
+        public static Material PanoMat;
+
 
         //initialize mapImporter
         public void Awake()
@@ -65,25 +68,29 @@ namespace PIPE_Valve_Console_Client
             patcha.AddComponent<PatchaMapImporter.PatchaMapImporter>();
             mapImporter = patcha.GetComponent<PatchaMapImporter.PatchaMapImporter>();
 
+
+            // make all directories
+
+            string[] dirs = new string[]
+            {
+                TempDir,
+                MapsDir + "DLLs/",
+                PlayerModelsDir,
+                UpdateDir,
+                GarageDir,
+                GarageDir + "OfflineTextures/",
+
+            };
+
+            for (int i = 0; i < dirs.Length; i++)
+            {
+
+            if (!Directory.Exists(dirs[i]))
+            {
+                Directory.CreateDirectory(dirs[i]);
+            }
+            }
             
-            if (!Directory.Exists(TempDir))
-            {
-                Directory.CreateDirectory(TempDir);
-            }
-            if (!Directory.Exists(MapsDir + "DLLs/"))
-            {
-                Directory.CreateDirectory(MapsDir + "DLLs/");
-            }
-            if (!Directory.Exists(PlayerModelsDir))
-            {
-                Directory.CreateDirectory(PlayerModelsDir);
-            }
-            if (!Directory.Exists(UpdateDir))
-            {
-                Directory.CreateDirectory(UpdateDir);
-            }
-
-
             BMXSPlayer = GameObject.Find("BMXS Player Components");
             SetupDaryienAndBMXBaseModels();
 
@@ -108,20 +115,20 @@ namespace PIPE_Valve_Console_Client
 
             Players = new Dictionary<uint, RemotePlayer>();
 
-          
         }
 
         // Use this for initialization
         void Start()
         {
+           
             FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
             Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
             Prefab.AddComponent<RemotePlayer>();
             wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
-
+            PanoMat = FrostyAssets.LoadAsset("Skybox") as Material;
             Component.FindObjectsOfType<SessionMarker>()[0].OnSetAtMarker.AddListener(DontWipeOutPlayersOnReset);
 
-
+          
         }
 
         void Update()
@@ -220,17 +227,14 @@ namespace PIPE_Valve_Console_Client
             {
                 firstMap = string.IsNullOrEmpty(mapImporter.GetCurrentMapName());
                 MycurrentLevel = string.IsNullOrEmpty(mapImporter.GetCurrentMapName()) ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().name : mapImporter.GetCurrentMapName(); // Use the actual map file name or, if on the unmodded maps, use the scene name
-                string inputString = MycurrentLevel;
-                string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                MycurrentLevel = asAscii;
-                MycurrentLevel = MycurrentLevel.Trim(Path.GetInvalidFileNameChars());
-                MycurrentLevel = MycurrentLevel.Trim(Path.GetInvalidPathChars());
+               
+                MycurrentLevel = ConvertToUnicode(MycurrentLevel);
                 
 
                 if (!firstMap && InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
                 {
-                    ClientSend.SendMapName(GameManager.instance.MycurrentLevel);
-                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Sent Map name", 1, 1));
+                    ClientSend.SendMapName(MycurrentLevel);
+                    InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Sent {MycurrentLevel} Map name", 1, 1));
                     ChangingLevel(MycurrentLevel);
 
                 }
@@ -459,12 +463,10 @@ namespace PIPE_Valve_Console_Client
 
                             if(bytes != null)
                             {
-                            string inputString = r.materials[i].mainTexture.name;
-                            string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                            asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
-                            asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+                           
+                             string Unicode = ConvertToUnicode(r.materials[i].mainTexture.name);
 
-                            list.Add(new TextureInfo(asciifile, r.gameObject.name, false, i));
+                            list.Add(new TextureInfo(Unicode, r.gameObject.name, false, i));
 
                             }
                             else
@@ -894,6 +896,17 @@ namespace PIPE_Valve_Console_Client
 
             InGameUI.instance.ToggledOffPlayersByMe = ridersToBeAwareOf;
 
+        }
+
+        public static string ConvertToUnicode(string text)
+        {
+            Encoding Uni = Encoding.Unicode;
+            string outstring = Uni.GetString(Uni.GetBytes(text));
+
+
+           outstring = outstring.Trim(Path.GetInvalidPathChars());
+           outstring = outstring.Trim(Path.GetInvalidFileNameChars());
+            return outstring;
         }
 
         // A non-Monobehaviour wants to use a Mono function

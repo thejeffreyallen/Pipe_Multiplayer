@@ -210,8 +210,9 @@ namespace PIPE_Valve_Online_Server
         /// <param name="_value">The string to add.</param>
         public void Write(string _value)
         {
-            Write(_value.Length); // Add the length of the string to the packet
-            buffer.AddRange(Encoding.ASCII.GetBytes(_value)); // Add the string itself
+            byte[] output = Encoding.Unicode.GetBytes(_value);
+            Write(output.Length); // Add the length of the string to the packet
+            buffer.AddRange(output); // Add the string itself
         }
         /// <summary>Adds a Vector3 to the packet.</summary>
         /// <param name="_value">The Vector3 to add.</param>
@@ -388,7 +389,7 @@ namespace PIPE_Valve_Online_Server
             try
             {
                 int _length = ReadInt(); // Get the length of the string
-                string _value = Encoding.ASCII.GetString(readableBuffer, readPos, _length); // Convert the bytes to a string
+                string _value = Encoding.Unicode.GetString(readableBuffer, readPos, _length); // Convert the bytes to a string
                 if (_moveReadPos && _value.Length > 0)
                 {
                     // If _moveReadPos is true string is not empty

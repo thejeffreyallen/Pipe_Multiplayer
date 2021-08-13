@@ -91,14 +91,12 @@ namespace PIPE_Valve_Console_Client
               
                 foreach (FileInfo _di in new DirectoryInfo(Application.dataPath).GetFiles("*.*",SearchOption.AllDirectories))
                 {
-                    string inputString = _di.Name;
-                    string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                    asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
-                    asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+                   
+                    string UnicodeFilename = GameManager.ConvertToUnicode(_di.Name);
 
 
 
-                    if (asciifile.ToLower() == index.NameOfFile.ToLower())
+                        if (UnicodeFilename.ToLower() == index.NameOfFile.ToLower())
                         {
                             _file = _di;
                         }
@@ -166,16 +164,16 @@ namespace PIPE_Valve_Console_Client
         public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, long Totalbytes, string path)
         {
             string inputString = name;
-            string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+            string UnicodeName = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(inputString));
 
 
 
             // if no Temp file exists create one 
-            if (!File.Exists(GameManager.TempDir + asAscii + ".temp"))
+            if (!File.Exists(GameManager.TempDir + UnicodeName + ".temp"))
             {
                 TempFile Temp = new TempFile();
                 BinaryFormatter bf = new BinaryFormatter();
-                FileStream stream = File.OpenWrite(GameManager.TempDir + asAscii + ".temp");
+                FileStream stream = File.OpenWrite(GameManager.TempDir + UnicodeName + ".temp");
 
                 
                 Temp.ByteLengthOfFile = Totalbytes;
@@ -191,11 +189,11 @@ namespace PIPE_Valve_Console_Client
                 {
 
                 string fileinputString = r.NameOfFile;
-                string fileasAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
+                string UnicodeFilename = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(fileinputString));
 
 
 
-                if (fileasAscii.ToLower() == asAscii.ToLower())
+                if (UnicodeFilename.ToLower() == UnicodeName.ToLower())
                 {
                     InIndex = r;
                 }
@@ -232,9 +230,9 @@ namespace PIPE_Valve_Console_Client
 
                
                 if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
-                File.Move(GameManager.TempDir + asAscii, mypath + "/" + asAscii);
-                File.Delete(GameManager.TempDir + asAscii + ".temp");
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {asAscii} to {mypath}", (int)MessageColourByNum.System, 1));
+                File.Move(GameManager.TempDir + UnicodeName, mypath + "/" + UnicodeName);
+                File.Delete(GameManager.TempDir + UnicodeName + ".temp");
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {UnicodeName} to {mypath}", (int)MessageColourByNum.System, 1));
 
                 IncomingIndexes.Remove(InIndex);
                
@@ -242,7 +240,7 @@ namespace PIPE_Valve_Console_Client
 
                
 
-                 ClientSend.FileStatus(asAscii,(int)FileStatus.Received);
+                 ClientSend.FileStatus(UnicodeName,(int)FileStatus.Received);
                 
                  
 
@@ -352,12 +350,12 @@ namespace PIPE_Valve_Console_Client
             else
             {
                 // update temp file
-                FileStream stream = File.OpenRead(GameManager.TempDir + asAscii + ".temp");
+                FileStream stream = File.OpenRead(GameManager.TempDir + UnicodeName + ".temp");
                 BinaryFormatter bf = new BinaryFormatter();
                 TempFile _temp = bf.Deserialize(stream) as TempFile;
                 stream.Close();
                 _temp.PacketNumbersStored.Add(SegNo);
-                stream = File.OpenWrite(GameManager.TempDir + asAscii + ".temp");
+                stream = File.OpenWrite(GameManager.TempDir + UnicodeName + ".temp");
                 bf.Serialize(stream, _temp);
                 stream.Close();
             }
@@ -378,19 +376,16 @@ namespace PIPE_Valve_Console_Client
             {
                 return;
             }
-            string asAscii = null;
+            
             foreach (FileInfo _map in new DirectoryInfo(GameManager.MapsDir).GetFiles())
             {
-                string inputString = _map.Name;
-                string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
-                asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+               
+                string Unicode = GameManager.ConvertToUnicode(_map.Name);
 
-                if (asciifile.ToLower() == name.ToLower())
+                if (Unicode.ToLower() == name.ToLower())
                 {
                     got = true;
-                    asAscii = asciifile;
-
+                    
                 }
             }
             if (!got)
@@ -417,12 +412,10 @@ namespace PIPE_Valve_Console_Client
             FileInfo[] info = new DirectoryInfo(Application.dataPath).GetFiles("*.*", SearchOption.AllDirectories);
             for (int i = 0; i < info.Length; i++)
             {
-                string inputString = info[i].Name;
-                string asciifile = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                asciifile = asciifile.Trim(Path.GetInvalidFileNameChars());
-                asciifile = asciifile.Trim(Path.GetInvalidPathChars());
+                
+                string Unicode = GameManager.ConvertToUnicode(info[i].Name);
 
-                if (asciifile.ToLower() == nameoffile.ToLower())
+                if (Unicode.ToLower() == nameoffile.ToLower())
                 {
                     return true;
                 }

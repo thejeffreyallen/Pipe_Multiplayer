@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.IO;
-using PIPE_Server_GUI;
 using System.Reflection;
 using System.Runtime;
 using System.Windows.Forms;
@@ -79,7 +78,7 @@ namespace PIPE_Valve_Online_Server
 
 
 
-
+            Console.OutputEncoding = Encoding.Unicode;
             Server.Run(port, Maxplayers);
 
 

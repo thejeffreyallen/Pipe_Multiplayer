@@ -51,6 +51,7 @@ namespace PIPE_Valve_Console_Client
 
         // connection status
         public float Ping = 0;
+        public float LastPing = 0;
         public float Outbytespersec = 0;
         public float InBytespersec = 0;
         public int Pendingreliable;
@@ -422,9 +423,6 @@ namespace PIPE_Valve_Console_Client
                 }
 
                 
-                CamModes[cyclemodes]();
-
-
                 if (Connected)
                 {
                     GameManager.KeepNetworkActive();
@@ -452,6 +450,11 @@ namespace PIPE_Valve_Console_Client
 
            
 
+        }
+
+        void FixedUpdate()
+        {
+            CamModes[cyclemodes]();
         }
 
         void OnGUI()
@@ -1362,6 +1365,7 @@ namespace PIPE_Valve_Console_Client
                         GUILayout.Label($"As: {player.CurrentModelName}",Generalstyle);
                         GUILayout.Label($"Net FPS: {Mathf.RoundToInt(player.PlayersFrameRate)}",Generalstyle);
                         GUILayout.Label($"Rider2Rider Ping: {player.R2RPing} Ms",Generalstyle);
+                        GUILayout.Label($"Position stack: {player.IncomingTransformUpdates.Count}");
                             GUILayout.Space(10);
                         player.PlayerIsVisible = GUILayout.Toggle(player.PlayerIsVisible, "Toggle Player Visibilty",PlayeroptionsStyle);
                             if (player.PlayerIsVisible)
@@ -1537,7 +1541,7 @@ namespace PIPE_Valve_Console_Client
                             {
                                 foundmap = true;
                                 bool imin = false;
-                                foreach (RemotePlayer inlist in PlayersAtMap[map])
+                                foreach (RemotePlayer inlist in PlayersAtMap[map].ToArray())
                                 {
                                     if (inlist.id == player.id)
                                     {
@@ -1644,8 +1648,8 @@ namespace PIPE_Valve_Console_Client
                    {
                         GameManager.instance.JumpToPlayerMap(mostpop);
                    }
-                    GUILayout.Label($" :", title, GUILayout.MaxWidth(10));
-                    GUILayout.Label($" {mostpopridercount} ",Contentleft, GUILayout.MaxWidth(30));
+                    GUILayout.Label($":", title, GUILayout.MaxWidth(10));
+                    GUILayout.Label($"{mostpopridercount}",Contentleft, GUILayout.MaxWidth(30));
                     GUILayout.Label($" Riders there", title, GUILayout.MaxWidth(100));
                     GUILayout.EndHorizontal();
                     GUILayout.Space(10);

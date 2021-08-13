@@ -42,7 +42,7 @@ namespace PIPE_Valve_Online_Server
             catch(Exception x)
             { 
             Console.WriteLine($"couldnt get map name, using {CurrentLevel} in their package: {x}");
-                    Server.server.CloseConnection(_from);
+                    Server.Connection.CloseConnection(_from);
                     return;
 
             }
@@ -54,7 +54,7 @@ namespace PIPE_Valve_Online_Server
             catch (Exception x)
             {
                 Console.WriteLine($"no Version number found from {name}, cut off");
-                Server.server.CloseConnection(_from);
+                Server.Connection.CloseConnection(_from);
                 return;
             }
 
@@ -119,7 +119,7 @@ namespace PIPE_Valve_Online_Server
             catch (Exception x)
             {
                 Console.WriteLine("Welcome error: " + x);
-                Server.server.CloseConnection(_from);
+                Server.Connection.CloseConnection(_from);
             }
 
 
@@ -668,7 +668,7 @@ namespace PIPE_Valve_Online_Server
 
             long ServerStamp = DateTime.Now.ToFileTimeUtc();
             ConnectionStatus info = new ConnectionStatus();
-            Server.server.GetQuickConnectionStatus(_from, ref info);
+            Server.Connection.GetQuickConnectionStatus(_from, ref info);
             int _ping = info.ping;
 
             try
@@ -684,6 +684,7 @@ namespace PIPE_Valve_Online_Server
 
                 // store latest root for initialization
                 long stamp = _packet.ReadLong();
+                float ms = _packet.ReadFloat();
                 Vector3 pos = _packet.ReadVector3();
                 Vector3 rot = _packet.ReadVector3();
 
@@ -694,14 +695,11 @@ namespace PIPE_Valve_Online_Server
                 }
 
 
-
-
-
             }
             catch (Exception)
             {
 
-                throw;
+               
             }
 
         }
@@ -843,7 +841,7 @@ namespace PIPE_Valve_Online_Server
                             if(p.AmountofObjectBoots >= 5)
                             {
                                 Valve.Sockets.ConnectionInfo info = new Valve.Sockets.ConnectionInfo();
-                                Server.server.GetConnectionInfo(p.RiderID, ref info);
+                                Server.Connection.GetConnectionInfo(p.RiderID, ref info);
                                 ServerData.BanPlayer(p.Username, info.address.GetIP(), OwnerID, 10);
 
                                 ServerSend.DisconnectPlayer($"You were booted for {10} minutes", p.RiderID);
@@ -1032,7 +1030,7 @@ namespace PIPE_Valve_Online_Server
                 {
                    
                     Valve.Sockets.ConnectionInfo info = new Valve.Sockets.ConnectionInfo();
-                    Server.server.GetConnectionInfo(p.RiderID, ref info);
+                    Server.Connection.GetConnectionInfo(p.RiderID, ref info);
                     ServerData.BanPlayer(p.Username, info.address.GetIP(), _admin, mins);
 
                     ServerSend.DisconnectPlayer($"You were booted for {mins} minutes", p.RiderID);

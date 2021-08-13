@@ -35,7 +35,9 @@ namespace PIPE_Valve_Console_Client
         public string RiderModelBundleName = "e";
 
         LocalPlayerAudio Audio;
+        public System.Diagnostics.Stopwatch SendWatch = new System.Diagnostics.Stopwatch();
         DateTime LastTransformTime = DateTime.Now;
+
        
       
 
@@ -61,12 +63,23 @@ namespace PIPE_Valve_Console_Client
             // Independently measures timespan to guarantee position updates are spaced appropriately
             if (InGameUI.instance.Connected && ServerActive)
             {
-                if((DateTime.Now - LastTransformTime).TotalMilliseconds > 15.00f)
+                if (!SendWatch.IsRunning)
                 {
-                    CheckThreshold();
-                    LastTransformTime = DateTime.Now;
+                    SendWatch.Start();
+                }
+
+
+                if(SendWatch.ElapsedMilliseconds + ((Time.deltaTime/4)*1000) > 16.00f)
+                {
+                    CheckThreshold(SendWatch.ElapsedMilliseconds);
+                    SendWatch.Reset();
+                    SendWatch.Start();
                 }
                
+            }
+            else if (SendWatch.IsRunning)
+            {
+                SendWatch.Stop();
             }
 
         }
@@ -120,7 +133,7 @@ namespace PIPE_Valve_Console_Client
             return true;
         }
 
-        public void CheckThreshold()
+        public void CheckThreshold(long elapsed)
         {
             List<float> distances = new List<float>();
             List<float> angles = new List<float>();
@@ -156,12 +169,12 @@ namespace PIPE_Valve_Console_Client
 
             if (send)
             {
-              PackTransformsandSend();
+              PackTransformsandSend((float)elapsed);
             }
 
         }
 
-        public void PackTransformsandSend()
+        public void PackTransformsandSend(float elapsed)
         {
            // rider
             riderPositions[0] = Riders_Transforms[0].position;
@@ -180,8 +193,8 @@ namespace PIPE_Valve_Console_Client
             riderPositions[24] = Riders_Transforms[24].position;
             riderRotations[24] = Riders_Transforms[24].eulerAngles;
 
-            riderPositions[25] = Riders_Transforms[25].position;
-            riderPositions[27] = Riders_Transforms[27].position;
+            riderPositions[25] = Riders_Transforms[25].localPosition;
+            riderPositions[27] = Riders_Transforms[27].localPosition;
 
             for (int i = 25; i < 32; i++)
             {    
@@ -191,8 +204,7 @@ namespace PIPE_Valve_Console_Client
             // rot of fingers index2
             riderRotations[32] = Riders_Transforms[32].localEulerAngles;
             riderRotations[33] = Riders_Transforms[33].localEulerAngles;
-           // Debug.Log("Trans send");
-           ClientSend.SendMyTransforms(riderPositions, riderRotations, DateTime.Now.ToFileTimeUtc());
+           ClientSend.SendMyTransforms(riderPositions, riderRotations, DateTime.Now.ToFileTimeUtc(),elapsed);
            
         }
 

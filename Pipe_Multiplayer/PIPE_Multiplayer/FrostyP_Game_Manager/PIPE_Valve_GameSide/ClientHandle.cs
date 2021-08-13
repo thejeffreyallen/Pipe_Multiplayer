@@ -458,7 +458,7 @@ namespace PIPE_Valve_Console_Client
             if (LocalPlayer.instance.ServerActive)
             {
                 // data server added to packet
-                int Ping = _packet.ReadInt();
+            int Ping = _packet.ReadInt();
             long ServerTimestamp = _packet.ReadLong();
             uint FromId = (uint)_packet.ReadLong();
             int length = _packet.ReadInt();
@@ -489,6 +489,7 @@ namespace PIPE_Valve_Console_Client
 
                     // Players machine timestamp
                     long _playertime = ClientPacket.ReadLong();
+                    float elapsed = ClientPacket.ReadFloat();
                     // riders root pos and rot
                 Positions[0] = ClientPacket.ReadVector3();
                 Rotations[0] = ClientPacket.ReadVector3();
@@ -517,7 +518,7 @@ namespace PIPE_Valve_Console_Client
                 }
 
                     // hip joint
-                    Positions[20] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DividePos));
+                    Positions[20] = ClientPacket.ReadVector3();
 
                     // bike joint
                     Positions[24] = ClientPacket.ReadVector3();
@@ -546,14 +547,14 @@ namespace PIPE_Valve_Console_Client
                     Rotations[32] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
                     Rotations[33] = new Vector3((float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot), (float)(SystemHalf.HalfHelper.HalfToSingle(ClientPacket.ReadShort()) / DivideRot));
 
-
+                   
                     try
                     {
                         if(GameManager.Players.TryGetValue(FromId,out RemotePlayer player))
                         {
                         if (player.MasterActive)
                         {
-                         player.IncomingTransformUpdates.Add(new IncomingTransformUpdate(Positions, Rotations, Ping, ServerTimestamp, _playertime));
+                          player.ProcessNewPositionUpdate(new IncomingTransformUpdate(Positions, Rotations, Ping, ServerTimestamp, _playertime,elapsed));
                         }
                     
                         }

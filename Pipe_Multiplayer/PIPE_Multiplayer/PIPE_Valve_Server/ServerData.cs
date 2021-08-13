@@ -109,8 +109,7 @@ namespace PIPE_Valve_Online_Server
             }
 
 
-           
-
+            //Server.PostRequest();
         }
 
         public static void SaveServerData()
@@ -172,12 +171,10 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-
-
         public static void FileCheckAndSend(string FileName, List<int> _packetsowned, uint _from)
         {
             FileInfo _fileinfo = null;
-
+           
 
             // Find Fileinfo
                 if (FileName != "")
@@ -186,14 +183,11 @@ namespace PIPE_Valve_Online_Server
                     foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
                     {
                     // get ascii'd file name
-                    string inputString = file.Name;
-                    string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                    asAscii = asAscii.Trim(Path.GetInvalidFileNameChars());
-                    asAscii = asAscii.Trim(Path.GetInvalidPathChars());
+                    string AsUnicode = ConvertToUnicode(file.Name);
 
 
 
-                    if (asAscii.ToLower() == FileName.ToLower())
+                    if (AsUnicode.ToLower() == FileName.ToLower())
                         {
                         _fileinfo = file;
                         Console.WriteLine($"Located {FileName}");
@@ -205,7 +199,7 @@ namespace PIPE_Valve_Online_Server
                 // file not found
                 if(_fileinfo == null)
                 {
-                ServerSend.SendTextFromServerToOne(_from, "Server doesn't have this file yet");
+                ServerSend.SendTextFromServerToOne(_from, "Server doesn't have this file yet, ask owner to upload");
                 return;
                 }
 
@@ -243,8 +237,6 @@ namespace PIPE_Valve_Online_Server
            
 
         }
-
-
 
         public static void FileSaver(byte[] bytes, string name, int SegsTotal, int SegNo, uint _player, long Totalbytes, string path)
         {
@@ -349,30 +341,27 @@ namespace PIPE_Valve_Online_Server
 
         public static void FileCheckAndRequest(string Filename, uint _fromclient)
         {
-           
+                 string name = Filename;
+                 Filename = ConvertToUnicode(name);
                     bool found = false;
                 if (Filename.ToLower() != "e" && Filename != "" && Filename != " " && Filename != "stock")
                 {
 
-                string asciiname = null;
+                
                      // find file
                     foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
                     {
                     // get ascii'd file name
-                    string inputString = file.Name;
-                    string asAscii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(inputString)));
-                    asAscii = asAscii.Trim(Path.GetInvalidFileNameChars());
-                    asAscii = asAscii.Trim(Path.GetInvalidPathChars());
+                    string AsUnicode = ConvertToUnicode(file.Name);
 
 
-                        if (asAscii.ToLower() == Filename.ToLower())
+                        if (AsUnicode.ToLower() == Filename.ToLower())
                         {
 
                            if(!file.FullName.Contains("Temp") && !file.Name.Contains(".temp"))
                            {
                             found = true;
-                            asciiname = asAscii;
-
+                           
                            }
                            
                         }
@@ -445,6 +434,18 @@ namespace PIPE_Valve_Online_Server
             return files;
 
         }
+
+        public static string ConvertToUnicode(string text)
+        {
+            Encoding Uni = Encoding.Unicode;
+            string outstring = Uni.GetString(Uni.GetBytes(text));
+
+
+            outstring = outstring.Trim(Path.GetInvalidPathChars());
+            outstring = outstring.Trim(Path.GetInvalidFileNameChars());
+            return outstring;
+        }
+
 
     }
 

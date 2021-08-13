@@ -34,7 +34,7 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// this will run any actions copied from servers thread on Unity's thread
         /// </summary>
-        void FixedUpdate()
+        void LateUpdate()
         {
             UpdateMain();
         }
