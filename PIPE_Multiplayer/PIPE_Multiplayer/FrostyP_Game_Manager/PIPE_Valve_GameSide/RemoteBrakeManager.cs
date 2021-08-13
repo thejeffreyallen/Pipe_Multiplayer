@@ -27,7 +27,7 @@ public class RemoteBrakesManager : MonoBehaviour
         if (enabled && !brakesEnabled)
             EnableBrakes(pm);
         else if (!enabled && brakesEnabled)
-            DisableBrakes();
+            DisableBrakes(pm);
     }
 
     public bool IsEnabled()
@@ -48,9 +48,13 @@ public class RemoteBrakesManager : MonoBehaviour
         frameBrakes = Instantiate(BrakesManager.instance.framebrakePrefab, frame.transform.position, frame.transform.rotation);
         frameBrakes.transform.parent = frame;
         brakesEnabled = true;
+        pm.partList.Add(-3, barBrakes);
+        pm.partList.Add(-4, frameBrakes);
+        pm.origTrans.Add(-3, new RemotePartMaster.TransformData(barBrakes.transform));
+        pm.origTrans.Add(-4, new RemotePartMaster.TransformData(frameBrakes.transform));
     }
 
-    void DisableBrakes()
+    void DisableBrakes(RemotePartMaster pm)
     {
         Debug.Log("Destroying brake prefabs");
         Transform TempParent = new GameObject().transform;
@@ -61,6 +65,10 @@ public class RemoteBrakesManager : MonoBehaviour
         Destroy(TempParent.gameObject);
         Debug.Log("Brake prefabs destroyed");
         brakesEnabled = false;
+        pm.partList.Remove(-3);
+        pm.partList.Remove(-4);
+        pm.origTrans.Remove(-3);
+        pm.origTrans.Remove(-4);
     }
 
     public GameObject GetBarBrakes()
