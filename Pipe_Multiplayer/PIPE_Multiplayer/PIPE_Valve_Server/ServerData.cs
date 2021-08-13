@@ -174,20 +174,26 @@ namespace PIPE_Valve_Online_Server
         public static void FileCheckAndSend(string FileName, List<int> _packetsowned, uint _from)
         {
             FileInfo _fileinfo = null;
-           
+
+            int lastslash = FileName.LastIndexOf("/");
+            if (lastslash != -1)
+            {
+                FileName = FileName.Remove(0, lastslash + 1);
+            }
 
             // Find Fileinfo
+            string AsUnicode = "none";
                 if (FileName != "")
                 {
                    
                     foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
                     {
                     // get ascii'd file name
-                    string AsUnicode = ConvertToUnicode(file.Name);
+                    AsUnicode = ConvertToUnicode(file.Name);
 
 
 
-                    if (AsUnicode.ToLower() == FileName.ToLower())
+                    if (FileName.ToLower().Contains(AsUnicode.ToLower()))
                         {
                         _fileinfo = file;
                         Console.WriteLine($"Located {FileName}");
@@ -240,6 +246,12 @@ namespace PIPE_Valve_Online_Server
 
         public static void FileSaver(byte[] bytes, string name, int SegsTotal, int SegNo, uint _player, long Totalbytes, string path)
         {
+            int lastslash = name.LastIndexOf("/");
+            if (lastslash != -1)
+            {
+                name = name.Remove(0, lastslash + 1);
+            }
+
 
             // if no Temp file exists create one 
             if (!File.Exists(TempDir + name + ".temp"))

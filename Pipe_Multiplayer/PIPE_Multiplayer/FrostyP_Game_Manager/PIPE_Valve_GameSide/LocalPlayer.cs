@@ -145,8 +145,8 @@ namespace PIPE_Valve_Console_Client
                 distances.Add(Vector3.Distance(riderPositions[i], Riders_Transforms[i].localPosition));
                 angles.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));
             }
-            distances.Add(Vector3.Distance(riderPositions[25], Riders_Transforms[25].position));
-            distances.Add(Vector3.Distance(riderPositions[27], Riders_Transforms[27].position));
+            distances.Add(Vector3.Distance(riderPositions[25], Riders_Transforms[25].localPosition));
+            distances.Add(Vector3.Distance(riderPositions[27], Riders_Transforms[27].localPosition));
             for (int i = 25; i < 32; i++)
             {
                 angles.Add(Vector3.Angle(riderRotations[i], Riders_Transforms[i].localEulerAngles));

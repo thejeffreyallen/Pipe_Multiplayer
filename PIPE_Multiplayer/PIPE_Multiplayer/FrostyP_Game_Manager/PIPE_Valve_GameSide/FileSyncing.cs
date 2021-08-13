@@ -23,6 +23,12 @@ namespace PIPE_Valve_Console_Client
 
         public static void RequestFileFromServer(string FileName)
         {
+            int lastslash = FileName.LastIndexOf("/");
+            if(lastslash != -1)
+            {
+                FileName = FileName.Remove(0, lastslash + 1);
+            }
+
             if(FileName.ToLower() == "e" | FileName == "" | FileName == " ")
             {
                 return;
@@ -163,6 +169,13 @@ namespace PIPE_Valve_Console_Client
 
         public static void FileReceive(byte[] bytes, string name, int segmentcount, int SegNo, long Totalbytes, string path)
         {
+            int lastslash = name.LastIndexOf("/");
+            if (lastslash != -1)
+            {
+                name = name.Remove(0, lastslash + 1);
+            }
+
+
             string inputString = name;
             string UnicodeName = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(inputString));
 
@@ -428,6 +441,12 @@ namespace PIPE_Valve_Console_Client
 
        public static void AddToRequestable(int Filetype, string nameoffile, uint player)
        {
+            int lastslash = nameoffile.LastIndexOf("/");
+            if(lastslash != -1)
+            {
+                nameoffile = nameoffile.Remove(0, lastslash + 1);
+            }
+
             if (nameoffile == "" | nameoffile == "e" | nameoffile == " ")
             {
                 return;
@@ -449,7 +468,14 @@ namespace PIPE_Valve_Console_Client
         }
         public static void AddToRequestable(int Filetype, string nameoffile, int objectid, uint player)
         {
-            if(nameoffile == "" | nameoffile == "e" | nameoffile == " ")
+            int lastslash = nameoffile.LastIndexOf("/");
+            if (lastslash != -1)
+            {
+                nameoffile = nameoffile.Remove(0, lastslash + 1);
+            }
+
+
+            if (nameoffile == "" | nameoffile == "e" | nameoffile == " ")
             {
                 return;
             }

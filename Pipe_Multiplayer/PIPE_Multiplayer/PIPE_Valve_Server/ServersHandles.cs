@@ -438,16 +438,17 @@ namespace PIPE_Valve_Online_Server
             string name = _packet.ReadString();
             int Status = _packet.ReadInt();
 
-            
+            ThreadManager.ExecuteOnMainThread(() =>
+            {
                 foreach (SendReceiveIndex s in ServerData.OutgoingIndexes.ToList())
                 {
                     if (s.NameOfFile == name && s.PlayerTosendTo == _from)
                     {
-                       ServerData.OutgoingIndexes.Remove(s);
+                        ServerData.OutgoingIndexes.Remove(s);
                     }
                 }
 
-            
+            });
 
         }
 

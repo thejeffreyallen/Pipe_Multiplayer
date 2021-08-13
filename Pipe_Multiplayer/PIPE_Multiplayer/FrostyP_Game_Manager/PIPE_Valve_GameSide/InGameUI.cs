@@ -454,7 +454,11 @@ namespace PIPE_Valve_Console_Client
 
         void FixedUpdate()
         {
+            if (IsSpectating && Connected)
+            {
             CamModes[cyclemodes]();
+
+            }
         }
 
         void OnGUI()
@@ -1984,7 +1988,7 @@ namespace PIPE_Valve_Console_Client
             SyncScroll2 = GUILayout.BeginScrollView(SyncScroll2, SyncWindowStyle3);
             GUILayout.Space(10);
           
-                foreach(SendReceiveIndex InIndex in FileSyncing.IncomingIndexes)
+                foreach(SendReceiveIndex InIndex in FileSyncing.IncomingIndexes.ToArray())
                 {
                         
 
