@@ -966,6 +966,7 @@ namespace PIPE_Valve_Console_Client
 		public string NameofparentGameObject;
 		public bool isNormal;
 		public int Matnum;
+		public string Directory;
 
 		public TextureInfo(string nameoftex, string nameofG_O, bool isnormal, int matnum)
 		{

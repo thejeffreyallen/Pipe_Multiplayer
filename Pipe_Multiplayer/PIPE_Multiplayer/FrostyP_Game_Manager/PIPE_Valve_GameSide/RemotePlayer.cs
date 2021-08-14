@@ -691,6 +691,7 @@ namespace PIPE_Valve_Console_Client
             {
                 MasterActive = false;
             // do garage setup
+            
             GameManager.DoGarageSetup(this, Gear.GarageSave);
                 MasterActive = true;
             }

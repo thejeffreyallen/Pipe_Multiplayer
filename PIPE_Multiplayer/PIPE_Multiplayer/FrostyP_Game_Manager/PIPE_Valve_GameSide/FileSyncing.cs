@@ -340,6 +340,7 @@ namespace PIPE_Valve_Console_Client
 
                             if(r.filetype == (int)FileTypeByNum.Garage)
                             {
+                                CustomMeshManager.instance.LoadFiles();
                                 player.UpdateBMX();
                             }
 
