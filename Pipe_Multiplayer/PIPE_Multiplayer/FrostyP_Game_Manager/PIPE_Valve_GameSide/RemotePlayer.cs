@@ -165,7 +165,7 @@ namespace PIPE_Valve_Console_Client
                   if (nameSign != null && RiderModel != null && Camera.current!= null)
                   {
 			       nameSign.transform.rotation = Camera.current.transform.rotation;
-                   float dist = Mathf.Clamp(Vector3.Distance(nameSign.transform.position, Camera.current.gameObject.transform.position) * 0.1f,0.1f,1);
+                   float dist = Mathf.Clamp(Vector3.Distance(nameSign.transform.position, Camera.current.gameObject.transform.position) * 0.05f,0.05f,0.8f);
                    nameSign.transform.localScale = new Vector3(dist, dist, 0.1f);
                   }
 
@@ -645,16 +645,16 @@ namespace PIPE_Valve_Console_Client
 
                         if(t.Nameoftexture.ToLower() != "e")
                         {
-                        if (FileSyncing.CheckForFile(t.Nameoftexture))
+                        if (FileSyncing.CheckForFile(t.Nameoftexture,t.Directory))
                         {
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].EnableKeyword("_ALPHATEST_ON");
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().enabled = true;
-                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(t.Nameoftexture);
+                            RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].mainTexture = GameManager.GetTexture(t.Nameoftexture,t.Directory);
                             RiderModel.transform.FindDeepChild(t.NameofparentGameObject).gameObject.GetComponent<Renderer>().materials[t.Matnum].color = Color.white;
                         }
                         else
                         {
-                            FileSyncing.AddToRequestable(1, t.Nameoftexture, id);
+                            FileSyncing.AddToRequestable(1, t.Nameoftexture, id,t.Directory);
                         }
                         }
                         else

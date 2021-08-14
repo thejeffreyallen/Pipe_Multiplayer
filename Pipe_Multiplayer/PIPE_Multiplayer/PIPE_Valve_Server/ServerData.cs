@@ -24,9 +24,12 @@ namespace PIPE_Valve_Online_Server
         public static string Rootdir = "Game Data/";
         static string TempDir = Rootdir + "Temp/";
         public static string UpdateDir = Rootdir + $"FrostyPGameManager/Updates/{Server.VERSIONNUMBER}/";
-        
-        
-        
+        public static string ModelsDir = Rootdir + "Custom Players/";
+        public static string MapsDir = Rootdir + "CustomMaps/";
+        public static string ParkAssetsDir = Rootdir + "FrostyPGameManager/ParkBuilder/Assetbundles/";
+
+
+
         public static List<string> BannedWords = new List<string>();
         public static List<string> BanMessageAlternates = new List<string>();
 
@@ -171,7 +174,7 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-        public static void FileCheckAndSend(string FileName, List<int> _packetsowned, uint _from)
+        public static void FileCheckAndSend(string FileName, List<int> _packetsowned, uint _from, string dir)
         {
             FileInfo _fileinfo = null;
 
@@ -180,13 +183,20 @@ namespace PIPE_Valve_Online_Server
             {
                 FileName = FileName.Remove(0, lastslash + 1);
             }
+            // make dir
+            int Dta = dir.ToLower().LastIndexOf("pipe_data");
+            Console.WriteLine($"Dta: {Dta}, Dir: {dir}");
+            string fulldir = Rootdir + dir.Remove(0, Dta + 10);
+
+
+
 
             // Find Fileinfo
             string AsUnicode = "none";
                 if (FileName != "")
                 {
                    
-                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
+                    foreach (FileInfo file in new DirectoryInfo(fulldir).GetFiles(FileName, SearchOption.TopDirectoryOnly))
                     {
                     // get ascii'd file name
                     AsUnicode = ConvertToUnicode(file.Name);
@@ -230,7 +240,7 @@ namespace PIPE_Valve_Online_Server
             }
 
 
-            SendReceiveIndex NewSend = new SendReceiveIndex(FileName,(int)PacketCount);
+            SendReceiveIndex NewSend = new SendReceiveIndex(FileName,(int)PacketCount,dir);
             NewSend.PacketNumbersStored = _packetsowned;
             NewSend.ByteLength = length;
             NewSend.PlayerTosendTo = _from;
@@ -246,19 +256,30 @@ namespace PIPE_Valve_Online_Server
 
         public static void FileSaver(byte[] bytes, string name, int SegsTotal, int SegNo, uint _player, long Totalbytes, string path)
         {
+
+                Console.WriteLine($"Receiving file: {name}, path: {path}, Segment: {SegNo}");
+            try
+            {
+
+                // make sure filename is just filename
             int lastslash = name.LastIndexOf("/");
             if (lastslash != -1)
             {
                 name = name.Remove(0, lastslash + 1);
             }
+                // make our directory
+                int pdata = path.ToLower().LastIndexOf("pipe_data");
+                string _mypath = path.Remove(0, pdata + 10);
 
 
-            // if no Temp file exists create one 
-            if (!File.Exists(TempDir + name + ".temp"))
-            {
+                if (!Directory.Exists(TempDir + _mypath)) Directory.CreateDirectory(TempDir + _mypath);
+                if (!Directory.Exists(Rootdir + _mypath)) Directory.CreateDirectory(Rootdir + _mypath);
+                // if no Temp file exists create one 
+                if (!File.Exists(TempDir + _mypath + name + ".temp"))
+                {
                 TempFile Temp = new TempFile();
                 BinaryFormatter bf = new BinaryFormatter();
-                FileStream stream = File.OpenWrite(TempDir + name + ".temp");
+                FileStream stream = File.OpenWrite(TempDir + _mypath + name + ".temp");
 
                 
                 Temp.ByteLengthOfFile = Totalbytes;
@@ -266,7 +287,7 @@ namespace PIPE_Valve_Online_Server
                 bf.Serialize(stream,Temp);
                 stream.Close();
 
-            }
+                }
 
 
 
@@ -279,7 +300,7 @@ namespace PIPE_Valve_Online_Server
                     InIndex = r;
                 }
             }
-            FileStream _f = File.OpenWrite(TempDir + name);
+            FileStream _f = File.OpenWrite(TempDir + _mypath + name);
 
             if (!InIndex.IsReceiving)
             {
@@ -304,14 +325,13 @@ namespace PIPE_Valve_Online_Server
             // Do Save or just update temp file
             if (InIndex.PacketNumbersStored.Count == InIndex.TotalPacketsinFile)
             {
-                int indexer = path.ToLower().IndexOf("pipe_data");
-                string mypath = path.Remove(0, indexer + 10);
-                mypath = mypath.Insert(0, Rootdir);
+               
+               string FullPath = _mypath.Insert(0, Rootdir);
+                Console.WriteLine("Saving file to path: " + FullPath);
 
-
-                if (!Directory.Exists(mypath)) Directory.CreateDirectory(mypath);
-                File.Move(TempDir + name, mypath + name);
-                File.Delete(TempDir + name + ".temp");
+                if (!Directory.Exists(FullPath)) Directory.CreateDirectory(FullPath);
+                File.Move(TempDir + _mypath + name, FullPath + name);
+                File.Delete(TempDir + _mypath + name + ".temp");
                 
                 // Tell Anyone that i've asked to send this file that i have it now ,if still online
                 foreach(uint id in InIndex.PlayersRequestedFrom)
@@ -324,7 +344,7 @@ namespace PIPE_Valve_Online_Server
                 }
 
                 IncomingIndexes.Remove(InIndex);
-                Console.WriteLine($"Saved {name} to {mypath}");
+                Console.WriteLine($"Saved {name} to {FullPath}");
 
 
 
@@ -332,12 +352,12 @@ namespace PIPE_Valve_Online_Server
             else
             {
                 // update temp file
-                FileStream stream = File.OpenRead(TempDir + name + ".temp");
+                FileStream stream = File.OpenRead(TempDir + _mypath + name + ".temp");
                 BinaryFormatter bf = new BinaryFormatter();
                 TempFile _temp = bf.Deserialize(stream) as TempFile;
                 stream.Close();
                 _temp.PacketNumbersStored.Add(SegNo);
-                stream = File.OpenWrite(TempDir + name + ".temp");
+                stream = File.OpenWrite(TempDir + _mypath + name + ".temp");
                 bf.Serialize(stream, _temp);
                 stream.Close();
 
@@ -348,11 +368,26 @@ namespace PIPE_Valve_Online_Server
 
 
 
+
+
+            }
+            catch (Exception x)
+            {
+
+                Console.WriteLine(x);
+            }
+
+
+
         }
 
 
-        public static void FileCheckAndRequest(string Filename, uint _fromclient)
+        public static void FileCheckAndRequest(string Filename, uint _fromclient,string dir)
         {
+
+            try
+            {
+
             int lastslash = Filename.LastIndexOf("/");
             if (lastslash != -1)
             {
@@ -361,13 +396,19 @@ namespace PIPE_Valve_Online_Server
 
             string name = Filename;
                  Filename = ConvertToUnicode(name);
-                    bool found = false;
+
+            int pdata = dir.ToLower().LastIndexOf("pipe_data");
+            string mydir = dir.Remove(0,pdata + 9);
+                if (!Directory.Exists(Rootdir + mydir)) Directory.CreateDirectory(Rootdir + mydir);
+                if (!Directory.Exists(TempDir + mydir)) Directory.CreateDirectory(TempDir + mydir);
+
+                bool found = false;
                 if (Filename.ToLower() != "e" && Filename != "" && Filename != " " && Filename != "stock")
                 {
 
                 
                      // find file
-                    foreach (FileInfo file in new DirectoryInfo(Rootdir).GetFiles("*.*", SearchOption.AllDirectories))
+                    foreach (FileInfo file in new DirectoryInfo(Rootdir + mydir).GetFiles(Filename, SearchOption.TopDirectoryOnly))
                     {
                     // get ascii'd file name
                     string AsUnicode = ConvertToUnicode(file.Name);
@@ -389,11 +430,12 @@ namespace PIPE_Valve_Online_Server
                     // if not found
                     if (!found)
                     {
+                        
                          List<int> Packetsiown = new List<int>();
-                         if(File.Exists(TempDir + Filename + ".temp"))
+                         if(File.Exists(TempDir + mydir + Filename + ".temp"))
                          {
                               BinaryFormatter bf = new BinaryFormatter();
-                              FileStream _f = File.OpenRead(TempDir + Filename + ".temp");
+                              FileStream _f = File.OpenRead(TempDir + mydir + Filename + ".temp");
                               TempFile temp = bf.Deserialize(_f) as TempFile;
                               _f.Close();
 
@@ -405,7 +447,7 @@ namespace PIPE_Valve_Online_Server
                               }
                          }
                 
-                         ServerSend.RequestFile(_fromclient,Filename,Packetsiown);
+                         ServerSend.RequestFile(_fromclient,Filename,Packetsiown,dir);
                         Console.WriteLine(Filename + $" requested from {Server.Players[_fromclient].Username}");
                     }
 
@@ -413,6 +455,16 @@ namespace PIPE_Valve_Online_Server
 
                 }
             
+
+
+
+            }
+            catch (Exception)
+            {
+
+               
+            }
+
         }
 
 
@@ -563,12 +615,14 @@ namespace PIPE_Valve_Online_Server
         public FileInfo Fileinfo;
         public uint PlayerTosendTo;
         public List<uint> PlayersRequestedFrom = new List<uint>();
+        public string directory;
 
 
-        public SendReceiveIndex(string _filename, int _totalpackets)
+        public SendReceiveIndex(string _filename, int _totalpackets,string dir)
         {
             NameOfFile = _filename;
             TotalPacketsinFile = _totalpackets;
+            directory = dir;
         }
 
         public SendReceiveIndex(string _filename)

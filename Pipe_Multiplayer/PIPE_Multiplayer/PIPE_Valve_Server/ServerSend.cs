@@ -132,13 +132,14 @@ namespace PIPE_Valve_Online_Server
 
 
        
-        public static void RequestFile(uint Clientid, string name, List<int> _packetsihave)
+        public static void RequestFile(uint Clientid, string name, List<int> _packetsihave,string dir)
         {
             // send request to client
             using(Packet _packet = new Packet((int)ServerPacket.RequestFile))
             {
                 
                 _packet.Write(name);
+                _packet.Write(dir);
                 _packet.Write(_packetsihave.Count);
                 for (int i = 0; i < _packetsihave.Count; i++)
                 {
@@ -224,6 +225,7 @@ namespace PIPE_Valve_Online_Server
                         _packet.Write(_player.Gear.RiderTextures[i].Nameoftexture);
                         _packet.Write(_player.Gear.RiderTextures[i].NameofparentGameObject);
                         _packet.Write(_player.Gear.RiderTextures[i].Matnum);
+                        _packet.Write(_player.Gear.RiderTextures[i].directory);
                     }
                 }
 
@@ -299,7 +301,8 @@ namespace PIPE_Valve_Online_Server
                                     _packet.Write(_player.Gear.RiderTextures[i].Nameoftexture);
                                     _packet.Write(_player.Gear.RiderTextures[i].NameofparentGameObject);
                                     _packet.Write(_player.Gear.RiderTextures[i].Matnum);
-                                }
+                                    _packet.Write(_player.Gear.RiderTextures[i].directory);
+                                    }
                             }
 
                                 _packet.Write(_player.Gear.Capforward);
@@ -547,6 +550,7 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_netobj.Rotation);
                 _packet.Write(_netobj.Scale);
                 _packet.Write(_netobj.ObjectID);
+                _packet.Write(_netobj.Directory);
 
                 _packet.Write(_owner);
 

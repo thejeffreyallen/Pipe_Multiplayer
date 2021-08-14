@@ -643,7 +643,7 @@ namespace FrostyP_Game_Manager
 					{
 						GUILayout.Space(10);
 						AssetBundle bundle = AssetBundle.LoadFromFile(file.FullName);
-						bundlesloaded.Add(new BundleData(bundle, file.Name));
+						bundlesloaded.Add(new BundleData(bundle, file.Name,file.DirectoryName));
 
 					}
 
@@ -919,7 +919,7 @@ namespace FrostyP_Game_Manager
 				int ID = GiveUniqueNumber();
 				_new.ObjectId = ID;
 
-				NetGameObject _newobj = new NetGameObject(Activeobj.name.Replace("(Clone)",""), ActiveBundleData.FileName, ActiveBundleData.Bundle.name, Activeobj.transform.eulerAngles, Activeobj.transform.position, Activeobj.transform.localScale, false, ID, obj);
+				NetGameObject _newobj = new NetGameObject(Activeobj.name.Replace("(Clone)",""), ActiveBundleData.FileName, ActiveBundleData.Bundle.name, Activeobj.transform.eulerAngles, Activeobj.transform.position, Activeobj.transform.localScale, false, ID, obj,ActiveBundleData.FullDir);
 				NetgameObjects.Add(_newobj);
 
             if (InGameUI.instance.Connected && NetgameObjects.Count < 30)
@@ -1251,7 +1251,7 @@ namespace FrostyP_Game_Manager
 						
 						foreach (NetGameObject rmObj in player.Objects)
 						{
-							PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile));
+							PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile, rmObj.Directory));
 							_RMPlacedObject.ObjectId = rmObj.ObjectID;
 							_RMPlacedObject.OwnerID = rmObj.OwnerID;
 							bool found = false;
@@ -1357,7 +1357,7 @@ namespace FrostyP_Game_Manager
 					GUILayout.Label($"{player.username}'s Objects");
 					foreach(NetGameObject rmObj in player.Objects.ToArray())
                     {
-						PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile));
+						PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile,rmObj.Directory));
 							_RMPlacedObject.ObjectId = rmObj.ObjectID;
 							_RMPlacedObject.OwnerID = rmObj.OwnerID;
 						bool found = false;
@@ -1426,7 +1426,7 @@ namespace FrostyP_Game_Manager
 
 						_thisobj.name.Replace("(Clone)", "");
 						DontDestroyOnLoad(_thisobj);
-						PlacedObject _new = new PlacedObject(_thisobj, new BundleData(asbun, _savedObj.FileName));
+						PlacedObject _new = new PlacedObject(_thisobj, new BundleData(asbun, _savedObj.FileName, _savedObj.Directory));
 
 						if (InGameUI.instance.Connected)
 						{
@@ -1435,7 +1435,7 @@ namespace FrostyP_Game_Manager
 								int ID = GiveUniqueNumber();
 								_new.ObjectId = ID;
 
-								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject,_savedObj.FileName,_savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]),_thisobj.transform.localScale, false, ID, _thisobj);
+								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject,_savedObj.FileName,_savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]),_thisobj.transform.localScale, false, ID, _thisobj,_savedObj.Directory);
 								NetgameObjects.Add(_newobj);
 
 								
@@ -1463,7 +1463,7 @@ namespace FrostyP_Game_Manager
                     {
 							Debug.Log("Found in files");
 						AssetBundle loadedasbun = AssetBundle.LoadFromFile(file.FullName);
-							bundlesloaded.Add(new BundleData(loadedasbun, file.Name));
+							bundlesloaded.Add(new BundleData(loadedasbun, file.Name,file.DirectoryName));
 						GameObject _thisobj = Instantiate(loadedasbun.LoadAsset(_savedObj.nameofGameObject)) as GameObject;
 						_thisobj.transform.position = new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]);
 						_thisobj.transform.eulerAngles = new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]);
@@ -1477,7 +1477,7 @@ namespace FrostyP_Game_Manager
 						_thisobj.name.Replace("(Clone)", "");
 						DontDestroyOnLoad(_thisobj);
 
-							PlacedObject _new = new PlacedObject(_thisobj, new BundleData(loadedasbun, _savedObj.FileName));
+							PlacedObject _new = new PlacedObject(_thisobj, new BundleData(loadedasbun, _savedObj.FileName,file.DirectoryName));
 
 							if (InGameUI.instance.Connected)
 							{
@@ -1486,7 +1486,7 @@ namespace FrostyP_Game_Manager
 								int ID = GiveUniqueNumber();
 								_new.ObjectId = ID;
 
-								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject, _savedObj.FileName, _savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]), _thisobj.transform.localScale, false, ID, _thisobj);
+								NetGameObject _newobj = new NetGameObject(_savedObj.nameofGameObject, _savedObj.FileName, _savedObj.AssetBundleName, new Vector3(_savedObj.rotation[0], _savedObj.rotation[1], _savedObj.rotation[2]), new Vector3(_savedObj.position[0], _savedObj.position[1], _savedObj.position[2]), _thisobj.transform.localScale, false, ID, _thisobj,_savedObj.Directory);
 								NetgameObjects.Add(_newobj);
 
 								
@@ -2111,8 +2111,9 @@ namespace FrostyP_Game_Manager
 		public int ObjectID;
 		public AssetBundle AssetBundle;
 		public uint OwnerID;
+		public string Directory;
 
-		public NetGameObject(string _nameofobject,string _nameoffile, string _nameofassetbundle,Vector3 _rotation,Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled, int objectid, GameObject GO)
+		public NetGameObject(string _nameofobject,string _nameoffile, string _nameofassetbundle,Vector3 _rotation,Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled, int objectid, GameObject GO,string dir)
         {
 			NameofObject = _nameofobject;
 			NameOfFile = _nameoffile;
@@ -2123,6 +2124,7 @@ namespace FrostyP_Game_Manager
 			IsPhysics = _IsPhysicsenabled;
 			_Gameobject = GO;
 			ObjectID = objectid;
+			Directory = dir;
 
         }
 
@@ -2142,13 +2144,14 @@ namespace FrostyP_Game_Manager
 		/// <summary>
 		/// Full path to file
 		/// </summary>
-		public string FullFileName;
+		public string FullDir;
 
 
-		public BundleData(AssetBundle _bundle, string _filename)
+		public BundleData(AssetBundle _bundle, string _filename,string fulldir)
         {
 			Bundle = _bundle;
 			FileName = _filename;
+			FullDir = fulldir;
 			
 
         }

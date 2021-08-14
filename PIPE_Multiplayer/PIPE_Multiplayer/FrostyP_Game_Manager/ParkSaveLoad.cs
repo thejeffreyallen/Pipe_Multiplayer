@@ -36,7 +36,7 @@ namespace FrostyP_Game_Manager
                 scale[1] = p.Object.transform.localScale.y;
                 scale[2] = p.Object.transform.localScale.z;
 
-                SavedGameObject sgo = new SavedGameObject(p.Object.name.Replace("(Clone)",""), pos, rot, scale, p.BundleData.FileName, p.BundleData.Bundle.name);
+                SavedGameObject sgo = new SavedGameObject(p.Object.name.Replace("(Clone)",""), pos, rot, scale, p.BundleData.FileName, p.BundleData.Bundle.name,p.BundleData.FullDir);
                 _objs.Add(sgo);
             }
 

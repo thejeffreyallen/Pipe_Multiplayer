@@ -27,9 +27,13 @@ namespace PIPE_Valve_Console_Client
             GameNetworking.instance.Run();
 
             //Do FileSyncing
-            
+
             // if outgoing is not going to hit Valves buffer cap (files are sent in 400Kb segments which is many ValveMessages)
-            if (InGameUI.instance.Pendingreliable < 500)
+
+            if (FileSyncing.OutGoingIndexes.Count > 0)
+            {
+
+            if (GameNetworking.instance.GetPendingReliable() < 200)
             {
                 
                 // only add one each time
@@ -181,6 +185,11 @@ namespace PIPE_Valve_Console_Client
 
             }
 
+
+
+
+
+            }
 
            
             

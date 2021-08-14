@@ -62,7 +62,8 @@ namespace PIPE_Valve_Console_Client
                         string nameoftex = _packet.ReadString();
                         string nameofGO = _packet.ReadString();
                         int matnum = _packet.ReadInt();
-                        RiderTextures.Add(new TextureInfo(nameoftex, nameofGO, false, matnum));
+                        string dir = _packet.ReadString();
+                        RiderTextures.Add(new TextureInfo(nameoftex, nameofGO, false, matnum,dir));
                     }
                 }
 
@@ -128,7 +129,8 @@ namespace PIPE_Valve_Console_Client
                         string nameoftex = _packet.ReadString();
                         string nameofGO = _packet.ReadString();
                         int matnum = _packet.ReadInt();
-                        RiderTextures.Add(new TextureInfo(nameoftex, nameofGO, false, matnum));
+                        string dir = _packet.ReadString();
+                       RiderTextures.Add(new TextureInfo(nameoftex, nameofGO, false, matnum,dir));
                     }
                 }
 
@@ -164,6 +166,7 @@ namespace PIPE_Valve_Console_Client
                 
                
                     string n = _packet.ReadString();
+            string dir = _packet.ReadString();
             int Listcount = _packet.ReadInt();
             List<int> Packetsowned = new List<int>();
 
@@ -173,11 +176,15 @@ namespace PIPE_Valve_Console_Client
                 Packetsowned.Add(e);
             }
 
+            // convert to local path
+            int slash = dir.ToLower().LastIndexOf("pipe_data");
+            string fulldir = Application.dataPath + "/" + dir.Remove(0, slash + 10);
+
 
 
             // leave details including packets owned by server if any
 
-            FileSyncing.OutGoingIndexes.Add(new SendReceiveIndex(n, Packetsowned));
+            FileSyncing.OutGoingIndexes.Add(new SendReceiveIndex(n, Packetsowned,fulldir));
            
 
         }
@@ -393,7 +400,8 @@ namespace PIPE_Valve_Console_Client
                         string nameoftex = _packet.ReadString();
                         string nameofGO = _packet.ReadString();
                         int matnum = _packet.ReadInt();
-                        RiderTextures.Add(new TextureInfo(nameoftex, nameofGO, false, matnum));
+                        string dir = _packet.ReadString();
+                        RiderTextures.Add(new TextureInfo(nameoftex, nameofGO, false, matnum,dir));
                     }
                 }
 
@@ -701,10 +709,11 @@ namespace PIPE_Valve_Console_Client
             Vector3 Rotation = _packet.ReadVector3();
             Vector3 Scale = _packet.ReadVector3();
             int ObjectID = _packet.ReadInt();
+            string dir = _packet.ReadString();
 
             uint OwnerID = (uint)_packet.ReadLong();
 
-            NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID, null);
+            NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID, null,dir);
             OBJ.OwnerID = OwnerID;
 
             try

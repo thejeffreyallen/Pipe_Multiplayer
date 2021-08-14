@@ -19,9 +19,10 @@ namespace FrostyP_Game_Manager
         public float[] Scale;
         public string FileName;
         public string AssetBundleName;
+        public string Directory;
         
 
-        public SavedGameObject(string nameofobject, float[] pos, float[] rot, float[] _scale,string _Filename, string _AssetbundleName)
+        public SavedGameObject(string nameofobject, float[] pos, float[] rot, float[] _scale,string _Filename, string _AssetbundleName,string dir)
         {
             nameofGameObject = nameofobject;
             position = pos;
@@ -29,6 +30,7 @@ namespace FrostyP_Game_Manager
             Scale = _scale;
             FileName = _Filename;
             AssetBundleName = _AssetbundleName;
+            Directory = dir;
         }
 
 

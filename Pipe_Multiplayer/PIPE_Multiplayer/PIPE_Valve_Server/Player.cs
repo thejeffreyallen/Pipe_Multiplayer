@@ -78,13 +78,15 @@ namespace PIPE_Valve_Online_Server
         public string NameofparentGameObject;
         public bool isNormal;
         public int Matnum;
+        public string directory;
 
-        public TextureInfo(string nameoftex, string nameofG_O, bool isnormal, int matnum)
+        public TextureInfo(string nameoftex, string nameofG_O, bool isnormal, int matnum,string _directory)
         {
             Nameoftexture = nameoftex;
             NameofparentGameObject = nameofG_O;
             isNormal = isnormal;
             Matnum = matnum;
+            directory = _directory;
         }
 
 
@@ -103,8 +105,9 @@ namespace PIPE_Valve_Online_Server
         public bool IsPhysics;
         public int ObjectID;
         public List<uint> Votestoremove = new List<uint>();
+        public string Directory;
 
-        public NetGameObject(string _nameofobject, string _nameoffile, string _nameofassetbundle, Vector3 _rotation, Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled, int Objectid)
+        public NetGameObject(string _nameofobject, string _nameoffile, string _nameofassetbundle, Vector3 _rotation, Vector3 _position, Vector3 _scale, bool _IsPhysicsenabled, int Objectid,string dir)
         {
             NameofObject = _nameofobject;
             NameOfFile = _nameoffile;
@@ -114,6 +117,7 @@ namespace PIPE_Valve_Online_Server
             Scale = _scale;
             IsPhysics = _IsPhysicsenabled;
             ObjectID = Objectid;
+            Directory = dir;
         }
 
 

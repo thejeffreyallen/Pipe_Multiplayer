@@ -26,7 +26,21 @@ namespace PIPE_Valve_Console_Client
             
             SendToServerThread.ExecuteOnMainThread(() =>
             {
-                GameNetworking.instance.Socket.SendMessageToConnection(GameNetworking.instance.ServerConnection, bytes, sendflag);
+                try
+                {
+                  GameNetworking.instance.Socket.SendMessageToConnection(GameNetworking.instance.ServerConnection, bytes, sendflag);
+
+                }
+                catch (Exception x)
+                {
+                    SendToUnityThread.instance.ExecuteOnMainThread(() =>
+                    {
+                        Debug.Log("Valve send issue: " + x);
+                    });
+
+
+
+                }
             });
            
            
@@ -89,6 +103,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(FullGear.RiderTextures[i].Nameoftexture);
                     _packet.Write(FullGear.RiderTextures[i].NameofparentGameObject);
                     _packet.Write(FullGear.RiderTextures[i].Matnum);
+                    _packet.Write(FullGear.RiderTextures[i].Directory);
                 }
 
                 }
@@ -154,6 +169,7 @@ namespace PIPE_Valve_Console_Client
                             _packet.Write(_netobj.Rotation);
                             _packet.Write(_netobj.Scale);
                             _packet.Write(_netobj.ObjectID);
+                            _packet.Write(_netobj.Directory);
                         }
                     }
                 }
@@ -268,7 +284,7 @@ namespace PIPE_Valve_Console_Client
                     _packet.Write(FileSegment.ByteCount);
                     _packet.Write(FileSegment.path);
 
-                    SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
+                    SendToServer(_packet.ToArray(), SendFlags.NoNagle);
 
                 }
 
@@ -281,12 +297,13 @@ namespace PIPE_Valve_Console_Client
         }
         
        
-        public static void RequestFile(string unfound, List<int> _packetsihave)
+        public static void RequestFile(string unfound, List<int> _packetsihave,string dir)
         {
             using(Packet _packet = new Packet((int)ClientPackets.RequestFileFromServer))
             {
                
                 _packet.Write(unfound);
+                _packet.Write(dir);
                 _packet.Write(_packetsihave.Count);
                 for (int i = 0; i < _packetsihave.Count; i++)
                 {
@@ -401,6 +418,7 @@ namespace PIPE_Valve_Console_Client
                         _packet.Write(gear.RiderTextures[i].Nameoftexture);
                         _packet.Write(gear.RiderTextures[i].NameofparentGameObject);
                         _packet.Write(gear.RiderTextures[i].Matnum);
+                        _packet.Write(gear.RiderTextures[i].Directory);
                     }
 
                 }
@@ -505,6 +523,7 @@ namespace PIPE_Valve_Console_Client
                 _packet.Write(_netobj.Rotation);
                 _packet.Write(_netobj.Scale);
                 _packet.Write(_netobj.ObjectID);
+                _packet.Write(_netobj.Directory);
 
                 SendToServer(_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }

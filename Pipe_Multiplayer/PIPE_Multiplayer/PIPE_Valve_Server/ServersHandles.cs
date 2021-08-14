@@ -103,11 +103,11 @@ namespace PIPE_Valve_Online_Server
                     Console.WriteLine("Checking Server has RiderModel and Map");
                     if(Ridermodel != "Daryien")
                     {
-                     ServerData.FileCheckAndRequest(Ridermodel, _from);
+                     ServerData.FileCheckAndRequest(Ridermodel, _from,"pipe_data/Custom Players/");
                     }
                     if(CurrentLevel != "Unknown" && CurrentLevel != "" && CurrentLevel != " " && !CurrentLevel.ToLower().Contains("pipe") && !CurrentLevel.ToLower().Contains("chuck"))
                     {
-                        ServerData.FileCheckAndRequest(CurrentLevel,_from);
+                        ServerData.FileCheckAndRequest(CurrentLevel,_from, "pipe_data/CustomMaps/");
                     }
 
 
@@ -156,7 +156,8 @@ namespace PIPE_Valve_Online_Server
                            string Texname = _packet.ReadString();
                            string ParentG_O = _packet.ReadString();
                            int matnum = _packet.ReadInt();
-                           RiderTexnames.Add(new TextureInfo(Texname, ParentG_O,false,matnum));
+                           string dir = _packet.ReadString();
+                           RiderTexnames.Add(new TextureInfo(Texname, ParentG_O,false,matnum,dir));
                          }
 
                     
@@ -204,8 +205,9 @@ namespace PIPE_Valve_Online_Server
                     Vector3 Rotation = _packet.ReadVector3();
                     Vector3 Scale = _packet.ReadVector3();
                     int ObjectID = _packet.ReadInt();
+                    string dir = _packet.ReadString();
 
-                    NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID);
+                    NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID,dir);
 
                     try
                     {
@@ -246,11 +248,11 @@ namespace PIPE_Valve_Online_Server
                
                 for (int i = 0; i < RiderTexnames.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(RiderTexnames[i].Nameoftexture, _from);
+                    ServerData.FileCheckAndRequest(RiderTexnames[i].Nameoftexture, _from,RiderTexnames[i].directory);
                 }
                 for (int i = 0; i < _player.PlayerObjects.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(_player.PlayerObjects[i].NameOfFile, _from);
+                    ServerData.FileCheckAndRequest(_player.PlayerObjects[i].NameOfFile, _from, _player.PlayerObjects[i].Directory);
                 }
 
                 if(glist != null && glist.partMeshes != null)
@@ -262,7 +264,10 @@ namespace PIPE_Valve_Online_Server
                     {
                             int indexer = mesh.fileName.LastIndexOf("/");
                             string shortname = mesh.fileName.Remove(0, indexer + 1);
-                        ServerData.FileCheckAndRequest(shortname, _from);
+                                string dir = ServerData.Rootdir + "GarageContent/" + mesh.fileName;
+                                dir = dir.Replace(shortname, "");
+
+                        ServerData.FileCheckAndRequest(shortname, _from,dir);
                     }
                 }
                 }
@@ -274,9 +279,12 @@ namespace PIPE_Valve_Online_Server
                         if (tex.url.ToLower().Contains("frostypmanager"))
                         {
                             int lastslash = tex.url.LastIndexOf("/");
-
                             string name = tex.url.Remove(0, lastslash + 1);
-                            ServerData.FileCheckAndRequest(name, _from);
+                                int f = tex.url.LastIndexOf("frostypmanager");
+                                string dir = ServerData.Rootdir + tex.url.Remove(0,f + 1);
+
+
+                            ServerData.FileCheckAndRequest(name, _from,dir);
                         }
                     }
                 }
@@ -374,6 +382,7 @@ namespace PIPE_Valve_Online_Server
         {
             // read data
             string name = _packet.ReadString();
+            string dir = _packet.ReadString();
             int Listcount = _packet.ReadInt();
             List<int> Packetsowned = new List<int>();
             if (Listcount > 0)
@@ -409,7 +418,7 @@ namespace PIPE_Valve_Online_Server
                 }
 
             // if not, try to find and send
-            ServerData.FileCheckAndSend(name,Packetsowned,_from);
+            ServerData.FileCheckAndSend(name,Packetsowned,_from,dir);
 
         }
 
@@ -464,7 +473,7 @@ namespace PIPE_Valve_Online_Server
                  _player.MapName = name;
                 ServerSend.SendMapName(_from,name);
                 Console.WriteLine($"{_player.Username} went to {name}");
-                ServerData.FileCheckAndRequest(name, _from);
+                ServerData.FileCheckAndRequest(name, _from, "pipe_data/CustomMaps/");
 
 
                 }
@@ -559,15 +568,16 @@ namespace PIPE_Valve_Online_Server
                     string nameoftex = _packet.ReadString();
                     string nameofgo = _packet.ReadString();
                     int matnum = _packet.ReadInt();
+                    string dir = _packet.ReadString();
 
-                    RidersTextures.Add(new TextureInfo(nameoftex, nameofgo, false, matnum));
+                    RidersTextures.Add(new TextureInfo(nameoftex, nameofgo, false, matnum,dir));
                 }
 
                 bool capforward = _packet.ReadBool();
 
                 for (int i = 0; i < RidersTextures.Count; i++)
                 {
-                    ServerData.FileCheckAndRequest(RidersTextures[i].Nameoftexture, _from);
+                    ServerData.FileCheckAndRequest(RidersTextures[i].Nameoftexture, _from,RidersTextures[i].directory);
                 }
 
 
@@ -595,7 +605,10 @@ namespace PIPE_Valve_Online_Server
                         {
                             int indexer = mesh.fileName.LastIndexOf("/");
                             string shortname = mesh.fileName.Remove(0, indexer + 1);
-                            ServerData.FileCheckAndRequest(shortname, _from);
+                            string dir = ServerData.Rootdir + "GarageContent/" + mesh.fileName;
+                            dir = dir.Replace(shortname, "");
+
+                            ServerData.FileCheckAndRequest(shortname, _from,dir);
                         }
                     }
                 }
@@ -607,9 +620,11 @@ namespace PIPE_Valve_Online_Server
                         if (tex.url.ToLower().Contains("frostypgamemanager"))
                         {
                             int lastslash = tex.url.LastIndexOf("/");
-
                             string name = tex.url.Remove(0, lastslash + 1);
-                            ServerData.FileCheckAndRequest(name, _from);
+                            int f = tex.url.LastIndexOf("frostypmanager");
+                            string dir = ServerData.Rootdir + tex.url.Remove(0, f + 1);
+
+                            ServerData.FileCheckAndRequest(name, _from,dir);
                         }
                     }
                 }
@@ -640,6 +655,7 @@ namespace PIPE_Valve_Online_Server
                             ServersPacket.Write(player.Gear.RiderTextures[i].Nameoftexture);
                             ServersPacket.Write(player.Gear.RiderTextures[i].NameofparentGameObject);
                             ServersPacket.Write(player.Gear.RiderTextures[i].Matnum);
+                            ServersPacket.Write(player.Gear.RiderTextures[i].directory);
                         }
 
                     }
@@ -882,8 +898,9 @@ namespace PIPE_Valve_Online_Server
             Vector3 Rotation = _packet.ReadVector3();
             Vector3 Scale = _packet.ReadVector3();
             int ObjectID = _packet.ReadInt();
+            string directory = _packet.ReadString();
 
-            NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID);
+            NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID,directory);
 
             try
             {
@@ -897,7 +914,7 @@ namespace PIPE_Valve_Online_Server
                 }
                 Console.WriteLine($"{Server.Players[_ownerID].Username} spawned a {NameofGO}, objectID: {ObjectID}");
 
-                ServerData.FileCheckAndRequest(NameofFile, _ownerID);
+                ServerData.FileCheckAndRequest(NameofFile, _ownerID, directory);
                 
 
             }

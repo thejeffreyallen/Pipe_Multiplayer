@@ -171,8 +171,8 @@ namespace PIPE_Valve_Online_Server
 			ConnectedRiders = Connection.CreatePollGroup();
 
 			int sendRateMin = 600000;
-			int sendRateMax = 65400000;
-			int sendBufferSize = 209715200;
+			int sendRateMax = 954000000;
+			int sendBufferSize = 904857600;
 
 			unsafe
 			{

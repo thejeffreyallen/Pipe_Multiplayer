@@ -74,10 +74,15 @@ public class RemoteLoadManager : MonoBehaviour
                     int lastslash = p.url.LastIndexOf("/");
                     string name = p.url.Remove(0, lastslash + 1);
 
+                    int cut = p.url.LastIndexOf("frostypgamemanager");
+                    string shortened = p.url.Remove(0, cut);
+                    int _lastslash = p.url.LastIndexOf("/");
+                    string dir = Application.dataPath + shortened.Remove(_lastslash+1,shortened.Length-_lastslash-1);
 
-                    if (FileSyncing.CheckForFile(name))
+
+                    if (FileSyncing.CheckForFile(name,dir))
                     {
-                        Texture2D tex = GameManager.GetTexture(name);
+                        Texture2D tex = GameManager.GetTexture(name,dir);
 
 
                         if (!p.metallic && !p.normal)
@@ -90,7 +95,7 @@ public class RemoteLoadManager : MonoBehaviour
                     else
                     {
                         // waitingrequest
-                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, name, player.id);
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, name, player.id,dir);
 
 
 
@@ -296,13 +301,15 @@ public class RemoteLoadManager : MonoBehaviour
             foreach (PartMesh pm in loadList.partMeshes)
             {
                 string fullPath = Application.dataPath + "/GarageContent/" + pm.fileName;
-                //Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index);
+                int lastslash = fullPath.LastIndexOf("/") + 1;
+                string dir = fullPath.Remove(lastslash, fullPath.Length - lastslash);
+                Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index + ": Dir:" + fullPath);
+
                 if (pm.isCustom)
                 {
-
                     if (!File.Exists(fullPath))
                     {
-                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, pm.fileName, player.id);
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, pm.fileName, player.id,dir);
                         SavingManager.instance.ChangeAlertText($"Error loading mesh: {pm.fileName} for {player.username}. A file request has been left in Sync window");
                         if (!SavingManager.instance.infoBox.activeSelf)
                             SavingManager.instance.infoBox.SetActive(true);

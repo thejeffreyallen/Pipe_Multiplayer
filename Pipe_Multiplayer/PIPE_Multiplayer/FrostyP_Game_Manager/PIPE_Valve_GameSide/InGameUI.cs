@@ -2007,7 +2007,7 @@ namespace PIPE_Valve_Console_Client
                     {
                         if (GUILayout.Button($" {InIndex.NameOfFile}: {InIndex.PacketNumbersStored.Count} Packets Stored"))
                         {
-                        FileSyncing.RequestFileFromServer(InIndex.NameOfFile);
+                        FileSyncing.RequestFileFromServer(InIndex.NameOfFile,InIndex.Directory);
                         }
                     }
 
@@ -2406,7 +2406,7 @@ namespace PIPE_Valve_Console_Client
             {
                    foreach(string file in UpdateFiles)
                    {
-                    FileSyncing.RequestFileFromServer(file);
+                    FileSyncing.RequestFileFromServer(file,"Pipe_data/FrostyPGameManager/Updates/" + Versionofupdate + "/");
                    }
                    
             }

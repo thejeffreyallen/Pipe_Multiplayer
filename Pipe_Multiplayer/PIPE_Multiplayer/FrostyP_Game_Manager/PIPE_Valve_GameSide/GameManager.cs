@@ -78,7 +78,6 @@ namespace PIPE_Valve_Console_Client
                 PlayerModelsDir,
                 UpdateDir,
                 GarageDir,
-                GarageDir + "OfflineTextures/",
 
             };
 
@@ -314,10 +313,10 @@ namespace PIPE_Valve_Console_Client
             {
                 if(Gear.RiderTextures[i].Nameoftexture != "stock" && Gear.RiderTextures[i].Nameoftexture != "e")
                 {
-
-                    if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture))
+                   
+                    if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture, Gear.RiderTextures[i].Directory))
                     {
-                    FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture,_id);
+                    FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture,_id,Gear.RiderTextures[i].Directory);
                     }
 
                 }
@@ -325,9 +324,9 @@ namespace PIPE_Valve_Console_Client
 
             if(currentmodel != "Daryien")
             {
-              if (!FileSyncing.CheckForFile(currentmodel))
+              if (!FileSyncing.CheckForFile(currentmodel,PlayerModelsDir))
               {
-                FileSyncing.AddToRequestable(3,currentmodel, _id);
+                FileSyncing.AddToRequestable(3,currentmodel, _id,PlayerModelsDir);
               }
 
             }
@@ -413,14 +412,14 @@ namespace PIPE_Valve_Console_Client
                     _netobj.AssetBundle = newbundle;
                     DontDestroyOnLoad(_newobj);
 
-                    ParkBuilder.instance.bundlesloaded.Add(new BundleData(newbundle, file.Name));
+                    ParkBuilder.instance.bundlesloaded.Add(new BundleData(newbundle, file.Name,file.DirectoryName));
                     return;
                 }
             }
 
             // failed to find object, inform user what package is missing and clean up, resolve with server
             InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to find {_netobj.NameofObject} from {_netobj.NameOfFile} for {Players[_netobj.OwnerID].username}", (int)MessageColourByNum.Server, 0));
-            if (!FileSyncing.CheckForFile(_netobj.NameOfFile))
+            if (!FileSyncing.CheckForFile(_netobj.NameOfFile,ParkAssetsDir))
             {
                 FileSyncing.AddToRequestable(5, _netobj.NameOfFile, _netobj.ObjectID,_netobj.OwnerID);
             }
@@ -465,19 +464,30 @@ namespace PIPE_Valve_Console_Client
                             {
                            
                              string Unicode = ConvertToUnicode(r.materials[i].mainTexture.name);
+                                // find actual file
 
-                            list.Add(new TextureInfo(Unicode, r.gameObject.name, false, i));
+                                foreach(FileInfo file in new DirectoryInfo(TexturesDir).GetFiles("*.*", SearchOption.AllDirectories))
+                                {
+                                    if(file.Name == r.materials[i].mainTexture.name)
+                                    {
+                                      list.Add(new TextureInfo(Unicode, r.gameObject.name, false, i,file.DirectoryName));
+
+                                    }
+                                }
+
+
+
 
                             }
                             else
                             {
-                                list.Add(new TextureInfo("stock", r.gameObject.name, false, i));
+                                list.Add(new TextureInfo("stock", r.gameObject.name, false, i,"none"));
                             }
 
                         }
                         else
                         {
-                            list.Add(new TextureInfo("e", r.gameObject.name, false, i));
+                            list.Add(new TextureInfo("e", r.gameObject.name, false, i,"none"));
                         }
 
 
@@ -672,11 +682,15 @@ namespace PIPE_Valve_Console_Client
             Debug.Log("Garage Setup complete");
         }
 
-        public static Texture2D GetTexture(string name)
+        public static Texture2D GetTexture(string name,string directory)
         {
             Texture2D image = new Texture2D(2,2);
 
-            foreach(FileInfo _file in new DirectoryInfo(Rootdir).GetFiles(name, SearchOption.AllDirectories))
+            int pdata = directory.ToLower().LastIndexOf("pipe_data");
+            string path = Application.dataPath + directory.Remove(0, pdata + 9);
+
+
+            foreach (FileInfo _file in new DirectoryInfo(path).GetFiles(name, SearchOption.TopDirectoryOnly))
             {
                 if(_file.Name == name)
                 {
