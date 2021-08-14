@@ -330,7 +330,11 @@ namespace PIPE_Valve_Online_Server
                 Console.WriteLine("Saving file to path: " + FullPath);
 
                 if (!Directory.Exists(FullPath)) Directory.CreateDirectory(FullPath);
-                File.Move(TempDir + _mypath + name, FullPath + name);
+                if(!File.Exists(FullPath + name))
+                    {
+                     File.Move(TempDir + _mypath + name, FullPath + name);
+
+                    }
                 File.Delete(TempDir + _mypath + name + ".temp");
                 
                 // Tell Anyone that i've asked to send this file that i have it now ,if still online

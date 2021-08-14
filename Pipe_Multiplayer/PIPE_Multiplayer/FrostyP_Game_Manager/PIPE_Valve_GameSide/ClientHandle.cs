@@ -221,7 +221,7 @@ namespace PIPE_Valve_Console_Client
             
             foreach(SendReceiveIndex r in FileSyncing.OutGoingIndexes.ToArray())
             {
-                if (r.NameOfFile == name)
+                if (name.Contains(r.NameOfFile))
                 {
                   FileSyncing.OutGoingIndexes.Remove(r);
                   InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Server Received {name}",(int)MessageColourByNum.System, 1));

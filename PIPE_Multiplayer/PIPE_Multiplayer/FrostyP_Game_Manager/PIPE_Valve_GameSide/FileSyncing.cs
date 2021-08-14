@@ -183,7 +183,7 @@ namespace PIPE_Valve_Console_Client
 
             // sort directory
             int gdata = path.ToLower().LastIndexOf("game data");
-            string mypath = path.Remove(0, gdata + 10);
+            string mypath = path.Remove(0, gdata + 9) + "/";
 
 
 

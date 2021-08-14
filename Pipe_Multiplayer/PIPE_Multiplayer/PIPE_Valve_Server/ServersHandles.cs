@@ -264,7 +264,7 @@ namespace PIPE_Valve_Online_Server
                     {
                             int indexer = mesh.fileName.LastIndexOf("/");
                             string shortname = mesh.fileName.Remove(0, indexer + 1);
-                                string dir = ServerData.Rootdir + "GarageContent/" + mesh.fileName;
+                                string dir = "PIPE_data/GarageContent/" + mesh.fileName;
                                 dir = dir.Replace(shortname, "");
 
                         ServerData.FileCheckAndRequest(shortname, _from,dir);
@@ -276,12 +276,12 @@ namespace PIPE_Valve_Online_Server
                 {
                     foreach(PartTexture tex in glist.partTextures)
                     {
-                        if (tex.url.ToLower().Contains("frostypmanager"))
+                        if (tex.url.ToLower().Contains("frostypgamemanager"))
                         {
                             int lastslash = tex.url.LastIndexOf("/");
                             string name = tex.url.Remove(0, lastslash + 1);
-                                int f = tex.url.LastIndexOf("frostypmanager");
-                                string dir = ServerData.Rootdir + tex.url.Remove(0,f + 1);
+                                int f = tex.url.LastIndexOf("FrostyPGameManager");
+                                string dir = "PIPE_Data/" + tex.url.Remove(0,f + 1);
 
 
                             ServerData.FileCheckAndRequest(name, _from,dir);
