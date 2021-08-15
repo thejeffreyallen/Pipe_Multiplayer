@@ -39,6 +39,12 @@ public class RemoteLoadManager : MonoBehaviour
             // Quick fix for weird normal map issue on left crank arm
             Material m = rpm.GetMaterial(rpm.rightCrank);
             rpm.GetPart(rpm.leftCrank).GetComponent<MeshRenderer>().material = m;
+
+            if (player.partMaster.GetPart(player.partMaster.rightPedal).transform.localEulerAngles.y < 180.0f)
+            {
+                player.partMaster.GetPart(player.partMaster.rightPedal).transform.localEulerAngles += new Vector3(0, 180f, 0);
+            }
+
             Resources.UnloadUnusedAssets();
         }
         catch (Exception e)
@@ -56,6 +62,7 @@ public class RemoteLoadManager : MonoBehaviour
         {
             pm.SetPosition(partPos.partNum, new Vector3(partPos.x, partPos.y, partPos.z));
             pm.SetScale(partPos.partNum, new Vector3(partPos.scaleX, partPos.scaleY, partPos.scaleZ));
+            pm.SetRotation(partPos.partNum, new Vector3(partPos.rotX, partPos.rotY, partPos.rotZ));
             pm.SetPartVisible(partPos.partNum, partPos.isVisible);
         }
     }

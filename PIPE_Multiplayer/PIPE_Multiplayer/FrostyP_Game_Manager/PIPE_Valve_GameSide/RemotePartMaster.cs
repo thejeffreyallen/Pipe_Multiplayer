@@ -632,6 +632,11 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
+        public void SetRotation(int key, Vector3 rot)
+        {
+            GetPart(key).transform.localEulerAngles = rot;
+        }
+
         public void SetPartsVisible()
         {
             foreach (int key in ColourSetter.instance.GetActivePartList())
