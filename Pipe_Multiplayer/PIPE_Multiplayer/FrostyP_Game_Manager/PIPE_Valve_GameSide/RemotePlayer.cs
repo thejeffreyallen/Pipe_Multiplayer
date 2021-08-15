@@ -36,7 +36,7 @@ namespace PIPE_Valve_Console_Client
         // Received position updates for this player
         public List<IncomingTransformUpdate> IncomingTransformUpdates;
         // Positions captured in the same instant as all others including me
-        public List<IncomingTransformUpdate> ReplayPostions;
+        public List<IncomingTransformUpdate> ReplayPositions;
        
         public GUIStyle style = new GUIStyle();
        
@@ -72,7 +72,7 @@ namespace PIPE_Valve_Console_Client
             // create reference to all transforms of rider and bike (keep Seperate vector arrays to receive last update for use in interpolation?, pull eulers instead of quats to save 30 floats)
             Riders_Transforms = new Transform[34];
             IncomingTransformUpdates = new List<IncomingTransformUpdate>();
-            ReplayPostions = new List<IncomingTransformUpdate>();
+            ReplayPositions = new List<IncomingTransformUpdate>();
         }
 
         // Call initiation once on start, inititation to reoccur until resolved
