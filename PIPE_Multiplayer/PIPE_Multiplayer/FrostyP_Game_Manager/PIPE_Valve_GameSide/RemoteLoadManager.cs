@@ -316,7 +316,7 @@ public class RemoteLoadManager : MonoBehaviour
                 {
                     if (!File.Exists(fullPath))
                     {
-                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, pm.fileName, player.id,dir);
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, pm.fileName, player.id, dir);
                         SavingManager.instance.ChangeAlertText($"Error loading mesh: {pm.fileName} for {player.username}. A file request has been left in Sync window");
                         if (!SavingManager.instance.infoBox.activeSelf)
                             SavingManager.instance.infoBox.SetActive(true);
@@ -325,12 +325,20 @@ public class RemoteLoadManager : MonoBehaviour
                     {
                         if (pm.partName.Equals("cranks"))
                         {
-                            Mesh temp = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);
-                            player.partMaster.SetMesh(player.partMaster.leftCrank, temp);
-                            player.partMaster.SetMesh(player.partMaster.rightCrank, temp);
+                            Mesh crank = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);
+                            player.partMaster.SetMesh(player.partMaster.leftCrank, crank);
+                            player.partMaster.SetMesh(player.partMaster.rightCrank, crank);
                             continue;
                         }
-                        else if (pm.partName.Equals("stem"))
+                        if (pm.partName.Equals("pedals"))
+                        {
+                            Mesh pedal = CustomMeshManager.instance.FindSpecific(pm.partName, pm.fileName);
+                            PartMaster.instance.SetMesh(PartMaster.instance.leftPedal, pedal);
+                            PartMaster.instance.SetMesh(PartMaster.instance.rightPedal, pedal);
+                            CustomMeshManager.instance.SetPartText(pm.partName, pedal.name);
+                            continue;
+                        }
+                        if (pm.partName.Equals("stem"))
                         {
                             string path = "StemBolts/" + Path.GetFileName(pm.fileName);
                             Mesh stem = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);
@@ -339,12 +347,9 @@ public class RemoteLoadManager : MonoBehaviour
                             player.partMaster.SetMesh(player.partMaster.stemBolts, bolts);
                             continue;
                         }
-                        else
-                        {
-                            Mesh temp = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);
-                            player.partMaster.SetMesh(pm.key, temp);
-                            continue;
-                        }
+                        Mesh temp = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);
+                        player.partMaster.SetMesh(pm.key, temp);
+                        continue;
                     }
                 }
                 switch (pm.partName)
