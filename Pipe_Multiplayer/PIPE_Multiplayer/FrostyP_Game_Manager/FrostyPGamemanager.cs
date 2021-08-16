@@ -90,12 +90,17 @@ namespace FrostyP_Game_Manager
                 {
 					OpenMenu = false;
                 }
+				if (InGameUI.instance.Connected && InGameUI.instance.Minigui)
+				{
+					InGameUI.instance.Minigui = false;
+					InGameUI.instance.OnlineMenu = true;
+				}
 
 
 			}
 
 			// Teleport shortcut
-            if (MGInputManager.LeftStick_Down())
+			if (MGInputManager.LeftStick_Down())
             {
                 if (MGInputManager.LTrigger() > 0.5f)
                 {

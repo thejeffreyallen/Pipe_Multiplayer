@@ -138,7 +138,10 @@ namespace PIPE_Valve_Console_Client
             }
             if (Input.GetKeyDown(KeyCode.B))
             {
-
+                if (InGameUI.instance.Minigui)
+                {
+                    InGameUI.instance.Minigui = false;
+                }
                 if (InGameUI.instance.IsSpectating)
                 {
                     InGameUI.instance.SpectateExit();

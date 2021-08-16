@@ -85,9 +85,13 @@ namespace FrostyP_Game_Manager
             Cam.transform.LookAt(RiderModel.transform.FindDeepChild("mixamorig:Head"));
 
             Cam.transform.position = Vector3.Lerp(Cam.transform.position, RiderModel.transform.position + (RiderModel.transform.up * 2) + (-RiderModel.transform.forward * 4), movespeed * Time.deltaTime);
-;
+
+            if(MGInputManager.LStickX()>0.1f | MGInputManager.LStickX() < -0.1f | MGInputManager.LStickY() > 0.1f | MGInputManager.LStickY() < -0.1f | MGInputManager.RStickX() > 0.1f | MGInputManager.RStickX() < -0.1f | MGInputManager.RStickY() > 0.1f | MGInputManager.RStickY() < -0.1f)
+            {
 
             RiderModel.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * movespeed, MGInputManager.RStickY() * Time.deltaTime * movespeed, MGInputManager.LStickY() * Time.deltaTime * movespeed);
+
+            }
           
 
             if (MGInputManager.RB_Down())

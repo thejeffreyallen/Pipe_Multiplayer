@@ -7,6 +7,6 @@
   "GameVersion": "1.9.9",
   "Requirements": [ "TheGarage2.0" ],
   "LoadAfter": [ "TheGarage2.0" ],
-  "AssemblyName": "Installer.dll",
-  "EntryMethod": "Installer.Main.Load"
+  "AssemblyName": "FrostyP_Game_Manager.dll",
+  "EntryMethod": "FrostyP_Game_Manager.Main.Load"
 }
