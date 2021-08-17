@@ -30,9 +30,8 @@ namespace FrostyP_Game_Manager
 
 		List<string> popups = new List<string>();
 		bool Popup;
-
-
-
+		Dictionary<int, string> ScreenModeDisplay = new Dictionary<int, string>();
+		int currentscreen = 0;
 
 
 		void Start()
@@ -76,6 +75,14 @@ namespace FrostyP_Game_Manager
 
 			Generalstyle.alignment = TextAnchor.MiddleCenter;
 			Generalstyle.fontStyle = FontStyle.Bold;
+
+			ScreenModeDisplay = new Dictionary<int, string>
+			{
+				{0,"Exclusive" },
+				{1,"Full screen" },
+				{2,"Max window" },
+				{3,"Windowed" },
+			};
 			
 			OpenMenu = true;
 		}
@@ -270,6 +277,16 @@ namespace FrostyP_Game_Manager
 			GUILayout.Label("G toggles Menu: L toggles Patcha, B toggles Volution Garage, P toggles Pipeworks Player Importer", Generalstyle);
 			GUILayout.EndHorizontal();
 			GUILayout.Space(10);
+			GUILayout.BeginHorizontal();
+			if(GUILayout.Button($"Screen Mode: {ScreenModeDisplay[currentscreen]}"))
+            {
+				Debug.Log($"Change screen from {ScreenModeDisplay[currentscreen]}");
+				SetFullScreen(Screen.fullScreen);
+				
+
+			}
+			GUILayout.EndHorizontal();
+			GUILayout.Space(20);
 			GUILayout.Label("Creating a Server Basic Setup");
 			GUILayout.Space(10);
 			GUILayout.Label("1) Start Server App, ensure it's allowed through you Firewall", Generalstyle);
@@ -293,12 +310,53 @@ namespace FrostyP_Game_Manager
 
 		}
 
+		void SetFullScreen(bool fullScreenValue)
+		{
+			if (!fullScreenValue)
+			{
+				Resolution resolution = Screen.currentResolution;
+				Screen.SetResolution(resolution.width, resolution.height, fullScreenValue);
+			}
+            else
+            {
+			 Screen.fullScreen = fullScreenValue;
+
+            }
+
+
+			try
+			{
+
+				if (currentscreen == 3)
+				{
+					currentscreen = 0;
+				}
+				else
+				{
+					currentscreen++;
+				}
+
+				if (currentscreen != 0 && currentscreen != 1)
+				{
+					Screen.fullScreen = false;
+				}
+				Screen.fullScreenMode = (FullScreenMode)currentscreen;
+				Debug.Log($"to screen {ScreenModeDisplay[currentscreen]}");
+			}
+			catch (System.Exception x)
+			{
+				Debug.Log("Screen mode :  " + x);
+			}
+
+		}
+
 		public void PopUpMessage(string message)
         {
 			popups.Add(message);
 			Popup = true;
 			StartCoroutine(PopUpMessageEnum(message));
         }
+
 		IEnumerator PopUpMessageEnum(string mess)
         {
 			yield return new WaitForSeconds(2);
@@ -306,6 +364,7 @@ namespace FrostyP_Game_Manager
 			Popup = false;
 
         }
+
 		void PopupShow()
         {
             if (popups.Count > 0)

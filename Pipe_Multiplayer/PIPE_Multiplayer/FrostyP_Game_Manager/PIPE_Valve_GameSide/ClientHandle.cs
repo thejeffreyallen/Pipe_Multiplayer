@@ -73,19 +73,39 @@ namespace PIPE_Valve_Console_Client
             int garagesaveByteSize = _packet.ReadInt();
             byte[] garagesave = _packet.ReadBytes(garagesaveByteSize);
 
+            int parkcount = _packet.ReadInt();
 
+            List<NetGameObject> objects = new List<NetGameObject>();
+            if (parkcount > 0)
+            {
 
+                for (int i = 0; i < parkcount; i++)
+                {
+                    string NameofGO = _packet.ReadString();
+                    string NameofFile = _packet.ReadString();
+                    string NameofBundle = _packet.ReadString();
+
+                    Vector3 Position = _packet.ReadVector3();
+                    Vector3 Rotation = _packet.ReadVector3();
+                    Vector3 Scale = _packet.ReadVector3();
+                    int ObjectID = _packet.ReadInt();
+                    string objdir = _packet.ReadString();
+
+                     objects.Add(new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID,null, objdir));
+
+                }
+
+            }
 
 
             Debug.Log("Setting up player");
-
 
 
             _gear = new GearUpdate();
             _gear.RiderTextures = RiderTextures;
             _gear.Capisforward = capforward;
             _gear.GarageSave = garagesave;
-            GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation,currentmap,_gear);
+            GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation,currentmap,_gear,objects);
 
             LocalPlayer.instance.ServerActive = true;
            
@@ -140,10 +160,33 @@ namespace PIPE_Valve_Console_Client
                 int garagesaveByteSize = _packet.ReadInt();
                 byte[] garagesave = _packet.ReadBytes(garagesaveByteSize);
 
+                int parkcount = _packet.ReadInt();
+
+                List<NetGameObject> objects = new List<NetGameObject>();
+                if (parkcount > 0)
+                {
+
+                    for (int i = 0; i < parkcount; i++)
+                    {
+                        string NameofGO = _packet.ReadString();
+                        string NameofFile = _packet.ReadString();
+                        string NameofBundle = _packet.ReadString();
+
+                        Vector3 Position = _packet.ReadVector3();
+                        Vector3 Rotation = _packet.ReadVector3();
+                        Vector3 Scale = _packet.ReadVector3();
+                        int ObjectID = _packet.ReadInt();
+                        string objdir = _packet.ReadString();
+
+                        objects.Add(new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID, null, objdir));
+
+                    }
+
+                }
 
 
 
-               
+
 
                 Debug.Log("Setting up player");
                
@@ -152,7 +195,7 @@ namespace PIPE_Valve_Console_Client
                 _gear.GarageSave = garagesave;
                 _gear.Capisforward = capforward;
                 _gear.RiderTextures = RiderTextures;
-                GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, currentmap, _gear);
+                GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, currentmap, _gear,objects);
 
 
             }
@@ -185,7 +228,7 @@ namespace PIPE_Valve_Console_Client
             // leave details including packets owned by server if any
 
             FileSyncing.OutGoingIndexes.Add(new SendReceiveIndex(n, Packetsowned,fulldir));
-           
+            InGameUI.instance.NewMessage(20, new TextMessage($"Server requested {n}", (int)MessageColourByNum.Server, 1));
 
         }
 

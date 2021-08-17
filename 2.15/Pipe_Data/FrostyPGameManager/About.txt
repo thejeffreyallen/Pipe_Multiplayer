@@ -1,0 +1,5 @@
+Come back here once you have booted the mod up for the first time and this folder should be populated
+
+
+For Garage Texture URL's local to your machine to be detected and synced, they must be found in this folder or its sub-folders,
+Keep files stored in BMX/appropriate folder/ for best compatibilty as server will provide the same specific path when sending that file to others.

@@ -739,24 +739,34 @@ namespace PIPE_Valve_Console_Client
         IEnumerator Initialiseafterwait()
         {
           // stagger out the initial rider build in case many are spawning at once somehow?
-            yield return new WaitForSeconds(UnityEngine.Random.Range(0.5f,1.2f));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(1.0f,3f));
             try
             {
-            partMaster.InitPartList(BMX);
-            partMaster.AccessoriesSetup();
-                
             if (CurrentModelName == "Daryien")
             {
                 RiderModel.transform.FindDeepChild("pants_geo").GetComponent<SkinnedMeshRenderer>().material.EnableKeyword("_ALPHATEST_ON");
                 RiderModel.transform.FindDeepChild("shirt_geo").GetComponent<SkinnedMeshRenderer>().material.EnableKeyword("_ALPHATEST_ON");
                 UpdateDaryien();
             }
+                
 
             }
-            catch (Exception)
+            catch (Exception x)
             {
-                
+                Debug.Log($"Init after wait for {username} had an issue : " + x);
             }
+
+
+            try
+            {
+                partMaster.InitPartList(BMX);
+                partMaster.AccessoriesSetup();
+            }
+            catch (Exception x )
+            {
+                Debug.Log("Garage issue Init after wait : " + x);
+            }
+
 
 
             // do bike
@@ -766,10 +776,41 @@ namespace PIPE_Valve_Console_Client
             UpdateBMX();
 
             }
-            catch (Exception)
+            catch (Exception x)
+            {
+                Debug.Log("Initial setup after wait error: Destroynormal or UpdateBMX: " + x);
+            }
+
+            try
+            {
+                if (Objects.Count > 0)
+                {
+                    for (int i = 0; i < Objects.Count; i++)
+                    {
+                        GameManager.instance.GetObject(Objects[i]);
+                        if (Objects[i]._Gameobject != null)
+                        {
+                            if (!InGameUI.instance.AllPlayerObjectsVisibleToggle)
+                            {
+                                Objects[i]._Gameobject.SetActive(false);
+                            }
+                            else
+                            {
+                                Objects[i]._Gameobject.SetActive(PlayerObjectsVisible);
+                            }
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception x)
             {
 
+                Debug.Log($"Init after wait for {username} had an Object spawn issue : " + x);
             }
+
+
 
             nameSign.transform.parent = RiderModel.transform.FindDeepChild("mixamorig:Head");
             nameSign.transform.localPosition = new Vector3(0, 0.35f, 0);

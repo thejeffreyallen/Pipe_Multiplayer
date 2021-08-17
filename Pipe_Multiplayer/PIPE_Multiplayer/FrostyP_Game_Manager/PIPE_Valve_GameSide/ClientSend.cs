@@ -143,27 +143,16 @@ namespace PIPE_Valve_Console_Client
 
                 _packet.Write(FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count);
 
-                if(FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects!= null)
-                {
+               
                     if (FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects.Count > 0)
                     {
                         foreach(FrostyP_Game_Manager.NetGameObject _netobj in FrostyP_Game_Manager.ParkBuilder.instance.NetgameObjects)
                         {
 
-                            string nameoffileinput = _netobj.NameOfFile;
-                            string nameoffileascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameoffileinput)));
-                            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidFileNameChars());
-                            nameoffileascii = nameoffileascii.Trim(Path.GetInvalidPathChars());
-
-                            string nameofassetbuninput = _netobj.NameofAssetBundle;
-                            string nameofassetbunascii = Encoding.ASCII.GetString(Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(Encoding.ASCII.EncodingName, new EncoderReplacementFallback(string.Empty), new DecoderExceptionFallback()), Encoding.UTF8.GetBytes(nameofassetbuninput)));
-                            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidFileNameChars());
-                            nameofassetbunascii = nameofassetbunascii.Trim(Path.GetInvalidPathChars());
-
-
+                          
                             _packet.Write(_netobj.NameofObject);
-                            _packet.Write(nameoffileascii);
-                            _packet.Write(nameofassetbunascii);
+                            _packet.Write(_netobj.NameOfFile);
+                            _packet.Write(_netobj.NameofAssetBundle);
 
                             _packet.Write(_netobj.Position);
                             _packet.Write(_netobj.Rotation);
@@ -172,7 +161,7 @@ namespace PIPE_Valve_Console_Client
                             _packet.Write(_netobj.Directory);
                         }
                     }
-                }
+                
 
 
                

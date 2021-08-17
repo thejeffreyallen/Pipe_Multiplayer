@@ -48,6 +48,20 @@ namespace PIPE_Valve_Online_Server
         /// </summary>
         public static void LoadData()
         {
+            if (!Directory.Exists(Rootdir))
+            {
+                Directory.CreateDirectory(Rootdir);
+            }
+            if (!Directory.Exists(TempDir))
+            {
+                Directory.CreateDirectory(TempDir);
+            }
+            if (!Directory.Exists(UpdateDir))
+            {
+                Directory.CreateDirectory(UpdateDir);
+            }
+
+
             BannedWords = new List<string>
             {
                    {"gay"},
@@ -95,21 +109,12 @@ namespace PIPE_Valve_Online_Server
 
             }
 
+            if(new DirectoryInfo(UpdateDir).GetFiles().Length < 2)
+            {
+                Console.WriteLine($"There aren't any files in Game Data/FrostyPGameManager/Updates/{Server.VERSIONNUMBER}, consider adding all relevant Mod-Side files there for Auto update serving to clients PIPE_Data/FrostyPGameManager/Updates/{Server.VERSIONNUMBER}");
+            }
 
 
-
-            if (!Directory.Exists(Rootdir))
-            {
-                Directory.CreateDirectory(Rootdir);
-            }
-            if (!Directory.Exists(TempDir))
-            {
-                Directory.CreateDirectory(TempDir);
-            }
-            if (!Directory.Exists(UpdateDir))
-            {
-                Directory.CreateDirectory(UpdateDir);
-            }
 
 
             //Server.PostRequest();

@@ -429,6 +429,9 @@ namespace FrostyP_Game_Manager
                         }
                     }
 					placedobjects.Clear();
+				    NetgameObjects.Clear();
+
+
 					if(Activeobj != null)
                     {
 						pos = Activeobj.transform.position;
@@ -500,13 +503,12 @@ namespace FrostyP_Game_Manager
 		/// </summary>
 		public void Open(Vector3 _playerscurrentpos)
         {
+			GameManager.TogglePlayerComponents(false);
 			Activeobj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 			Activeobj.name = "Pointer";
-			Activeobj.transform.position = _playerscurrentpos;
+			Activeobj.transform.position = _playerscurrentpos + Vector3.up;
 			controlobjforcam.transform.position = Activeobj.transform.position;
 
-			GameManager.TogglePlayerComponents(false);
-			openflag = true;
 			
 
 			if (inputman == null)
@@ -516,21 +518,17 @@ namespace FrostyP_Game_Manager
 			}
 
 
+				camobj.transform.position = _playerscurrentpos + (Vector3.back * 5) + (Vector3.up * 2);
 			    camobj.SetActive(true);
-				camobj.transform.position = _playerscurrentpos + (Vector3.back * 5);
 			
 
-			if(buildercam == null)
-            {
-				
-				buildercam = camobj.AddComponent<Camera>();
-				camobj.GetComponent<FMOD_Listener>().enabled = true;
-			}
+			
 		
 			//give list of found files
 		availableassetbundles = LoadAssets();
 			
 
+			openflag = true;
 
 		}
 
@@ -549,13 +547,10 @@ namespace FrostyP_Game_Manager
         /// <returns></returns>
         FileInfo[] LoadAssets()
         {
+			if (!Directory.Exists(AssetbundlesDirectory)) Directory.CreateDirectory(AssetbundlesDirectory);
+
 			DirectoryInfo listofbundles = new DirectoryInfo(AssetbundlesDirectory);
-            if (!listofbundles.Exists)
-            {
-				listofbundles.Create();
-            }
-
-
+            
 			return listofbundles.GetFiles("*.*",SearchOption.AllDirectories);
 
         }
@@ -1357,9 +1352,6 @@ namespace FrostyP_Game_Manager
 					GUILayout.Label($"{player.username}'s Objects");
 					foreach(NetGameObject rmObj in player.Objects.ToArray())
                     {
-						PlacedObject _RMPlacedObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile,rmObj.Directory));
-							_RMPlacedObject.ObjectId = rmObj.ObjectID;
-							_RMPlacedObject.OwnerID = rmObj.OwnerID;
 						bool found = false;
 						foreach (PlacedObject alreadyin in ObjectstoSave.ToArray())
 						{
@@ -1373,14 +1365,18 @@ namespace FrostyP_Game_Manager
 
 						if (!found)
 						{
-							if (GUILayout.Button($"Add {_RMPlacedObject.Object.name.Replace("(Clone)", "")}"))
-							{
-								ObjectstoSave.Add(_RMPlacedObject);
-							}
+								PlacedObject RemoteObject = new PlacedObject(rmObj._Gameobject, new BundleData(rmObj.AssetBundle, rmObj.NameOfFile, rmObj.Directory));
+								RemoteObject.ObjectId = rmObj.ObjectID;
+								RemoteObject.OwnerID = rmObj.OwnerID;
+
+								if (GUILayout.Button($"Add {RemoteObject.Object.name.Replace("(Clone)", "")}"))
+							    {
+								ObjectstoSave.Add(RemoteObject);
+							    }
 						}
 						if (found)
 						{
-							if (GUILayout.Button($"Remove {_RMPlacedObject.Object.name.Replace("(Clone)", "")}"))
+							if (GUILayout.Button($"Remove {_foundobj.Object.name.Replace("(Clone)", "")}"))
 							{
 								ObjectstoSave.Remove(_foundobj);
 							}
@@ -1457,7 +1453,7 @@ namespace FrostyP_Game_Manager
                 // if not returned, check file directory
                 if (!found)
                 {
-				  foreach(FileInfo file in new DirectoryInfo(AssetbundlesDirectory).GetFiles())
+				  foreach(FileInfo file in new DirectoryInfo(_savedObj.Directory).GetFiles())
                   {
 					if(file.Name.ToLower() == _savedObj.FileName.ToLower())
                     {

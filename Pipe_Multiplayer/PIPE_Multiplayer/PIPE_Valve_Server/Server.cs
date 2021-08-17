@@ -28,7 +28,8 @@ namespace PIPE_Valve_Online_Server
 		#region Servers data
 
 		[JsonProperty]
-		public static float VERSIONNUMBER { get;} = 2.14f;
+		public static float VERSIONNUMBER { get;} = 2.15f;
+		public static string SERVERNAME = "PIPE Server";
 		public static List<BanProfile> BanProfiles = new List<BanProfile>();
 		/// <summary>
 		/// Timers linked to connection ID, every message received resets the timer related to the sender of the message, 60second timeout will close the connection
@@ -69,9 +70,7 @@ namespace PIPE_Valve_Online_Server
 
 		#region Publicised Data
 
-		[JsonProperty]
-		public static string ServerName = "Server Name";
-		[JsonProperty]
+		
 		public static int Port = 7777;
        
 

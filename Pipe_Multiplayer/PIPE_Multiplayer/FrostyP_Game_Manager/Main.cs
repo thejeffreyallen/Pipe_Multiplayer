@@ -23,6 +23,7 @@ namespace FrostyP_Game_Manager
         static bool Load(UnityModManager.ModEntry modEntry)
         {
 
+
             Main.modId = modEntry.Info.Id;
             HarmonyInstance harmonyInstance = HarmonyInstance.Create(modEntry.Info.Id);
             harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());

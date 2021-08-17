@@ -105,7 +105,7 @@ namespace PIPE_Valve_Online_Server
         {
             using (Packet _packet = new Packet((int)ServerPacket.Welcome))
             {
-                _packet.Write($"Connected: Server Version: {Server.VERSIONNUMBER}");
+                _packet.Write($"Connected to {Server.SERVERNAME} Version:{Server.VERSIONNUMBER}");
              
 
 
@@ -237,8 +237,23 @@ namespace PIPE_Valve_Online_Server
                 _packet.Write(_player.Gear.Garagesave.Length);
                 _packet.Write(_player.Gear.Garagesave);
 
+                _packet.Write(_player.PlayerObjects.Count);
+                if (_player.PlayerObjects.Count > 0)
+                {
+                    for (int i = 0; i < _player.PlayerObjects.Count; i++)
+                    {
+                        _packet.Write(_player.PlayerObjects[i].NameofObject);
+                        _packet.Write(_player.PlayerObjects[i].NameOfFile);
+                        _packet.Write(_player.PlayerObjects[i].NameofAssetBundle);
 
-               
+                        _packet.Write(_player.PlayerObjects[i].Position);
+                        _packet.Write(_player.PlayerObjects[i].Rotation);
+                        _packet.Write(_player.PlayerObjects[i].Scale);
+                        _packet.Write(_player.PlayerObjects[i].ObjectID);
+                        _packet.Write(_player.PlayerObjects[i].Directory);
+                    }
+                }
+
 
 
                 try
@@ -282,6 +297,7 @@ namespace PIPE_Valve_Online_Server
                         _packet.Write(listof5.Count);
                         foreach (Player _player in listof5.ToList())
                         {
+                            // general
                             _packet.Write(_player.RiderID);
                             _packet.Write(_player.Username);
                             _packet.Write(_player.RiderRootPosition);
@@ -290,7 +306,7 @@ namespace PIPE_Valve_Online_Server
                             _packet.Write(_player.Ridermodelbundlename);
                             _packet.Write(_player.MapName);
 
-
+                            // daryien
                             if(_player.Ridermodel == "Daryien")
                             {
                             _packet.Write(_player.Gear.RiderTextures.Count);
@@ -311,7 +327,26 @@ namespace PIPE_Valve_Online_Server
                             // garage
                             _packet.Write(_player.Gear.Garagesave.Length);
                             _packet.Write(_player.Gear.Garagesave);
-                            
+
+
+                            // Park
+                            _packet.Write(_player.PlayerObjects.Count);
+                            if (_player.PlayerObjects.Count > 0)
+                            {
+                                for (int i = 0; i < _player.PlayerObjects.Count; i++)
+                                {
+                                    _packet.Write(_player.PlayerObjects[i].NameofObject);
+                                    _packet.Write(_player.PlayerObjects[i].NameOfFile);
+                                    _packet.Write(_player.PlayerObjects[i].NameofAssetBundle);
+
+                                    _packet.Write(_player.PlayerObjects[i].Position);
+                                    _packet.Write(_player.PlayerObjects[i].Rotation);
+                                    _packet.Write(_player.PlayerObjects[i].Scale);
+                                    _packet.Write(_player.PlayerObjects[i].ObjectID);
+                                    _packet.Write(_player.PlayerObjects[i].Directory);
+                                }
+                            }
+                          
 
 
                         }

@@ -36,21 +36,26 @@ namespace FrostyP_Game_Manager
         GUIStyle Offstyle;
         GUIStyle OnStyle;
         GUIStyle LookatStyle;
+        GUIStyle CamMarkerstyle;
+        GUIStyle Playstyle;
 
-        float camspeed;
+        float movespeed;
+        float rotatespeed;
         float TriggerPlaySpeed;
-        float SetSpeed;
+        float SetSpeed = 0.5f;
 
         // Camera position based on frame and markers
         Quaternion currentrot;
         float span = 0.001f;
-
-        // markers
         bool CammarkersOpen = false;
         ReplayPosition activemarker;
-      
+        int BlendValue = 1;
+        string blendval = "1";
 
-      
+
+
+
+
 
         bool HideGUI;
         System.Diagnostics.Stopwatch ReplayWatch = new System.Diagnostics.Stopwatch();
@@ -96,6 +101,8 @@ namespace FrostyP_Game_Manager
         }
         public void Close()
         {
+            CamMarkers.Clear();
+            PlayThrough = false;
             if (InGameUI.instance.Connected)
             {
                 GameManager.instance.TurnOnNetUpdates();
@@ -114,20 +121,20 @@ namespace FrostyP_Game_Manager
 
         void PlayerFreeCam()
         {
-            camspeed = 20;
+            movespeed = 10;
+            rotatespeed = 50;
 
             if (!MGInputManager.LB_Hold())
             {
             if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f | MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f | MGInputManager.RStickX() > 0.2f | MGInputManager.RStickX() < -0.2f | MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
             {
-                ReplayCam.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * camspeed, MGInputManager.RStickY() * Time.deltaTime * camspeed, MGInputManager.LStickY() * Time.deltaTime * camspeed);
-                ReplayCam.transform.Rotate(0, MGInputManager.RStickX() * Time.deltaTime * camspeed, 0);
+                ReplayCam.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * movespeed, MGInputManager.RStickY() * Time.deltaTime * movespeed, MGInputManager.LStickY() * Time.deltaTime * movespeed);
             }
-
+            
             }
             else if (!LookAtPlayer)
             {
-                ReplayCam.transform.Rotate(-MGInputManager.LStickY() * Time.deltaTime * camspeed, MGInputManager.LStickX() * Time.deltaTime * camspeed, -MGInputManager.RStickX() * Time.deltaTime * camspeed);
+                ReplayCam.transform.Rotate(-MGInputManager.LStickY() * Time.deltaTime * rotatespeed, MGInputManager.LStickX() * Time.deltaTime * rotatespeed, -MGInputManager.RStickX() * Time.deltaTime * rotatespeed);
             }
 
         }
@@ -242,7 +249,7 @@ namespace FrostyP_Game_Manager
                 // online players position update
                 foreach (RemotePlayer player in GameManager.Players.Values)
                 {
-
+                    player.nameSign.transform.rotation = Camera.current.transform.rotation;
 
                     if (player.ReplayPositions.Count > CurrentShowingPosition)
                     {
@@ -316,10 +323,16 @@ namespace FrostyP_Game_Manager
                                 remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.00001f, 0.1f);
 
                             }
+
+
+
+
+
+                        }
                             if (CurrentCamPosition != 0)
                             {
 
-                                if (CurrentShowingPosition < CamMarkers[CurrentCamPosition].ReferenceFrame)
+                                if (CurrentShowingPosition - BlendValue < CamMarkers[CurrentCamPosition].ReferenceFrame)
                                 {
                                     CurrentCamPosition--;
                                     CurrentCamTargetPosition--;
@@ -333,8 +346,6 @@ namespace FrostyP_Game_Manager
 
 
                             }
-
-                        }
                         
 
                     }
@@ -361,7 +372,11 @@ namespace FrostyP_Game_Manager
                             }
                         }
 
-                        if (CurrentShowingPosition > CamMarkers[CurrentCamPosition].ReferenceFrame)
+
+                       
+
+                    }
+                        if (CurrentShowingPosition + BlendValue > CamMarkers[CurrentCamPosition].ReferenceFrame)
                         {
                             CurrentCamPosition++;
                             CurrentCamTargetPosition++;
@@ -371,10 +386,6 @@ namespace FrostyP_Game_Manager
                                 span = span + MyPlayerPositions[i].Timspanfromlast;
                             }
                         }
-
-                       
-
-                    }
 
 
                 }
@@ -437,37 +448,37 @@ namespace FrostyP_Game_Manager
                     // online players position update
                     foreach (RemotePlayer player in GameManager.Players.Values)
                     {
-
+                        player.nameSign.transform.rotation = Camera.current.transform.rotation;
 
                         if (player.ReplayPositions.Count > CurrentShowingPosition)
                         {
-                            player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * Time.deltaTime * TriggerPlaySpeed);
                             for (int i = 1; i < 23; i++)
                             {
-                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
                             }
 
                             // hip joint
-                            player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
 
 
-                            player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
-                            player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
 
                             for (int i = 25; i < 32; i++)
                             {
-                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
                             }
 
-                            player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
 
                         }
@@ -507,14 +518,17 @@ namespace FrostyP_Game_Manager
                     CamMarkers.Clear();
                 }
                 GUILayout.Space(5);
-                if (GUILayout.Button("Cam Markers"))
+                if (GUILayout.Button("Cam Markers",CamMarkerstyle))
                 {
                     if (OpenCamSettings)
                     {
                         OpenCamSettings = false;
+                        
                     }
                     CammarkersOpen = !CammarkersOpen;
+
                 }
+                CamMarkerstyle = CammarkersOpen ? OnStyle : Offstyle;
                 GUILayout.Space(5);
                 if (GUILayout.Button("Cam Settings"))
                 {
@@ -550,7 +564,8 @@ namespace FrostyP_Game_Manager
             {
                 ModeDisplay = "Switch to Edit Mode";
                 GUILayout.Space(5);
-                if (GUILayout.Button("Play"))
+                Playstyle = PlayThrough ? Offstyle : OnStyle;
+                if (GUILayout.Button("Play", Playstyle))
                 {
                     PlaySetup();
                 }
@@ -566,6 +581,13 @@ namespace FrostyP_Game_Manager
                         OpenCamSettings = false;
                     }
                     CammarkersOpen = !CammarkersOpen;
+                }
+                GUILayout.Space(5);
+                GUILayout.Label("Blend:",GUILayout.MaxWidth(100));
+                blendval = GUILayout.TextField(blendval,GUILayout.MaxWidth(30));
+                if(int.TryParse(blendval,out int res))
+                {
+                    BlendValue = res;
                 }
 
             }
@@ -869,37 +891,37 @@ namespace FrostyP_Game_Manager
                     // online players position update
                     foreach (RemotePlayer player in GameManager.Players.Values)
                     {
-
+                        player.nameSign.transform.rotation = Camera.current.transform.rotation;
 
                         if (player.ReplayPositions.Count > CurrentShowingPosition)
                         {
-                            player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * Time.deltaTime * TriggerPlaySpeed);
                             for (int i = 1; i < 23; i++)
                             {
-                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
                             }
 
                             // hip joint
-                            player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
 
 
-                            player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
-                            player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
 
                             for (int i = 25; i < 32; i++)
                             {
-                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
                             }
 
-                            player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
-                            player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * player.ReplayPositions[CurrentShowingPosition].timespanFromlastReplaymarker * TriggerPlaySpeed);
+                            player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * Time.deltaTime * TriggerPlaySpeed);
+                            player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * Time.deltaTime * TriggerPlaySpeed);
 
 
                         }
@@ -1284,10 +1306,15 @@ namespace FrostyP_Game_Manager
             OnStyle = new GUIStyle();
             OnStyle.normal.background = InGameUI.instance.GreenTex;
             OnStyle.hover.background = InGameUI.instance.GreyTex;
+            OnStyle.onNormal.background = InGameUI.instance.GreenTex;
+            OnStyle.onHover.background = InGameUI.instance.GreyTex;
             OnStyle.alignment = TextAnchor.MiddleCenter;
+            OnStyle.onNormal.textColor = Color.white;
+            OnStyle.onHover.textColor = Color.white;
             OnStyle.normal.textColor = Color.white;
             OnStyle.hover.textColor = Color.white;
 
+            CamMarkerstyle = OnStyle;
 
         }
         void Start()

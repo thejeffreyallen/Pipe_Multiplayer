@@ -114,6 +114,7 @@ namespace PIPE_Valve_Console_Client
 
             Players = new Dictionary<uint, RemotePlayer>();
 
+            
         }
 
         // Use this for initialization
@@ -157,6 +158,18 @@ namespace PIPE_Valve_Console_Client
                 
             }
 
+            if (MainManager.instance.isOpen)
+            {
+                if (InGameUI.instance.Connected)
+                {
+                   KeepNetworkActive();
+                }
+
+
+            }
+
+
+            
         }
 
         // make clones so theres always a reference model for each and its not our Original versions
@@ -276,7 +289,7 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-        public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, string Currentmap, GearUpdate Gear)
+        public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, string Currentmap, GearUpdate Gear, List<NetGameObject> Objects)
         {
             Debug.Log($"Spawning : {_username} as {currentmodel}, Id: {_id}");
 
@@ -305,7 +318,7 @@ namespace PIPE_Valve_Console_Client
                     r.username = _username;
                     r.CurrentMap = Currentmap;
                     r.Gear = Gear;
-                    r.Objects = new List<NetGameObject>();
+                    r.Objects = Objects;
                     r.StartupPos = _position;
                     r.StartupRot = _rotation;
 
@@ -385,6 +398,10 @@ namespace PIPE_Valve_Console_Client
         public void GetObject(NetGameObject _netobj)
         {
             // check if objects bundle is loaded on this machine, if not look for filename and load bundle, if not, tell user what they need
+            int pdata = _netobj.Directory.ToLower().LastIndexOf("pipe_data");
+            string mydir = Application.dataPath + _netobj.Directory.Remove(0,pdata + 9);
+
+            Debug.Log($"Looking for Park asset {_netobj.NameofObject} at path {mydir}");
 
             foreach (AssetBundle A in AssetBundle.GetAllLoadedAssetBundles())
             {
@@ -401,7 +418,7 @@ namespace PIPE_Valve_Console_Client
                 }
             }
 
-            foreach (FileInfo file in new DirectoryInfo(ParkBuilder.instance.AssetbundlesDirectory).GetFiles())
+            foreach (FileInfo file in new DirectoryInfo(mydir).GetFiles())
             {
                 if (file.Name == _netobj.NameOfFile)
                 {
@@ -421,7 +438,7 @@ namespace PIPE_Valve_Console_Client
             }
 
             // failed to find object, inform user what package is missing and clean up, resolve with server
-            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to find {_netobj.NameofObject} from {_netobj.NameOfFile} for {Players[_netobj.OwnerID].username}", (int)MessageColourByNum.Server, 0));
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to find {mydir + _netobj.NameOfFile} for {Players[_netobj.OwnerID].username}'s {_netobj.NameofObject}", (int)MessageColourByNum.Server, 0));
             if (!FileSyncing.CheckForFile(_netobj.NameOfFile,ParkAssetsDir))
             {
                 FileSyncing.AddToRequestable(5, _netobj.NameOfFile, _netobj.ObjectID,_netobj.OwnerID);
@@ -526,7 +543,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (System.Exception)
                 {
-                    InGameUI.instance.NewMessage(6, new TextMessage("Error Loading Garage Save", (int)MessageColourByNum.Server, 1));
+                    InGameUI.instance.NewMessage(6, new TextMessage("Error Loading Garage Save, if problem persists try checking that BikeWorkshop.dll in Mods/FrostyPGameManager matches your current build of TheGarage2", (int)MessageColourByNum.Server, 1));
                    
                 }
             }

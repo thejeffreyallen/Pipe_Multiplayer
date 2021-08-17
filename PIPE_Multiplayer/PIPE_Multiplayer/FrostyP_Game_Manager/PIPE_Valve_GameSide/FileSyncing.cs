@@ -266,9 +266,9 @@ namespace PIPE_Valve_Console_Client
 
 
                 // if any waiting request exist, have them process again now the file exists
+                List<Waitingrequest> todelete = new List<Waitingrequest>();
                 if(WaitingRequests.Count > 0)
                 {
-                    List<Waitingrequest> todelete = new List<Waitingrequest>();
                     foreach(Waitingrequest r in WaitingRequests)
                     {
                         
@@ -356,6 +356,7 @@ namespace PIPE_Valve_Console_Client
                             todelete.Add(r);
                         }
                     }
+                }
                     if (todelete.Count > 0)
                     {
                         for (int i = 0; i < todelete.Count; i++)
@@ -365,7 +366,6 @@ namespace PIPE_Valve_Console_Client
                         }
                         todelete.Clear();
                     }
-                }
                
             }
             else
@@ -382,7 +382,7 @@ namespace PIPE_Valve_Console_Client
             }
 
 
-
+            InIndex.IsReceiving = false;
 
 
 

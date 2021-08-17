@@ -25,15 +25,11 @@ namespace PIPE_Valve_Console_Client
         GUIStyle PlayeroptionsStyle = new GUIStyle();
         public GUIStyle MiniPanelStyle = new GUIStyle();
         GUIStyle MinipanelstyeImportant = new GUIStyle();
-
         public static GUIStyle BoxStyle = new GUIStyle();
-
         private PlayerSaveData PlayerSavedata;
         private string Playersavepath = Application.dataPath + "/FrostyPGameManager/PlayerSaveData/";
-
         public static InGameUI instance;
         public LocalPlayer LocalPlayer;
-
         //Spectate mode
         public GameObject SpecCamOBJ;
         public Camera Cam;
@@ -48,7 +44,6 @@ namespace PIPE_Valve_Console_Client
         Dictionary<int, string> CamModeDisplays;
         public bool ShowCamSettingsOverride;
         public bool SpectateShowGUI = true;
-
         // connection status
         public float Ping = 0;
         public float LastPing = 0;
@@ -60,7 +55,6 @@ namespace PIPE_Valve_Console_Client
         public float connectionqualitylocal;
         public float connectionqualityremote;
         public int SendRate;
-
         // Admin mode
         string Adminpass = "Admin Password..";
         bool AdminOpen;
@@ -73,25 +67,19 @@ namespace PIPE_Valve_Console_Client
         Vector2 BootObjectScroll;
         Vector2 BootPlayerScroll;
         string Banword = "word to ban..";
-
         // MiniGUI
         Vector2 minguiscroll;
-
         // saved servers
         Vector2 savedserversscroll;
-
         // live riders
         Vector2 liveridersscroll;
         bool LiveRiderToggle;
-
         // Messages
         Vector2 Messagesscroll;
         bool MessagesToggle;
         string Messageslabel = "Messages";
-
         // Riderinfo
         Vector2 Riderinfoscroll;
-        
         // FileSync
         /// <summary>
         /// give number, get displayable word for that FileType
@@ -103,7 +91,6 @@ namespace PIPE_Valve_Console_Client
         int InPacketsTotal = 0;
         int OutPacketsTotal = 0;
         int OutPacketsSent = 0;
-
         // playeroptions
         public bool PlayeroptionsOpen;
         public bool CollisionsToggle = true;
@@ -115,20 +102,16 @@ namespace PIPE_Valve_Console_Client
         public bool BottompanelToggle = true;
         string BottompanelLabel = "Turn Bottom Panel Off";
         Dictionary<int, string> connectionstatelabels = new Dictionary<int, string>();
-
         // bottom panel
         bool BottompanelOpen = true;
         public string currentGaragePreset = "None";
-
         // Update window
         float Versionofupdate;
         List<string> UpdateFiles;
         bool UpdateOpen;
         public bool UpdateDownloaded;
-
         public string Username = "Username...";
         public string Nickname = "Server 1";
-
         /// <summary>
         /// In Online mode
         /// </summary>
@@ -143,21 +126,21 @@ namespace PIPE_Valve_Console_Client
         public bool IsSpectating;
         public bool RiderInfoMenuOpen;
         public uint IdofRidertoshow = 0;
-
         public int messagetimer;
         public List<TextMessage> Messages = new List<TextMessage>();
         public string Messagetosend = "Send a message to all...";
         Dictionary<int, Color> MessageColour;
-
         public Texture2D RedTex;
         public Texture2D BlackTex;
         public Texture2D GreyTex;
         public Texture2D GreenTex;
         public Texture2D whiteTex;
         public Texture2D TransTex;
-
         // players that are on my level but are toggled off
         public List<uint> ToggledOffPlayersByMe = new List<uint>();
+
+        float movespeed;
+        float rotatespeed;
 
 
         private void Awake()
@@ -184,8 +167,8 @@ namespace PIPE_Valve_Console_Client
             CamModeDisplays = new Dictionary<int, string>
             {
                 {0,"Auto-Follow / Free Move" },
-                {1,"Tripod / Auto Look At" },
-                {2,"Tripod / Full Manual" },
+                {1,"Tripod/Auto Look At : LT for Variable Zoom   " },
+                {2,"Tripod / Full Manual : LB for Rotation   " },
 
             };
 
@@ -1042,7 +1025,6 @@ namespace PIPE_Valve_Console_Client
             yield return null;
         }
 
-
         // --------------------------------------------------------------------------------------------  SPECTATE MODE ---------------------------------------------------------------------------------------------------
         public void SpectateEnter()
         {
@@ -1085,44 +1067,29 @@ namespace PIPE_Valve_Console_Client
 
         public void SpectateAutoFollowFreeMove()
         {
-            float speed = 15;
-            float smoothtime = 15f * Time.deltaTime;
+            movespeed = 10;
+            rotatespeed = 50;
+            float smoothtime = 1f * Time.fixedDeltaTime;
+            float rotsmooth = 5 * Time.fixedDeltaTime;
 
          
             ControlObj.transform.parent = Targetrider.transform;
-         
-                SpecCamOBJ.transform.LookAt(Targetrider.transform.FindDeepChild("mixamorig:Head"));
-            Vector3 vel = (ControlObj.transform.position - SpecCamOBJ.transform.position);
-            SpecCamOBJ.transform.position = Vector3.SmoothDamp(SpecCamOBJ.transform.position, ControlObj.transform.position, ref vel, smoothtime);
+
+            Quaternion lookat = Quaternion.LookRotation((Targetrider.transform.position + (Vector3.up/2)) - SpecCamOBJ.transform.position);
+            SpecCamOBJ.transform.rotation = Quaternion.Lerp(SpecCamOBJ.transform.rotation, lookat,rotsmooth);
+            SpecCamOBJ.transform.position = Vector3.Lerp(SpecCamOBJ.transform.position, ControlObj.transform.position, Vector3.Distance(SpecCamOBJ.transform.position, ControlObj.transform.position) * smoothtime);
             ControlObj.transform.LookAt(Targetrider.transform);
-            
-            if(MGInputManager.RStickX()> 0.15f | MGInputManager.RStickX() < -0.15f)
-            {
-                
-                ControlObj.transform.RotateAround(Targetrider.transform.position, Vector3.up, -MGInputManager.RStickX() * Time.deltaTime * speed * 5);
-            }
-            if (MGInputManager.LStickY() > 0.15f)
-            {
-
-                Vector3 dir = -(ControlObj.transform.position - Targetrider.transform.position).normalized;
-              ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 5);
-            }
-            if (MGInputManager.LStickY() < -0.15f)
-            {
-                Vector3 dir = (ControlObj.transform.position - Targetrider.transform.position).normalized;
-                ControlObj.gameObject.transform.position = Vector3.MoveTowards(ControlObj.transform.position, ControlObj.transform.position + dir, Time.deltaTime * 5);
-            }
 
 
-            if (MGInputManager.RStickY() > 0.15f | MGInputManager.RStickY() < -0.15f)
+            if(MGInputManager.LStickX()> 0.1f | MGInputManager.LStickX() < -0.1f | MGInputManager.LStickY() > 0.1f | MGInputManager.LStickY() < -0.1f | MGInputManager.RStickY() > 0.1f | MGInputManager.RStickY() < -0.1f)
             {
-               ControlObj.gameObject.transform.RotateAround(Targetrider.transform.position, ControlObj.gameObject.transform.right, MGInputManager.RStickY() * Time.deltaTime * speed * 5);
-            }
 
+                ControlObj.transform.Translate(MGInputManager.LStickX() * Time.fixedDeltaTime * movespeed, MGInputManager.RStickY() * Time.fixedDeltaTime * movespeed, MGInputManager.LStickY() * Time.fixedDeltaTime * movespeed);
+
+
+            }
 
             
-                
-               
 
 
         }
@@ -1193,49 +1160,29 @@ namespace PIPE_Valve_Console_Client
 
         public void SpectateTripodFullManual()
         {
+            ControlObj.transform.parent = null;
+            SpecCamOBJ.transform.parent = null;
+
             if (Targetrider == null)
             {
                 Targetrider = cycleplayerslist[0].RiderModel;
 
             }
+            movespeed = 10;
+            rotatespeed = 50;
 
 
-            float X = 0;
-            float Y = 0;
-            float Z = 0;
-
-            if (MGInputManager.RStickX() > 0.2f | MGInputManager.RStickX() < -0.2f)
+            if (!MGInputManager.LB_Hold())
             {
-                X = MGInputManager.RStickX() * Time.deltaTime * 8;
-            }
-            if (MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
-            {
-                Z = MGInputManager.RStickY() * Time.deltaTime * 8;
-            }
-            if (MGInputManager.LStickY() > 0.2f| MGInputManager.LStickY() < -0.2f)
-            {
-                Y = MGInputManager.LStickY() * Time.deltaTime * 4;
-            }
-
-
-            if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f)
-            {
-                Cam.transform.Rotate(0, MGInputManager.LStickX() * 50 * Time.fixedDeltaTime, 0);
-            }
-            if (MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f)
-            {
-                Cam.transform.Rotate(-MGInputManager.LStickY() * 50 * Time.fixedDeltaTime,0, 0);
-            }
-
-
-            Cam.transform.Translate(X, 0, Z);
-
-            if(MGInputManager.LTrigger() > 0.5f)
-            {
-                if (MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f)
+                if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f | MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f | MGInputManager.RStickX() > 0.2f | MGInputManager.RStickX() < -0.2f | MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
                 {
-                    Cam.transform.Translate(0, MGInputManager.LStickY() * 18 * Time.fixedDeltaTime, 0);
+                    Cam.transform.Translate(MGInputManager.LStickX() * Time.fixedDeltaTime * movespeed, MGInputManager.RStickY() * Time.fixedDeltaTime * movespeed, MGInputManager.LStickY() * Time.fixedDeltaTime * movespeed);
                 }
+
+            }
+            else
+            {
+                Cam.transform.Rotate(-MGInputManager.LStickY() * Time.fixedDeltaTime * rotatespeed, MGInputManager.LStickX() * Time.fixedDeltaTime * rotatespeed, -MGInputManager.RStickX() * Time.fixedDeltaTime * rotatespeed);
             }
 
         }
@@ -1255,14 +1202,12 @@ namespace PIPE_Valve_Console_Client
 
         }
 
-        // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
         public void ShowSpectate()
         {
             GUI.skin = skin;
-            GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 5), new Vector2(Screen.width / 2, 20)),MiniPanelStyle);
+            GUILayout.BeginArea(new Rect(new Vector2((Screen.width - (Screen.width/1.2f)) / 2 , 5), new Vector2(Screen.width / 1.2f, 20)),MiniPanelStyle);
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"H to Hide : ");
+            GUILayout.Label($"H to Hide: B changes mode: LB/RB changes rider  ");
             GUILayout.Label($"CamMode: {CamModeDisplays[cyclemodes]}");
             GUILayout.Space(10);
             GUILayout.Label($"player: { cycleplayerslist[cyclecounter].username} ");
@@ -1280,6 +1225,8 @@ namespace PIPE_Valve_Console_Client
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
+        // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
        public void MiniGUI()
         {

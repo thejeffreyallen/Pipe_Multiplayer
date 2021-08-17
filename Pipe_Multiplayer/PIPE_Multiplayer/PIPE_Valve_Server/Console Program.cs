@@ -37,7 +37,7 @@ namespace PIPE_Valve_Online_Server
             ServerData.LoadData();
 
             Console.WriteLine("Directories good");
-            if (args.Length != 4)
+            if (args.Length != 5)
             {
                 Console.WriteLine("Please enter Max player count (1 - ~");
                 Maxplayers = int.Parse(Console.ReadLine());
@@ -52,6 +52,9 @@ namespace PIPE_Valve_Online_Server
                 Console.WriteLine("Please enter an admin login password.. (in game, Use F12 key when in online mode to toggle Admin controls -- password is case sensitive)");
                 ServerData.AdminPassword = Console.ReadLine();
 
+                Console.WriteLine("Please enter a name for this server..");
+                Server.SERVERNAME = Console.ReadLine();
+
 
                 Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
                 Console.ReadLine();
@@ -61,6 +64,7 @@ namespace PIPE_Valve_Online_Server
                 port = int.Parse(args[1]);
                 Constants.TicksPerSec = int.Parse(args[2]);
                 ServerData.AdminPassword = args[3];
+                Server.SERVERNAME = args[4];
                 Console.WriteLine($"Auto Booted with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
 
 

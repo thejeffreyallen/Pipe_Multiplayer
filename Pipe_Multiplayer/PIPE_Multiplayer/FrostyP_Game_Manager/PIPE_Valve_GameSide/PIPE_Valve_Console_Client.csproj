@@ -164,7 +164,6 @@
     <Compile Include="InGameUI.cs" />
     <Compile Include="LocalPlayer.cs" />
     <Compile Include="LocalPlayerAudio.cs" />
-    <Compile Include="Main.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="GameNetworking.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

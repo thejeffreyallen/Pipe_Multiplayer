@@ -110,7 +110,7 @@ namespace PIPE_Valve_Online_Server
                         ServerData.FileCheckAndRequest(CurrentLevel,_from, "pipe_data/CustomMaps/");
                     }
 
-
+                    
             }
 
 
@@ -264,7 +264,7 @@ namespace PIPE_Valve_Online_Server
                     {
                             int indexer = mesh.fileName.LastIndexOf("/");
                             string shortname = mesh.fileName.Remove(0, indexer + 1);
-                                string dir = "PIPE_data/GarageContent/" + mesh.fileName;
+                                string dir = "PIPE_Data/GarageContent/" + mesh.fileName;
                                 dir = dir.Replace(shortname, "");
 
                         ServerData.FileCheckAndRequest(shortname, _from,dir);
@@ -309,22 +309,7 @@ namespace PIPE_Valve_Online_Server
                            }
                         }
 
-                        foreach (Player p in Server.Players.Values.ToList())
-                        {
-                            if (p.RiderID != _from)
-                            {
-                               foreach (NetGameObject n in _player.PlayerObjects)
-                               {
-                                 ServerSend.SpawnAnObject(p.RiderID, _from, n);
-
-                               }
-
-                            }
-                        }
-
-
-
-
+                        
 
                       // if theres players, run setup all, collects playerinfo in groups of five max and sends, then send all player objects
                       if (Server.Players.Count > 1)
@@ -332,20 +317,7 @@ namespace PIPE_Valve_Online_Server
                            Console.WriteLine($"Telling {_player.Username} about {Server.Players.Count - 1} other players");
                            ServerSend.SetupAllOnlinePlayers(_from, Server.Players.Values.ToList());
 
-                           foreach(Player p in Server.Players.Values)
-                           {
-                              if(p.RiderID != _from)
-                              {
-                                 if (p.PlayerObjects.Count > 0)
-                                 {
-                                    foreach(NetGameObject n in p.PlayerObjects)
-                                    {
-                                       ServerSend.SpawnAnObject(_from, p.RiderID, n);
-                                    }
-                                 }
-
-                              }
-                           }
+                          
                       }
 
                        _player.ReadytoRoll = true;
