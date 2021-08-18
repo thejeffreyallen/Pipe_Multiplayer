@@ -211,8 +211,8 @@ namespace PIPE_Valve_Console_Client
 			address.SetAddress(_ip,(ushort)port);
 			ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 120485760;
-				int sendBufferSize = 404857600;
+				int sendRateMax = 12048576;
+				int sendBufferSize = 40485760;
 				//int MTUDatasize = 600000;
 				//int MTUPacketsize = 600000;
 
@@ -289,8 +289,8 @@ namespace PIPE_Valve_Console_Client
 				address.SetAddress(FrostyIP, (ushort)frostyport);
 				ServerConnection = Socket.Connect(ref address);
 				int sendRateMin = 400000;
-				int sendRateMax = 120485760;
-				int sendBufferSize = 404857600;
+				int sendRateMax = 12048576;
+				int sendBufferSize = 40485760;
 				//int MTUDatasize = 600000;
 				//int MTUPacketsize = 600000;
 

@@ -61,6 +61,7 @@ namespace FrostyP_Game_Manager
 
 		
 		Vector2 SaveloadScroll;
+		Vector2 pagescroll;
 
 		GUIStyle boxstyle = new GUIStyle();
 
@@ -246,7 +247,7 @@ namespace FrostyP_Game_Manager
 			////////////////////////////////////////////////
 
 			GUILayout.BeginArea(new Rect(new Vector2(50, 100), new Vector2(Screen.width / 3, Screen.height - 150)), PIPE_Valve_Console_Client.InGameUI.BoxStyle);
-
+			pagescroll = GUILayout.BeginScrollView(pagescroll);
 			if (GUILayout.Button("Close Camera Setup"))
 			{
 				ReplayMode.instance.OpenCamSettings = false;
@@ -463,8 +464,8 @@ namespace FrostyP_Game_Manager
 				////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   LOAD GAME  ///////////////////////////////////////////////////////////////////////////////////
 				GUILayout.Space(20);
 				GUILayout.EndScrollView();
-			
 
+			GUILayout.EndScrollView();
 			GUILayout.EndArea();
 
 

@@ -20,10 +20,19 @@ namespace PIPE_Valve_Online_Server
         // These top three functions are used by the send functions, give connection number, bytes and specify a send mode from Valve.sockets.sendflags.
         private static void SendtoOne(uint toclient, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
+            try
+            {
+
             ThreadManager.ExecuteOnMainThread(() =>
             {
                 Server.Connection.SendMessageToConnection(toclient, bytes, sendflag);
             });
+            }
+            catch (Exception x)
+            {
+
+                Console.WriteLine("Send to one error : " + x);
+            }
         }
        
         private static void SendToAll(uint Exceptthis, byte[] bytes, Valve.Sockets.SendFlags sendflag)
@@ -115,11 +124,6 @@ namespace PIPE_Valve_Online_Server
            
         }
 
-
-
-
-       
-
         public static void RequestAllParts(uint Clientid)
         {
             using(Packet _packet = new Packet((int)ServerPacket.RequestAllParts))
@@ -129,9 +133,6 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-
-
-       
         public static void RequestFile(uint Clientid, string name, List<int> _packetsihave,string dir)
         {
             // send request to client
@@ -203,8 +204,8 @@ namespace PIPE_Valve_Online_Server
         /// <param name="_player"></param>
         public static void SetupNewPlayer(uint _toClient, Player _player)
         {
-           
-
+            try
+            {
             using (Packet _packet = new Packet((int)ServerPacket.SetupAPlayer))
             {
                 _packet.Write(_player.RiderID);
@@ -255,6 +256,27 @@ namespace PIPE_Valve_Online_Server
                 }
 
 
+                // Park
+                _packet.Write(_player.PlayerObjects.Count);
+                if (_player.PlayerObjects.Count > 0)
+                {
+                    for (int i = 0; i < _player.PlayerObjects.Count; i++)
+                    {
+                        _packet.Write(_player.PlayerObjects[i].NameofObject);
+                        _packet.Write(_player.PlayerObjects[i].NameOfFile);
+                        _packet.Write(_player.PlayerObjects[i].NameofAssetBundle);
+
+                        _packet.Write(_player.PlayerObjects[i].Position);
+                        _packet.Write(_player.PlayerObjects[i].Rotation);
+                        _packet.Write(_player.PlayerObjects[i].Scale);
+                        _packet.Write(_player.PlayerObjects[i].ObjectID);
+                        _packet.Write(_player.PlayerObjects[i].Directory);
+                    }
+                }
+
+
+
+
 
                 try
                 {
@@ -267,6 +289,14 @@ namespace PIPE_Valve_Online_Server
 
 
             }
+
+            }
+            catch (Exception x)
+            {
+
+                Console.WriteLine("Setup new Player error : " + x);
+            }
+
         }
 
 
@@ -277,6 +307,9 @@ namespace PIPE_Valve_Online_Server
         /// <param name="_players"></param>
         public static void SetupAllOnlinePlayers(uint _toclient, List<Player> _players)
         {
+            try
+            {
+
             List<Player> listof5 = new List<Player>();
             int count = 0;
             foreach(Player __player in _players.ToList())
@@ -371,6 +404,11 @@ namespace PIPE_Valve_Online_Server
             }
 
                 
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine($"Setup all online players error : {x}");
+            }
 
 
 

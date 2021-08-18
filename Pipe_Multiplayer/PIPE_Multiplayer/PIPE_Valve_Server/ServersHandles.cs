@@ -862,6 +862,8 @@ namespace PIPE_Valve_Online_Server
 
         public static void SpawnNewObject(uint _ownerID, Packet _packet)
         {
+            try
+            {
             string NameofGO = _packet.ReadString();
             string NameofFile = _packet.ReadString();
             string NameofBundle = _packet.ReadString();
@@ -874,9 +876,11 @@ namespace PIPE_Valve_Online_Server
 
             NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID,directory);
 
-            try
-            {
-                Server.Players[_ownerID].PlayerObjects.Add(OBJ);
+                if(Server.Players.TryGetValue(_ownerID, out Player player))
+                {
+
+
+                player.PlayerObjects.Add(OBJ);
                 foreach(Player p in Server.Players.Values.ToList())
                 {
                     if(p.RiderID != _ownerID)
@@ -884,16 +888,27 @@ namespace PIPE_Valve_Online_Server
                     ServerSend.SpawnAnObject(p.RiderID,_ownerID,OBJ);
                     }
                 }
-                Console.WriteLine($"{Server.Players[_ownerID].Username} spawned a {NameofGO}, objectID: {ObjectID}");
+                Console.WriteLine($"{player.Username} spawned a {NameofGO}, objectID: {ObjectID}");
 
                 ServerData.FileCheckAndRequest(NameofFile, _ownerID, directory);
                 
 
+
+
+                }
+
+
             }
             catch (Exception x)
             {
-                Console.WriteLine($"Spawn object error adding to player list : NameofGO: {NameofGO}, nameoffile: {NameofFile}, nameofbundle: {NameofBundle}, Player: {Server.Players[_ownerID].Username}: error: {x}");
+                Console.WriteLine($"Spawn object error adding to player list : error: {x}");
+
             }
+           
+
+            
+            
+            
 
            
 

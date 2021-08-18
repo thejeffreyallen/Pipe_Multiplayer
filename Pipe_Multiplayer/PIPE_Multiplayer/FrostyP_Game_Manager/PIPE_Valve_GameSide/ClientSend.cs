@@ -134,7 +134,7 @@ namespace PIPE_Valve_Console_Client
                 catch (Exception)
                 {
 
-                    throw;
+                  
                 }
 
 

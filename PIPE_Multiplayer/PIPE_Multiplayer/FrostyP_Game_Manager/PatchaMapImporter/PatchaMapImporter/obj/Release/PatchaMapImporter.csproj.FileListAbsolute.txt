@@ -165,3 +165,4 @@ E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manage
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.pdb
 E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\UnityEngine.SharedInternalsModule.xml
+E:\GITHUB\Pipe_Multiplayer\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.csprojAssemblyReference.cache

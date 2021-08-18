@@ -1498,13 +1498,13 @@ namespace PIPE_Valve_Console_Client
                                     {
                                         imin = true;
                                     }
+
+
+                                }
                                     if (!imin)
                                     {
                                         PlayersAtMap[map].Add(player);
                                     }
-
-
-                                }
 
                             }
                         }
@@ -1606,7 +1606,7 @@ namespace PIPE_Valve_Console_Client
                     GUILayout.Space(10);
                     GUILayout.BeginHorizontal();
                     GUILayout.Label($"Average Rider to Rider delay: ", title, GUILayout.MaxWidth(200));
-                    GUILayout.Label($"{averageping /1000}",Contentleft, GUILayout.MinWidth(10), GUILayout.MaxWidth(50));
+                    GUILayout.Label($"{averageping /1000}",Contentleft, GUILayout.MinWidth(10), GUILayout.MaxWidth(80));
                     GUILayout.Label($" Seconds", title, GUILayout.MinWidth(20), GUILayout.MaxWidth(60));
                     GUILayout.EndHorizontal();
                     GUILayout.Space(10);

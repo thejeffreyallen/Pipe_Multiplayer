@@ -162,6 +162,7 @@ namespace FrostyP_Game_Manager
 		Vector2 SaveloadScroll;
 		Vector2 MyObjectsSaveScroll;
 		Vector2 OtherPlayersScroll;
+		
 		public bool ShowLoadedspot;
 		public SavedSpot ActiveSavedspot;
 		List<string> LoadedSpotCreators;
@@ -1116,7 +1117,7 @@ namespace FrostyP_Game_Manager
 		void SaveLoadMenu()
         {
 
-			Rect box = new Rect(new Vector2(Screen.width / 3f, 50f), new Vector2(Screen.width / 3f, Screen.height - 100));
+			Rect box = new Rect(new Vector2(Screen.width > 1600 ? Screen.width / 3f : Screen.width / 4, 50f), new Vector2(Screen.width>1600 ? Screen.width / 3f : Screen.width / 2 , Screen.height - 100));
 			
 			GUILayout.BeginArea(box,InGameUI.BoxStyle);
 			Save_Load_Toggle = GUILayout.Toggle(Save_Load_Toggle, $"{SaveloadMode}");

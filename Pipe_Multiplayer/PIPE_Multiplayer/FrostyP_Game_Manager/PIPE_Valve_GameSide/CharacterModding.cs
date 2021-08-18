@@ -88,6 +88,7 @@ namespace PIPE_Valve_Console_Client
 		public Vector3 CapForwardRot;
 		public Vector3 CapBackwardRot;
 		public bool CapisForward = true;
+		Vector2 PanelScroll;
 
 
 
@@ -256,9 +257,10 @@ namespace PIPE_Valve_Console_Client
 			}
 
 
-			GUILayout.BeginArea(new Rect(new Vector2(Screen.width / 4, 10 + (Screen.height/45)), new Vector2(Screen.width / 2, Screen.height / 20)), InGameUI.BoxStyle);
+			GUILayout.BeginArea(new Rect(new Vector2(Screen.width > 1600 ? Screen.width / 4 : 10,10 + (Screen.height/45)), new Vector2(Screen.width > 1600 ? Screen.width/2 : Screen.width - 20,Screen.height > 1000 ? Screen.height / 20 : Screen.height / 10)), InGameUI.BoxStyle);
 			GUILayout.Label("Rider Setup");
 			GUILayout.Space(5);
+			PanelScroll = GUILayout.BeginScrollView(PanelScroll);
 			GUILayout.BeginHorizontal();
 			if (GUILayout.Button("Close"))
 			{
@@ -394,8 +396,8 @@ namespace PIPE_Valve_Console_Client
 				ShowingCampos = 1;
 			}
 			GUILayout.Space(2);
-			
 			GUILayout.EndHorizontal();
+			GUILayout.EndScrollView();
 			GUILayout.EndArea();
 
 
