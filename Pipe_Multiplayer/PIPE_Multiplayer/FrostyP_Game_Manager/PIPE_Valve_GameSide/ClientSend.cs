@@ -485,6 +485,20 @@ namespace PIPE_Valve_Console_Client
             }
          }
 
+        public static void OverrideAMapMatch(uint player, bool value)
+        {
+            using(Packet packet = new Packet((int)ClientPackets.OverrideMapMatch))
+            {
+                packet.Write(player);
+                packet.Write(value);
+
+                SendToServer(packet.ToArray(), SendFlags.Reliable);
+
+
+            }
+        }
+
+
 
 
 

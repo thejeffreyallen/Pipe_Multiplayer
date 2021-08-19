@@ -47,6 +47,7 @@ namespace FrostyP_Game_Manager
         // Camera position based on frame and markers
         Quaternion currentrot;
         float span = 0.001f;
+        float removedspan = 0.001f;
         bool CammarkersOpen = false;
         ReplayPosition activemarker;
         int BlendValue = 1;
@@ -126,7 +127,7 @@ namespace FrostyP_Game_Manager
 
             if (!MGInputManager.LB_Hold())
             {
-            if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f | MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f | MGInputManager.RStickX() > 0.2f | MGInputManager.RStickX() < -0.2f | MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
+            if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f | MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f | MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
             {
                 ReplayCam.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * movespeed, MGInputManager.RStickY() * Time.deltaTime * movespeed, MGInputManager.LStickY() * Time.deltaTime * movespeed);
             }
@@ -304,11 +305,12 @@ namespace FrostyP_Game_Manager
 
 
 
-                if (MGInputManager.LTrigger() > 0.05f)
+                if (MGInputManager.LTrigger() > 0.1f)
                 {
                     TriggerPlaySpeed = MGInputManager.LTrigger();
                     if (CurrentShowingPosition != StartFrame)
                     {
+                       
 
                         if (remaining < (Time.deltaTime * TriggerPlaySpeed / 2))
                         {
@@ -316,11 +318,12 @@ namespace FrostyP_Game_Manager
                             if (CurrentShowingPosition <= StartFrame)
                             {
                                 CurrentShowingPosition = StartFrame;
+                                remaining = MyPlayerPositions[CurrentShowingPosition + 1].Timspanfromlast;
                             }
                             else
                             {
                                 CurrentShowingPosition--;
-                                remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.00001f, 0.1f);
+                                remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition + 1].Timspanfromlast, 0.000001f, 0.1f);
 
                             }
 
@@ -331,31 +334,52 @@ namespace FrostyP_Game_Manager
                         }
                             if (CurrentCamPosition != 0)
                             {
-
-                                if (CurrentShowingPosition - BlendValue < CamMarkers[CurrentCamPosition].ReferenceFrame)
+                            
+                                if (CurrentShowingPosition - BlendValue <= CamMarkers[CurrentCamPosition].ReferenceFrame)
                                 {
                                     CurrentCamPosition--;
                                     CurrentCamTargetPosition--;
-
+                                    span = removedspan;
                                     for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
                                     {
-                                        span = span + MyPlayerPositions[i].Timspanfromlast;
+                                        removedspan = removedspan + MyPlayerPositions[i].Timspanfromlast;
                                     }
+ 
                                 }
-
-
+                            else
+                            {
+                                span = 0.00001f;
+                                removedspan = 0.000001f;
+                            }
 
                             }
-                        
+
+
+
+
+                        // position
+                        Vector3 currentpos = CamMarkers[CurrentCamPosition].CamPos;
+                        currentrot = CamMarkers[CurrentCamPosition].CamRot;
+
+                        ReplayCam.transform.position = Vector3.MoveTowards(ReplayCam.transform.position, currentpos, Vector3.Distance(ReplayCam.transform.position, currentpos) / removedspan * Time.deltaTime * TriggerPlaySpeed);
+
+                        // rotation
+                        ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) / removedspan * Time.deltaTime * TriggerPlaySpeed);
+
+                        removedspan = Mathf.Clamp(removedspan - (Time.deltaTime * TriggerPlaySpeed), 0.00000001f, 10);
+                        span = Mathf.Clamp(span + (Time.deltaTime * TriggerPlaySpeed),0.00000001f,10);
+
+
+
 
                     }
 
 
                 }
-                else if (MGInputManager.RTrigger() > 0.05f)
+                else if (MGInputManager.RTrigger() > 0.1f)
                 {
                     TriggerPlaySpeed = MGInputManager.RTrigger();
-                    if (CurrentShowingPosition != EndFrame && CurrentCamTargetPosition != CamMarkers.Count)
+                    if (CurrentShowingPosition != EndFrame)
                     {
 
 
@@ -364,11 +388,12 @@ namespace FrostyP_Game_Manager
                             if (CurrentShowingPosition >= EndFrame)
                             {
                                 CurrentShowingPosition = EndFrame;
+                                remaining = MyPlayerPositions[CurrentShowingPosition].Timspanfromlast;
                             }
                             else
                             {
                                 CurrentShowingPosition++;
-                                remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.00001f, 0.1f);
+                                remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.000001f, 0.1f);
                             }
                         }
 
@@ -376,16 +401,43 @@ namespace FrostyP_Game_Manager
                        
 
                     }
-                        if (CurrentShowingPosition + BlendValue > CamMarkers[CurrentCamPosition].ReferenceFrame)
+                        if (CurrentShowingPosition + BlendValue >= CamMarkers[CurrentCamTargetPosition].ReferenceFrame)
                         {
+                          if(CurrentCamTargetPosition < CamMarkers.Count - 1)
+                          {
+
                             CurrentCamPosition++;
                             CurrentCamTargetPosition++;
-
+                            removedspan = span;
                             for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
                             {
                                 span = span + MyPlayerPositions[i].Timspanfromlast;
                             }
+
+
+                          }
+                          else
+                          {
+                            removedspan = 0.00001f;
+                                span = 0.000001f;
+                          }
+
                         }
+
+
+
+                // position
+                Vector3 currentpos = CamMarkers[CurrentCamTargetPosition].CamPos;
+                currentrot = CamMarkers[CurrentCamTargetPosition].CamRot;
+
+                ReplayCam.transform.position = Vector3.MoveTowards(ReplayCam.transform.position, currentpos, Vector3.Distance(ReplayCam.transform.position, currentpos) / span * Time.deltaTime * TriggerPlaySpeed);
+
+                // rotation
+                ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) / span * Time.deltaTime * TriggerPlaySpeed);
+
+                span = Mathf.Clamp(span - (Time.deltaTime * TriggerPlaySpeed),0,10);
+                removedspan = Mathf.Clamp(removedspan + (Time.deltaTime * TriggerPlaySpeed),0,10);
+
 
 
                 }
@@ -397,16 +449,6 @@ namespace FrostyP_Game_Manager
 
 
 
-                // position
-                Vector3 currentpos = CamMarkers[CurrentCamPosition].CamPos;
-                currentrot = CamMarkers[CurrentCamPosition].CamRot;
-
-                ReplayCam.transform.position = Vector3.MoveTowards(ReplayCam.transform.position, currentpos, Vector3.Distance(ReplayCam.transform.position, currentpos) / span * Time.deltaTime * TriggerPlaySpeed);
-
-                // rotation
-                ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) / span * Time.deltaTime * TriggerPlaySpeed);
-
-                span = Mathf.Clamp(span - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 1000);
 
 
 
@@ -571,6 +613,7 @@ namespace FrostyP_Game_Manager
                 }
                 GUILayout.Space(5);
                 GUILayout.Label($"PlaySpeed: {SetSpeed}");
+                GUILayout.Label($"removed: {removedspan} : Span {span}");
                 GUILayout.Space(5);
                 SetSpeed = GUILayout.HorizontalSlider(SetSpeed,0f, 1f);
                 GUILayout.Space(5);
@@ -605,7 +648,7 @@ namespace FrostyP_Game_Manager
         }
         void BottomPanel()
         {
-            GUILayout.BeginArea(new Rect(new Vector2(150, Screen.height - (Screen.height / 20) - 50), new Vector2(Screen.width - 300, Screen.height / 20)), InGameUI.BoxStyle);
+            GUILayout.BeginArea(new Rect(new Vector2(Screen.width > 1500 ? 150 : 75, Screen.height > 900 ? Screen.height - (Screen.height / 20) - 50 : Screen.height - (Screen.height / 13) - 50), new Vector2(Screen.width > 1500 ? Screen.width - 300 : Screen.width - 150,Screen.height > 900 ? Screen.height / 20 : Screen.height / 13)), InGameUI.BoxStyle);
             GUILayout.BeginHorizontal();
             GUILayout.Label("H to Hide : ");
             GUILayout.Label("LB hold for Cam rotation");
@@ -774,6 +817,7 @@ namespace FrostyP_Game_Manager
 
 
                     span = 0.000001f;
+                    removedspan = 0.0000001f;
                     remaining = 0.000001f;
 
                 }
@@ -830,6 +874,8 @@ namespace FrostyP_Game_Manager
                     else
                     {
                       PlayThrough = false;
+                      span = 0.000001f;
+                      removedspan = 0.00000001f;
                     }
 
 

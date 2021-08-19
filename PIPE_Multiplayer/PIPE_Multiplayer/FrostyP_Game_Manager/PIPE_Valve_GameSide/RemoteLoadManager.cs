@@ -309,12 +309,18 @@ public class RemoteLoadManager : MonoBehaviour
             {
                 string fullPath = Application.dataPath + "/GarageContent/" + pm.fileName;
                 int lastslash = fullPath.LastIndexOf("/") + 1;
+                int getfilename = pm.fileName.LastIndexOf("/") + 1;
+                string name = pm.fileName.Remove(0, getfilename);
                 string dir = fullPath.Remove(lastslash, fullPath.Length - lastslash);
                 Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index + ": Dir:" + fullPath);
 
                 if (pm.isCustom)
                 {
-                    if (!File.Exists(fullPath))
+                  FileInfo file = GameManager.instance.FileNameMatcher(new DirectoryInfo(dir).GetFiles(), name);
+
+
+
+                    if (file == null)
                     {
                         FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, pm.fileName, player.id, dir);
                         SavingManager.instance.ChangeAlertText($"Error loading mesh: {pm.fileName} for {player.username}. A file request has been left in Sync window");
@@ -323,6 +329,11 @@ public class RemoteLoadManager : MonoBehaviour
                     }
                     else
                     {
+                        int slash = pm.fileName.LastIndexOf("/");
+                        string shortdir = pm.fileName.Remove(slash + 1, pm.fileName.Length - slash + 1);
+                        pm.fileName = shortdir + file.Name;
+                        fullPath = Application.dataPath + "/GarageContent/" + pm.fileName;
+
                         if (pm.partName.Equals("cranks"))
                         {
                             Mesh crank = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);

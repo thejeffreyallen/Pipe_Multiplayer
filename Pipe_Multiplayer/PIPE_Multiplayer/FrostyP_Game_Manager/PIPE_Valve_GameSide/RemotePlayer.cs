@@ -34,9 +34,9 @@ namespace PIPE_Valve_Console_Client
 		public TextMesh tm;
 
         // Received position updates for this player
-        public List<IncomingTransformUpdate> IncomingTransformUpdates;
+        public List<IncomingTransformUpdate> IncomingTransformUpdates = new List<IncomingTransformUpdate>();
         // Positions captured in the same instant as all others including me
-        public List<IncomingTransformUpdate> ReplayPositions;
+        public List<IncomingTransformUpdate> ReplayPositions = new List<IncomingTransformUpdate>();
        
         public GUIStyle style = new GUIStyle();
        
@@ -66,6 +66,7 @@ namespace PIPE_Valve_Console_Client
         public RemotePartMaster partMaster;
         public RemoteBrakesManager brakesManager;
 
+        public bool Override = false;
 
         void Awake()
         {
@@ -313,14 +314,6 @@ namespace PIPE_Valve_Console_Client
                 BMX_RB.isKinematic = true;
 
 
-
-
-
-
-
-
-
-               
                 Debug.Log("All Remote Rider Parts Assigned");
                 return true;
             }

@@ -130,8 +130,8 @@ namespace FrostyP_Game_Manager
 			
 			if (OpenMenu)
 			{
-				
-
+                try
+                {
 				GUI.skin = InGameUI.instance.skin;
 				
 
@@ -259,6 +259,14 @@ namespace FrostyP_Game_Manager
                 {
 					PopupShow();
                 }
+
+                }
+                catch (System.Exception x)
+                {
+					Debug.Log($"Main Frosty Manager picked up GUI error : " + x);
+
+                }
+
 
 
 			}

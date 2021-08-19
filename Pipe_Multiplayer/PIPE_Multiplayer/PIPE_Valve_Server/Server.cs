@@ -28,7 +28,7 @@ namespace PIPE_Valve_Online_Server
 		#region Servers data
 
 		[JsonProperty]
-		public static float VERSIONNUMBER { get;} = 2.15f;
+		public static float VERSIONNUMBER { get;} = 2.16f;
 		public static string SERVERNAME = "PIPE Server";
 		public static List<BanProfile> BanProfiles = new List<BanProfile>();
 		/// <summary>
@@ -106,6 +106,7 @@ namespace PIPE_Valve_Online_Server
 				{ (int)ClientPackets.LogOut,ServersHandles.AdminLogOut},
 				{ (int)ClientPackets.InviteToSpawn, ServersHandles.InviteToSpawn },
 				{ (int)ClientPackets.AlterBanWords, ServersHandles.AdminAlterBanwords },
+				{ (int)ClientPackets.OverrideMapMatch, ServersHandles.OverrideMapMatch },
 
 			};
 
@@ -114,7 +115,6 @@ namespace PIPE_Valve_Online_Server
 			
 
 		}
-
 
 		public static void PostRequest()
 		{
@@ -146,9 +146,6 @@ namespace PIPE_Valve_Online_Server
 			Console.WriteLine(httpResponse.StatusCode);
 		}
 
-
-
-
 		/// <summary>
 		/// Servers Primary thread loop
 		/// </summary>
@@ -169,9 +166,9 @@ namespace PIPE_Valve_Online_Server
 
 			ConnectedRiders = Connection.CreatePollGroup();
 
-			int sendRateMin = 600000;
+			int sendRateMin = 60000;
 			int sendRateMax = 95400000;
-			int sendBufferSize = 90485760;
+			int sendBufferSize = 95400000;
 
 			unsafe
 			{
@@ -276,13 +273,22 @@ namespace PIPE_Valve_Online_Server
 
 								uint from = netMessage.connection;
 
+                               if (packetHandlers.ContainsKey(code))
+                               {
 								packetHandlers[code](from, _packet);
+                               }
+                               else
+                               {
+								Console.WriteLine($"Received unsupported packet number {code}");
+  
+                               }
+
 
 							foreach(uint watch in TimeoutWatches.Keys)
                             {
-                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 120)
+                                if (TimeoutWatches[watch].Elapsed.TotalSeconds > 130)
                                 {
-									Console.WriteLine("Watch Error, Timeout watch went over 125 seconds");
+									Console.WriteLine("Watch Error, Timeout watch went over 130 seconds");
 									TimeoutWatches[watch].Reset();
 
 
@@ -321,9 +327,6 @@ namespace PIPE_Valve_Online_Server
 
 		}
 
-
-
-
 		// Data about the connection to Server, called on tick
 		public static int PendingReliableForConnection(uint _player)
 		{
@@ -334,7 +337,14 @@ namespace PIPE_Valve_Online_Server
 
 		}
 
+		public static void GiveAdminStream(uint admin)
+        {
+			ConnectionStatus constat = new ConnectionStatus();
+			Connection.GetQuickConnectionStatus(ConnectedRiders, ref constat);
 
+			ServerSend.StreamAdminInfo(admin, new AdminDataStream(constat.pendingReliable, constat.pendingUnreliable, Players.Count, constat.outBytesPerSecond, constat.inBytesPerSecond, ServerData.IncomingIndexes.Count, ServerData.OutgoingIndexes.Count));
+
+		}
 
 
 		/// <summary>
@@ -378,10 +388,6 @@ namespace PIPE_Valve_Online_Server
 
            
 		}
-
-
-
-		
 
 		public static void TimeoutCheck()
         {
@@ -433,6 +439,13 @@ namespace PIPE_Valve_Online_Server
 					Server.Players.Remove(ClientThatDisconnected);
 
 				}
+                else
+                {
+                    if (p.SendDataOverrides.ContainsKey(ClientThatDisconnected))
+                    {
+						p.SendDataOverrides.Remove(ClientThatDisconnected);
+                    }
+                }
 			}
 
 			// find and remove Timeout watch for this connection
@@ -500,7 +513,28 @@ namespace PIPE_Valve_Online_Server
 
     }
 
-	
+	public class AdminDataStream
+    {
+		public int PendingRel;
+		public int PendingUnrel;
+		public int Playercount;
+		public float Bytesoutpersec;
+		public float bytesinpersec;
+		public int inindexes;
+		public int outindexes;
+
+		public AdminDataStream(int prel, int punrel, int playcount,float bytesoutpsec,float bytesinpsec,int inindex, int outindex)
+        {
+			PendingRel = prel;
+			PendingUnrel = punrel;
+			Playercount = playcount;
+			Bytesoutpersec = bytesoutpsec;
+			bytesinpersec = bytesinpsec;
+			inindexes = inindex;
+			outindexes = outindex;
+        }
+
+    }
 
 
 

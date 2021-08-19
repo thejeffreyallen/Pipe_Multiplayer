@@ -63,22 +63,29 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-        private static void SendToAllReadyToRoll(uint Exceptsender, byte[] bytes, Valve.Sockets.SendFlags sendflag)
+        private static void SendToAllReadyToRoll(uint Sendingrider, byte[] bytes, Valve.Sockets.SendFlags sendflag)
         {
             // if sending player exists
-            if(Server.Players.TryGetValue(Exceptsender, out Player player))
+            if(Server.Players.TryGetValue(Sendingrider, out Player player))
             {
             try
             {
-                foreach (Player Rider in Server.Players.Values.ToList())
+                foreach (Player Receivingplayer in Server.Players.Values.ToList())
                 {
-                    if (Rider.RiderID != Exceptsender && Rider.ReadytoRoll && player.MapName.ToLower() == Rider.MapName.ToLower())
+                    if (Receivingplayer.RiderID != Sendingrider && Receivingplayer.ReadytoRoll)
                     {
-                        ThreadManager.ExecuteOnMainThread(() =>
-                        {
+                            if (ReadyToRollChecker(player, Receivingplayer))
+                            {
 
-                            Server.Connection.SendMessageToConnection(Rider.RiderID, bytes, sendflag);
-                        });
+                               ThreadManager.ExecuteOnMainThread(() =>
+                               {
+
+                                  Server.Connection.SendMessageToConnection(Receivingplayer.RiderID, bytes, sendflag);
+                               });
+
+
+                            }
+
                     }
                 }
 
@@ -93,18 +100,43 @@ namespace PIPE_Valve_Online_Server
 
         }
 
+        private static bool ReadyToRollChecker(Player sender,Player receiver)
+        {
+            if (receiver.SendDataOverrides.ContainsKey(sender.RiderID))
+            {
+                return receiver.SendDataOverrides[sender.RiderID];
+            }
+            else if(sender.MapName.ToLower() == receiver.MapName.ToLower())
+            {
+            return true;
+            }
+            else if(sender.MapName.ToLower().Contains(receiver.MapName.ToLower()))
+            {
+              return true;
+            }
+            else if (receiver.MapName.ToLower().Contains(sender.MapName.ToLower()))
+            {
+              return true;
+            }
+            else if(receiver.MapName.Replace("_"," ").ToLower() == sender.MapName.Replace("_", " ").ToLower())
+            {
+                return true;
+            }
+            else
+            {
+              return false;
+            }
+
+
+
+
+        }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-
-
-
-
         #region Send Fuctions
-
-
 
         /// <summary>
         ///  send inital welcome on connection obtained to the server
@@ -181,8 +213,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-       
         public static void FileStatus(uint _player, string name, int Status)
         {
             using (Packet _packet = new Packet((int)ServerPacket.FileStatus))
@@ -193,9 +223,6 @@ namespace PIPE_Valve_Online_Server
                 SendtoOne(_player,_packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
         }
-
-
-
 
         /// <summary>
         /// Fires when an new player joins,sending them to everyone
@@ -298,7 +325,6 @@ namespace PIPE_Valve_Online_Server
             }
 
         }
-
 
         /// <summary>
         /// Fires when a new player joins, sending everyone back to them in packs of 5 to ease the potential load of many players
@@ -416,9 +442,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-
-
         /// <summary>
         /// Sends to all players except this one
         /// </summary>
@@ -451,8 +474,6 @@ namespace PIPE_Valve_Online_Server
 
             }
         }
-
-
 
         /// <summary>
         /// send connection int that disconnected to all remaining connections
@@ -489,8 +510,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-
         public static void SendAudioUpdate(uint _from, byte[] Relayedpacket,Valve.Sockets.SendFlags flag)
         {
            
@@ -505,8 +524,6 @@ namespace PIPE_Valve_Online_Server
             
             
         }
-
-
 
         public static void SendTextMessageFromPlayerToAll(uint _fromplayer, string _message)
         {
@@ -536,7 +553,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
         public static void SendTextFromServerToOne(uint _to, string message)
         {
             using (Packet _packet = new Packet((int)ServerPacket.SendText))
@@ -547,8 +563,6 @@ namespace PIPE_Valve_Online_Server
                 SendtoOne(_to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }
         }
-
-
 
         public static void SendFileSegment(FileSegment segment)
         {
@@ -570,8 +584,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-
         public static void SendGearUpdate(uint __toplayer, Packet _packet)
         {
             try
@@ -584,7 +596,6 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-
         public static void SendMapName(uint _from,string name)
         {
             using(Packet _packet = new Packet((int)ServerPacket.SendMapName))
@@ -596,8 +607,6 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-
        public static void DisconnectPlayer(string msg, uint _to)
         {
             using (Packet _packet = new Packet((int)ServerPacket.Disconnectyou))
@@ -608,7 +617,6 @@ namespace PIPE_Valve_Online_Server
             }
 
         }
-
 
         public static void SpawnAnObject(uint to,uint _owner,NetGameObject _netobj)
         {
@@ -632,7 +640,6 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-
         public static void DestroyAnObjectToAllButOwner(uint _ownerID, int ObjectID)
         {
             using (Packet _packet = new Packet((int)ServerPacket.DestroyAnObject))
@@ -644,7 +651,6 @@ namespace PIPE_Valve_Online_Server
 
             }
         }
-
 
         public static void MoveAnObject(uint _ownerId, NetGameObject _netobj)
         {
@@ -663,7 +669,6 @@ namespace PIPE_Valve_Online_Server
             }
 
         }
-
 
         public static void Update(uint Conn,List<string> updatefiles)
         {
@@ -693,10 +698,6 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
-
-
-
-
         public static void LoginGood(uint _to)
         {
             using(Packet _packet = new Packet((int)ServerPacket.LoginGood))
@@ -709,13 +710,18 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-        public static void StreamAdminInfo(uint to)
+        public static void StreamAdminInfo(uint to, AdminDataStream stream)
         {
             using(Packet _packet = new Packet((int)ServerPacket.AdminStream))
             {
                 // Total Reliable messages pending
-                _packet.Write(Server.PendingReliableForConnection(Server.ConnectedRiders));
-
+                _packet.Write(stream.bytesinpersec);
+                _packet.Write(stream.Bytesoutpersec);
+                _packet.Write(stream.inindexes);
+                _packet.Write(stream.outindexes);
+                _packet.Write(stream.PendingRel);
+                _packet.Write(stream.PendingUnrel);
+                _packet.Write(stream.Playercount);
 
                 SendtoOne(to, _packet.ToArray(), Valve.Sockets.SendFlags.Reliable);
             }

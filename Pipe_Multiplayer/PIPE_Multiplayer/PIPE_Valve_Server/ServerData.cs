@@ -274,7 +274,7 @@ namespace PIPE_Valve_Online_Server
             }
                 // make our directory
                 int pdata = path.ToLower().LastIndexOf("pipe_data");
-                string _mypath = path.Remove(0, pdata + 10);
+                string _mypath = path.Remove(0, pdata + 9);
 
 
                 if (!Directory.Exists(TempDir + _mypath)) Directory.CreateDirectory(TempDir + _mypath);

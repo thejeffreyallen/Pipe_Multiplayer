@@ -132,7 +132,7 @@ namespace PIPE_Valve_Online_Server
                 {
                     if (pl.AdminStreamWatch.Elapsed.TotalSeconds > 5)
                     {
-                        ServerSend.StreamAdminInfo(pl.RiderID);
+                        Server.GiveAdminStream(pl.RiderID);
                         pl.AdminStreamWatch.Reset();
                         pl.AdminStreamWatch.Start();
                     }

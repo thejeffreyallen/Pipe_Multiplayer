@@ -870,8 +870,24 @@ namespace PIPE_Valve_Console_Client
 
         public static void AdminStream(Packet _packet)
         {
+            float bytesinpsec = _packet.ReadFloat();
+            float bytesoutpsec = _packet.ReadFloat();
+
+            int inindexes = _packet.ReadInt();
+            int outindexes = _packet.ReadInt();
+
             int ServerPendingRel = _packet.ReadInt();
+            int ServerpendingUnrel = _packet.ReadInt();
+
+            int Playercount = _packet.ReadInt();
+
             InGameUI.instance.ServerPendingRel = ServerPendingRel;
+            InGameUI.instance.ServerPendingUnRel = ServerpendingUnrel;
+            InGameUI.instance.serverbytesinpersec = bytesinpsec;
+            InGameUI.instance.serverbytesoutpersec = bytesoutpsec;
+            InGameUI.instance.ServerPlayercount = Playercount;
+            InGameUI.instance.Serverinindexes = inindexes;
+            InGameUI.instance.Serveroutindexes = outindexes;
         }
 
         

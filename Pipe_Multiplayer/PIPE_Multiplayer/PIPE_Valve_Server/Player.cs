@@ -19,7 +19,7 @@ namespace PIPE_Valve_Online_Server
         public string Ridermodel;
         public string Ridermodelbundlename;
         public string MapName;
-
+        public float VersionNo;
        
 
         public Vector3 RiderRootPosition;
@@ -31,7 +31,7 @@ namespace PIPE_Valve_Online_Server
         
         public GearUpdate Gear;
         public bool ReadytoRoll = false;
-
+        public Dictionary<uint,bool> SendDataOverrides = new Dictionary<uint, bool>();
 
         // 5 gets a 10 mins ban
         public int AmountofObjectBoots;
@@ -52,7 +52,7 @@ namespace PIPE_Valve_Online_Server
         /// <summary>
         /// Constructor to initiailise with Connection id and rider info, also initialises vectors for storage
         /// </summary>
-        public Player(uint connofPlayer, string _riderModel, string _username, string _ridermodelbundlename, string currentlevel)
+        public Player(uint connofPlayer, string _riderModel, string _username, string _ridermodelbundlename, string currentlevel, float versionNo)
         {
             RiderID = connofPlayer;
             Username = _username;
@@ -63,6 +63,7 @@ namespace PIPE_Valve_Online_Server
             PlayerObjects = new List<NetGameObject>();
             Gear = new GearUpdate();
             Gear.RiderTextures = new List<TextureInfo>();
+            VersionNo = versionNo;
             
 
         }
@@ -141,12 +142,15 @@ namespace PIPE_Valve_Online_Server
         {
             isRiderUpdate = true;
             RiderTextures = ridertextures;
+            
 
         }
 
 
         public GearUpdate()
         {
+            RiderTextures = new List<TextureInfo>();
+            Garagesave = new byte[1];
         }
 
     }

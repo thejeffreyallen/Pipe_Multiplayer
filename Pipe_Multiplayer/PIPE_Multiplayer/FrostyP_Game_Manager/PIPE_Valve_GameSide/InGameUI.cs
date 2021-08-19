@@ -26,6 +26,8 @@ namespace PIPE_Valve_Console_Client
         public GUIStyle MiniPanelStyle = new GUIStyle();
         GUIStyle MinipanelstyeImportant = new GUIStyle();
         public static GUIStyle BoxStyle = new GUIStyle();
+        GUIStyle CurrentOverrideStyle;
+        GUIStyle ButtonOnstyle = new GUIStyle();
         private PlayerSaveData PlayerSavedata;
         private string Playersavepath = Application.dataPath + "/FrostyPGameManager/PlayerSaveData/";
         public static InGameUI instance;
@@ -64,6 +66,13 @@ namespace PIPE_Valve_Console_Client
         int _bantime = 5;
         bool BootObjectOpen;
         public int ServerPendingRel;
+        public int ServerPendingUnRel;
+        public int ServerPlayercount;
+        public float serverbytesoutpersec;
+        public float serverbytesinpersec;
+        public int Serverinindexes;
+        public int Serveroutindexes;
+
         Vector2 BootObjectScroll;
         Vector2 BootPlayerScroll;
         string Banword = "word to ban..";
@@ -881,8 +890,11 @@ namespace PIPE_Valve_Console_Client
                     BootObjectOpen = GUILayout.Toggle(BootObjectOpen, "Boot an Object");
 
                     GUILayout.Space(30);
-                    GUILayout.Label($"Server Pending Reliable: {ServerPendingRel}");
-
+                    GUILayout.Label($"PRel: {ServerPendingRel} ");
+                    GUILayout.Label($"PUnrel: {ServerPendingUnRel}");
+                    GUILayout.Label($"out: {serverbytesoutpersec}");
+                    GUILayout.Label($"in: {serverbytesinpersec}");
+                    GUILayout.Label($"player count: {ServerPlayercount}");
                     Banword = GUILayout.TextField(Banword);
                     if(GUILayout.Button("Add word"))
                     {
@@ -1317,7 +1329,7 @@ namespace PIPE_Valve_Console_Client
                         GUILayout.Label($"Net FPS: {Mathf.RoundToInt(player.PlayersFrameRate)}",Generalstyle);
                         GUILayout.Label($"Rider2Rider Ping: {player.R2RPing} Ms",Generalstyle);
                         GUILayout.Label($"Position stack: {player.IncomingTransformUpdates.Count}");
-                            GUILayout.Space(10);
+                        GUILayout.Space(10);
                         player.PlayerIsVisible = GUILayout.Toggle(player.PlayerIsVisible, "Toggle Player Visibilty",PlayeroptionsStyle);
                             if (player.PlayerIsVisible)
                             {
@@ -1329,9 +1341,6 @@ namespace PIPE_Valve_Console_Client
                                 {
                                 player.ChangePlayerVisibilty(true);
                                 }
-
-
-
 
                             }
                             if (!player.PlayerIsVisible)
@@ -1345,16 +1354,24 @@ namespace PIPE_Valve_Console_Client
                                 player.ChangePlayerVisibilty(false);
                                 }
 
-
-
-
                             }
-                            GUILayout.Space(10);
+                        GUILayout.Space(10);
+                        if (!GameManager.instance.RiderOnMyMap(player))
+                        {
+                            CurrentOverrideStyle = player.Override ? ButtonOnstyle : PlayeroptionsStyle;
+                            if(GUILayout.Button($"Map sync Override {player.Override}",CurrentOverrideStyle))
+                            {
+                                player.Override = !player.Override;
+                                ClientSend.OverrideAMapMatch(player.id, player.Override);
+                            }
+                        GUILayout.Space(10);
+                        }
+
                         player.PlayerCollides = GUILayout.Toggle(player.PlayerCollides, "Player Collides", PlayeroptionsStyle);
                         player.ChangeCollideStatus(player.PlayerCollides);
 
 
-                            GUILayout.Space(10);
+                        GUILayout.Space(10);
                         player.PlayerTagVisible = GUILayout.Toggle(player.PlayerTagVisible, "Toggle Name Tag", PlayeroptionsStyle);
                         if (player.PlayerTagVisible)
                         {
@@ -1376,7 +1393,7 @@ namespace PIPE_Valve_Console_Client
                         // invite to spawn
                         if (GUILayout.Button("Invite to spawn",Generalstyle))
                         {
-                            if(player.CurrentMap != GameManager.instance.MycurrentLevel)
+                            if(!GameManager.instance.RiderOnMyMap(player))
                             {
                                 InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage("Player not on your map", (int)MessageColourByNum.Server, 1));
                             }
@@ -2164,6 +2181,15 @@ namespace PIPE_Valve_Console_Client
             PlayeroptionsStyle.onNormal.background = GreenTex;
             PlayeroptionsStyle.alignment = TextAnchor.MiddleCenter;
             PlayeroptionsStyle.fontStyle = FontStyle.Bold;
+
+
+            ButtonOnstyle.normal.background = GreenTex;
+            ButtonOnstyle.hover.background = GreenTex;
+            ButtonOnstyle.onHover.background = RedTex;
+            ButtonOnstyle.onNormal.background = GreenTex;
+            ButtonOnstyle.alignment = TextAnchor.MiddleCenter;
+            ButtonOnstyle.fontStyle = FontStyle.Bold;
+
 
 
             // general

@@ -333,19 +333,13 @@ namespace PIPE_Valve_Console_Client
                             break;
                     }
                 }
-                partList.Add(barsJ, GameObject.Find("BMX:Bars_Joint"));
-                partList.Add(frameJ, GameObject.Find("BMX:Frame_Joint"));
-                partList.Add(frontWheelCol, GameObject.Find("FrontWheelCollider"));
-                partList.Add(rearWheelCol, GameObject.Find("BackWheelCollider"));
+                partList.Add(barsJ, bmx.transform.FindDeepChild("BMX:Bars_Joint").gameObject);
+                partList.Add(frameJ, bmx.transform.FindDeepChild("BMX:Frame_Joint").gameObject);
             }
             catch (Exception e)
             {
                 File.AppendAllText(errorPath, "\n" + DateTime.Now + "\nRANDOM ERRORS: " + "Error while initializing part list in PartMaster.cs. " + e.Message + e.StackTrace);
-                foreach (int i in ints)
-                {
-                    Debug.Log(i);
-                }
-
+                
                 Debug.Log("Error while initializing part list in PartMaster.cs. " + e.Message + e.StackTrace);
             }
             isDone = true;
@@ -416,7 +410,6 @@ namespace PIPE_Valve_Console_Client
             }
         }
 
-
         public void SetMaterialData(int key, float glossiness, float glossMapScale, float metallic, float texTileX, float texTileY, float normTileX, float normTileY, float metTileX, float metTileY)
         {
             try
@@ -448,6 +441,11 @@ namespace PIPE_Valve_Console_Client
             if (!partList.ContainsKey(key))
             {
                 Debug.Log($"Key {key} not found in part list at GetPart() method");
+                return null;
+            }
+            if(partList[key] == null)
+            {
+                Debug.Log($"Part null : {key}");
                 return null;
             }
             return partList[key];
@@ -498,6 +496,10 @@ namespace PIPE_Valve_Console_Client
         public Material GetMaterial(int key)
         {
             if (!partList.ContainsKey(key))
+            {
+                return null;
+            }
+            if (partList[key] == null)
             {
                 return null;
             }
@@ -634,7 +636,10 @@ namespace PIPE_Valve_Console_Client
 
         public void SetRotation(int key, Vector3 rot)
         {
-            GetPart(key).transform.localEulerAngles = rot;
+            if(GetPart(key) != null)
+            {
+             GetPart(key).transform.localEulerAngles = rot;
+            }
         }
 
         public void SetPartsVisible()

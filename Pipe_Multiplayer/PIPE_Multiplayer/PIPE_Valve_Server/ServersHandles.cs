@@ -38,6 +38,7 @@ namespace PIPE_Valve_Online_Server
             try
             {
             CurrentLevel = _pack.ReadString();
+            
             }
             catch(Exception x)
             { 
@@ -86,7 +87,7 @@ namespace PIPE_Valve_Online_Server
                 
             Console.WriteLine($"{name} starting riding as {Ridermodel} at {CurrentLevel}");
             Console.WriteLine("Setting up their server data..");
-            Player p = new Player(_from, Ridermodel, name, RidermodelBundlename,CurrentLevel);
+            Player p = new Player(_from, Ridermodel, name, RidermodelBundlename,CurrentLevel,VersionNo);
             Server.Players.Add(_from, p);
 
 
@@ -97,20 +98,23 @@ namespace PIPE_Valve_Online_Server
 
 
                     // the receiving of all parts now triggers setup of players
-                    ServerSend.RequestAllParts(_from);
-                    Console.WriteLine("Server Data setup, Request sent for all RiderData");
 
                     Console.WriteLine("Checking Server has RiderModel and Map");
                     if(Ridermodel != "Daryien")
                     {
                      ServerData.FileCheckAndRequest(Ridermodel, _from,"pipe_data/Custom Players/");
                     }
-                    if(CurrentLevel != "Unknown" && CurrentLevel != "" && CurrentLevel != " " && !CurrentLevel.ToLower().Contains("pipe") && !CurrentLevel.ToLower().Contains("chuck"))
+                    if(CurrentLevel != "Unknown" && CurrentLevel != "" && CurrentLevel != " " && !CurrentLevel.ToLower().Contains("pipe") && !CurrentLevel.ToLower().Contains("chuck") && !CurrentLevel.ToLower().Contains("buildplayer") && !CurrentLevel.ToLower().Contains("tutorialsetup"))
                     {
                         ServerData.FileCheckAndRequest(CurrentLevel,_from, "pipe_data/CustomMaps/");
                     }
 
-                    
+                    ServerSend.RequestAllParts(_from);
+                    Console.WriteLine("Server Data setup, Request sent for all RiderData");
+                    if(CurrentLevel.ToLower().Contains("samplescene") | CurrentLevel.ToLower().Contains("buildplayer"))
+                    {
+                        ServerSend.SendTextFromServerToOne(_from, "You appear to be using M to change map, using L for Patcha Map Changer syncs your map names properly so riders can be matched to your level");
+                    }
             }
 
 
@@ -178,15 +182,21 @@ namespace PIPE_Valve_Online_Server
                      byte[] bytes = _packet.ReadBytes(bytecount);
                      Console.WriteLine($"Garage Save bytes: {bytes.Length}");
                      SaveList glist = new SaveList();
+                    try
+                    {
                      glist = ServerData.DeserialiseGarage(bytes);
 
-                     if(glist == null)
-                     {
-                       Console.WriteLine("Fail to cast garage save: Receive all parts");
-                     }
+                    }
+                    catch (Exception x)
+                    {
+                        Console.WriteLine("Error Deserializing Garage Save : " + x);
+                        ServerSend.DisconnectPlayer("Error with Garage Save", _from);
+                        return;
+                    }
 
 
-
+                    try
+                    {
 
                 // Parkbuilder
 
@@ -225,6 +235,13 @@ namespace PIPE_Valve_Online_Server
 
             }
 
+                    }
+                    catch (Exception x)
+                    {
+                        Console.WriteLine("Error with Park Data : " + x);
+                        ServerSend.DisconnectPlayer("Error with ParkBuilder Data", _from);
+                        return;
+                    }
 
 
             ///// Add all data to the players Loadout, created by the new Player assigned to this connection in Welcome
@@ -342,6 +359,11 @@ namespace PIPE_Valve_Online_Server
             }
             catch(Exception x)
             {
+                if (Server.Players.TryGetValue(_from, out Player _player))
+                {
+                    Console.WriteLine($"Receive all parts error: player {_player.Username} : V {_player.VersionNo} : garagesave {_player.Gear.Garagesave.Length} : {_player.Gear.RiderTextures.Count} : error {x}");
+                }
+
                 Console.WriteLine($"Receive all parts error: {x}");
                 ServerSend.DisconnectPlayer("Error with your Rider/Garage Data", _from);
             }
@@ -446,7 +468,10 @@ namespace PIPE_Valve_Online_Server
                 ServerSend.SendMapName(_from,name);
                 Console.WriteLine($"{_player.Username} went to {name}");
                 ServerData.FileCheckAndRequest(name, _from, "pipe_data/CustomMaps/");
-
+                    if (_player.MapName.ToLower().Contains("samplescene") | _player.MapName.ToLower().Contains("buildplayer"))
+                    {
+                        ServerSend.SendTextFromServerToOne(_from, "You appear to be using M to change map, using L for Patcha Map Changer syncs your map names properly so riders can be matched to your level");
+                    }
 
                 }
 
@@ -499,6 +524,31 @@ namespace PIPE_Valve_Online_Server
             }
         }
 
+        public static void OverrideMapMatch(uint _from, Packet _packet)
+        {
+            uint Playertooverride = (uint)_packet.ReadLong();
+            bool Value = _packet.ReadBool();
+
+            if(Server.Players.TryGetValue(_from,out Player player))
+            {
+                if (player.SendDataOverrides.ContainsKey(Playertooverride))
+                {
+                    player.SendDataOverrides[Playertooverride] = Value;
+                }
+                else
+                {
+                    player.SendDataOverrides.Add(Playertooverride, Value);
+                }
+
+                ServerSend.SendTextFromServerToOne(_from, $"Override {Value} confirmed");
+            }
+
+
+
+        }
+
+
+
         public static void KeepAlive(uint _from, Packet _packet)
         {
             // job done
@@ -508,8 +558,7 @@ namespace PIPE_Valve_Online_Server
 
         }
 
-
-
+       
 
 
         // user input
@@ -864,33 +913,50 @@ namespace PIPE_Valve_Online_Server
         {
             try
             {
-            string NameofGO = _packet.ReadString();
-            string NameofFile = _packet.ReadString();
-            string NameofBundle = _packet.ReadString();
-
-            Vector3 Position = _packet.ReadVector3();
-            Vector3 Rotation = _packet.ReadVector3();
-            Vector3 Scale = _packet.ReadVector3();
-            int ObjectID = _packet.ReadInt();
-            string directory = _packet.ReadString();
-
-            NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID,directory);
 
                 if(Server.Players.TryGetValue(_ownerID, out Player player))
                 {
-
-
-                player.PlayerObjects.Add(OBJ);
-                foreach(Player p in Server.Players.Values.ToList())
-                {
-                    if(p.RiderID != _ownerID)
+                    try
                     {
-                    ServerSend.SpawnAnObject(p.RiderID,_ownerID,OBJ);
-                    }
-                }
-                Console.WriteLine($"{player.Username} spawned a {NameofGO}, objectID: {ObjectID}");
 
-                ServerData.FileCheckAndRequest(NameofFile, _ownerID, directory);
+                       string NameofGO = _packet.ReadString();
+                       string NameofFile = _packet.ReadString();
+                       string NameofBundle = _packet.ReadString();
+
+                       Vector3 Position = _packet.ReadVector3();
+                       Vector3 Rotation = _packet.ReadVector3();
+                       Vector3 Scale = _packet.ReadVector3();
+                       int ObjectID = _packet.ReadInt();
+                       string directory = _packet.ReadString();
+
+                       NetGameObject OBJ = new NetGameObject(NameofGO, NameofFile, NameofBundle, Rotation, Position, Scale, false, ObjectID,directory);
+
+
+
+
+
+
+
+
+
+                        player.PlayerObjects.Add(OBJ);
+                        foreach(Player p in Server.Players.Values.ToList())
+                        {
+                             if(p.RiderID != _ownerID)
+                             {
+                                ServerSend.SpawnAnObject(p.RiderID,_ownerID,OBJ);
+                             }
+                        }
+                        Console.WriteLine($"{player.Username} spawned a {NameofGO}, objectID: {ObjectID}");
+                        ServerData.FileCheckAndRequest(NameofFile, _ownerID, directory);
+
+                    }
+                    catch (Exception x)
+                    {
+                        Console.WriteLine($"Spawn Object Error : Player {player} : V{player.VersionNo} : object count {player.PlayerObjects.Count} : error :  " + x);
+                    }
+
+
                 
 
 
@@ -901,15 +967,9 @@ namespace PIPE_Valve_Online_Server
             }
             catch (Exception x)
             {
-                Console.WriteLine($"Spawn object error adding to player list : error: {x}");
+                Console.WriteLine($"Spawn object error, Player not found: {x}");
 
             }
-           
-
-            
-            
-            
-
            
 
         }

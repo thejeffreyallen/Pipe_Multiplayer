@@ -325,9 +325,11 @@ namespace PIPE_Valve_Console_Client
 
             // file checks
             FileSyncing.CheckForMap(Currentmap, _username);
+            if (Gear.RiderTextures.Count > 0)
+            {
             for (int i = 0; i < Gear.RiderTextures.Count; i++)
             {
-                if(Gear.RiderTextures[i].Nameoftexture != "stock" && Gear.RiderTextures[i].Nameoftexture != "e")
+                if(Gear.RiderTextures[i].Nameoftexture.ToLower() != "stock" && Gear.RiderTextures[i].Nameoftexture.ToLower() != "e")
                 {
                    
                     if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture, Gear.RiderTextures[i].Directory))
@@ -336,6 +338,8 @@ namespace PIPE_Valve_Console_Client
                     }
 
                 }
+            }
+
             }
 
             if(currentmodel != "Daryien")
@@ -399,7 +403,7 @@ namespace PIPE_Valve_Console_Client
         {
             // check if objects bundle is loaded on this machine, if not look for filename and load bundle, if not, tell user what they need
             int pdata = _netobj.Directory.ToLower().LastIndexOf("pipe_data");
-            string mydir = Application.dataPath + _netobj.Directory.Remove(0,pdata + 9);
+            string mydir = Application.dataPath + _netobj.Directory.Remove(0,pdata + 9) + "/";
 
             Debug.Log($"Looking for Park asset {_netobj.NameofObject} at path {mydir}");
 
@@ -494,9 +498,6 @@ namespace PIPE_Valve_Console_Client
 
                                     }
                                 }
-
-
-
 
                             }
                             else
@@ -871,6 +872,22 @@ namespace PIPE_Valve_Console_Client
                   mapImporter._mapLoader.Load(new PatchaMapImporter.Models.Map(map.Name));
                    
                 }
+                else if (map.Name.Replace("_"," ").ToLower() == name.Replace("_", " ").ToLower())
+                {
+                    found = true;
+                    mapImporter._mapLoader.Load(new PatchaMapImporter.Models.Map(map.Name));
+
+                }
+                else if (map.Name.Replace("_", " ").ToLower().Contains(name.Replace("_", " ").ToLower()))
+                {
+                    found = true;
+                    mapImporter._mapLoader.Load(new PatchaMapImporter.Models.Map(map.Name));
+                }
+                else if (name.Replace("_", " ").ToLower().Contains(map.Name.Replace("_", " ").ToLower()))
+                {
+                    found = true;
+                    mapImporter._mapLoader.Load(new PatchaMapImporter.Models.Map(map.Name));
+                }
             }
 
             if (!found)
@@ -886,13 +903,51 @@ namespace PIPE_Valve_Console_Client
             int count = 0;
             foreach(RemotePlayer player in Players.Values)
             {
-                if(player.CurrentMap == MycurrentLevel)
+                if(player.CurrentMap.ToLower() == MycurrentLevel.ToLower())
+                {
+                    count++;
+                }
+                else if (player.CurrentMap.ToLower().Contains(MycurrentLevel.ToLower()))
+                {
+                    count++;
+                }
+                else if (MycurrentLevel.ToLower().Contains(player.CurrentMap.ToLower()))
+                {
+                    count++;
+                }
+                else if (MycurrentLevel.Replace("_"," ").ToLower().Contains(player.CurrentMap.Replace("_", " ").ToLower()))
                 {
                     count++;
                 }
             }
             return count;
         }
+
+
+        public bool RiderOnMyMap(RemotePlayer player)
+        {
+           
+            
+                if (player.CurrentMap.ToLower() == MycurrentLevel.ToLower())
+                {
+                return true;
+                }
+                else if (player.CurrentMap.ToLower().Contains(MycurrentLevel.ToLower()))
+                {
+                return true;
+                }
+                else if (MycurrentLevel.ToLower().Contains(player.CurrentMap.ToLower()))
+                {
+                return true;
+                }
+                else if (MycurrentLevel.Replace("_", " ").ToLower().Contains(player.CurrentMap.Replace("_", " ").ToLower()))
+                {
+                return true;
+                }
+
+            return false;
+        }
+
 
         public float GetAveragePing()
         {
@@ -988,6 +1043,48 @@ namespace PIPE_Valve_Console_Client
             }
 
         }
+
+        public FileInfo FileNameMatcher(FileInfo[] myfiles, string filetomatch)
+        {
+            for (int i = 0; i < myfiles.Length; i++)
+            {
+                if(myfiles[i].Name.ToLower() == filetomatch.ToLower())
+                {
+                    return myfiles[i];
+                }
+                else if(myfiles[i].Name.Replace("_"," ").ToLower() == filetomatch.Replace("_"," ").ToLower())
+                {
+                    return myfiles[i];
+                }
+                else if(myfiles[i].Name.Replace("_", " ").Replace("(1)","").ToLower() == filetomatch.Replace("_", " ").Replace("(1)", "").ToLower())
+                {
+                    return myfiles[i];
+                }
+                else if (myfiles[i].Name.Replace("_", " ").Replace("(2)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(2)", "").ToLower())
+                {
+                    return myfiles[i];
+                }
+                else if (myfiles[i].Name.Replace("_", " ").Replace("(3)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(3)", "").ToLower())
+                {
+                    return myfiles[i];
+                }
+            }
+
+
+            return null;
+        }
+
+        public bool HashMatch(FileInfo matchedfile, int PlayerfileHash)
+        {
+            if(matchedfile.GetHashCode() == PlayerfileHash)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
 
     }
 

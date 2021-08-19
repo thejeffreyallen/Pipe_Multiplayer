@@ -66,6 +66,7 @@ namespace PIPE_Valve_Console_Client
         LogOut,
         InviteToSpawn,
         AlterBanwords,
+        OverrideMapMatch,
 
     }
 

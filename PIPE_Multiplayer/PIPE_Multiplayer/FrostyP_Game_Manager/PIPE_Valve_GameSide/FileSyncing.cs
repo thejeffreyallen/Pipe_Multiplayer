@@ -128,6 +128,18 @@ namespace PIPE_Valve_Console_Client
                         // get total packets and bytelength
                         float Divider = 0;
                         long length = Stream.Length;
+
+
+
+                if(Stream.Length > 400000000)
+                {
+                    InGameUI.instance.NewMessage(10, new TextMessage("File too large", (int)MessageColourByNum.System, 1));
+                    OutGoingIndexes.Remove(index);
+
+                    return;
+                }
+
+
                         long mod = length % 400000;
                         if (mod > 0)
                         {
