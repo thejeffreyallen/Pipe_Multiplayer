@@ -616,6 +616,16 @@ namespace PIPE_Valve_Console_Client
 
         public Vector3 GetPosition(int key)
         {
+            Vector3 result = new Vector3(0, 0, 0);
+            if (partList.ContainsKey(key))
+            {
+                Debug.Log($"Getting part {key}");
+                if (GetPart(key) == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.GetPosition()");
+                    return result;
+                }
+            }
             return GetPart(key).transform.localPosition;
         }
 
@@ -630,16 +640,22 @@ namespace PIPE_Valve_Console_Client
                     return;
                 }
                 GetPart(key).transform.localPosition = pos;
-
             }
         }
 
         public void SetRotation(int key, Vector3 rot)
         {
-            if(GetPart(key) != null)
+            if (partList.ContainsKey(key))
             {
-             GetPart(key).transform.localEulerAngles = rot;
+                Debug.Log($"Set part {key}");
+                if (GetPart(key) == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.SetRotation(). Skipping...");
+                    return;
+                }
+                GetPart(key).transform.localEulerAngles = rot;
             }
+
         }
 
         public void SetPartsVisible()
@@ -647,6 +663,11 @@ namespace PIPE_Valve_Console_Client
             foreach (int key in ColourSetter.instance.GetActivePartList())
             {
                 GameObject obj = GetPart(key);
+                if (obj == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.SetPartsVisible(). Skipping...");
+                    return;
+                }
                 obj.SetActive(!obj.activeSelf);
             }
         }
@@ -656,6 +677,11 @@ namespace PIPE_Valve_Console_Client
             if (partList.ContainsKey(key))
             {
                 GameObject obj = GetPart(key);
+                if (obj == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.SetPartVisible(). Skipping...");
+                    return;
+                }
                 obj.SetActive(isVisible);
             }
         }
@@ -663,6 +689,11 @@ namespace PIPE_Valve_Console_Client
         public bool GetPartVisibe(int key)
         {
             GameObject obj = GetPart(key);
+            if (obj == null)
+            {
+                Debug.Log("The part with key " + key + " was null at RemotePartMaster.GetPartVisibe(). Skipping...");
+                return false;
+            }
             return obj.activeInHierarchy;
         }
 
@@ -680,6 +711,16 @@ namespace PIPE_Valve_Console_Client
 
         public Vector3 GetScale(int key)
         {
+            Vector3 result = new Vector3(0, 0, 0);
+            if (partList.ContainsKey(key))
+            {
+                Debug.Log($"Getting part {key}");
+                if (GetPart(key) == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.GetScale()");
+                    return result;
+                }
+            }
             return GetPart(key).transform.localScale;
         }
 
@@ -688,6 +729,11 @@ namespace PIPE_Valve_Console_Client
             if (partList.ContainsKey(key))
             {
                 GameObject obj = GetPart(key);
+                if (obj == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.SetScale()");
+                    return;
+                }
                 obj.transform.localScale = scale;
             }
         }
@@ -697,8 +743,12 @@ namespace PIPE_Valve_Console_Client
             foreach (int key in ColourSetter.instance.GetActivePartList())
             {
                 GameObject obj = GetPart(key);
+                if (obj == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.DuplicatePart()");
+                    return;
+                }
                 obj = Instantiate(obj, obj.transform.parent);
-                //obj.transform.localPosition = new Vector3(0,0,0);
             }
         }
 
@@ -712,6 +762,11 @@ namespace PIPE_Valve_Console_Client
                     return;
                 }
                 GameObject obj = GetPart(key);
+                if (obj == null)
+                {
+                    Debug.Log("The part with key " + key + " was null at RemotePartMaster.ResetTransforms()");
+                    return;
+                }
                 TransformData td = origTrans[key];
                 td.ApplyTo(obj.transform);
             }
