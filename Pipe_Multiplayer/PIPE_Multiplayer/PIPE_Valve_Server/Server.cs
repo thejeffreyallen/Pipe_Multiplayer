@@ -280,6 +280,10 @@ namespace PIPE_Valve_Online_Server
                                else
                                {
 								Console.WriteLine($"Received unsupported packet number {code}");
+                                if (Players.ContainsKey(from))
+                                {
+									ServerSend.SendTextFromServerToOne(from, "Server Doesnt support this feature");
+                                }
   
                                }
 

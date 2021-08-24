@@ -285,7 +285,7 @@ namespace FrostyP_Game_Manager
 
 
 			GUILayout.Label("Camera FOV = " + CamFOVCAMSETTING , PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
-			CamFOVCAMSETTING = GUILayout.HorizontalSlider(CamFOVCAMSETTING, 40, 120);
+			CamFOVCAMSETTING = GUILayout.HorizontalSlider(CamFOVCAMSETTING, 0, 100);
 			GUILayout.Label("Bloom Intensity = " + newbloomintvalueCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);
 			newbloomintvalueCAMSETTING = GUILayout.HorizontalSlider(newbloomintvalueCAMSETTING, 0, 1f);
 			GUILayout.Label("Bloom Threshold = " + newbloomvalueCAMSETTING, PIPE_Valve_Console_Client.InGameUI.instance.MiniPanelStyle);

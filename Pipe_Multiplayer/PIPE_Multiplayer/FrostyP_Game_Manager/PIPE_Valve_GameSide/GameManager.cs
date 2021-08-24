@@ -168,6 +168,13 @@ namespace PIPE_Valve_Console_Client
 
             }
 
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                if(!MainManager.instance.isOpen && !MenuManager.instance.saveMenu.activeInHierarchy)
+                {
+                    FrostyPGamemanager.instance.PopUpMessage("PipeWorks Map Importer \n not supported by Multiplayer");
+                }
+            }
 
             
         }
@@ -244,7 +251,7 @@ namespace PIPE_Valve_Console_Client
                 MycurrentLevel = string.IsNullOrEmpty(mapImporter.GetCurrentMapName()) ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().name : mapImporter.GetCurrentMapName(); // Use the actual map file name or, if on the unmodded maps, use the scene name
                
                 MycurrentLevel = ConvertToUnicode(MycurrentLevel);
-                
+                MycurrentLevel = MycurrentLevel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "");
 
                 if (!firstMap && InGameUI.instance.Connected && LocalPlayer.instance.ServerActive)
                 {
@@ -271,7 +278,7 @@ namespace PIPE_Valve_Console_Client
         {
           foreach(RemotePlayer r in Players.Values)
           {
-                r.ChangePlayerVisibilty(r.CurrentMap.ToLower() == mylevel.ToLower());
+                r.ChangePlayerVisibilty(r.CurrentMap.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == mylevel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower());
           }
             
         }
@@ -285,7 +292,7 @@ namespace PIPE_Valve_Console_Client
         {
             if(Players.TryGetValue(from,out RemotePlayer player))
             {
-                player.ChangePlayerVisibilty(Riderslevel.ToLower() == MycurrentLevel.ToLower());
+                player.ChangePlayerVisibilty(Riderslevel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == MycurrentLevel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower());
             }
         }
 
@@ -334,7 +341,7 @@ namespace PIPE_Valve_Console_Client
                    
                     if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture, Gear.RiderTextures[i].Directory))
                     {
-                    FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture,_id,Gear.RiderTextures[i].Directory);
+                    FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), _id,Gear.RiderTextures[i].Directory);
                     }
 
                 }
@@ -346,7 +353,7 @@ namespace PIPE_Valve_Console_Client
             {
               if (!FileSyncing.CheckForFile(currentmodel,PlayerModelsDir))
               {
-                FileSyncing.AddToRequestable(3,currentmodel, _id,PlayerModelsDir);
+                FileSyncing.AddToRequestable(3,currentmodel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), _id,PlayerModelsDir);
               }
 
             }
@@ -411,6 +418,7 @@ namespace PIPE_Valve_Console_Client
             {
                 if (A.name == _netobj.NameofAssetBundle)
                 {
+                    Debug.Log($"Loading Park asset from already loaded bundle");
                     GameObject _newobj = Instantiate(A.LoadAsset(_netobj.NameofObject)) as GameObject;
                     _newobj.transform.position = _netobj.Position;
                     _newobj.transform.eulerAngles = _netobj.Rotation;
@@ -422,11 +430,12 @@ namespace PIPE_Valve_Console_Client
                 }
             }
 
-            foreach (FileInfo file in new DirectoryInfo(mydir).GetFiles())
-            {
-                if (file.Name == _netobj.NameOfFile)
+            FileInfo Finfo = instance.FileNameMatcher(new DirectoryInfo(mydir).GetFiles(), _netobj.NameOfFile);
+            
+                if (Finfo != null)
                 {
-                    AssetBundle newbundle = AssetBundle.LoadFromFile(file.FullName);
+                Debug.Log($"Loading new Park bundle: requested: {_netobj.NameOfFile}:: matched to {Finfo.Name} ");
+                    AssetBundle newbundle = AssetBundle.LoadFromFile(Finfo.FullName);
                     GameObject _newobj = Instantiate(newbundle.LoadAsset(_netobj.NameofObject)) as GameObject;
 
                     _newobj.transform.position = _netobj.Position;
@@ -436,10 +445,10 @@ namespace PIPE_Valve_Console_Client
                     _netobj.AssetBundle = newbundle;
                     DontDestroyOnLoad(_newobj);
 
-                    ParkBuilder.instance.bundlesloaded.Add(new BundleData(newbundle, file.Name,file.DirectoryName));
+                    ParkBuilder.instance.bundlesloaded.Add(new BundleData(newbundle, Finfo.Name,Finfo.DirectoryName));
                     return;
                 }
-            }
+            
 
             // failed to find object, inform user what package is missing and clean up, resolve with server
             InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Failed to find {mydir + _netobj.NameOfFile} for {Players[_netobj.OwnerID].username}'s {_netobj.NameofObject}", (int)MessageColourByNum.Server, 0));
@@ -706,21 +715,28 @@ namespace PIPE_Valve_Console_Client
         public static Texture2D GetTexture(string name,string directory)
         {
             Texture2D image = new Texture2D(2,2);
-
+            string path = "";
             int pdata = directory.ToLower().LastIndexOf("pipe_data");
-            string path = Application.dataPath + directory.Remove(0, pdata + 9);
-
-
-            foreach (FileInfo _file in new DirectoryInfo(path).GetFiles(name, SearchOption.TopDirectoryOnly))
+            if(pdata != -1)
             {
-                if(_file.Name == name)
+            path = Application.dataPath + directory.Remove(0, pdata + 9);
+            }
+
+            FileInfo Finfo = instance.FileNameMatcher(new DirectoryInfo(path).GetFiles(), name);
+
+            if(Finfo != null)
+            {
+                if(Finfo.Name == name)
                 {
-                   byte[] file = File.ReadAllBytes(_file.FullName);
+                   byte[] file = File.ReadAllBytes(Finfo.FullName);
                    ImageConversion.LoadImage(image,file);
                    image.name = name;
 
                 }
+
             }
+            
+            
 
 
 
@@ -940,7 +956,7 @@ namespace PIPE_Valve_Console_Client
                 {
                 return true;
                 }
-                else if (MycurrentLevel.Replace("_", " ").ToLower().Contains(player.CurrentMap.Replace("_", " ").ToLower()))
+                else if (MycurrentLevel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower().Contains(player.CurrentMap.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower()))
                 {
                 return true;
                 }
@@ -1046,32 +1062,45 @@ namespace PIPE_Valve_Console_Client
 
         public FileInfo FileNameMatcher(FileInfo[] myfiles, string filetomatch)
         {
+            bool found = false;
             for (int i = 0; i < myfiles.Length; i++)
             {
+                if (!found)
+                {
+
                 if(myfiles[i].Name.ToLower() == filetomatch.ToLower())
                 {
+                    found = true;
                     return myfiles[i];
                 }
                 else if(myfiles[i].Name.Replace("_"," ").ToLower() == filetomatch.Replace("_"," ").ToLower())
                 {
+                    found = true;
                     return myfiles[i];
                 }
                 else if(myfiles[i].Name.Replace("_", " ").Replace("(1)","").ToLower() == filetomatch.Replace("_", " ").Replace("(1)", "").ToLower())
                 {
+                    found = true;
                     return myfiles[i];
                 }
                 else if (myfiles[i].Name.Replace("_", " ").Replace("(2)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(2)", "").ToLower())
                 {
+                    found = true;
                     return myfiles[i];
                 }
                 else if (myfiles[i].Name.Replace("_", " ").Replace("(3)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(3)", "").ToLower())
                 {
+                    found = true;
                     return myfiles[i];
+                }
+
                 }
             }
 
+            
+             return null;
+            
 
-            return null;
         }
 
         public bool HashMatch(FileInfo matchedfile, int PlayerfileHash)
@@ -1084,7 +1113,7 @@ namespace PIPE_Valve_Console_Client
             return false;
         }
 
-
+       
 
     }
 

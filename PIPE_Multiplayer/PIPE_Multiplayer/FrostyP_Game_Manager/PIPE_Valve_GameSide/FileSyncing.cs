@@ -190,24 +190,31 @@ namespace PIPE_Valve_Console_Client
             {
                 name = name.Remove(0, lastslash + 1);
             }
-            string inputString = name;
-            string UnicodeName = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(inputString));
+           
 
             // sort directory
             int gdata = path.ToLower().LastIndexOf("game data");
-            string mypath = path.Remove(0, gdata + 9) + "/";
+            string mypath = path.Remove(0, gdata + 10) + "/";
 
-
+            if(Totalbytes > 400000000)
+            {
+                ClientSend.FileStatus(name, 1);
+                return;
+            }
 
             if (!Directory.Exists(GameManager.TempDir + mypath)) Directory.CreateDirectory(GameManager.TempDir + mypath);
-            if (!Directory.Exists(Application.dataPath + mypath)) Directory.CreateDirectory(Application.dataPath + mypath);
+            if (!Directory.Exists(Application.dataPath + "/" + mypath)) Directory.CreateDirectory(Application.dataPath + "/" + mypath);
+
+            FileInfo finfo = GameManager.instance.FileNameMatcher(new DirectoryInfo(Application.dataPath + "/" + mypath).GetFiles(), name);
+            FileInfo tempfinfo = GameManager.instance.FileNameMatcher(new DirectoryInfo(GameManager.TempDir + mypath).GetFiles(), name + ".temp");
+
 
             // if no Temp file exists create one 
-            if (!File.Exists(GameManager.TempDir + mypath + UnicodeName + ".temp"))
+            if (tempfinfo == null)
             {
                 TempFile Temp = new TempFile();
                 BinaryFormatter bf = new BinaryFormatter();
-                FileStream stream = File.OpenWrite(GameManager.TempDir + mypath + UnicodeName + ".temp");
+                FileStream stream = File.OpenWrite(GameManager.TempDir + mypath + name + ".temp");
 
                 
                 Temp.ByteLengthOfFile = Totalbytes;
@@ -216,22 +223,32 @@ namespace PIPE_Valve_Console_Client
                 stream.Close();
 
             }
+            else
+            {
+                name = tempfinfo.Name;
+            }
 
             // grab Receive index and FileStream
             SendReceiveIndex InIndex = null;
                 foreach(SendReceiveIndex r in IncomingIndexes)
                 {
 
-                string fileinputString = r.NameOfFile;
-                string UnicodeFilename = Encoding.Unicode.GetString(Encoding.Unicode.GetBytes(fileinputString));
-
-
-
-                if (UnicodeFilename.ToLower() == UnicodeName.ToLower())
-                {
+                  if (r.NameOfFile.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == name.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower())
+                  {
                     InIndex = r;
+                  }
                 }
+                if(InIndex == null)
+                {
+                Debug.Log($"Unassigned file receive: {name}");
+                return;
                 }
+                if (InIndex.PacketNumbersStored.Contains(SegNo))
+                {
+                return;
+                }
+
+
                 FileStream _f = File.OpenWrite(GameManager.TempDir + mypath + name);
                 
                  if (!InIndex.IsReceiving)
@@ -256,15 +273,23 @@ namespace PIPE_Valve_Console_Client
             // Do Save or just update temp file
             if (InIndex.PacketNumbersStored.Count == InIndex.TotalPacketsinFile)
             {
-                Debug.Log($"Saving {name}");
-                string fullpath = Application.dataPath + mypath;
-                
+                string fullpath = Application.dataPath + "/" + mypath;
+                Debug.Log($"Saving {name} with path: {fullpath}");
 
-               
+                string savename = name.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "");
+
+
                 if (!Directory.Exists(fullpath)) Directory.CreateDirectory(fullpath);
-                File.Move(GameManager.TempDir + mypath + UnicodeName, fullpath + UnicodeName);
-                File.Delete(GameManager.TempDir + mypath + UnicodeName + ".temp");
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {UnicodeName} to {fullpath}", (int)MessageColourByNum.System, 1));
+                if(!File.Exists(fullpath + savename))
+                {
+                File.Move(GameManager.TempDir + mypath + name, fullpath + savename);
+                }
+                else
+                {
+                    Debug.Log($"dumping file, duplicate found {fullpath + savename}");
+                }
+                File.Delete(GameManager.TempDir + mypath + name + ".temp");
+                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage($"Saved {name} to {fullpath}", (int)MessageColourByNum.System, 1));
 
                 IncomingIndexes.Remove(InIndex);
                
@@ -272,20 +297,20 @@ namespace PIPE_Valve_Console_Client
 
                
 
-                 ClientSend.FileStatus(UnicodeName,(int)FileStatus.Received);
+                 ClientSend.FileStatus(name,(int)FileStatus.Received);
                 
                  
 
 
                 // if any waiting request exist, have them process again now the file exists
                 List<Waitingrequest> todelete = new List<Waitingrequest>();
-                if(WaitingRequests.Count > 0)
+                if(WaitingRequests.ToArray().Length > 0)
                 {
                     foreach(Waitingrequest r in WaitingRequests)
                     {
                         
                        
-                        if(r.Nameofasset.ToLower() == name.ToLower())
+                        if(r.Nameofasset.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == name.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower())
                         {
 
 
@@ -371,7 +396,7 @@ namespace PIPE_Valve_Console_Client
                 }
                     if (todelete.Count > 0)
                     {
-                        for (int i = 0; i < todelete.Count; i++)
+                        for (int i = 0; i < todelete.ToArray().Length; i++)
                         {
 
                             WaitingRequests.Remove(todelete[i]);
@@ -383,12 +408,12 @@ namespace PIPE_Valve_Console_Client
             else
             {
                 // update temp file
-                FileStream stream = File.OpenRead(GameManager.TempDir + mypath + UnicodeName + ".temp");
+                FileStream stream = File.OpenRead(GameManager.TempDir + mypath + name + ".temp");
                 BinaryFormatter bf = new BinaryFormatter();
                 TempFile _temp = bf.Deserialize(stream) as TempFile;
                 stream.Close();
                 _temp.PacketNumbersStored.Add(SegNo);
-                stream = File.OpenWrite(GameManager.TempDir + mypath + UnicodeName + ".temp");
+                stream = File.OpenWrite(GameManager.TempDir + mypath + name + ".temp");
                 bf.Serialize(stream, _temp);
                 stream.Close();
             }
@@ -405,7 +430,7 @@ namespace PIPE_Valve_Console_Client
         {
             bool got = false;
 
-            if(name.ToLower().Contains("pipe") | name.ToLower().Contains("chuck"))
+            if(name.ToLower().Contains("pipe") | name.ToLower().Contains("chuck") | name.ToLower().Contains("tutorialsetup"))
             {
                 return;
             }
@@ -415,7 +440,7 @@ namespace PIPE_Valve_Console_Client
                
                 string Unicode = GameManager.ConvertToUnicode(_map.Name);
 
-                if (Unicode.ToLower() == name.ToLower())
+                if (Unicode.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower())
                 {
                     got = true;
                     
@@ -426,14 +451,14 @@ namespace PIPE_Valve_Console_Client
                 
                 foreach(SendReceiveIndex s in IncomingIndexes)
                 {
-                    if(s.NameOfFile == name)
+                    if(s.NameOfFile.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower())
                     {
                         return;
                     }
                    
                 }
-                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"{user} is at {name} that you dont have, request left in syncwindow", (int)MessageColourByNum.System, 1));
-                IncomingIndexes.Add(new SendReceiveIndex(name,new List<int>(),GameManager.MapsDir));
+                InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"{user} is at {name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower()} that you dont have, request left in syncwindow", (int)MessageColourByNum.System, 1));
+                IncomingIndexes.Add(new SendReceiveIndex(name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower(), new List<int>(),GameManager.MapsDir));
             }
 
 
@@ -445,13 +470,15 @@ namespace PIPE_Valve_Console_Client
             int pdata = directory.ToLower().LastIndexOf("pipe_data");
             string path = Application.dataPath + directory.Remove(0, pdata + 9);
             
-            FileInfo[] info = new DirectoryInfo(path).GetFiles(nameoffile, SearchOption.TopDirectoryOnly);
-            if (info.Length > 0)
+            FileInfo info = GameManager.instance.FileNameMatcher(new DirectoryInfo(path).GetFiles(),nameoffile);
+            if (info != null)
             {
                 return true;
             }
-
-            return false;
+            else
+            {
+              return false;
+            }
 
         }
 

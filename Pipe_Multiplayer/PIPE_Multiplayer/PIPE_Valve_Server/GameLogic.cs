@@ -21,8 +21,11 @@ namespace PIPE_Valve_Online_Server
             // processed at tick rate
             ThreadManager.UpdateMain();
 
-
-            // FileSync
+                try
+                {
+                // FileSync
+                if (ServerData.OutgoingIndexes.Count > 0)
+                {
             bool AddedAPacket = false;
             foreach(SendReceiveIndex Index in ServerData.OutgoingIndexes.ToArray())
             {
@@ -125,6 +128,14 @@ namespace PIPE_Valve_Online_Server
             }
 
 
+                }
+
+
+                }
+                catch (Exception x )
+                {
+                    Console.WriteLine("Filesync error : " + x);
+                }
             // Admin
             foreach(Player pl in Server.Players.Values)
             {

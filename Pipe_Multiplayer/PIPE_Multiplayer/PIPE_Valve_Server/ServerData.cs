@@ -197,23 +197,14 @@ namespace PIPE_Valve_Online_Server
 
 
             // Find Fileinfo
-            string AsUnicode = "none";
-                if (FileName != "")
+            FileInfo finfo = FileNameMatcher(new DirectoryInfo(fulldir).GetFiles(), FileName);
+                if (finfo != null)
                 {
-                   
-                    foreach (FileInfo file in new DirectoryInfo(fulldir).GetFiles(FileName, SearchOption.TopDirectoryOnly))
-                    {
-                    // get ascii'd file name
-                    AsUnicode = ConvertToUnicode(file.Name);
-
-
-
-                    if (FileName.ToLower().Contains(AsUnicode.ToLower()))
-                        {
-                        _fileinfo = file;
-                        Console.WriteLine($"Located {FileName}");
-                        }
-                    }
+                  
+                   _fileinfo = finfo;
+                   Console.WriteLine($"Located {FileName}");
+                        
+                    
                     
                 }
 
@@ -265,7 +256,15 @@ namespace PIPE_Valve_Online_Server
                 Console.WriteLine($"Receiving file: {name}, path: {path}, Segment: {SegNo}");
             try
             {
-
+                if(Totalbytes > 400000000)
+                {
+                    if(Server.Players.TryGetValue(_player,out Player player))
+                    {
+                        ServerSend.FileStatus(_player, name, 1);
+                        return;
+                    }
+                }
+                string originname = name;
                 // make sure filename is just filename
             int lastslash = name.LastIndexOf("/");
             if (lastslash != -1)
@@ -274,13 +273,29 @@ namespace PIPE_Valve_Online_Server
             }
                 // make our directory
                 int pdata = path.ToLower().LastIndexOf("pipe_data");
-                string _mypath = path.Remove(0, pdata + 9);
+                string _mypath = path.Remove(0, pdata + 10);
 
 
                 if (!Directory.Exists(TempDir + _mypath)) Directory.CreateDirectory(TempDir + _mypath);
                 if (!Directory.Exists(Rootdir + _mypath)) Directory.CreateDirectory(Rootdir + _mypath);
+
+                FileInfo Finfo = FileNameMatcher(new DirectoryInfo(Rootdir + _mypath).GetFiles(), name);
+                FileInfo TempFinfo = FileNameMatcher(new DirectoryInfo(TempDir + _mypath).GetFiles(), name + ".temp");
+
+                if(Finfo!= null)
+                {
+                    Console.WriteLine($"incoming data for file already found in location: {Finfo.FullName} ");
+                    if(Server.Players.TryGetValue(_player,out Player player))
+                    {
+                        ServerSend.FileStatus(_player, name,(int)FileStatus.Received);
+                    }
+                    return;
+                }
+
+
+
                 // if no Temp file exists create one 
-                if (!File.Exists(TempDir + _mypath + name + ".temp"))
+                if (TempFinfo == null)
                 {
                 TempFile Temp = new TempFile();
                 BinaryFormatter bf = new BinaryFormatter();
@@ -293,18 +308,35 @@ namespace PIPE_Valve_Online_Server
                 stream.Close();
 
                 }
-
+                else
+                {
+                    name = TempFinfo.Name.Replace(".temp","");
+                }
+               
 
 
             // grab Receive index and FileStream
             SendReceiveIndex InIndex = null;
             foreach (SendReceiveIndex r in IncomingIndexes)
             {
-                if (r.NameOfFile == name)
+                if (r.NameOfFile.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower())
                 {
                     InIndex = r;
+                    InIndex.NameOfFile = name;
                 }
             }
+                if(InIndex == null)
+                {
+                    Console.WriteLine($"File receive with no Index");
+                    return;
+                }
+
+
+
+                if (InIndex.PacketNumbersStored.Contains(SegNo))
+                {
+                    return;
+                }
             FileStream _f = File.OpenWrite(TempDir + _mypath + name);
 
             if (!InIndex.IsReceiving)
@@ -313,6 +345,7 @@ namespace PIPE_Valve_Online_Server
             }
             InIndex.ByteLength = Totalbytes;
             InIndex.TotalPacketsinFile = SegsTotal;
+
 
             // determine where to write data
             int Startpos = (SegNo - 1) * 400000;
@@ -335,25 +368,34 @@ namespace PIPE_Valve_Online_Server
                 Console.WriteLine("Saving file to path: " + FullPath);
 
                 if (!Directory.Exists(FullPath)) Directory.CreateDirectory(FullPath);
-                if(!File.Exists(FullPath + name))
+
+                    // take out anything weird
+                    string savename = name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "");
+
+
+                    if(!File.Exists(FullPath + savename))
                     {
-                     File.Move(TempDir + _mypath + name, FullPath + name);
+                     File.Move(TempDir + _mypath + name, FullPath + savename);
 
                     }
-                File.Delete(TempDir + _mypath + name + ".temp");
+                    else
+                    {
+                        Console.WriteLine("Dumped file, duplicate found");
+                    }
+                    File.Delete(TempDir + _mypath + name + ".temp");
                 
                 // Tell Anyone that i've asked to send this file that i have it now ,if still online
                 foreach(uint id in InIndex.PlayersRequestedFrom)
                 {
-                    if(Server.Players[id] != null)
+                    if(Server.Players.TryGetValue(id,out Player player))
                     {
-                      ServerSend.FileStatus(id,name, (int)FileStatus.Received);
+                      ServerSend.FileStatus(id, originname, (int)FileStatus.Received);
 
                     }
                 }
 
                 IncomingIndexes.Remove(InIndex);
-                Console.WriteLine($"Saved {name} to {FullPath}");
+                Console.WriteLine($"Saved {savename} to {FullPath}");
 
 
 
@@ -397,50 +439,40 @@ namespace PIPE_Valve_Online_Server
             try
             {
 
-            int lastslash = Filename.LastIndexOf("/");
-            if (lastslash != -1)
-            {
-                Filename = Filename.Remove(0, lastslash + 1);
-            }
-
-            string name = Filename;
-                 Filename = ConvertToUnicode(name);
-
-            int pdata = dir.ToLower().LastIndexOf("pipe_data");
-            string mydir = dir.Remove(0,pdata + 9);
-                if (!Directory.Exists(Rootdir + mydir)) Directory.CreateDirectory(Rootdir + mydir);
-                if (!Directory.Exists(TempDir + mydir)) Directory.CreateDirectory(TempDir + mydir);
 
                 bool found = false;
                 if (Filename.ToLower() != "e" && Filename != "" && Filename != " " && Filename != "stock")
                 {
 
+                      int lastslash = Filename.LastIndexOf("/");
+                   if (lastslash != -1)
+                   {
+                      Filename = Filename.Remove(0, lastslash + 1);
+                   }
+
+                   string name = Filename;
+                   Filename = ConvertToUnicode(name);
+
+                   int pdata = dir.ToLower().LastIndexOf("pipe_data");
+                   string mydir = dir.Remove(0,pdata + 10);
+
+                   Console.WriteLine($"Filecheck: Full path: {Rootdir + mydir} :: file: {Filename}");
+
+                if (!Directory.Exists(Rootdir + mydir)) Directory.CreateDirectory(Rootdir + mydir);
+                if (!Directory.Exists(TempDir + mydir)) Directory.CreateDirectory(TempDir + mydir);
+
+
+
+                FileInfo Finfo = FileNameMatcher(new DirectoryInfo(Rootdir + mydir).GetFiles(), Filename);
+
                 
-                     // find file
-                    foreach (FileInfo file in new DirectoryInfo(Rootdir + mydir).GetFiles(Filename, SearchOption.TopDirectoryOnly))
-                    {
-                    // get ascii'd file name
-                    string AsUnicode = ConvertToUnicode(file.Name);
-
-
-                        if (AsUnicode.ToLower() == Filename.ToLower())
-                        {
-
-                           if(!file.FullName.Contains("Temp") && !file.Name.Contains(".temp"))
-                           {
-                            found = true;
-                           
-                           }
-                           
-                        }
-                    }
-                     
 
                     // if not found
-                    if (!found)
+                    if (Finfo == null)
                     {
-                        
-                         List<int> Packetsiown = new List<int>();
+                        Console.WriteLine($"File not located, looking for temp data..");
+
+                        List<int> Packetsiown = new List<int>();
                          if(File.Exists(TempDir + mydir + Filename + ".temp"))
                          {
                               BinaryFormatter bf = new BinaryFormatter();
@@ -454,10 +486,17 @@ namespace PIPE_Valve_Online_Server
                                 Packetsiown.Add(seg);
 
                               }
+                              Console.WriteLine($"Temp data located: packets stored: {Packetsiown.Count}: byte length: {temp.ByteLengthOfFile}");
+                         }
+
+                         if(Server.Players.TryGetValue(_fromclient, out Player player))
+                         {
+
+                           ServerSend.RequestFile(_fromclient,Filename,Packetsiown,dir);
+                           Console.WriteLine(Filename + $" requested from {player.Username}");
+
                          }
                 
-                         ServerSend.RequestFile(_fromclient,Filename,Packetsiown,dir);
-                        Console.WriteLine(Filename + $" requested from {Server.Players[_fromclient].Username}");
                     }
 
 
@@ -525,13 +564,56 @@ namespace PIPE_Valve_Online_Server
             return outstring;
         }
 
+        public static FileInfo FileNameMatcher(FileInfo[] myfiles, string filetomatch)
+        {
+            bool found = false;
+            for (int i = 0; i < myfiles.Length; i++)
+            {
+                if (!found)
+                {
+
+                    if (myfiles[i].Name.ToLower() == filetomatch.ToLower())
+                    {
+                        found = true;
+                        return myfiles[i];
+                    }
+                    else if (myfiles[i].Name.Replace("_", " ").ToLower() == filetomatch.Replace("_", " ").ToLower())
+                    {
+                        found = true;
+                        return myfiles[i];
+                    }
+                    else if (myfiles[i].Name.Replace("_", " ").Replace("(1)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(1)", "").ToLower())
+                    {
+                        found = true;
+                        return myfiles[i];
+                    }
+                    else if (myfiles[i].Name.Replace("_", " ").Replace("(2)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(2)", "").ToLower())
+                    {
+                        found = true;
+                        return myfiles[i];
+                    }
+                    else if (myfiles[i].Name.Replace("_", " ").Replace("(3)", "").ToLower() == filetomatch.Replace("_", " ").Replace("(3)", "").ToLower())
+                    {
+                        found = true;
+                        return myfiles[i];
+                    }
+
+                }
+            }
+
+
+            return null;
+
+
+        }
+
 
     }
 
     /// <summary>
     /// Used for storing a segment of a textures byte array until all have been received
     /// </summary>
-     [Serializable]
+    [Serializable]
     class FileSegment
         {
 

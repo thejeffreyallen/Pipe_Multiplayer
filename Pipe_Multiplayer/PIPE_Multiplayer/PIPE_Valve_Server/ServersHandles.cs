@@ -68,7 +68,7 @@ namespace PIPE_Valve_Online_Server
 
             if(VersionNo != Server.VERSIONNUMBER)
             {
-                    if (VersionNo > 2.13f) { ServerSend.Update(_from, ServerData.GiveUpdateFileNames()); Console.WriteLine($"Player {name} offered update. Their version:{VersionNo}"); }
+                    if (VersionNo > 2.13f && VersionNo < Server.VERSIONNUMBER) { ServerSend.Update(_from, ServerData.GiveUpdateFileNames()); Console.WriteLine($"Player {name} offered update. Their version:{VersionNo}"); }
                     else { ServerSend.DisconnectPlayer($"Mod Version Doesnt Match, Install Version {Server.VERSIONNUMBER} to connect to this Server", _from); Console.WriteLine($"Player {name} refused. Their version:{VersionNo}"); }
                    
                     return;
@@ -445,7 +445,7 @@ namespace PIPE_Valve_Online_Server
             {
                 foreach (SendReceiveIndex s in ServerData.OutgoingIndexes.ToList())
                 {
-                    if (s.NameOfFile == name && s.PlayerTosendTo == _from)
+                    if (s.NameOfFile.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() == name.Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower() && s.PlayerTosendTo == _from)
                     {
                         ServerData.OutgoingIndexes.Remove(s);
                     }

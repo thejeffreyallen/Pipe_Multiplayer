@@ -104,9 +104,12 @@ namespace PIPE_Valve_Online_Server
         {
             if (receiver.SendDataOverrides.ContainsKey(sender.RiderID))
             {
-                return receiver.SendDataOverrides[sender.RiderID];
+                if (receiver.SendDataOverrides[sender.RiderID])
+                {
+                  return true;
+                }
             }
-            else if(sender.MapName.ToLower() == receiver.MapName.ToLower())
+            if(sender.MapName.ToLower() == receiver.MapName.ToLower())
             {
             return true;
             }
@@ -186,7 +189,7 @@ namespace PIPE_Valve_Online_Server
             // if index exists, add id to ReceivingFrom, else create request index
             foreach(SendReceiveIndex sr in ServerData.IncomingIndexes)
             {
-                if(sr.NameOfFile == name)
+                if(sr.NameOfFile.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "") == name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""))
                 {
                     bool playerlogged = false;
                     foreach(int play in sr.PlayersRequestedFrom)

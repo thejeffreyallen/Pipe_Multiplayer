@@ -92,7 +92,10 @@ namespace FrostyP_Game_Manager
 			/// toggle menu with G
 			if (Input.GetKeyDown(KeyCode.G))
 			{
-				OpenMenu = !OpenMenu;
+                if (!ReplayMode.instance.ReplayOpen)
+                {
+				  OpenMenu = !OpenMenu;
+                }
                 if (MainManager.instance.isOpen)
                 {
 					OpenMenu = false;

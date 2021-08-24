@@ -102,7 +102,7 @@ public class RemoteLoadManager : MonoBehaviour
                     else
                     {
                         // waitingrequest
-                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, name, player.id,dir);
+                        FileSyncing.AddToRequestable((int)FileTypeByNum.Garage, name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), player.id,dir);
 
 
 
@@ -308,17 +308,19 @@ public class RemoteLoadManager : MonoBehaviour
             foreach (PartMesh pm in loadList.partMeshes)
             {
                 string fullPath = Application.dataPath + "/GarageContent/" + pm.fileName;
-                int lastslash = fullPath.LastIndexOf("/") + 1;
-                int getfilename = pm.fileName.LastIndexOf("/") + 1;
-                string name = pm.fileName.Remove(0, getfilename);
-                string dir = fullPath.Remove(lastslash, fullPath.Length - lastslash);
-                Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index + ": Dir:" + fullPath);
 
                 if (pm.isCustom)
                 {
-                  FileInfo file = GameManager.instance.FileNameMatcher(new DirectoryInfo(dir).GetFiles(), name);
 
+                int getfilename = pm.fileName.LastIndexOf("/");
+                string name = pm.fileName.Remove(0, getfilename + 1);
+                string dir = fullPath.Replace(name,"");
+                Debug.Log("PartMesh: " + pm.partName + ". Index = " + pm.index + ": Dir:" + fullPath);
+                Debug.Log($"Looking for file name: {name}");
 
+                    // send dir and filename, do various checks on whether the filename matches any file in the dir, bring back actual file matched
+                FileInfo file = GameManager.instance.FileNameMatcher(new DirectoryInfo(dir).GetFiles(), name);
+                    
 
                     if (file == null)
                     {
@@ -329,11 +331,11 @@ public class RemoteLoadManager : MonoBehaviour
                     }
                     else
                     {
-                        int slash = pm.fileName.LastIndexOf("/");
-                        string shortdir = pm.fileName.Remove(slash + 1, pm.fileName.Length - slash + 1);
+                       
+                        Debug.Log($"Requested: {name} :: Matched to {file.Name}");
+                        string shortdir = pm.fileName.Replace(name,"");
                         pm.fileName = shortdir + file.Name;
                         fullPath = Application.dataPath + "/GarageContent/" + pm.fileName;
-
                         if (pm.partName.Equals("cranks"))
                         {
                             Mesh crank = FindObjectOfType<CustomMeshManager>().FindSpecific(pm.partName, pm.fileName);

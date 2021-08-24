@@ -264,10 +264,10 @@ namespace PIPE_Valve_Console_Client
             
             foreach(SendReceiveIndex r in FileSyncing.OutGoingIndexes.ToArray())
             {
-                if (name.Contains(r.NameOfFile))
+                if (name.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower().Contains(r.NameOfFile.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", "").ToLower()))
                 {
                   FileSyncing.OutGoingIndexes.Remove(r);
-                  InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Server Received {name}",(int)MessageColourByNum.System, 1));
+                  InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage($"Server Received {r.NameOfFile}",(int)MessageColourByNum.System, 1));
                 }
             }
             

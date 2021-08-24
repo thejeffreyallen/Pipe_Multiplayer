@@ -158,8 +158,16 @@ namespace PIPE_Valve_Console_Client
 						 {
 							   int _packetId = _packet.ReadInt();
 
+                               if (packetHandlers.ContainsKey(_packetId))
+                               {
+						         packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet, see Packet class on both server and game side to find codes, see Start() for setup of Gameside Codes
+                               }
+                               else
+                               {
+								   // unsupported Packet code
 
-						    packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet, see Packet class on both server and game side to find codes, see Start() for setup of Gameside Codes
+                               }
+
 
 							  
 						 }
@@ -205,11 +213,18 @@ namespace PIPE_Valve_Console_Client
 				utils.SetStatusCallback(status);
 
 				string _ip = ip.Replace(" ", "");
-				
 
+                try
+                {
 				Address address = new Address();
 			address.SetAddress(_ip,(ushort)port);
 			ServerConnection = Socket.Connect(ref address);
+
+                }
+                catch (Exception)
+                {
+					FrostyPGamemanager.instance.PopUpMessage("Failed to connect, connection okay? Firewall?");
+				}
 				int sendRateMin = 400000;
 				int sendRateMax = 12048576;
 				int sendBufferSize = 40485760;
@@ -281,7 +296,10 @@ namespace PIPE_Valve_Console_Client
 							}
 						}
 					}
-					catch (Exception) { }
+					catch (Exception)
+				    {
+					 FrostyPGamemanager.instance.PopUpMessage("Failed to do DNS lookup, connection okay? Firewall?");
+				    }
 				
 
 
@@ -328,13 +346,6 @@ namespace PIPE_Valve_Console_Client
 			}
 
 		}
-
-
-
-
-
-
-
 
 		/// <summary>
 		/// Master disconnect, closes down all networking

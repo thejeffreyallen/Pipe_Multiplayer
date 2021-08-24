@@ -527,7 +527,7 @@ namespace FrostyP_Game_Manager
 		
 			//give list of found files
 		availableassetbundles = LoadAssets();
-			
+			ResetLoadedBundles();
 
 			openflag = true;
 
@@ -2088,6 +2088,28 @@ namespace FrostyP_Game_Manager
 				currentcamspeed = camspeed.Change(currentcamspeed);
 			}
 		}
+
+
+		public void ResetLoadedBundles()
+        {
+            for (int i = 0; i < bundlesloaded.Count; i++)
+            {
+				bool found = false;
+                foreach(AssetBundle asbun in AssetBundle.GetAllLoadedAssetBundles())
+                {
+					if(asbun.name == bundlesloaded[i].Bundle.name)
+                    {
+						found = true;
+                    }
+                }
+
+                if (!found)
+                {
+					bundlesloaded.RemoveAt(i);
+                }
+
+            }
+        }
 
 	}
 

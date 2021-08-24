@@ -553,6 +553,9 @@ namespace PIPE_Valve_Console_Client
         /// </summary>
         public void Disconnect()
         {
+
+            try
+            {
             Connected = false;
 
 
@@ -565,7 +568,11 @@ namespace PIPE_Valve_Console_Client
                 playerroots.Add(r.gameObject);
                 
             }
-            GameManager.Players.Clear();
+                if (GameManager.Players.Count > 0)
+                {
+                  GameManager.Players.Clear();
+
+                }
             if (playerroots.Count > 0)
             {
                 for (int i = 0; i < playerroots.Count; i++)
@@ -582,7 +589,7 @@ namespace PIPE_Valve_Console_Client
             Resources.UnloadUnusedAssets();
             GameManager.instance.UnLoadOtherPlayerModels();
             GameManager.instance.UpdatePlayersOnMyLevelToggledOff();
-
+            ParkBuilder.instance.ResetLoadedBundles();
             if (IsSpectating)
             {
                 SpectateExit();
@@ -590,6 +597,12 @@ namespace PIPE_Valve_Console_Client
             this.StopAllCoroutines();
             Messages.Clear();
             // Server learns of disconnection itself and tells everyone
+
+            }
+            catch (Exception x)
+            {
+                Debug.Log("MP Disconnect error: " + x);
+            }
 
         }
         
@@ -1356,6 +1369,7 @@ namespace PIPE_Valve_Console_Client
 
                             }
                         GUILayout.Space(10);
+                        
                         if (!GameManager.instance.RiderOnMyMap(player))
                         {
                             CurrentOverrideStyle = player.Override ? ButtonOnstyle : PlayeroptionsStyle;
@@ -1366,7 +1380,7 @@ namespace PIPE_Valve_Console_Client
                             }
                         GUILayout.Space(10);
                         }
-
+                        
                         player.PlayerCollides = GUILayout.Toggle(player.PlayerCollides, "Player Collides", PlayeroptionsStyle);
                         player.ChangeCollideStatus(player.PlayerCollides);
 
@@ -2379,7 +2393,7 @@ namespace PIPE_Valve_Console_Client
             {
                    foreach(string file in UpdateFiles)
                    {
-                    FileSyncing.RequestFileFromServer(file,"Pipe_data/FrostyPGameManager/Updates/" + Versionofupdate + "/");
+                    FileSyncing.RequestFileFromServer(file,"PIPE_Data/FrostyPGameManager/Updates/" + Versionofupdate + "/");
                    }
                    
             }

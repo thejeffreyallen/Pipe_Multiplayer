@@ -647,7 +647,7 @@ namespace PIPE_Valve_Console_Client
                         }
                         else
                         {
-                            FileSyncing.AddToRequestable(1, t.Nameoftexture, id,t.Directory);
+                            FileSyncing.AddToRequestable(1, t.Nameoftexture.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), id,t.Directory);
                         }
                         }
                         else
@@ -806,9 +806,9 @@ namespace PIPE_Valve_Console_Client
 
 
             nameSign.transform.parent = RiderModel.transform.FindDeepChild("mixamorig:Head");
-            nameSign.transform.localPosition = new Vector3(0, 0.35f, 0);
+            nameSign.transform.localPosition = new Vector3(0, 0.37f, 0);
 
-            ChangePlayerVisibilty(CurrentMap == GameManager.instance.MycurrentLevel);
+            ChangePlayerVisibilty(GameManager.instance.RiderOnMyMap(this));
             ChangeCollideStatus(InGameUI.instance.CollisionsToggle);
 
             Debug.Log($"{username} completed setup"); MasterActive = true;
