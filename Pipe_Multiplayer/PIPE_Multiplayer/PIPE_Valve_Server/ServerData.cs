@@ -117,7 +117,7 @@ namespace PIPE_Valve_Online_Server
 
 
 
-            //Server.PostRequest();
+           
         }
 
         public static void SaveServerData()
@@ -642,23 +642,6 @@ namespace PIPE_Valve_Online_Server
             }
 
         }
-
-
-    /// <summary>
-	/// Keep track of a texture in bytes and its file name
-	/// </summary>
-	class FileBytes
-    {
-        public byte[] bytes;
-        public string Filename;
-
-        public FileBytes(byte[] _bytes, string _texname)
-        {
-            Filename = _texname;
-            bytes = _bytes;
-        }
-
-    }
 
 
 

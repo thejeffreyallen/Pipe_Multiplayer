@@ -978,9 +978,9 @@ namespace FrostyP_Game_Manager
                // GUILayout.Label("Blend:",GUILayout.MaxWidth(100));
                 //blendval = GUILayout.TextField(blendval,GUILayout.MaxWidth(30));
                 //if(int.TryParse(blendval,out int res))
-                {
-                    BlendValue = res;
-                }
+               // {
+                   // BlendValue = res;
+               // }
 
             }
             GUILayout.EndHorizontal();

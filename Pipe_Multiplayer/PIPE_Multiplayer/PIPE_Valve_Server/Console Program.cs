@@ -54,7 +54,8 @@ namespace PIPE_Valve_Online_Server
 
                 Console.WriteLine("Please enter a name for this server..");
                 Server.SERVERNAME = Console.ReadLine();
-
+                Console.WriteLine("Public Server? y/n");
+                Server.Publicise = Console.ReadLine() == "y" ? true : false;
 
                 Console.WriteLine($"Boot with maxplayers: {Maxplayers}, port: {port}, tick rate: {Constants.TicksPerSec}");
                 Console.ReadLine();

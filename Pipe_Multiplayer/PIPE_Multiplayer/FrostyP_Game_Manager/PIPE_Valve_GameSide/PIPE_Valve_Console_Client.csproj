@@ -84,6 +84,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -155,6 +156,7 @@
     <Compile Include="Half.cs" />
     <Compile Include="HalfHelper.cs" />
     <Compile Include="PlayerSaveData.cs" />
+    <Compile Include="PublicServer.cs" />
     <Compile Include="RemoteBrakeManager.cs" />
     <Compile Include="RemoteLoadManager.cs" />
     <Compile Include="RemotePartMaster.cs" />

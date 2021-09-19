@@ -240,6 +240,12 @@ namespace FrostyP_Game_Manager
 					if(MenuShowing != 5)
                     {
 					MenuShowing = 5;
+                      if (InGameUI.instance.publicisewatch.IsRunning && !InGameUI.instance.Connected)
+                      {
+								StartCoroutine(GameManager.UpdatePublicServers());
+						        InGameUI.instance.publicisewatch.Start();
+
+				      }
                     }
                     else
                     {

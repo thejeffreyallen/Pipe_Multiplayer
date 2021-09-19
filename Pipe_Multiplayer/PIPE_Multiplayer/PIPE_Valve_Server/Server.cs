@@ -27,9 +27,6 @@ namespace PIPE_Valve_Online_Server
     {
 		#region Servers data
 
-		[JsonProperty]
-		public static float VERSIONNUMBER { get;} = 2.16f;
-		public static string SERVERNAME = "PIPE Server";
 		public static List<BanProfile> BanProfiles = new List<BanProfile>();
 		/// <summary>
 		/// Timers linked to connection ID, every message received resets the timer related to the sender of the message, 60second timeout will close the connection
@@ -39,8 +36,6 @@ namespace PIPE_Valve_Online_Server
 		/// Switch For main thread loop
 		/// </summary>
 		static bool isRunning = true;
-		[JsonProperty]
-		public static int MaxPlayers;
 		/// <summary>
 		/// Internal Callbacks etc with info about connection
 		/// </summary>
@@ -69,16 +64,33 @@ namespace PIPE_Valve_Online_Server
 		#endregion
 
 		#region Publicised Data
+		public static string rawlist = "";
 
+		public static bool Publicise;
+		static Stopwatch PubliciseWatch = new Stopwatch();
+
+		[JsonProperty]
+		static int ServerID = 1;
+		static bool Idassigned;
+		public static float VERSIONNUMBER { get;} = 2.15f;
+		[JsonProperty("name")]
+		public static string SERVERNAME = "PIPE Server";
+		[JsonProperty]
+		public static int MaxPlayers;
 		
-		public static int Port = 7777;
-       
+		[JsonProperty]
+		public static string Port = "7777";
+		[JsonProperty]
+		static string IP = "127.0.0.1";
 
-        #endregion
+		#endregion
 
+		static int HubisEmpty;
+		static string url = "https://pipe-multiplayerservers.herokuapp.com/api/servers";
+		static string ServerURL = "https://pipe-multiplayerservers.herokuapp.com/api/server/" + ServerID;
 
-        // creates any data needed at startup
-        public static void Initialise()
+		// creates any data needed at startup
+		public static void Initialise()
         {
 			
 			packetHandlers = new Dictionary<int, PacketHandler>()
@@ -111,40 +123,346 @@ namespace PIPE_Valve_Online_Server
 			};
 
 
+			IP = GetIPAddress();
+			Console.WriteLine("Ip address: " + IP);
+
+
+		}
+
+		public static void GetServerData()
+		{
+			GetAndUpdate(url, ServerURL);
+			
+		}
+
+		async static void GetAndUpdate(string url, string posturl)
+        {
+			using(HttpClient client = new HttpClient())
+            {
+				using(HttpResponseMessage response = await client.GetAsync(url))
+                {
+
+					using(HttpContent content = response.Content)
+                    {
+						string mycontent = await content.ReadAsStringAsync();
+						//Console.WriteLine("Got Server list");
+						rawlist = mycontent;
+
+						// Hub data stored, figure out what my ID should be
+						List<PublicServer> liveservers = new List<PublicServer>();
+
+						//Console.WriteLine("Full Data: " + rawlist);
+
+                        if (rawlist.Length > 4)
+                        {
+
+						HubisEmpty = 0;
+						int start = rawlist.IndexOf("{");
+						int end = rawlist.LastIndexOf('}');
+						if(end != -1)
+                        {
+							rawlist = rawlist.Remove(end);
+                        }
+
+						// Build liveservers list
+						string[] servers = rawlist.Split('}');
+						if (servers != null)
+						{
+							for (int i = 0; i < servers.Length; i++)
+							{
+								int idofserver = -1;
+								if (servers[i].Replace(" ", "").Length > 0)
+								{
+									servers[i] = servers[i].Replace("{", "").Replace("}", "");
+									int ind = servers[i].IndexOf("name");
+									if (ind != -1)
+									{
+										servers[i] = servers[i].Remove(ind, 6);
+									}
+									// Debug.Log("Servers full string: " + servers[i]);
+									string[] data = servers[i].Split(',');
+									List<string> values = new List<string>();
+                                    for (int T = 0; T < data.Length; T++)
+                                    {
+											data[T] = data[T].Replace(" ", "");
+											if(data[T].Length > 0)
+                                            {
+												values.Add(data[T]);
+										       //Console.WriteLine("Value split: " + data[T]);
+                                            }
+                                    }
+									int startid = values[0].IndexOf('"');
+									//Console.WriteLine(startid + " : start");
+									int endid = values[0].IndexOf('"', startid + 1);
+										//Console.WriteLine(endid+ " : end");
+										string id = values[0].Substring(startid, endid-startid);
+										idofserver = int.Parse(id.Replace('"', ' ').Replace(" ", ""));
+
+										values[0] = values[0].Remove(0, endid);
+										string[] built = new string[3];
+									int count = 0;
+									
+										for (int _i = 0; _i < values.Count; _i++)
+										{
+											values[_i] = values[_i].ToLower().Replace('"', ' ').Replace(" ", "").Replace(":", "");
+											if(_i != 0)
+                                            {
+												values[_i] = values[_i].Replace("port", "").Replace("ip", "");
+
+											}
+											if(values[_i]!= " " && values[_i]!= "," && values[_i]!= "")
+                                            {
+                                                if (count < 3)
+                                                {
+												built[count] = values[_i];
+												count++;
+                                                }
+                                            }
+											// Debug.Log($"Server {i}: value{_i}: {data[_i]}");
+										}
+
+										liveservers.Add(new PublicServer(built[0], built[1],built[2],idofserver));
+									
+
+
+								}
+
+							}
+
+                            for (int i = 0; i < liveservers.Count; i++)
+                            {
+								Console.WriteLine($"Server:{liveservers[i].Name} found, HubID: {liveservers[i].Id} ");
+                            }
+
+						}
+
+
+
+							// check if were in the list
+							bool foundus = false;
+							List<int> Ids = new List<int>();
+						    foreach(PublicServer ps in liveservers)
+                            {
+								Ids.Add(ps.Id);
+								if(ps.IP == IP && ps.Name == SERVERNAME)
+                                {
+									foundus = true;
+                                    if (Idassigned)
+                                    {
+									// PUT Request
+                                    }
+                                }
+                            }
+
+                            if (!foundus && !Idassigned)
+                            {
+								ServerID = GiveServerID(Ids);
+								ServerURL = "https://pipe-multiplayerservers.herokuapp.com/api/server/" + ServerID;
+								Idassigned = true;
+								PostRequest(ServerURL);
+							}
+							else if(!foundus && Idassigned)
+                            {
+								PostRequest(ServerURL);
+                            }
+
+						
+
+                        }
+                        else
+                        {
+							Console.WriteLine("Empty list");
+							HubisEmpty++;
+							// buffer because the page can sometimes come back blank
+                            if (HubisEmpty >= 5)
+                            {
+                                if (!Idassigned)
+                                {
+									ServerID = GiveServerID(new List<int>());
+									ServerURL = "https://pipe-multiplayerservers.herokuapp.com/api/server/" + ServerID;
+									Idassigned = true;
+									PostRequest(ServerURL);
+								}
+                                else
+                                {
+									PostRequest(ServerURL);
+								}
+
+                            }
+
+                        }
+
+					}
+
+                }
+
+
+            }
+        }
+
+		async static void PostRequest(string url)
+		{
+            
+			
+			Dictionary<string, string> dict = new Dictionary<string, string>()
+			{
+				{"name",SERVERNAME },
+				{"ip", IP },
+				{"port", Port }
+
+
+			};
+
+                try
+                {
+			       using (HttpContent post = new FormUrlEncodedContent(dict))
+			       {
+				
+			              //post.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+			             using (HttpClient client = new HttpClient())
+			             {
+				             using (HttpResponseMessage response = await client.PostAsync(url,post))
+				             {
+					             // Console.WriteLine(post.Headers);
+					             using (HttpContent content = response.Content)
+					             {
+						            string mycontent = await content.ReadAsStringAsync();
+						           //Console.WriteLine(mycontent);
+						           Console.WriteLine("Hub Status " + response.StatusCode);
+						           //Console.WriteLine(response.RequestMessage);
+
+					             }
+
+				             }
+
+			             }
+
+
+			       }
+
+                }
+                catch (Exception)
+                {
+
+                   
+                }
+
+
+            
+          
+				
+			
+		
+	    }
+
+		async static void DeleteRequest(string url)
+		{
+			Console.WriteLine("Deleting from Hub...");
+			
+			
+				using (HttpClient client = new HttpClient())
+				{
+					using (HttpResponseMessage response = await client.DeleteAsync(url))
+					{
+						
+						using (HttpContent content = response.Content)
+						{
+							string mycontent = await content.ReadAsStringAsync();
+							Console.WriteLine(mycontent);
+							Console.WriteLine(response.StatusCode);
+							Console.WriteLine(response.RequestMessage);
+
+						}
+
+					}
+
+				}
+
 
 			
 
+
+
 		}
 
-		public static void PostRequest()
+		async static void DeleteAndUpdate(string url)
 		{
-			var url = "https://pipe-multiplayerservers.herokuapp.com/api/server/1";
-
-			var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-
-			httpRequest.Method = "POST";
-			httpRequest.AllowWriteStreamBuffering = true;
-			httpRequest.KeepAlive = false;
-
-			httpRequest.Accept = "application/json";
-			httpRequest.ContentType = "application/json";
-
-			   var data = @"{""Id"": 78912,""Server"": ""1"",""IP"": 00.00.00}";
-			;
-           
-			using (var streamWriter = new StreamWriter(httpRequest.GetRequestStream()))
+			
+			using (HttpClient client = new HttpClient())
 			{
-				streamWriter.Write(data);
+				using (HttpResponseMessage response = await client.DeleteAsync(url))
+				{
+
+					using (HttpContent content = response.Content)
+					{
+						string mycontent = await content.ReadAsStringAsync();
+						Console.WriteLine("Hub Status: " + response.StatusCode);
+						PostRequest(ServerURL);
+					}
+
+				}
+
 			}
 
-			var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-			using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-			{
-				var result = streamReader.ReadToEnd();
-			}
 
-			Console.WriteLine(httpResponse.StatusCode);
+
+
+
+
 		}
+
+		/// <summary>
+		/// Give my public IP address
+		/// </summary>
+		/// <returns></returns>
+		static string GetIPAddress()
+		{
+			String address = "";
+			WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
+			using (WebResponse response = request.GetResponse())
+			using (StreamReader stream = new StreamReader(response.GetResponseStream()))
+			{
+				address = stream.ReadToEnd();
+			}
+
+			int first = address.IndexOf("Address: ") + 9;
+			int last = address.LastIndexOf("</body>");
+			address = address.Substring(first, last - first);
+
+			return address;
+		}
+
+		static int GiveServerID(List<int> ids)
+        {
+			bool gotuniquenum = false;
+			bool check = false;
+			int num = -1;
+            while (!gotuniquenum)
+            {
+			Random random = new Random();
+			 int no = random.Next(1, 999);
+                for (int i = 0; i < ids.Count; i++)
+                {
+					if(no == ids[i])
+                    {
+					  check = true;
+                    }
+                }
+
+                if (!check)
+                {
+					num = no;
+					gotuniquenum = true;
+                }
+
+
+            }
+
+
+			return num;
+        }
+
+
 
 		/// <summary>
 		/// Servers Primary thread loop
@@ -153,7 +471,7 @@ namespace PIPE_Valve_Online_Server
 		{
 			Console.Write("Booting...");
 			MaxPlayers = _MaxPlayers;
-			Port = port;
+			Port = port.ToString();
 			// boots up Valve dependencies (GameNetworkingSockets etc)
 			Library.Initialize();
 
@@ -238,7 +556,11 @@ namespace PIPE_Valve_Online_Server
 			const int maxMessages = 256;
 
 			NetworkingMessage[] netMessages = new NetworkingMessage[maxMessages];
+            if (Publicise)
+            {
+			PubliciseWatch.Start();
 
+            }
 
 			// Server Loop
 			while (isRunning)
@@ -318,8 +640,20 @@ namespace PIPE_Valve_Online_Server
 
 				TimeoutCheck();
 				BanReleaseCheck();
-				
 
+                if (Publicise)
+                {
+				// do publicising
+				if(PubliciseWatch.Elapsed.TotalSeconds > 30)
+                {
+					GetServerData();
+					
+
+					PubliciseWatch.Reset();
+					PubliciseWatch.Start();
+                }
+
+                }
 				Thread.Sleep(Constants.MSPerTick);
 				
 			}

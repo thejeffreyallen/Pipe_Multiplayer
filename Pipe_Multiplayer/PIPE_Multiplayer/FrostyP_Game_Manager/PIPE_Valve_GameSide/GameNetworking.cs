@@ -8,6 +8,8 @@ using System.Threading;
 using System.Net;
 using FrostyP_Game_Manager;
 using System.Diagnostics;
+using System.IO;
+
 
 
 
@@ -16,7 +18,7 @@ namespace PIPE_Valve_Console_Client
     public class GameNetworking
     {
 
-		public float VERSIONNUMBER { get; } = 2.16f;
+		public float VERSIONNUMBER { get; } = 2.15f;
 		public static GameNetworking instance;
 		public bool ServerLoopIsRunning = false;
 
@@ -71,8 +73,6 @@ namespace PIPE_Valve_Console_Client
 		public static Dictionary<int, PacketHandler> packetHandlers;
 
 
-		
-		
 
 
 		public void Start()
@@ -202,7 +202,7 @@ namespace PIPE_Valve_Console_Client
 		/// <summary>
 		/// Master connect, takes care of everything except GUI's setup, GUI's connect does setup then calls this
 		/// </summary>
-		 public void ConnectMaster()
+		 public void ConnectMaster(string ip, string port)
         {
             try
             {
@@ -213,11 +213,11 @@ namespace PIPE_Valve_Console_Client
 				utils.SetStatusCallback(status);
 
 				string _ip = ip.Replace(" ", "");
-
+				ushort portno = (ushort)int.Parse(port);
                 try
                 {
 				Address address = new Address();
-			address.SetAddress(_ip,(ushort)port);
+			address.SetAddress(_ip,portno);
 			ServerConnection = Socket.Connect(ref address);
 
                 }
@@ -268,85 +268,7 @@ namespace PIPE_Valve_Console_Client
 		}
 
 
-		/// <summary>
-		/// Uses DNS
-		/// </summary>
-		public void ConnectFrosty()
-		{
-			try
-			{
-				Library.Initialize();
-				utils = new NetworkingUtils();
-				Socket = new NetworkingSockets();
-
-				utils.SetStatusCallback(status);
-
-				
-
-				
-				
-					try
-					{
-						IPHostEntry hostInfo = Dns.GetHostEntry("b6828e9.online-server.cloud");
-						foreach (IPAddress _address in hostInfo.AddressList)
-						{
-							if (_address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-							{
-							FrostyIP = _address.ToString();
-							}
-						}
-					}
-					catch (Exception)
-				    {
-					 FrostyPGamemanager.instance.PopUpMessage("Failed to do DNS lookup, connection okay? Firewall?");
-				    }
-				
-
-
-				Address address = new Address();
-				address.SetAddress(FrostyIP, (ushort)frostyport);
-				ServerConnection = Socket.Connect(ref address);
-				int sendRateMin = 400000;
-				int sendRateMax = 12048576;
-				int sendBufferSize = 40485760;
-				//int MTUDatasize = 600000;
-				//int MTUPacketsize = 600000;
-
-				unsafe
-				{
-					utils.SetConfigurationValue(ConfigurationValue.SendRateMin, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMin));
-					utils.SetConfigurationValue(ConfigurationValue.SendRateMax, ConfigurationScope.ListenSocket, new IntPtr(ServerConnection), ConfigurationDataType.Int32, new IntPtr(&sendRateMax));
-					utils.SetConfigurationValue(ConfigurationValue.SendBufferSize, ConfigurationScope.ListenSocket, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&sendBufferSize));
-					//utils.SetConfigurationValue(ConfigurationValue.MTUDataSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUDatasize));
-					//utils.SetConfigurationValue(ConfigurationValue.MTUPacketSize, ConfigurationScope.Global, IntPtr.Zero, ConfigurationDataType.Int32, new IntPtr(&MTUPacketsize));
-				}
-
-
-				if (ServerThread == null && !ServerLoopIsRunning)
-				{
-					ServerLoopIsRunning = true;
-					ServerThread = new Thread(NetWorkThreadLoop)
-					{
-						IsBackground = true
-					};
-					ServerThread.Start();
-				}
-                if(ServerThread != null && !ServerLoopIsRunning)
-                {
-					ServerLoopIsRunning = true;
-					ServerThread.Start();
-                }
-				
-
-
-			}
-			catch (Exception x)
-			{
-				UnityEngine.Debug.Log("Thread start error   :" + x);
-			}
-
-		}
-
+		
 		/// <summary>
 		/// Master disconnect, closes down all networking
 		/// </summary>

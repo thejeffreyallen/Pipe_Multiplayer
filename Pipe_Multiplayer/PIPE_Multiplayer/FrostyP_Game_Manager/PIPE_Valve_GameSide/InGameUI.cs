@@ -9,6 +9,7 @@ using FrostyP_Game_Manager;
 using UnityEngine.Rendering.PostProcessing;
 using System.Runtime.Serialization.Formatters.Binary;
 using Valve.Sockets;
+using System.Diagnostics;
 
 
 
@@ -151,6 +152,12 @@ namespace PIPE_Valve_Console_Client
         float movespeed;
         float rotatespeed;
 
+        public Stopwatch publicisewatch = new Stopwatch();
+        public List<PublicServer> Publicservers = new List<PublicServer>();
+        public bool UpdatingServerlist;
+        Vector2 publicserverscroll;
+        Vector2 savedserverscroll;
+
 
         private void Awake()
         {
@@ -162,7 +169,7 @@ namespace PIPE_Valve_Console_Client
             }
             else if (instance != this)
             {
-                Debug.Log("IngameUI already exists, destroying old InGameUI now");
+                UnityEngine.Debug.Log("IngameUI already exists, destroying old InGameUI now");
                 Destroy(this);
             }
 
@@ -451,6 +458,22 @@ namespace PIPE_Valve_Console_Client
             CamModes[cyclemodes]();
 
             }
+
+
+            if (!Connected)
+            {
+                if(FrostyPGamemanager.instance.MenuShowing == 5)
+                {
+                UpdateServerData();
+                }
+                else
+                {
+                    if (publicisewatch.IsRunning)
+                    {
+                        publicisewatch.Reset();
+                    }
+                }
+            }
         }
 
         void OnGUI()
@@ -513,7 +536,7 @@ namespace PIPE_Valve_Console_Client
             }
             catch (Exception x)
             {
-                Debug.Log("ingameui error: " + x);
+                UnityEngine.Debug.Log("ingameui error: " + x);
             }
 
             
@@ -526,6 +549,7 @@ namespace PIPE_Valve_Console_Client
             if (OfflineMenu)
             {
                 ClientsOfflineMenu();
+                ShowPublicServers();
             }
             if (OnlineMenu)
             {
@@ -540,10 +564,10 @@ namespace PIPE_Valve_Console_Client
         /// <summary>
         /// Master Call to connect, also turns connected to true which some data sends have as their/one of their conditions
         /// </summary>
-        public void ConnectToServer()
+        public void ConnectToServer(string ip, string port)
         {
            
-            GameNetworking.instance.ConnectMaster();
+            GameNetworking.instance.ConnectMaster(ip,port);
             Connected = true;
           
         }
@@ -601,14 +625,14 @@ namespace PIPE_Valve_Console_Client
             }
             catch (Exception x)
             {
-                Debug.Log("MP Disconnect error: " + x);
+                UnityEngine.Debug.Log("MP Disconnect error: " + x);
             }
 
         }
         
         public void ClientsOfflineMenu()
         {
-
+           
             GUI.skin = skin;
             GUILayout.BeginArea(new Rect(new Vector2(Screen.width/3,Screen.height/4), new Vector2(Screen.width/3,Screen.height/2)),BoxStyle);
             GUILayout.Space(10);
@@ -685,11 +709,11 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (Exception x)
                 {
-                    Debug.Log("Cant find scene name  : " + x);
+                    UnityEngine.Debug.Log("Cant find scene name  : " + x);
                 }
 
                
-                ConnectToServer();
+                ConnectToServer(desiredIP,desiredport);
                 OnlineMenu = true;
                 OfflineMenu = false;
 
@@ -697,65 +721,9 @@ namespace PIPE_Valve_Console_Client
                
             }
             GUILayout.Space(5);
-
-
-            if (GUILayout.Button("Connect to FrostyP (UK)"))
-            {
-                
-                InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Trying FrostyP..", 1, 0));
-                if (File.Exists(Playersavepath + "PlayerData.FrostyPreset"))
-                {
-                    PlayerSavedata = new PlayerSaveData(Username);
-                    BinaryFormatter bf = new BinaryFormatter();
-                    Stream _stream;
-                    _stream = File.OpenWrite(Playersavepath + "PlayerData.FrostyPreset");
-                    bf.Serialize(_stream, PlayerSavedata);
-                    _stream.Close();
-
-                }
-
-
-                // detects if ridermodel has changed from daryien and if so re-aligns to be tracking new rig and updates modelname and bundlename
-                LocalPlayer.RiderTrackingSetup();
-
-                if (LocalPlayer.RiderModelname == "Daryien")
-                {
-                    if (CharacterModding.instance.LoadRiderSetup() == 0)
-                    {
-                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Couldn't load Daryien Save, Select a texture for all Daryien parts and save for sync of custom Daryien", 4, 0));
-                    }
-                    else
-                    {
-
-                        InGameUI.instance.NewMessage(Constants.SystemMessageTime, new TextMessage("Loaded Daryien's Save", 4, 0));
-                    }
-
-                }
-
-
-
-                try
-                {
-                    GameManager.instance.GetLevelName();
-                }
-                catch (Exception x)
-                {
-                    Debug.Log("Cant find scene name  : " + x);
-                }
-               
-                GameNetworking.instance.ConnectFrosty();
-                Connected = true;
-                OnlineMenu = true;
-                OfflineMenu = false;
-
-
-
-
-            }
             GUILayout.EndHorizontal();
-            GUILayout.Space(40);
-
-                GUILayout.Space(15);
+           
+                GUILayout.Label("Saved servers:");
                 GUILayout.BeginHorizontal();
                 if(GUILayout.Button($"Save current setup as"))
                 {
@@ -777,9 +745,8 @@ namespace PIPE_Valve_Console_Client
                 Nickname = GUILayout.TextField(Nickname);
                 GUILayout.EndHorizontal();
                 GUILayout.Space(10);
-
-                GUILayout.Label("Saved servers:");
-                GUILayout.Space(10);
+            savedserverscroll = GUILayout.BeginScrollView(savedserverscroll);
+            GUILayout.Space(10);
                 if (PlayerSavedata != null && PlayerSavedata.savedservers != null)
                 {
                 GUIStyle removestyle = new GUIStyle();
@@ -814,7 +781,8 @@ namespace PIPE_Valve_Console_Client
                  GUILayout.EndScrollView();
                 }
 
-            GUILayout.Space(35);
+
+            GUILayout.EndScrollView();
             GUILayout.Space(40);
             if (GUILayout.Button("Close"))
             {
@@ -826,6 +794,45 @@ namespace PIPE_Valve_Console_Client
            
             
         }
+
+        public void ShowPublicServers()
+        {
+            GUI.skin = skin;
+            GUILayout.BeginArea(new Rect(new Vector2(Screen.width - (Screen.width/5) - 10,(Screen.height - (Screen.height/1.2f)) /2), new Vector2(Screen.width / 5, Screen.height / 1.2f)), BoxStyle);
+
+            GUILayout.Space(30);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Public Servers:");
+            if (GUILayout.Button("Refresh"))
+            {
+                StopCoroutine(GameManager.UpdatePublicServers());
+                StartCoroutine(GameManager.UpdatePublicServers());
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Space(20);
+            GUILayout.BeginScrollView(publicserverscroll);
+            if (UpdatingServerlist)
+            {
+                GUILayout.Label("Updating list...");
+            }
+            else
+            {
+                if (Publicservers.Count > 0)
+                {
+                    for (int i = 0; i < Publicservers.Count; i++)
+                    {
+                        ShowPublicServerButton(Publicservers[i]);
+                    }
+                }
+
+            }
+            GUILayout.EndScrollView();
+
+
+            GUILayout.Space(10);
+            GUILayout.EndArea();
+        }
+
 
         public void ClientsOnlineMenu()
         {
@@ -1300,7 +1307,7 @@ namespace PIPE_Valve_Console_Client
                     catch (Exception x)
                     {
                        
-                      Debug.Log($"Assign text style error, player left? : {x}");
+                      UnityEngine.Debug.Log($"Assign text style error, player left? : {x}");
                     }
 
                 }
@@ -1496,7 +1503,7 @@ namespace PIPE_Valve_Console_Client
                 }
                 catch (Exception x)
                 {
-                    Debug.Log("Showriderinfo Error : " + x);
+                    UnityEngine.Debug.Log("Showriderinfo Error : " + x);
                 }
               
 
@@ -1716,7 +1723,7 @@ namespace PIPE_Valve_Console_Client
                      }
                      catch (Exception x)
                      {
-                       Debug.Log("Live Rider issue : " + x);
+                       UnityEngine.Debug.Log("Live Rider issue : " + x);
                      }
 
                      }
@@ -1733,7 +1740,7 @@ namespace PIPE_Valve_Console_Client
             }
             catch (Exception x)
             {
-                Debug.Log("Live Riders Show Error : " + x);
+                UnityEngine.Debug.Log("Live Riders Show Error : " + x);
             }
             GUILayout.Space(50);
         }
@@ -1811,7 +1818,7 @@ namespace PIPE_Valve_Console_Client
                     }
                     catch (UnityException x)
                     {
-                        Debug.Log("Text area error : " + x);
+                        UnityEngine.Debug.Log("Text area error : " + x);
                     }
                     GUILayout.Space(5);
                     if (GUILayout.Button("Send",send))
@@ -1867,7 +1874,7 @@ namespace PIPE_Valve_Console_Client
             }
             catch(Exception e)
             {
-                Debug.Log(e);
+                UnityEngine.Debug.Log(e);
             }
         }
 
@@ -2435,6 +2442,36 @@ namespace PIPE_Valve_Console_Client
             GUILayout.EndArea();
         }
 
+        void ShowPublicServerButton(PublicServer server)
+        {
+            GUILayout.Space(5);
+            if(GUILayout.Button(server.Name))
+            {
+                ConnectToServer(server.IP, server.Port);
+                OnlineMenu = true;
+                OfflineMenu = false;
+            }
+           
+        }
+
+        void UpdateServerData()
+        {
+            if (publicisewatch.Elapsed.TotalSeconds > 10)
+            {
+                StartCoroutine(GameManager.UpdatePublicServers());
+                publicisewatch.Reset();
+                publicisewatch.Start();
+            }
+            else if (!publicisewatch.IsRunning)
+            {
+                publicisewatch.Reset();
+                publicisewatch.Start();
+            }
+        }
+
+        
+
+
     }
 
     /// <summary>
@@ -2447,6 +2484,7 @@ namespace PIPE_Valve_Console_Client
         Player = 3,
         Server = 4,
     }
+
 
 
 }

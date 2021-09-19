@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-
+using UnityEngine.Networking;
 
 namespace PIPE_Valve_Console_Client
 {
@@ -57,6 +57,9 @@ namespace PIPE_Valve_Console_Client
 
         // Panoramic skybox shader
         public static Material PanoMat;
+
+        public int ServersActive;
+        public string ServerList = "No Servers Active";
 
 
         //initialize mapImporter
@@ -128,7 +131,7 @@ namespace PIPE_Valve_Console_Client
             PanoMat = FrostyAssets.LoadAsset("Skybox") as Material;
             Component.FindObjectsOfType<SessionMarker>()[0].OnSetAtMarker.AddListener(DontWipeOutPlayersOnReset);
 
-          
+            StartCoroutine(UpdatePublicServers());
         }
 
         void Update()
@@ -1113,14 +1116,116 @@ namespace PIPE_Valve_Console_Client
             return false;
         }
 
-       
+        public void SortServerListData(string rawlist)
+        {
+            // break strings apart, determine how many servers are live and build publicserver classes to store info for GUI to show
+            List<PublicServer> liveservers = new List<PublicServer>();
+
+            try
+            {
+               // Debug.Log("Raw List: " + rawlist);
+            int servercount = 0;
+            int start = rawlist.IndexOf("{");
+            int end = rawlist.IndexOf('}');
+            string[] servers = rawlist.Split('}');
+             if(servers != null)
+             {
+                  for (int i = 0; i < servers.Length; i++)
+                  {
+                        if (servers[i].Replace(" ","").Length > 0)
+                        {
+                    servers[i] = servers[i].Replace("{", "").Replace("}", "");
+                            int ind = servers[i].IndexOf("name");
+                            if(ind != -1)
+                            {
+                            servers[i] = servers[i].Remove(0, ind + 6);
+                            }
+                   // Debug.Log("Servers full string: " + servers[i]);
+                     string[] data = servers[i].Split(',');
+                        if(data != null && data.Length > 0)
+                        {
+                        for (int _i = 0; _i < data.Length; _i++)
+                        {
+                            data[_i] = data[_i].ToLower().Replace('"', ' ').Replace(" ","").Replace(":","");
+                                    if(_i != 0)
+                                    {
+                                        data[_i] = data[_i].Replace("port", "").Replace("ip", "");
+                                    }
+                           // Debug.Log($"Server {i}: value{_i}: {data[_i]}");
+                        }
+
+                        }
+                        if (data.Length > 2)
+                        {
+                         liveservers.Add(new PublicServer(data[0], data[1], data[2]));
+                        }
+
+
+                        }
+
+                  }
+
+             }  
+               servercount = servers.Length;
+                foreach(PublicServer pser in liveservers)
+                {
+                 UnityEngine.Debug.Log($"Live Server: {pser.Name} : {pser.IP} : {pser.Port}"); 
+                }
+
+                // give list to GUI
+            InGameUI.instance.Publicservers = liveservers;
+
+
+            }
+            catch (System.Exception x)
+            {
+                Debug.Log(x);
+            }
+
+        }
+
+
+        public static IEnumerator UpdatePublicServers()
+        {
+            InGameUI.instance.UpdatingServerlist = true;
+            UnityEngine.Debug.Log("server list update");
+            UnityWebRequest www = UnityWebRequest.Get("https://pipe-multiplayerservers.herokuapp.com/api/servers"); 
+            while (!www.isDone)
+            {
+
+                    yield return www.SendWebRequest();
+
+                    if (www.isNetworkError || www.isHttpError)
+                    {
+                    UnityEngine.Debug.Log("server list error");
+                    yield return new WaitForSeconds(5);
+                    }
+                    else
+                    {
+                       
+                        yield return new WaitForEndOfFrame();
+
+                      var serverlist = www.downloadHandler.text;
+                       // give raw list and sort into seperate servers data
+                       if(serverlist != null) instance.SortServerListData(serverlist);
+                       InGameUI.instance.UpdatingServerlist = false;
+
+                        
+                    }
+                
+               
+            }
+
+        }
+
+
 
     }
 
 
 
 
-   
+
 
 
 }

@@ -76,6 +76,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublicServer.cs" />
     <Compile Include="SaveData.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="ServerSend.cs" />
