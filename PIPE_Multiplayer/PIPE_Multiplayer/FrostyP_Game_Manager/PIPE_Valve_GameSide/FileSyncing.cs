@@ -196,6 +196,7 @@ namespace PIPE_Valve_Console_Client
             int gdata = path.ToLower().LastIndexOf("game data");
             string mypath = path.Remove(0, gdata + 10) + "/";
 
+            // if filesize too big, satisfy request to end receive
             if(Totalbytes > 400000000)
             {
                 ClientSend.FileStatus(name, 1);
@@ -225,7 +226,7 @@ namespace PIPE_Valve_Console_Client
             }
             else
             {
-                name = tempfinfo.Name;
+                name = tempfinfo.Name.Replace(".temp","");
             }
 
             // grab Receive index and FileStream

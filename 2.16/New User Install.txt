@@ -28,3 +28,5 @@ Dedicated Server:
 4) To connect to a Server on your LAN(connected to your router) use the localIP of that PC(192.168.???.???) with chosen port.
 
 5) To connect to a remote server use the ExternalIP of that router/access point with chosen port.
+
+6) If a client connects using a lower version of the mod they'll be offered the files from Server/GameData/FrostyPGameManager/Updates/[VersionofthisMod], the files in this folder should match the files in PIPEGame/Mods/FrostyPGameManager/

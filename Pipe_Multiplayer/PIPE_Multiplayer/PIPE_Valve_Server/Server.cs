@@ -72,7 +72,7 @@ namespace PIPE_Valve_Online_Server
 		[JsonProperty]
 		static int ServerID = 1;
 		static bool Idassigned;
-		public static float VERSIONNUMBER { get;} = 2.15f;
+		public static float VERSIONNUMBER { get;} = 2.16f;
 		[JsonProperty("name")]
 		public static string SERVERNAME = "PIPE Server";
 		[JsonProperty]

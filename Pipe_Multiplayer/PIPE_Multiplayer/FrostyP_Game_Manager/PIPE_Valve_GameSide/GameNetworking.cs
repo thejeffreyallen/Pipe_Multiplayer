@@ -18,7 +18,7 @@ namespace PIPE_Valve_Console_Client
     public class GameNetworking
     {
 
-		public float VERSIONNUMBER { get; } = 2.15f;
+		public float VERSIONNUMBER { get; } = 2.16f;
 		public static GameNetworking instance;
 		public bool ServerLoopIsRunning = false;
 
