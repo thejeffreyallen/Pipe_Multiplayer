@@ -2,10 +2,13 @@ FrostyP Pipe Manager update
 
 New to 2.16:
 
-*Public servers
-
+* Publicised server option
 Any running server app's currently posting to the hub will show in game
 Port forward still required for remote players to connect
+
+* Snap to floor - Parkbuilder mode
+
+* Replay fixes, speed markers
 
 
 
@@ -22,3 +25,5 @@ Server setup additional steps:
 * if you have multiple servers on the same IP, name them differently to have them show seperatly
 
 * enter "y" when asked to publicise server.
+
+* enter "n" for default API hub or "y" to specify POST,PUT addresses and Api key

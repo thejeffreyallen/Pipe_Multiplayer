@@ -1,0 +1,12 @@
+{
+  "Id": "Pipe Manager - FrostyP",
+  "DisplayName": "FrostyP Gamemanager",
+  "Author": "Frosty P",
+  "Version": "2.15",
+  "ManagerVersion": "0.20.0",
+  "GameVersion": "1.9.9",
+  "Requirements": [ "TheGarage2" ],
+  "LoadAfter": [ "TheGarage2" ],
+  "AssemblyName": "FrostyP_Game_Manager.dll",
+  "EntryMethod": "FrostyP_Game_Manager.Main.Load"
+}
