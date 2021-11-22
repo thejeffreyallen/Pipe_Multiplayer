@@ -58,6 +58,9 @@ namespace PIPE_Multiplayer
         // Panoramic skybox shader
         public static Material PanoMat;
 
+        // replaycam object
+        public static GameObject SLRcam;
+
         public int ServersActive;
         public string ServerList = "No Servers Active";
         public static string GetUrl = "https://pipe-bmx-api.herokuapp.com/servers";
@@ -130,18 +133,20 @@ namespace PIPE_Multiplayer
             }
 
 
-            
+            FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
+            Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
+            Prefab.AddComponent<RemotePlayer>();
+            wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
+            PanoMat = FrostyAssets.LoadAsset("Skybox") as Material;
+            SLRcam = FrostyAssets.LoadAsset("SLRCam") as GameObject;
+
+
         }
 
         // Use this for initialization
         void Start()
         {
            
-            FrostyAssets = AssetBundle.LoadFromFile(Application.dataPath + "/FrostyPGameManager/FrostyMultiPlayerAssets");
-            Prefab = FrostyAssets.LoadAsset("PlayerPrefab") as GameObject;
-            Prefab.AddComponent<RemotePlayer>();
-            wheelcolliderobj = FrostyAssets.LoadAsset("WheelCollider") as GameObject;
-            PanoMat = FrostyAssets.LoadAsset("Skybox") as Material;
             Component.FindObjectsOfType<SessionMarker>()[0].OnSetAtMarker.AddListener(DontWipeOutPlayersOnReset);
 
             StartCoroutine(UpdatePublicServers());
@@ -312,17 +317,17 @@ namespace PIPE_Multiplayer
             }
         }
 
-        public void SpawnRider(uint _id, string _username, string currentmodel,string modelbundlename, Vector3 _position, Vector3 _rotation, string Currentmap, GearUpdate Gear, List<NetGameObject> Objects)
+        public void SpawnRider(SpawnRiderConfig config)
         {
-            Debug.Log($"Spawning : {_username} as {currentmodel}, Id: {_id}");
+            Debug.Log($"Spawning : {config._username} as {config.currentmodel}, Id: {config._id}");
 
             // checki if exists already
             foreach(RemotePlayer player in Players.Values)
             {
-               if(player.id == _id)
+               if(player.id == config._id)
                {
                     // player already exists, clean out first
-                    CleanUpOldPlayer(_id);
+                    CleanUpOldPlayer(config._id);
 
                }
             }
@@ -331,33 +336,33 @@ namespace PIPE_Multiplayer
                     GameObject NewRider = GameObject.Instantiate(Prefab);
                     DontDestroyOnLoad(NewRider);
                     RemotePlayer r = NewRider.GetComponent<RemotePlayer>();
-                    Players.Add(_id, r);
+                    Players.Add(config._id, r);
                     NewRider.AddComponent<RemotePartMaster>();
                     NewRider.AddComponent<RemoteBrakesManager>();
-                    r.CurrentModelName = currentmodel;
-                    NewRider.name = _username + _id.ToString();
-                    r.Modelbundlename = modelbundlename;
-                    r.id = _id;
-                    r.username = _username;
-                    r.CurrentMap = Currentmap;
-                    r.Gear = Gear;
-                    r.Objects = Objects;
-                    r.StartupPos = _position;
-                    r.StartupRot = _rotation;
+                    r.CurrentModelName = config.currentmodel;
+                    NewRider.name = config._username + config._id.ToString();
+                    r.Modelbundlename = config.modelbundlename;
+                    r.id = config._id;
+                    r.username = config._username;
+                    r.CurrentMap = config.Currentmap;
+                    r.Gear = config.Gear;
+                    r.Objects = config.Objects;
+                    r.StartupPos = config._position;
+                    r.StartupRot = config._rotation;
 
 
             // file checks
-            FileSyncing.CheckForMap(Currentmap, _username);
-            if (Gear.RiderTextures.Count > 0)
+            FileSyncing.CheckForMap(config.Currentmap, config._username);
+            if (config.Gear.RiderTextures.Count > 0)
             {
-            for (int i = 0; i < Gear.RiderTextures.Count; i++)
+            for (int i = 0; i < config.Gear.RiderTextures.Count; i++)
             {
-                if(Gear.RiderTextures[i].Nameoftexture.ToLower() != "stock" && Gear.RiderTextures[i].Nameoftexture.ToLower() != "e")
+                if(config.Gear.RiderTextures[i].Nameoftexture.ToLower() != "stock" && config.Gear.RiderTextures[i].Nameoftexture.ToLower() != "e")
                 {
                    
-                    if (!FileSyncing.CheckForFile(Gear.RiderTextures[i].Nameoftexture, Gear.RiderTextures[i].Directory))
+                    if (!FileSyncing.CheckForFile(config.Gear.RiderTextures[i].Nameoftexture, config.Gear.RiderTextures[i].Directory))
                     {
-                    FileSyncing.AddToRequestable(1, Gear.RiderTextures[i].Nameoftexture.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), _id,Gear.RiderTextures[i].Directory);
+                    FileSyncing.AddToRequestable(1, config.Gear.RiderTextures[i].Nameoftexture.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), config._id, config.Gear.RiderTextures[i].Directory);
                     }
 
                 }
@@ -365,18 +370,18 @@ namespace PIPE_Multiplayer
 
             }
 
-            if(currentmodel != "Daryien")
+            if(config.currentmodel != "Daryien")
             {
-              if (!FileSyncing.CheckForFile(currentmodel,PlayerModelsDir))
+              if (!FileSyncing.CheckForFile(config.currentmodel,PlayerModelsDir))
               {
-                FileSyncing.AddToRequestable(3,currentmodel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), _id,PlayerModelsDir);
+                FileSyncing.AddToRequestable(3, config.currentmodel.Replace("_", " ").Replace("(1)", "").Replace("(2)", "").Replace("(3)", ""), config._id,PlayerModelsDir);
               }
 
             }
 
 
 
-            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(_username + RandomMessageOnSpawn[Random.Range(0, RandomMessageOnSpawn.Count - 1)], (int)MessageColourByNum.Player, _id));
+            InGameUI.instance.NewMessage(Constants.ServerMessageTime, new TextMessage(config._username + RandomMessageOnSpawn[Random.Range(0, RandomMessageOnSpawn.Count - 1)], (int)MessageColourByNum.Player, config._id));
 
             Debug.Log("Spawn finished");
 
@@ -1224,6 +1229,10 @@ namespace PIPE_Multiplayer
             InGameUI.instance.OfflineMenu = false;
         }
 
+        /// <summary>
+        /// Do get request on timer and give raw data to SortServerList to be added to list of available servers
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerator UpdatePublicServers()
         {
             InGameUI.instance.UpdatingServerlist = true;
@@ -1257,7 +1266,11 @@ namespace PIPE_Multiplayer
             }
 
         }
-
+        /// <summary>
+        /// A public server was clicked, get details and send to SortServerRequest
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static IEnumerator RequestServerConnection(string name)
         {
             int count = 0;
@@ -1298,7 +1311,19 @@ namespace PIPE_Multiplayer
         }
 
 
+        public struct SpawnRiderConfig
+        {
+            public uint _id;
+            public string _username;
+            public string currentmodel;
+            public string modelbundlename;
+            public Vector3 _position;
+            public Vector3 _rotation;
+            public string Currentmap;
+            public GearUpdate Gear;
+            public List<NetGameObject> Objects;
 
+        }
 
     }
 

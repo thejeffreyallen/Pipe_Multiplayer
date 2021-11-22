@@ -105,7 +105,17 @@ namespace PIPE_Multiplayer
             _gear.RiderTextures = RiderTextures;
             _gear.Capisforward = capforward;
             _gear.GarageSave = garagesave;
-            GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel,RidermodelBundlename, Riderposition, RiderRotation,currentmap,_gear,objects);
+            GameManager.SpawnRiderConfig config = new GameManager.SpawnRiderConfig();
+            config.Currentmap = currentmap;
+            config._id = playerid;
+            config._username = playerusername;
+            config.currentmodel = CurrentModel;
+            config.modelbundlename = RidermodelBundlename;
+            config._position = Riderposition;
+            config._rotation = RiderRotation;
+            config.Gear = _gear;
+            config.Objects = objects;
+            GameManager.instance.SpawnRider(config);
 
             LocalPlayer.instance.ServerActive = true;
            
@@ -195,7 +205,17 @@ namespace PIPE_Multiplayer
                 _gear.GarageSave = garagesave;
                 _gear.Capisforward = capforward;
                 _gear.RiderTextures = RiderTextures;
-                GameManager.instance.SpawnRider(playerid, playerusername, CurrentModel, RidermodelBundlename, Riderposition, RiderRotation, currentmap, _gear,objects);
+                GameManager.SpawnRiderConfig config = new GameManager.SpawnRiderConfig();
+                config.Currentmap = currentmap;
+                config._id = playerid;
+                config._username = playerusername;
+                config.currentmodel = CurrentModel;
+                config.modelbundlename = RidermodelBundlename;
+                config._position = Riderposition;
+                config._rotation = RiderRotation;
+                config.Gear = _gear;
+                config.Objects = objects;
+                GameManager.instance.SpawnRider(config);
 
 
             }

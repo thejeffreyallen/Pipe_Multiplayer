@@ -120,3 +120,5 @@ E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_Game
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\obj\Release\PIPE_Multiplayer.pdb
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\BikeWorkshopMenu.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\BikeWorkshopMenu.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\FrostyP_Game_Manager.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PIPE_Valve_GameSide\bin\Release\FrostyP_Game_Manager.pdb

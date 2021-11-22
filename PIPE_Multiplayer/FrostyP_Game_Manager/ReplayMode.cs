@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,20 +19,6 @@ namespace FrostyP_Game_Manager
         Vector3[] Currentpositions;
         Vector3[] Currentrotations;
         Transform[] MyRidersTrans;
-        public static List<ReplayPosition> MyPlayerPositions = new List<ReplayPosition>();
-        public static List<ReplayPosition> CamMarkers = new List<ReplayPosition>();
-        public bool ReplayOpen = false;
-        public bool LookAtPlayer = true;
-        public int CurrentShowingPosition;
-        public int CurrentCamPosition;
-        public int CurrentCamTargetPosition = 1;
-        public bool PlayThrough;
-        public int StartFrame;
-        public int EndFrame;
-        public bool PlayEditToggle;
-        public string ModeDisplay = "Play Mode";
-        public string LookatDisplay = "Look at Player";
-        public bool OpenCamSettings;
         Vector2 MarkerScroll;
         GUIStyle Offstyle;
         GUIStyle OnStyle;
@@ -39,40 +26,91 @@ namespace FrostyP_Game_Manager
         GUIStyle CamMarkerstyle;
         GUIStyle Playstyle;
 
-        float movespeed;
-        float rotatespeed;
+
+        public static List<ReplayMark> MyPlayerPositions = new List<ReplayMark>();
+        public static List<ReplayMark> CamMarkers = new List<ReplayMark>();
+        public bool ReplayOpen = false;
+        public bool LookAtPlayer = true;
+        public int CurrentShowingPosition;
+        public int lastcampos;
+        public int camtargetpos = 1;
+        public bool PlayThrough;
+        public int StartFrame;
+        public int EndFrame;
+        public bool PlayEditToggle;
+        public string ModeDisplay = "Play Mode";
+        public string LookatDisplay = "Look at Player";
+        public bool OpenCamSettings;
+
+        float Free_cam_moveSpeed;
+        float Free_cam_rotSpeed;
         float TriggerPlaySpeed;
-        float SetSpeed = 0.5f;
+        float PlayingSpeed = 0.5f;
         float OriginalSpeed;
 
+        bool TriggerPressed;
         bool moveforward;
         bool moveback;
 
         // Camera position based on frame and markers
-        Quaternion currentrot;
         float Camspan = 0.001f;
         float RemovedCamSpan = 0.001f;
         bool CammarkersOpen = false;
-        ReplayPosition activemarker;
-        int BlendValue = 0;
-        string blendval = "0";
+        ReplayMark activemarker;
+        int SmoothLineVal = 1;
         string speedframein = "5";
         string speedframeout = "5";
         string Speedatmarker = "0.2";
 
-        Dictionary<ReplayPosition.SlowMoStyle,string> SlowMoLabels;
+        List<string> SlowMoLabels;
 
-
-
-
+        /// <summary>
+        /// Object sticks to path exactly as determined, cam follows smoothly
+        /// </summary>
+        GameObject FollowObject;
+        Transform[] Camobjs;
+        GameObject baselinerenderer;
+        GameObject smoothlinerenderer;
+        LineRenderer baseline;
+        List<GameObject> baselinechildren;
+        LineRenderer smoothline;
+        bool LineActive = true;
+        bool CamVisible = true;
+        /// <summary>
+        /// Cammarkers after being subdivided
+        /// </summary>
+        Vector3[] smoothedpoints;
+        int smoothpostarget;
+        Vector3[] originalpoints;
+        float FullclipTime;
+        float timeelapsed = 0;
+        /// <summary>
+        /// used to determine linerenderer colours, to viualise the camera's speed between markers and specifically the even-ness of the speed along the line
+        /// </summary>
+        float Average_time_span_between_cam_markers;
+        float Average_distance_between_cam_markers;
 
         bool HideGUI;
-        System.Diagnostics.Stopwatch ReplayWatch = new System.Diagnostics.Stopwatch();
-        float remaining = 0.001f;
-        float removed = 0.01f;
+
+        /// <summary>
+        /// When replay is closed watch is running, a replayposition is recorded for every rider at the same with this same clock, passing in the elapsed seconds since the last position was recorded, used to keep syncronization of all riders and cam
+        /// </summary>
+        System.Diagnostics.Stopwatch Recording_watch = new System.Diagnostics.Stopwatch();
+        /// <summary>
+        /// when we reach a target position, we reset to new target and load up this float with the full time span over which to reach the new target
+        /// </summary>
+        float Interp_time_to_next = 0.001f;
+        /// <summary>
+        /// how much time it should take to go backwards to the marker we were just at, as we reach a marker, this value ends up being the full time_remaining
+        /// </summary>
+        float Interp_time_to_last = 0.001f;
+       
 
         public void Open()
         {
+            if (FollowObject == null && GameManager.SLRcam != null) FollowObject = Instantiate(GameManager.SLRcam);
+
+
             Debug.Log("Replay opening.");
             if (InGameUI.instance.Connected)
             {
@@ -89,14 +127,14 @@ namespace FrostyP_Game_Manager
 
             StartFrame = 0;
             EndFrame = MyPlayerPositions.Count - 1;
-
+            CurrentShowingPosition = EndFrame;
+            timeelapsed = 0;
 
 
             ReplayCam.SetActive(true);
             ReplayCam.transform.position = Camera.main.gameObject.transform.position;
             ReplayCam.transform.rotation = Camera.main.gameObject.transform.rotation;
 
-            CurrentShowingPosition = MyPlayerPositions.Count - 1;
             MyMan = GetPlayer();
             MyBmx = GetBmx();
             MyMan.transform.position = LocalPlayer.instance.ActiveModel.transform.position;
@@ -107,13 +145,13 @@ namespace FrostyP_Game_Manager
             _MG = new MGInputManager();
 
 
-
-
+            Interp_time_to_last = MyPlayerPositions[EndFrame].Time_span_seconds;
+            Interp_time_to_next = 0;
             // if online, pause comms but send keepalive packets
 
 
             ReplayOpen = true;
-            ReplayWatch.Stop();
+            Recording_watch.Stop();
             Debug.Log("open");
         }
         public void Close()
@@ -132,20 +170,20 @@ namespace FrostyP_Game_Manager
             _MG = null;
             FrostyPGamemanager.instance.MenuShowing = 0;
             FrostyPGamemanager.instance.OpenMenu = true;
-            ReplayWatch.Start();
+            Recording_watch.Start();
         }
 
 
         void PlayerFreeCam()
         {
-            movespeed = 10;
-            rotatespeed = 50;
+            Free_cam_moveSpeed = 10;
+            Free_cam_rotSpeed = 50;
 
             if (!MGInputManager.LB_Hold())
             {
               if (MGInputManager.LStickX() > 0.2f | MGInputManager.LStickX() < -0.2f | MGInputManager.LStickY() > 0.2f | MGInputManager.LStickY() < -0.2f | MGInputManager.RStickY() > 0.2f | MGInputManager.RStickY() < -0.2f)
               {
-                ReplayCam.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * movespeed, MGInputManager.RStickY() * Time.deltaTime * movespeed, MGInputManager.LStickY() * Time.deltaTime * movespeed);
+                ReplayCam.transform.Translate(MGInputManager.LStickX() * Time.deltaTime * Free_cam_moveSpeed, MGInputManager.RStickY() * Time.deltaTime * Free_cam_moveSpeed, MGInputManager.LStickY() * Time.deltaTime * Free_cam_moveSpeed);
               }
 
                 if (LookAtPlayer && !PlayEditToggle)
@@ -156,7 +194,7 @@ namespace FrostyP_Game_Manager
             }
             else if (!LookAtPlayer && !PlayEditToggle)
             {
-                ReplayCam.transform.Rotate(-MGInputManager.LStickY() * Time.deltaTime * rotatespeed, MGInputManager.LStickX() * Time.deltaTime * rotatespeed, -MGInputManager.RStickX() * Time.deltaTime * rotatespeed);
+                ReplayCam.transform.Rotate(-MGInputManager.LStickY() * Time.deltaTime * Free_cam_rotSpeed, MGInputManager.LStickX() * Time.deltaTime * Free_cam_rotSpeed, -MGInputManager.RStickX() * Time.deltaTime * Free_cam_rotSpeed);
             }
             
 
@@ -164,105 +202,137 @@ namespace FrostyP_Game_Manager
 
         void TriggerScrollEditMode()
         {
-
-
-            if (MGInputManager.LTrigger() > 0.05f)
+            if (moveback)
             {
                 TriggerPlaySpeed = MGInputManager.LTrigger();
-
-
-                if (CurrentShowingPosition - 1 != StartFrame)
-                {
-
-                    if (remaining < (Time.deltaTime * TriggerPlaySpeed / 2))
-                    {
-
-                        if (CurrentShowingPosition <= StartFrame)
-                        {
-                            CurrentShowingPosition = StartFrame;
-                        }
-                        else
-                        {
-                            CurrentShowingPosition--;
-                            remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.00001f, 0.1f);
-
-                        }
-
-
-                    }
-
-
-                }
-
-
-
+                MoveCamFollowerThroughMarkers(false,false);
+                InterpolateRiders(false, false, TriggerPlaySpeed, Interp_time_to_last);
+                timeelapsed = timeelapsed - (Time.deltaTime * TriggerPlaySpeed);
+                if (timeelapsed < 0) timeelapsed = 0;
             }
-            else if (MGInputManager.RTrigger() > 0.05f)
+            else if (moveforward)
             {
                 TriggerPlaySpeed = MGInputManager.RTrigger();
-
-
-                if (CurrentShowingPosition != EndFrame)
-                {
-                    if (remaining < (Time.deltaTime * TriggerPlaySpeed / 2))
-                    {
-                        if (CurrentShowingPosition >= EndFrame)
-                        {
-                            CurrentShowingPosition = EndFrame;
-                        }
-                        else
-                        {
-                            CurrentShowingPosition++;
-                            remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.00001f, 0.1f);
-                        }
-                    }
-
-                }
-
-
+                MoveCamFollowerThroughMarkers(true, false);
+                InterpolateRiders(true, false, TriggerPlaySpeed, Interp_time_to_next);
+                timeelapsed = timeelapsed + (Time.deltaTime * TriggerPlaySpeed);
             }
             else
             {
                 TriggerPlaySpeed = 0;
+            }
 
+        }
 
-                if (MyPlayerPositions.Count > CurrentShowingPosition)
+        void TriggerScrollPlayMode()
+        {
+            if (moveback)
+            {
+                TriggerPlaySpeed = MGInputManager.LTrigger();
+                MoveCamFollowerThroughMarkers(false, false);
+                InterpolateRiders(false, false, TriggerPlaySpeed, Interp_time_to_last);
+                timeelapsed = timeelapsed - (Time.deltaTime * TriggerPlaySpeed);
+                if (timeelapsed < 0) timeelapsed = 0;
+            }
+            else if (moveforward)
+            {
+                TriggerPlaySpeed = MGInputManager.RTrigger();
+                MoveCamFollowerThroughMarkers(true, false);
+                InterpolateRiders(true, false, TriggerPlaySpeed, Interp_time_to_next);
+                timeelapsed = timeelapsed + (Time.deltaTime * TriggerPlaySpeed);
+                if (timeelapsed >= FullclipTime) timeelapsed = FullclipTime;
+            }
+            else
+            {
+                TriggerPlaySpeed = 0;
+            }
+        }
+
+        void InterpolateRiders(bool forward, bool playing, float playspeed, float span)
+        {
+            #region Calculate this movement
+
+            // less than a deltatime's worth of movement left
+            if (span < Time.deltaTime)
+            {
+                // on start frame moving back, higher than start moving back, less than end moving forward, higher than end moving forward
+                if (CurrentShowingPosition <= StartFrame && !forward)
                 {
-
-                    // plug in Position Data to rider
-
-                    MyRidersTrans[0].position = MyPlayerPositions[CurrentShowingPosition].Positions[0];
-                    MyRidersTrans[0].rotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]);
-                    for (int i = 1; i < 23; i++)
-                    {
-                        MyRidersTrans[i].localRotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]);
-                    }
-
-                    // hip joint
-                    MyRidersTrans[20].localPosition = MyPlayerPositions[CurrentShowingPosition].Positions[20];
-
-
-
-                    MyRidersTrans[24].position = MyPlayerPositions[CurrentShowingPosition].Positions[24];
-                    MyRidersTrans[24].rotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24]);
-
-                    MyRidersTrans[25].localPosition = MyPlayerPositions[CurrentShowingPosition].Positions[25];
-                    MyRidersTrans[27].localPosition = MyPlayerPositions[CurrentShowingPosition].Positions[27];
-
-
-                    for (int i = 25; i < 32; i++)
-                    {
-                        MyRidersTrans[i].localRotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]);
-
-                    }
-
-                    MyRidersTrans[32].localRotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]);
-                    MyRidersTrans[33].localRotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]);
-
-                    remaining = Mathf.Clamp(remaining - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-
+                    // lerp to start and reset
+                    ReplayCam.transform.position = Vector3.Lerp(ReplayCam.transform.position, CamMarkers[0].CamPos, 1);
+                    ReplayCam.transform.rotation = Quaternion.Lerp(ReplayCam.transform.rotation, CamMarkers[0].CamRot, 1);
+                    FollowObject.transform.position = Vector3.Lerp(FollowObject.transform.position, CamMarkers[0].CamPos, 1);
+                    FollowObject.transform.rotation = Quaternion.Lerp(FollowObject.transform.rotation, CamMarkers[0].CamRot, 1);
+                    CurrentShowingPosition = StartFrame;
+                    Interp_time_to_last = 0.001f;
+                    Interp_time_to_next = MyPlayerPositions[StartFrame + 1].Time_span_seconds;
+                    span = 0;
                 }
+                else if(CurrentShowingPosition > StartFrame && !forward)
+                {
+                    // set new backwards movement
+                    CurrentShowingPosition--;
+                    Interp_time_to_next = Interp_time_to_last;
+                    Interp_time_to_last = Interp_time_to_last + MyPlayerPositions[CurrentShowingPosition + 1].Time_span_seconds;
+                    span = Interp_time_to_last = Interp_time_to_last + MyPlayerPositions[CurrentShowingPosition + 1].Time_span_seconds;
+                }
+                else if (CurrentShowingPosition < EndFrame && forward)
+                {
+                    CurrentShowingPosition++;
+                    Interp_time_to_last = Interp_time_to_next;
+                    Interp_time_to_next = Interp_time_to_next + MyPlayerPositions[CurrentShowingPosition + 1].Time_span_seconds;
+                    span = Interp_time_to_next + MyPlayerPositions[CurrentShowingPosition + 1].Time_span_seconds;
+                }
+                else if (CurrentShowingPosition >= EndFrame && forward)
+                {
+                    CurrentShowingPosition = EndFrame;
+                    ReplayCam.transform.position = Vector3.Lerp(ReplayCam.transform.position, CamMarkers[camtargetpos].CamPos, 1);
+                    ReplayCam.transform.rotation = Quaternion.Lerp(ReplayCam.transform.rotation, CamMarkers[camtargetpos].CamRot, 1);
+                    FollowObject.transform.position = Vector3.Lerp(FollowObject.transform.position, CamMarkers[camtargetpos].CamPos, 1);
+                    FollowObject.transform.rotation = Quaternion.Lerp(FollowObject.transform.rotation, CamMarkers[camtargetpos].CamRot, 1);
 
+                    Interp_time_to_last = MyPlayerPositions[EndFrame].Time_span_seconds;
+                    Interp_time_to_next = 0.0001f;
+                    span = 0;
+                    if (PlayThrough) PlayThrough = false;
+                }
+            }
+
+            #endregion
+
+            #region Actual movement of all riders
+
+            // my position update
+            if (MyPlayerPositions.Count > CurrentShowingPosition)
+            {
+                // plug in Position Data to rider
+                MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0]) / span * Time.deltaTime * playspeed);
+                MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[0].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0])) / span * (Time.deltaTime * playspeed));
+                for (int i = 1; i < 23; i++)
+                {
+                    MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / span * (Time.deltaTime * playspeed));
+                }
+                // hip joint
+                MyRidersTrans[20].localPosition = Vector3.MoveTowards(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20]) / span * (Time.deltaTime * playspeed));
+
+
+                MyRidersTrans[24].position = Vector3.MoveTowards(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24]) / span * (Time.deltaTime * playspeed));
+                MyRidersTrans[24].rotation = Quaternion.RotateTowards(MyRidersTrans[24].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[24].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24])) / span * (Time.deltaTime * playspeed));
+
+                MyRidersTrans[25].localPosition = Vector3.MoveTowards(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25]) / span * (Time.deltaTime * playspeed));
+                MyRidersTrans[27].localPosition = Vector3.MoveTowards(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27]) / span * (Time.deltaTime * playspeed));
+
+
+                for (int i = 25; i < 32; i++)
+                {
+                    MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / span * (Time.deltaTime * playspeed));
+                }
+                MyRidersTrans[32].localRotation = Quaternion.RotateTowards(MyRidersTrans[32].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[32].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32])) / span * (Time.deltaTime * playspeed));
+                MyRidersTrans[33].localRotation = Quaternion.RotateTowards(MyRidersTrans[33].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[33].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33])) / span * (Time.deltaTime * playspeed));
+
+            }
+
+                // others position update
                 if (InGameUI.instance.Connected)
                 {
 
@@ -273,33 +343,33 @@ namespace FrostyP_Game_Manager
 
                         if (player.ReplayPositions.Count > CurrentShowingPosition)
                         {
-                            player.Riders_Transforms[0].position = player.ReplayPositions[CurrentShowingPosition].Positions[0];
-                            player.Riders_Transforms[0].rotation = Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]);
+                            player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / span * Time.deltaTime * playspeed);
+                            player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / span * Time.deltaTime * playspeed);
                             for (int i = 1; i < 23; i++)
                             {
-                                player.Riders_Transforms[i].localRotation = Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]);
+                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / span * Time.deltaTime * playspeed);
                             }
 
                             // hip joint
-                            player.Riders_Transforms[20].localPosition = player.ReplayPositions[CurrentShowingPosition].Positions[20];
+                            player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / span * Time.deltaTime * playspeed);
 
 
 
-                            player.Riders_Transforms[24].position = player.ReplayPositions[CurrentShowingPosition].Positions[24];
-                            player.Riders_Transforms[24].rotation = Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]);
+                            player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / span * Time.deltaTime * playspeed);
+                            player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / span * Time.deltaTime * playspeed);
 
-                            player.Riders_Transforms[25].localPosition = player.ReplayPositions[CurrentShowingPosition].Positions[25];
-                            player.Riders_Transforms[27].localPosition = player.ReplayPositions[CurrentShowingPosition].Positions[27];
+                            player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / span * Time.deltaTime * playspeed);
+                            player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / span * Time.deltaTime * playspeed);
 
 
                             for (int i = 25; i < 32; i++)
                             {
-                                player.Riders_Transforms[i].localRotation =Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]);
+                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / span * Time.deltaTime * playspeed);
 
                             }
 
-                            player.Riders_Transforms[32].localRotation = Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]);
-                            player.Riders_Transforms[33].localRotation = Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]);
+                            player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / span * Time.deltaTime * playspeed);
+                            player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / span * Time.deltaTime * playspeed);
 
 
                         }
@@ -310,590 +380,227 @@ namespace FrostyP_Game_Manager
 
                 }
 
-
-
-
-            }
-
-
-            // my position update
-            if (MyPlayerPositions.Count > CurrentShowingPosition)
+            // update time
+            if (forward)
             {
-
-                // plug in Position Data to rider
-
-                MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[0].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                for (int i = 1; i < 23; i++)
-                {
-                    MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                }
-
-                // hip joint
-                MyRidersTrans[20].localPosition = Vector3.MoveTowards(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-
-
-                MyRidersTrans[24].position = Vector3.MoveTowards(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                MyRidersTrans[24].rotation = Quaternion.RotateTowards(MyRidersTrans[24].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[24].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                MyRidersTrans[25].localPosition = Vector3.MoveTowards(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                MyRidersTrans[27].localPosition = Vector3.MoveTowards(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                for (int i = 25; i < 32; i++)
-                {
-                    MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                }
-
-                MyRidersTrans[32].localRotation = Quaternion.RotateTowards(MyRidersTrans[32].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[32].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                MyRidersTrans[33].localRotation = Quaternion.RotateTowards(MyRidersTrans[33].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[33].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                remaining = Mathf.Clamp(remaining - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-
+                Interp_time_to_last = Interp_time_to_last + (Time.deltaTime * playspeed);
+                Interp_time_to_next = Interp_time_to_next - (Time.deltaTime * playspeed);
             }
-
-
-            if (InGameUI.instance.Connected)
+            else
             {
-
-                // online players position update
-                foreach (RemotePlayer player in GameManager.Players.Values)
-                {
-                    player.nameSign.transform.rotation = Camera.current.transform.rotation;
-
-                    if (player.ReplayPositions.Count > CurrentShowingPosition)
-                    {
-                        player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                        player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                        for (int i = 1; i < 23; i++)
-                        {
-                            player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                        }
-
-                        // hip joint
-                        player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-
-                        player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                        player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-                        player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                        player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-                        for (int i = 25; i < 32; i++)
-                        {
-                            player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-                        }
-
-                        player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                        player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-                    }
-
-                }
-
-
-
+                Interp_time_to_last = Interp_time_to_last - (Time.deltaTime * playspeed);
+                Interp_time_to_next = Interp_time_to_next + (Time.deltaTime * playspeed);
             }
 
 
-
-
-
+            #endregion
 
         }
-        void TriggerScrollPlayMode()
+
+        void MoveCamFollowerThroughMarkers(bool forward, bool playing)
         {
-            if (CamMarkers.Count >= CurrentCamTargetPosition)
+            if (CamMarkers.Count < 2) return;
+
+            if(TriggerPressed | PlayThrough)
             {
-                // position and rotation of cam relative to current showing frame and current markers
 
-
-
-                if (MGInputManager.LTrigger() > 0.1f)
+                if (timeelapsed > CamMarkers[camtargetpos].cliptimestamp && CamMarkers.Count > camtargetpos && forward)
                 {
-                    TriggerPlaySpeed = MGInputManager.LTrigger();
-                    if (CurrentShowingPosition > StartFrame)
-                    {
-                        moveback = true;
-
-                        if (removed < (Time.deltaTime * TriggerPlaySpeed / 1.2f))
-                        {
-
-                            if (CurrentShowingPosition <= StartFrame)
-                            {
-                                moveback = false;
-                                CurrentShowingPosition = StartFrame;
-                                removed = MyPlayerPositions[CurrentShowingPosition + 1].Timspanfromlast;
-                            }
-                            else
-                            {
-                                CurrentShowingPosition--;
-                                remaining = removed;
-                                removed = Mathf.Clamp(removed + MyPlayerPositions[CurrentShowingPosition + 1].Timspanfromlast, 0.001f, 0.9f);
-
-                            }
-
-                        }
-                            
-                            
-                         if (CurrentShowingPosition <= CamMarkers[CurrentCamPosition].ReferenceFrame && CurrentShowingPosition> StartFrame)
-                         {
-                            CurrentCamPosition--;
-                            CurrentCamTargetPosition--;
-                            RemovedCamSpan = 0;
-                            Camspan = RemovedCamSpan;
-                            for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
-                            {
-                             RemovedCamSpan = RemovedCamSpan + MyPlayerPositions[i].Timspanfromlast;
-                            }
- 
-                         }
-
-
-                        // position
-                        Vector3 currentpos = CamMarkers[CurrentCamPosition].CamPos;
-                        currentrot = CamMarkers[CurrentCamPosition].CamRot;
-                        Vector3 Vel = -(ReplayCam.transform.position - currentpos).normalized;
-                        ReplayCam.transform.position = Vector3.SmoothDamp(ReplayCam.transform.position, Vector3.MoveTowards(ReplayCam.transform.position, currentpos, Vector3.Distance(ReplayCam.transform.position, currentpos) / RemovedCamSpan * Time.deltaTime * TriggerPlaySpeed), ref Vel, BlendValue);
-
-                        // rotation
-                        ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) / RemovedCamSpan * Time.deltaTime * TriggerPlaySpeed);
-
-                        RemovedCamSpan = RemovedCamSpan - (Time.deltaTime * TriggerPlaySpeed);
-                        Camspan = Camspan + (Time.deltaTime * TriggerPlaySpeed);
-
-
-
-
-
-
-                        if (moveback)
-                        {
-
-                            // my position update
-                            if (MyPlayerPositions.Count > CurrentShowingPosition)
-                            {
-                                // plug in Position Data to rider
-                                MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0]) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[0].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0])) / removed * (Time.deltaTime * TriggerPlaySpeed));
-                                for (int i = 1; i < 23; i++)
-                                {
-                                    MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / removed * (Time.deltaTime * TriggerPlaySpeed));
-                                }
-                                // hip joint
-                                MyRidersTrans[20].localPosition = Vector3.MoveTowards(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20]) / removed * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                                MyRidersTrans[24].position = Vector3.MoveTowards(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24]) / removed * (Time.deltaTime * TriggerPlaySpeed));
-                                MyRidersTrans[24].rotation = Quaternion.RotateTowards(MyRidersTrans[24].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[24].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24])) / removed * (Time.deltaTime * TriggerPlaySpeed));
-
-                                MyRidersTrans[25].localPosition = Vector3.MoveTowards(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25]) / removed * (Time.deltaTime * TriggerPlaySpeed));
-                                MyRidersTrans[27].localPosition = Vector3.MoveTowards(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27]) / removed * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                                for (int i = 25; i < 32; i++)
-                                {
-                                    MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / removed * (Time.deltaTime * TriggerPlaySpeed));
-                                }
-                                MyRidersTrans[32].localRotation = Quaternion.RotateTowards(MyRidersTrans[32].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[32].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32])) / removed * (Time.deltaTime * TriggerPlaySpeed));
-                                MyRidersTrans[33].localRotation = Quaternion.RotateTowards(MyRidersTrans[33].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[33].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33])) / removed * (Time.deltaTime * TriggerPlaySpeed));
-
-                                removed = Mathf.Clamp(removed - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-                                remaining = Mathf.Clamp(remaining + (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-                            }
-
-                            // others position update
-                            if (InGameUI.instance.Connected)
-                            {
-
-                                // online players position update
-                                foreach (RemotePlayer player in GameManager.Players.Values)
-                                {
-                                    player.nameSign.transform.rotation = Camera.current.transform.rotation;
-
-                                    if (player.ReplayPositions.Count > CurrentShowingPosition)
-                                    {
-                                        player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                        player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                        for (int i = 1; i < 23; i++)
-                                        {
-                                            player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                        }
-
-                                        // hip joint
-                                        player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / removed * Time.deltaTime * TriggerPlaySpeed);
-
-
-
-                                        player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                        player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / removed * Time.deltaTime * TriggerPlaySpeed);
-
-                                        player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                        player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / removed * Time.deltaTime * TriggerPlaySpeed);
-
-
-                                        for (int i = 25; i < 32; i++)
-                                        {
-                                            player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / removed * Time.deltaTime * TriggerPlaySpeed);
-
-                                        }
-
-                                        player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / removed * Time.deltaTime * TriggerPlaySpeed);
-                                        player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / removed * Time.deltaTime * TriggerPlaySpeed);
-
-
-                                    }
-
-                                }
-
-
-
-                            }
-
-
-                        }
-
-
-
-
-
-
-
-
-                    }
-                    else
-                    {
-                        CurrentShowingPosition = StartFrame;
-                        CurrentCamPosition = 0;
-                        CurrentCamTargetPosition = 1;
-                        RemovedCamSpan = 0;
-                        Camspan = 0;
-                        for (int i = StartFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
-                        {
-                            Camspan = Camspan + MyPlayerPositions[i].Timspanfromlast;
-                        }
-
-                        remaining = MyPlayerPositions[StartFrame + 1].Timspanfromlast;
-                        removed = 0;
-
-                    }
-
-
+                  camtargetpos++;
                 }
-                else if (MGInputManager.RTrigger() > 0.1f)
+                else if (timeelapsed < CamMarkers[camtargetpos].cliptimestamp && camtargetpos != 0 && !forward)
                 {
-                    TriggerPlaySpeed = MGInputManager.RTrigger();
-                    if (CurrentShowingPosition < EndFrame)
-                    {
-
-                        moveforward = true;
-                        if (remaining < (Time.deltaTime * TriggerPlaySpeed/1.2f))
-                        {
-                            if (CurrentShowingPosition >= EndFrame)
-                            {
-                                moveforward = false;
-                                CurrentShowingPosition = EndFrame;
-                                remaining = MyPlayerPositions[CurrentShowingPosition].Timspanfromlast;
-                            }
-                            else
-                            {
-                               
-                                CurrentShowingPosition++;
-                                removed = remaining;
-                                remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.0001f, 0.9f);
-                            }
-                        }
-                        
+                  camtargetpos--; 
+                }
+               
 
 
-                       
-                        if (CurrentShowingPosition >= CamMarkers[CurrentCamTargetPosition].ReferenceFrame)
-                        {
-                          if(CurrentCamTargetPosition < CamMarkers.Count - 1)
-                          {
+                // follow object moving
+                Vector3 currentpos;
+                Quaternion currentrot;
+                if (forward)
+                {
 
-                            CurrentCamPosition++;
-                            CurrentCamTargetPosition++;
-                            Camspan = 0;
-                            RemovedCamSpan = Camspan;
-                            for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
-                            {
-                                Camspan = Camspan + MyPlayerPositions[i].Timspanfromlast;
-                            }
+                    // position
+                    currentpos = CamMarkers[camtargetpos].CamPos;
+                    currentrot = CamMarkers[camtargetpos].CamRot;
+                    FollowObject.transform.position = Vector3.MoveTowards(FollowObject.transform.position, currentpos, Vector3.Distance(FollowObject.transform.position, currentpos) / (CamMarkers[camtargetpos].cliptimestamp - timeelapsed) * Time.deltaTime * TriggerPlaySpeed);
 
-
-                          }
-                          else
-                          {
-                            RemovedCamSpan = 0.001f;
-                                Camspan = 0.001f;
-                          }
-
-                        }
-
-                        // position
-                        Vector3 currentpos = CamMarkers[CurrentCamTargetPosition].CamPos;
-                        currentrot = CamMarkers[CurrentCamTargetPosition].CamRot;
-                        Vector3 Vel = -(ReplayCam.transform.position - currentpos).normalized;
-                        ReplayCam.transform.position = Vector3.SmoothDamp(ReplayCam.transform.position,Vector3.MoveTowards(ReplayCam.transform.position, currentpos, Vector3.Distance(ReplayCam.transform.position, currentpos) / Camspan * Time.deltaTime * TriggerPlaySpeed),ref Vel , BlendValue);
-
-                        // rotation
-                        ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) / Camspan * Time.deltaTime * TriggerPlaySpeed);
-
-                        Camspan = Camspan - (Time.deltaTime * TriggerPlaySpeed);
-                        RemovedCamSpan = RemovedCamSpan + (Time.deltaTime * TriggerPlaySpeed);
-
-
-
-
-
-
-                        if (moveforward)
-                        {
-
-                        // my position update
-                        if (MyPlayerPositions.Count > CurrentShowingPosition)
-                        {
-                            // plug in Position Data to rider
-                            MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[0].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                            for (int i = 1; i < 23; i++)
-                            {
-                                MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                            }
-                            // hip joint
-                            MyRidersTrans[20].localPosition = Vector3.MoveTowards(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                            MyRidersTrans[24].position = Vector3.MoveTowards(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                            MyRidersTrans[24].rotation = Quaternion.RotateTowards(MyRidersTrans[24].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[24].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                            MyRidersTrans[25].localPosition = Vector3.MoveTowards(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                            MyRidersTrans[27].localPosition = Vector3.MoveTowards(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                            for (int i = 25; i < 32; i++)
-                            {
-                                MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                            }
-                            MyRidersTrans[32].localRotation = Quaternion.RotateTowards(MyRidersTrans[32].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[32].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                            MyRidersTrans[33].localRotation = Quaternion.RotateTowards(MyRidersTrans[33].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[33].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                            remaining = Mathf.Clamp(remaining - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-                            removed = Mathf.Clamp(removed + (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-                        }
-
-                        // others position update
-                        if (InGameUI.instance.Connected)
-                        {
-
-                            // online players position update
-                            foreach (RemotePlayer player in GameManager.Players.Values)
-                            {
-                                player.nameSign.transform.rotation = Camera.current.transform.rotation;
-
-                                if (player.ReplayPositions.Count > CurrentShowingPosition)
-                                {
-                                    player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                                    player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                                    for (int i = 1; i < 23; i++)
-                                    {
-                                        player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                                    }
-
-                                    // hip joint
-                                    player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-
-                                    player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                                    player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-                                    player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                                    player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-                                    for (int i = 25; i < 32; i++)
-                                    {
-                                        player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-                                    }
-
-                                    player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                                    player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-                                }
-
-                            }
-
-
-
-                        }
-
-
-                        }
-
-
-
-
-
-
-
-
-
-
-                    }
-                    else
-                    {
-                        Camspan = 0;
-                        RemovedCamSpan = 0;
-                        for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= EndFrame; i++)
-                        {
-                            RemovedCamSpan = RemovedCamSpan + MyPlayerPositions[i].Timspanfromlast;
-                        }
-
-                        removed = MyPlayerPositions[EndFrame].Timspanfromlast;
-                    }
-
+                    // rotation
+                    FollowObject.transform.rotation = Quaternion.RotateTowards(FollowObject.transform.rotation, currentrot, Quaternion.Angle(FollowObject.transform.rotation, currentrot) / (CamMarkers[camtargetpos].cliptimestamp - timeelapsed) * Time.deltaTime * TriggerPlaySpeed);
 
 
                 }
                 else
                 {
-                    TriggerPlaySpeed = 0;
+
+                    // position
+                    currentpos = CamMarkers[camtargetpos].CamPos;
+                    currentrot = CamMarkers[camtargetpos].CamRot;
+                    FollowObject.transform.position = Vector3.MoveTowards(FollowObject.transform.position, currentpos, Vector3.Distance(FollowObject.transform.position, currentpos) / (CamMarkers[camtargetpos + 1].cliptimestamp - timeelapsed) * Time.deltaTime * TriggerPlaySpeed);
+
+                    // rotation
+                    FollowObject.transform.rotation = Quaternion.RotateTowards(FollowObject.transform.rotation, currentrot, Quaternion.Angle(FollowObject.transform.rotation, currentrot) / (CamMarkers[camtargetpos + 1].cliptimestamp - timeelapsed) * Time.deltaTime * TriggerPlaySpeed);
+
+
+
                 }
-
-
-
-
-
-
-
-              
-
-
 
 
             }
         }
 
-
-
-
-        void SpeedChange()
+        void CamMoveToFollower(bool playing)
         {
-            if(CamMarkers[CurrentCamTargetPosition].ReferenceFrame - CamMarkers[CurrentCamTargetPosition].SpeedFramein <= CurrentShowingPosition && CamMarkers[CurrentCamTargetPosition].AlterSpeed && CurrentShowingPosition <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame)
+            // position to go to
+            Vector3 currentpos = FollowObject.transform.position;
+            Quaternion currentrot = FollowObject.transform.rotation;
+            ReplayCam.transform.position = Vector3.Lerp(ReplayCam.transform.position, currentpos, SmoothLineVal);
+
+            // rotation to go to
+            ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) * SmoothLineVal);
+
+        }
+
+        void SpeedChangeRun()
+        {
+            if(CamMarkers[camtargetpos].ReferenceFrame - CamMarkers[camtargetpos].Speed_change_start_frame <= CurrentShowingPosition && CamMarkers[camtargetpos].AlterSpeed && CurrentShowingPosition <= CamMarkers[camtargetpos].ReferenceFrame)
             {
+                ReplayMark rp = CamMarkers[camtargetpos];
+                
+
                 // going in
 
-                ReplayPosition rp = CamMarkers[CurrentCamTargetPosition];
-                if (rp.StyleIn == ReplayPosition.SlowMoStyle.Linear)
+                if (rp.StyleIn == ReplayMark.SlowMoStyle.Linear)
                 {
+
+                    float full_speed_difference = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
+                    float speed_to_remove_each_frame;
+                    float Frames_required;
+
                     // take off an equal fraction each time till we get there
-                    float deltas = 0;
-                    for (int i = rp.ReferenceFrame - rp.SpeedFramein + 1; i <= rp.ReferenceFrame; i++)
+                    float Deltas_of_each_frame = 0;
+                    for (int i = rp.ReferenceFrame - rp.Speed_change_start_frame; i <= rp.ReferenceFrame; i++)
                     {
-                        deltas = deltas + MyPlayerPositions[i].Timspanfromlast;
+                        Deltas_of_each_frame = Deltas_of_each_frame + MyPlayerPositions[i].Time_span_seconds;
+                    }
+                    Frames_required = Deltas_of_each_frame / Time.deltaTime * PlayingSpeed;
+                    speed_to_remove_each_frame = full_speed_difference / Frames_required;
+
+                    //float diff = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
+                    // PlayingSpeed = Mathf.MoveTowards(PlayingSpeed, rp.Speedatmarker, diff / deltas * Time.deltaTime * PlayingSpeed);
+                    if (PlayingSpeed > rp.Speedatmarker)
+                    {
+                     PlayingSpeed = PlayingSpeed - speed_to_remove_each_frame;
+                    }
+                    else
+                    {
+                        PlayingSpeed = rp.Speedatmarker;
+                    }
+
+                }
+                else if(rp.StyleIn == ReplayMark.SlowMoStyle.SlowIn)
+                {
+                    // slow lerp at start then speed up
+                    float deltas = 0;
+                    for (int i = rp.ReferenceFrame - rp.Speed_change_start_frame + 1; i <= rp.ReferenceFrame; i++)
+                    {
+                        deltas = deltas + MyPlayerPositions[i].Time_span_seconds;
                     }
 
 
                     float diff = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
-                    SetSpeed = Mathf.MoveTowards(SetSpeed, rp.Speedatmarker, diff / deltas * Time.deltaTime * SetSpeed);
-                }
-                else if(rp.StyleIn == ReplayPosition.SlowMoStyle.SlowIn)
-                {
-                    // take off an equal fraction each time till we get there
-                    float deltas = 0;
-                    for (int i = rp.ReferenceFrame - rp.SpeedFramein + 1; i <= rp.ReferenceFrame; i++)
-                    {
-                        deltas = deltas + MyPlayerPositions[i].Timspanfromlast;
-                    }
-
-
-                    float diff = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
-                    SetSpeed = Mathf.MoveTowards(SetSpeed, rp.Speedatmarker, diff / deltas * Time.deltaTime * SetSpeed);
+                    PlayingSpeed = Mathf.MoveTowards(PlayingSpeed, rp.Speedatmarker, diff / deltas * Time.deltaTime * PlayingSpeed);
 
 
                 }
-                else if (rp.StyleIn == ReplayPosition.SlowMoStyle.Slowout)
+                else if (rp.StyleIn == ReplayMark.SlowMoStyle.Slowout)
                 {
-                    // take off an equal fraction each time till we get there
+                    // fast lerp at start then slow down
                     float deltas = 0;
                     for (int i = CurrentShowingPosition; i < rp.ReferenceFrame; i++)
                     {
-                        deltas = Mathf.Clamp(deltas + MyPlayerPositions[i].Timspanfromlast,0.001f,100);
+                        deltas = Mathf.Clamp(deltas + MyPlayerPositions[i].Time_span_seconds,0.001f,100);
                     }
 
 
-                    float diff = Mathf.Clamp(SetSpeed >= rp.Speedatmarker ? SetSpeed - rp.Speedatmarker : rp.Speedatmarker - SetSpeed,0.001f,100);
-                    SetSpeed = Mathf.Clamp(Mathf.MoveTowards(SetSpeed, rp.Speedatmarker, diff / 4 * Time.deltaTime * SetSpeed),0.001f,100);
+                    float diff = Mathf.Clamp(PlayingSpeed >= rp.Speedatmarker ? PlayingSpeed - rp.Speedatmarker : rp.Speedatmarker - PlayingSpeed,0.001f,100);
+                    PlayingSpeed = Mathf.Clamp(Mathf.MoveTowards(PlayingSpeed, rp.Speedatmarker, diff / 4 * Time.deltaTime * PlayingSpeed),0.001f,100);
 
                 }
 
 
 
             }
-            else if(CamMarkers[CurrentCamPosition].ReferenceFrame + CamMarkers[CurrentCamPosition].SpeedFrameout >= CurrentShowingPosition && CamMarkers[CurrentCamPosition].AlterSpeed)
+            else if(CamMarkers[lastcampos].ReferenceFrame + CamMarkers[lastcampos].Speed_change_end_frame >= CurrentShowingPosition && CamMarkers[lastcampos].AlterSpeed)
             {
                 // going out
 
-                ReplayPosition rp = CamMarkers[CurrentCamPosition];
-                if (rp.StyleOut == ReplayPosition.SlowMoStyle.Linear)
+                ReplayMark rp = CamMarkers[lastcampos];
+                if (rp.StyleOut == ReplayMark.SlowMoStyle.Linear)
+                {
+                    float full_speed_difference = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
+                    float speed_to_add_each_frame;
+                    float Frames_required;
+
+                    // take off an equal fraction each time till we get there
+                    float deltas_of_each_frame = 0;
+                    for (int i = rp.ReferenceFrame; i <= rp.ReferenceFrame + rp.Speed_change_end_frame; i++)
+                    {
+                        deltas_of_each_frame = deltas_of_each_frame + MyPlayerPositions[i].Time_span_seconds;
+                    }
+                    Frames_required = deltas_of_each_frame / Time.deltaTime * PlayingSpeed;
+                    speed_to_add_each_frame = full_speed_difference / Frames_required;
+
+
+                    if (PlayingSpeed < OriginalSpeed) 
+                    { 
+                        PlayingSpeed = PlayingSpeed + speed_to_add_each_frame;
+                    }
+                    else
+                    {
+                        PlayingSpeed = OriginalSpeed;
+                    }
+                    
+                }
+                else if (rp.StyleOut == ReplayMark.SlowMoStyle.SlowIn)
                 {
                     // take off an equal fraction each time till we get there
                     float deltas = 0;
-                    for (int i = rp.ReferenceFrame + 1; i <= rp.ReferenceFrame + rp.SpeedFrameout; i++)
+                    for (int i = rp.ReferenceFrame + 1; i <= rp.ReferenceFrame + rp.Speed_change_end_frame; i++)
                     {
-                        deltas = deltas + MyPlayerPositions[i].Timspanfromlast;
+                        deltas = deltas + MyPlayerPositions[i].Time_span_seconds;
                     }
 
 
 
                     float diff = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
-                    SetSpeed = Mathf.MoveTowards(SetSpeed, OriginalSpeed, diff / deltas * Time.deltaTime * SetSpeed);
+                    PlayingSpeed = Mathf.MoveTowards(PlayingSpeed, OriginalSpeed, diff / deltas * Time.deltaTime * PlayingSpeed);
+
                 }
-                else if (rp.StyleOut == ReplayPosition.SlowMoStyle.SlowIn)
+                else if (rp.StyleOut == ReplayMark.SlowMoStyle.Slowout)
                 {
                     // take off an equal fraction each time till we get there
                     float deltas = 0;
-                    for (int i = rp.ReferenceFrame + 1; i <= rp.ReferenceFrame + rp.SpeedFrameout; i++)
+                    for (int i = CurrentShowingPosition; i < rp.ReferenceFrame + rp.Speed_change_end_frame; i++)
                     {
-                        deltas = deltas + MyPlayerPositions[i].Timspanfromlast;
+                        deltas = Mathf.Clamp(deltas + MyPlayerPositions[i].Time_span_seconds,0.001f,100);
                     }
 
-
-
-                    float diff = OriginalSpeed > rp.Speedatmarker ? OriginalSpeed - rp.Speedatmarker : rp.Speedatmarker - OriginalSpeed;
-                    SetSpeed = Mathf.MoveTowards(SetSpeed, OriginalSpeed, diff / deltas * Time.deltaTime * SetSpeed);
-
-                }
-                else if (rp.StyleOut == ReplayPosition.SlowMoStyle.Slowout)
-                {
-                    // take off an equal fraction each time till we get there
-                    float deltas = 0;
-                    for (int i = CurrentShowingPosition; i < rp.ReferenceFrame + rp.SpeedFrameout; i++)
-                    {
-                        deltas = Mathf.Clamp(deltas + MyPlayerPositions[i].Timspanfromlast,0.001f,100);
-                    }
-
-                    float diff = Mathf.Clamp(SetSpeed >= rp.Speedatmarker ? SetSpeed - rp.Speedatmarker : rp.Speedatmarker - SetSpeed,0.001f,100);
-                    SetSpeed = Mathf.Clamp(Mathf.MoveTowards(SetSpeed, OriginalSpeed, diff / 4 * Time.deltaTime * SetSpeed),0.001f,100);
+                    float diff = Mathf.Clamp(PlayingSpeed >= rp.Speedatmarker ? PlayingSpeed - rp.Speedatmarker : rp.Speedatmarker - PlayingSpeed,0.001f,100);
+                    PlayingSpeed = Mathf.Clamp(Mathf.MoveTowards(PlayingSpeed, OriginalSpeed, diff / 4 * Time.deltaTime * PlayingSpeed),0.001f,100);
 
                 }
             }
+        }
+        void FovChangeRun()
+        {
+
         }
 
         void TopPanel()
         {
-            GUILayout.BeginArea(new Rect(new Vector2(10, 10), new Vector2(Screen.width / 1.2f, Screen.height / 10)));
+            GUILayout.BeginArea(new Rect(new Vector2(10, 10), new Vector2(Screen.width -20, Screen.height / 10)));
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(ModeDisplay))
             {
@@ -945,6 +652,20 @@ namespace FrostyP_Game_Manager
                 LookAtPlayer = GUILayout.Toggle(LookAtPlayer, LookatDisplay,LookatStyle);
 
                 GUILayout.Space(5);
+                if (GUILayout.Button(baselinerenderer !=null && smoothlinerenderer != null ? "Show Lines:" + baselinerenderer.activeInHierarchy.ToString() : "line error", LineActive?OnStyle:Offstyle))
+                {
+                    baselinerenderer.SetActive(!baselinerenderer.activeInHierarchy);
+                    smoothlinerenderer.SetActive(!smoothlinerenderer.activeInHierarchy);
+                }
+                GUILayout.Space(5);
+                if (GUILayout.Button(FollowObject != null ? "Show Cam:" + CamVisible : "Cam error",CamVisible?OnStyle:Offstyle))
+                {
+                    ToggleCamVisible(!CamVisible);
+                }
+                GUILayout.Space(5);
+                GUILayout.Label("Smooth:");
+                SmoothLineVal = Mathf.RoundToInt(GUILayout.HorizontalSlider(SmoothLineVal, 1, 4,GUILayout.MaxWidth(100)));
+                GUILayout.Space(5);
                 if (GUILayout.Button("Close"))
                 {
                     OpenCamSettings = false;
@@ -962,9 +683,9 @@ namespace FrostyP_Game_Manager
                     PlaySetup();
                 }
                 GUILayout.Space(5);
-                GUILayout.Label($"PlaySpeed: {SetSpeed}");
+                GUILayout.Label($"PlaySpeed: {PlayingSpeed}");
                 GUILayout.Space(5);
-                SetSpeed = GUILayout.HorizontalSlider(SetSpeed,0f, 1f);
+                PlayingSpeed = GUILayout.HorizontalSlider(PlayingSpeed,0f, 1f);
                 GUILayout.Space(5);
                 if (GUILayout.Button("Cam Markers"))
                 {
@@ -975,17 +696,13 @@ namespace FrostyP_Game_Manager
                     CammarkersOpen = !CammarkersOpen;
                 }
                 GUILayout.Space(5);
-               // GUILayout.Label("Blend:",GUILayout.MaxWidth(100));
-                //blendval = GUILayout.TextField(blendval,GUILayout.MaxWidth(30));
-                //if(int.TryParse(blendval,out int res))
-               // {
-                   // BlendValue = res;
-               // }
+              
 
             }
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
-
+            GUILayout.Space(50);
+            if(CamMarkers.Count>camtargetpos) GUILayout.Label($"Averg distance: {Average_distance_between_cam_markers} | averg time: {Average_time_span_between_cam_markers} | averg vel: {Average_distance_between_cam_markers/Average_time_span_between_cam_markers}, elapsed: {timeelapsed}, Full:{FullclipTime}, curCamTarget{camtargetpos}, smoothtarg{smoothpostarget}");
 
             // bottom panel
             if (!PlayEditToggle)
@@ -1057,7 +774,7 @@ namespace FrostyP_Game_Manager
 
                     for (int i = 0; i < CamMarkers.Count; i++)
                     {
-                        GUILayout.BeginHorizontal();
+                     GUILayout.BeginHorizontal();
                     if(GUILayout.Button($"Marker {i}"))
                     {
                         if(activemarker != null)
@@ -1066,6 +783,7 @@ namespace FrostyP_Game_Manager
                         }
                         else
                         {
+                                LookAtPlayer = false;
                                 activemarker = CamMarkers[i];
                                
                                 ReplayCam.transform.position = activemarker.CamPos;
@@ -1095,8 +813,10 @@ namespace FrostyP_Game_Manager
             GUILayout.EndArea();
         }
 
-        void MarkerEditBox(ReplayPosition pos)
+        void MarkerEditBox(ReplayMark pos)
         {
+          
+
             if (GUILayout.Button("Return"))
             {
                 activemarker = null;
@@ -1114,7 +834,7 @@ namespace FrostyP_Game_Manager
 
 
             
-            pos.AlterSpeed = GUILayout.Toggle(pos.AlterSpeed, "Speed Controlled");
+            pos.AlterSpeed = GUILayout.Toggle(pos.AlterSpeed, "Speed Control on/off");
 
 
             GUILayout.Label("Speed at marker");
@@ -1131,25 +851,25 @@ namespace FrostyP_Game_Manager
             speedframein = GUILayout.TextField(speedframein);
             if(int.TryParse(speedframein,out int speedfrres))
             {
-                pos.SpeedFramein = speedfrres;
+                pos.Speed_change_start_frame = speedfrres;
             }
 
             GUILayout.Label("Frames out");
             speedframeout = GUILayout.TextField(speedframeout);
             if (int.TryParse(speedframeout, out int speedfrresout))
             {
-                pos.SpeedFrameout = speedfrresout;
+                pos.Speed_change_end_frame = speedfrresout;
             }
             GUILayout.EndHorizontal();
 
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Style in:");
-            if (GUILayout.Button(SlowMoLabels[pos.StyleIn]))
+            if (GUILayout.Button(SlowMoLabels[(int)pos.StyleIn]))
             {
-                if(pos.StyleIn == ReplayPosition.SlowMoStyle.Slowout)
+                if(pos.StyleIn == ReplayMark.SlowMoStyle.Slowout)
                 {
-                    pos.StyleIn = ReplayPosition.SlowMoStyle.Linear;
+                    pos.StyleIn = ReplayMark.SlowMoStyle.Linear;
                 }
                 else
                 {
@@ -1160,11 +880,11 @@ namespace FrostyP_Game_Manager
 
             GUILayout.Space(5);
             GUILayout.Label("Style out:");
-            if (GUILayout.Button(SlowMoLabels[pos.StyleOut]))
+            if (GUILayout.Button(SlowMoLabels[(int)pos.StyleOut]))
             {
-                if (pos.StyleOut == ReplayPosition.SlowMoStyle.Slowout)
+                if (pos.StyleOut == ReplayMark.SlowMoStyle.Slowout)
                 {
-                    pos.StyleOut = ReplayPosition.SlowMoStyle.Linear;
+                    pos.StyleOut = ReplayMark.SlowMoStyle.Linear;
                 }
                 else
                 {
@@ -1210,7 +930,7 @@ namespace FrostyP_Game_Manager
                 MyRidersTrans[32].localRotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]);
                 MyRidersTrans[33].localRotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]);
 
-                remaining = Mathf.Clamp(remaining - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
+                Interp_time_to_next = Mathf.Clamp(Interp_time_to_next - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
 
             }
 
@@ -1279,15 +999,19 @@ namespace FrostyP_Game_Manager
             }
             else
             {
-                OriginalSpeed = SetSpeed;
 
-                if (CurrentCamTargetPosition >= CamMarkers.Count-1 | CurrentShowingPosition >= EndFrame)
+                ToggleCamVisible(false);
+                OriginalSpeed = PlayingSpeed;
+
+                if (camtargetpos >= CamMarkers.Count-1 | CurrentShowingPosition >= EndFrame)
                 {
-                    CurrentCamPosition = 0;
-                    CurrentCamTargetPosition = 1;
+                    lastcampos = 0;
+                    camtargetpos = 1;
                     CurrentShowingPosition = StartFrame;
-                    ReplayCam.transform.position = CamMarkers[CurrentCamPosition].CamPos;
-                    ReplayCam.transform.rotation = CamMarkers[CurrentCamPosition].CamRot;
+                    ReplayCam.transform.position = CamMarkers[lastcampos].CamPos;
+                    ReplayCam.transform.rotation = CamMarkers[lastcampos].CamRot;
+                    FollowObject.transform.position = CamMarkers[lastcampos].CamPos;
+                    FollowObject.transform.rotation = CamMarkers[lastcampos].CamRot;
 
 
                     MyRidersTrans[0].position = MyPlayerPositions[CurrentShowingPosition].Positions[0];
@@ -1319,192 +1043,40 @@ namespace FrostyP_Game_Manager
 
                     Camspan = 0;
                     RemovedCamSpan = 0.0001f;
-                    remaining = MyPlayerPositions[CurrentShowingPosition + 1].Timspanfromlast;
-                    removed = 0;
-                    for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
+                    Interp_time_to_next = MyPlayerPositions[CurrentShowingPosition + 1].Time_span_seconds;
+                    Interp_time_to_last = 0;
+                    for (int i = CamMarkers[lastcampos].ReferenceFrame + 1; i <= CamMarkers[camtargetpos].ReferenceFrame; i++)
                     {
-                        Camspan = Camspan + MyPlayerPositions[i].Timspanfromlast;
+                        Camspan = Camspan + MyPlayerPositions[i].Time_span_seconds;
                     }
 
 
                 }
-                TriggerPlaySpeed = SetSpeed;
+                TriggerPlaySpeed = PlayingSpeed;
                 PlayThrough = true;
             }
 
         }
         void Play()
         {
-            if (CamMarkers.Count - 1 >= CurrentCamTargetPosition)
+            if (CamMarkers.Count - 1 >= camtargetpos)
             {
-                // position and rotation of cam relative to current showing frame and current markers
+               
+                #region Renew Data for this movement
+                TriggerPlaySpeed = PlayingSpeed;
+                SpeedChangeRun();
+
+                #endregion
 
 
+                #region Actual movement of objects 
 
-                    SpeedChange();
-                    TriggerPlaySpeed = SetSpeed;
-                    if (CurrentShowingPosition != EndFrame)
-                    {
+                    // camera being updated -----------------
+                    MoveCamFollowerThroughMarkers(true,true);
+                    CamMoveToFollower(true);
+                    InterpolateRiders(true, true, PlayingSpeed, Interp_time_to_next);
 
-
-                        if (remaining < (Time.deltaTime * TriggerPlaySpeed / 2))
-                        {
-                            if (CurrentShowingPosition >= EndFrame)
-                            {
-                                CurrentShowingPosition = EndFrame;
-                            }
-                            else
-                            {
-                                CurrentShowingPosition++;
-                                removed = remaining;
-                                remaining = Mathf.Clamp(remaining + MyPlayerPositions[CurrentShowingPosition].Timspanfromlast, 0.00001f, 0.1f);
-                            }
-                        }
-
-                        if (CurrentShowingPosition > CamMarkers[CurrentCamTargetPosition].ReferenceFrame)
-                        {
-                           if(CurrentCamTargetPosition < CamMarkers.Count - 1)
-                           {
-                            CurrentCamPosition++;
-                            CurrentCamTargetPosition++;
-                            RemovedCamSpan = Camspan;
-                            for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
-                            {
-                                Camspan = Camspan + MyPlayerPositions[i].Timspanfromlast;
-                            }
-
-                           }
-                        }
-
-
-
-                    }
-                    else
-                    {
-                      PlayThrough = false;
-                    RemovedCamSpan = 0;
-
-
-                    for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
-                    {
-                        RemovedCamSpan = RemovedCamSpan + MyPlayerPositions[i].Timspanfromlast;
-                    }
-
-
-
-
-                    }
-
-
-
-
-                if (PlayThrough)
-                {
-
-
-                    // position to go to
-                    Vector3 currentpos = CamMarkers[CurrentCamTargetPosition].CamPos;
-                    currentrot = CamMarkers[CurrentCamTargetPosition].CamRot;
-                    Vector3 Vel = -(ReplayCam.transform.position - currentpos).normalized;
-                    ReplayCam.transform.position = Vector3.SmoothDamp(ReplayCam.transform.position, Vector3.MoveTowards(ReplayCam.transform.position, currentpos, Vector3.Distance(ReplayCam.transform.position, currentpos) / Camspan * Time.deltaTime * TriggerPlaySpeed), ref Vel, BlendValue);
-
-                    // rotation to go to
-                    ReplayCam.transform.rotation = Quaternion.RotateTowards(ReplayCam.transform.rotation, currentrot, Quaternion.Angle(ReplayCam.transform.rotation, currentrot) / Camspan * Time.deltaTime * TriggerPlaySpeed);
-
-                // remove time
-                Camspan = Mathf.Clamp(Camspan - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 1000);
-                RemovedCamSpan = Mathf.Clamp(RemovedCamSpan + (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 1000);
-
-
-
-                // my position update
-                if (MyPlayerPositions.Count > CurrentShowingPosition)
-                {
-                    // plug in Position Data to rider
-                    MyRidersTrans[0].position = Vector3.MoveTowards(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(MyRidersTrans[0].position, MyPlayerPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                    MyRidersTrans[0].rotation = Quaternion.RotateTowards(MyRidersTrans[0].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[0].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                    for (int i = 1; i < 23; i++)
-                    {
-                        MyRidersTrans[i].localPosition = Vector3.MoveTowards(MyRidersTrans[i].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[i], Vector3.Distance(MyRidersTrans[i].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[i]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                        MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                    }
-                    // hip joint
-                    MyRidersTrans[20].localPosition = Vector3.MoveTowards(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(MyRidersTrans[20].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[20]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                    MyRidersTrans[24].position = Vector3.MoveTowards(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(MyRidersTrans[24].position, MyPlayerPositions[CurrentShowingPosition].Positions[24]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                    MyRidersTrans[24].rotation = Quaternion.RotateTowards(MyRidersTrans[24].rotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[24].eulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[24])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                    MyRidersTrans[25].localPosition = Vector3.MoveTowards(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(MyRidersTrans[25].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[25]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                    MyRidersTrans[27].localPosition = Vector3.MoveTowards(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(MyRidersTrans[27].localPosition, MyPlayerPositions[CurrentShowingPosition].Positions[27]) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-
-                    for (int i = 25; i < 32; i++)
-                    {
-                        MyRidersTrans[i].localRotation = Quaternion.RotateTowards(MyRidersTrans[i].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[i].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[i])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                    }
-                    MyRidersTrans[32].localRotation = Quaternion.RotateTowards(MyRidersTrans[32].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[32].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[32])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-                    MyRidersTrans[33].localRotation = Quaternion.RotateTowards(MyRidersTrans[33].localRotation, Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(MyRidersTrans[33].localEulerAngles), Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[33])) / remaining * (Time.deltaTime * TriggerPlaySpeed));
-
-                    remaining = Mathf.Clamp(remaining - (Time.deltaTime * TriggerPlaySpeed), 0.00001f, 0.1f);
-                }
-
-                // others position update
-                if (InGameUI.instance.Connected)
-                {
-
-                    // online players position update
-                    foreach (RemotePlayer player in GameManager.Players.Values)
-                    {
-                        player.nameSign.transform.rotation = Camera.current.transform.rotation;
-
-                        if (player.ReplayPositions.Count > CurrentShowingPosition)
-                        {
-                            player.Riders_Transforms[0].position = Vector3.MoveTowards(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0], Vector3.Distance(player.Riders_Transforms[0].position, player.ReplayPositions[CurrentShowingPosition].Positions[0]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            player.Riders_Transforms[0].rotation = Quaternion.RotateTowards(player.Riders_Transforms[0].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[0].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[0])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            for (int i = 1; i < 23; i++)
-                            {
-                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            }
-
-                            // hip joint
-                            player.Riders_Transforms[20].localPosition = Vector3.MoveTowards(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20], Vector3.Distance(player.Riders_Transforms[20].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[20]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-
-                            player.Riders_Transforms[24].position = Vector3.MoveTowards(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24], Vector3.Distance(player.Riders_Transforms[24].position, player.ReplayPositions[CurrentShowingPosition].Positions[24]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            player.Riders_Transforms[24].rotation = Quaternion.RotateTowards(player.Riders_Transforms[24].rotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[24].eulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[24])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-                            player.Riders_Transforms[25].localPosition = Vector3.MoveTowards(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25], Vector3.Distance(player.Riders_Transforms[25].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[25]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            player.Riders_Transforms[27].localPosition = Vector3.MoveTowards(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27], Vector3.Distance(player.Riders_Transforms[27].localPosition, player.ReplayPositions[CurrentShowingPosition].Positions[27]) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-                            for (int i = 25; i < 32; i++)
-                            {
-                                player.Riders_Transforms[i].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[i].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[i].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[i])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-                            }
-
-                            player.Riders_Transforms[32].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[32].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[32].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[32])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-                            player.Riders_Transforms[33].localRotation = Quaternion.RotateTowards(player.Riders_Transforms[33].localRotation, Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33]), Quaternion.Angle(Quaternion.Euler(player.Riders_Transforms[33].localEulerAngles), Quaternion.Euler(player.ReplayPositions[CurrentShowingPosition].Rotations[33])) / remaining * Time.deltaTime * TriggerPlaySpeed);
-
-
-                        }
-
-                    }
-
-
-
-                }
-
-
-
-
-
-                }
-
-
-
+                #endregion
 
 
             }
@@ -1514,19 +1086,33 @@ namespace FrostyP_Game_Manager
             }
         }
 
+        void ToggleCamVisible(bool value)
+        {
+            foreach (Transform t in Camobjs)
+            {
+                t.gameObject.SetActive(value);
+            }
+            CamVisible = value;
+        }
+
         void SwitchMode(bool editmode)
         {
+            FullclipTime = GetFullClipTimeSecs();
             if (!editmode)
             {
+                timeelapsed = 0;
                 CurrentShowingPosition = StartFrame;
                 EndFrame = CamMarkers[CamMarkers.Count - 1].ReferenceFrame;
-                CurrentCamPosition = 0;
-                CurrentCamTargetPosition = 1;
+                lastcampos = 0;
+                camtargetpos = 1;
 
                 CurrentShowingPosition = StartFrame;
-                ReplayCam.transform.position = CamMarkers[CurrentCamPosition].CamPos;
-                ReplayCam.transform.rotation = CamMarkers[CurrentCamPosition].CamRot;
+                ReplayCam.transform.position = CamMarkers[lastcampos].CamPos;
+                ReplayCam.transform.rotation = CamMarkers[lastcampos].CamRot;
+                FollowObject.transform.position = CamMarkers[lastcampos].CamPos;
+                FollowObject.transform.rotation = CamMarkers[lastcampos].CamRot;
 
+                
 
                 MyRidersTrans[0].position = MyPlayerPositions[CurrentShowingPosition].Positions[0];
                 MyRidersTrans[0].rotation = Quaternion.Euler(MyPlayerPositions[CurrentShowingPosition].Rotations[0]);
@@ -1557,14 +1143,14 @@ namespace FrostyP_Game_Manager
 
                 Camspan = 0;
                 RemovedCamSpan = 0.0001f;
-                remaining = MyPlayerPositions[CurrentShowingPosition + 1].Timspanfromlast;
-                removed = 0;
-                for (int i = CamMarkers[CurrentCamPosition].ReferenceFrame + 1; i <= CamMarkers[CurrentCamTargetPosition].ReferenceFrame; i++)
+                Interp_time_to_next = MyPlayerPositions[CurrentShowingPosition + 1].Time_span_seconds;
+                Interp_time_to_last = 0;
+                for (int i = CamMarkers[lastcampos].ReferenceFrame + 1; i <= CamMarkers[camtargetpos].ReferenceFrame; i++)
                 {
-                    Camspan = Camspan + MyPlayerPositions[i].Timspanfromlast;
+                    Camspan = Camspan + MyPlayerPositions[i].Time_span_seconds;
                 }
 
-
+                ToggleCamVisible(false);
 
             }
 
@@ -1581,16 +1167,15 @@ namespace FrostyP_Game_Manager
                 }
 
 
-                ReplayPosition marker = new ReplayPosition();
+                ReplayMark marker = new ReplayMark();
                 marker.CamPos = new Vector3(ReplayCam.transform.position.x, ReplayCam.transform.position.y, ReplayCam.transform.position.z);
                 marker.CamRot = new Quaternion(ReplayCam.transform.rotation.x, ReplayCam.transform.rotation.y, ReplayCam.transform.rotation.z, ReplayCam.transform.rotation.w);
                 marker.ReferenceFrame = CurrentShowingPosition;
-                marker.StyleIn = ReplayPosition.SlowMoStyle.SlowIn;
-                marker.StyleOut = ReplayPosition.SlowMoStyle.Slowout;
-
+                marker.Fov = Camera.current.fieldOfView;
+                marker.cliptimestamp = timeelapsed;
                 CamMarkers.Add(marker);
 
-
+                FullclipTime = GetFullClipTimeSecs();
             }
         }
 
@@ -1719,35 +1304,295 @@ namespace FrostyP_Game_Manager
             return Bmx_Root;
         }
 
+        void ShowBaseLine()
+        {
+            try
+            {
+                if (CamMarkers.Count > 1)
+                {
+                    if (LineActive)
+                    {
+                        // assign colours of each segment
+
+                        // parents line
+                        baseline.positionCount = 2;
+                        for (int i = 0; i < 2; i++)
+                        {
+                            baseline.SetPosition(i, CamMarkers[i].CamPos + Vector3.up);
+                        }
+                        float basespan = 0;
+                        for (int times = CamMarkers[0].ReferenceFrame + 1; times < CamMarkers[1].ReferenceFrame + 1; times++)
+                        {
+                            basespan = basespan + MyPlayerPositions[times].Time_span_seconds;
+                        }
+
+
+                        float basered = Mathf.Clamp((Average_distance_between_cam_markers / Average_time_span_between_cam_markers) - (Vector3.Distance(CamMarkers[0].CamPos, CamMarkers[1].CamPos) / basespan) / 100, 0, 1);
+                        float basegreen = Mathf.Clamp(1 - basered, 0, 1);
+                        baseline.material.color = new Color(basered, basegreen, 0, 0.8f);
+
+                        if (baselinechildren == null | baselinechildren.Count < CamMarkers.Count - 1) return;
+                        // all children lines
+                        if (CamMarkers.Count > 2)
+                        {
+                            int child = 0;
+                            // for each cam marker in list
+                            for (int markerno = 1; markerno < CamMarkers.Count - 1; markerno++)
+                            {
+                              LineRenderer line = baselinechildren[child].GetComponent<LineRenderer>();
+                                line.positionCount = 2;
+                                line.SetPosition(0, CamMarkers[markerno].CamPos + Vector3.up);
+                                line.SetPosition(1, CamMarkers[markerno + 1].CamPos + Vector3.up);
+
+                                // get timespan of this cam movement
+                                float timespan = 0;
+                                for (int times = CamMarkers[markerno].ReferenceFrame + 1; times < CamMarkers[markerno + 1].ReferenceFrame + 1; times++)
+                                {
+                                    timespan = timespan + MyPlayerPositions[times].Time_span_seconds;
+                                }
+
+
+                                float red = Mathf.Clamp((Average_distance_between_cam_markers / Average_time_span_between_cam_markers) - (Vector3.Distance(CamMarkers[markerno].CamPos,CamMarkers[markerno + 1].CamPos) / timespan) / 100, 0, 1);
+                                float green = Mathf.Clamp(1 - red,0,1);
+                                line.material.color = new Color(red, green, 0,0.8f);
+                                child++;
+                                
+                            }
+
+                        }
+
+
+                    }
+
+                }
+
+            }
+            catch (Exception x )
+            {
+                Debug.Log("ShowBaseLine() : " + x);
+            }
+
+            
+        }
+        void ShowSmoothLine()
+        {
+            if (CamMarkers.Count > 1)
+            {
+                Vector3[] originalarray = new Vector3[CamMarkers.Count];
+                for (int i = 0; i < CamMarkers.Count; i++)
+                {
+                    originalarray[i] = CamMarkers[i].CamPos;
+                }
+                originalpoints = originalarray;
+                smoothedpoints = SubdivideBaseLine(originalarray.ToList(),SmoothLineVal);
+
+                if (LineActive && smoothedpoints != null)
+                {
+                    smoothline.positionCount = smoothedpoints.Length;
+                    smoothline.SetPositions(smoothedpoints);
+
+                }
+
+            }
+        }
+        void ShowMarkerRotations()
+        {
+
+        }
+        void CalculateCamAverageTimespanAndDistance()
+        {
+            if (CamMarkers.Count > 1)
+            {
+                List<float> timespans = new List<float>();
+                List<float> distances = new List<float>();
+                // for each cam marker
+                for (int currentmarker = 0; currentmarker < CamMarkers.Count - 1; currentmarker++)
+                {
+                    // grab all timespans and distance between this marker and next
+                    float distance = Vector3.Distance(CamMarkers[currentmarker].CamPos, CamMarkers[currentmarker + 1].CamPos);
+                    float time = 0;
+                    for (int currentframe = CamMarkers[currentmarker].ReferenceFrame + 1; currentframe < CamMarkers[currentmarker + 1].ReferenceFrame; currentframe++)
+                    {
+                        time = time + MyPlayerPositions[currentframe].Time_span_seconds;    
+                    }
+                    timespans.Add(time);
+                    distances.Add(distance);
+                }
+
+                // get averages and store
+                Average_time_span_between_cam_markers = 0;
+                Average_distance_between_cam_markers = 0;
+                for (int times = 0; times < timespans.Count; times++)
+                {
+                    Average_time_span_between_cam_markers = Average_time_span_between_cam_markers + timespans[times];
+                }
+                Average_time_span_between_cam_markers = Average_time_span_between_cam_markers / timespans.Count;
+
+                for (int currentdistance = 0; currentdistance < distances.Count; currentdistance++)
+                {
+                    Average_distance_between_cam_markers = Average_distance_between_cam_markers + distances[currentdistance];
+                }
+                Average_distance_between_cam_markers = Average_distance_between_cam_markers / distances.Count;
+
+            }
+        }
+        void ResetLineSegments()
+        {
+            try
+            {
+                List<GameObject> todelete = new List<GameObject>();
+                if (CamMarkers.Count + 1 >= baselinechildren.Count)
+                {
+                    for (int i = 0; i < CamMarkers.Count - baselinerenderer.GetComponentsInChildren<Transform>(true).Length; i++)
+                    {
+                        GameObject child = new GameObject();
+                        DontDestroyOnLoad(child);
+                        LineRenderer rend = child.AddComponent<LineRenderer>();
+                        rend.material = new Material(Shader.Find("Sprites/Default"));
+                        rend.widthMultiplier = 0.2f;
+                        child.transform.parent = baselinerenderer.transform;
+                        baselinechildren.Add(child);
+                    }
+
+
+
+                }
+                else if(CamMarkers.Count < baselinechildren.Count + 1 && baselinechildren.Count > 10)
+                {
+                    Transform[] transformsofchildren = baselinerenderer.GetComponentsInChildren<Transform>(true);
+                    for (int tdel = 0; tdel < transformsofchildren.Length; tdel++)
+                    {
+                        todelete.Add(transformsofchildren[tdel].gameObject);
+                    }
+                    for (int tdel = 10; tdel < transformsofchildren.Length; tdel++)
+                    {
+                        todelete.Add(transformsofchildren[tdel].gameObject);
+                        baselinechildren.RemoveAt(tdel-1);
+                    }
+
+                   
+                }
+
+                if (todelete.Count > 0)
+                {
+                    for (int i = 0; i < todelete.Count; i++)
+                    {
+                        Destroy(todelete[i]);
+                    }
+                }
+
+            }
+            catch (Exception x)
+            { 
+                Debug.Log("ResetLineSegments() : " + x);
+            }
+
+        }
+       
+        Vector3[] SubdivideBaseLine(List<Vector3> points,int iterations, float tightness = 0.3f)
+        {
+           
+            for (int iteration = 0; iteration < iterations; iteration++)
+            {
+               
+                List<Vector3> newpoints = new List<Vector3>();
+                newpoints.Add(points[0]);
+                // for each point in the newpoints list excluding start and end point, newpoints is given back the new list of points each iteration
+                for (int current_point = 1; current_point < points.Count - 1; current_point++)
+                {
+                    Vector3 b_a_dir = -(points[current_point] - points[current_point - 1]).normalized;
+                    Vector3 b_c_dir = -(points[current_point] - points[current_point + 1]).normalized;
+                    float b_a_dist = Vector3.Distance(points[current_point], points[current_point - 1]);
+                    float b_c_dist = Vector3.Distance(points[current_point], points[current_point + 1]);
+
+                    Vector3 x1 = points[current_point] + b_a_dir * (b_a_dist * tightness);
+                    Vector3 x2 = points[current_point] + b_c_dir * (b_c_dist * tightness);
+
+                    float x1_x2_dist = Vector3.Distance(x1, x2);
+                    Vector3 X1_X2_dir = -(x1 - x2).normalized;
+
+                    Vector3 x3 = x1 + (X1_X2_dir * (x1_x2_dist * 0.5f));
+                    Vector3 b_x3_dir = -(points[current_point] - x3).normalized;
+                    float b_x3_dist = Vector3.Distance(points[current_point], x3);
+                    Vector3 b = points[current_point] + (b_x3_dir * (b_x3_dist * tightness));
+
+                    newpoints.Add(x1);
+                    newpoints.Add(b);
+                    newpoints.Add(x2);
+
+                   
+                }
+                newpoints.Add(points[points.Count - 1]);
+                points = newpoints;
+
+
+            }
+
+            return points.ToArray();
+
+        }
+
+        float GetFullClipTimeSecs()
+        {
+            float time = 0;
+            if (CamMarkers.Count < 2) return 0;
+            for (int mark = StartFrame + 1; mark < CamMarkers[CamMarkers.Count-1].ReferenceFrame; mark++)
+            {
+              time = time + MyPlayerPositions[mark].Time_span_seconds;
+            }
+            return time;
+        }
+
         void Update()
         {
             if (ReplayOpen)
             {
-                // in Edit mode
+                // to do no matter what
+                if (Camobjs == null) Camobjs = FollowObject.GetComponentsInChildren<Transform>(true);
+                moveforward = MGInputManager.RTrigger() > 0.15f;
+                moveback = MGInputManager.LTrigger() > 0.15f;
+                TriggerPressed = MGInputManager.LTrigger() > 0.15f | MGInputManager.RTrigger() > 0.15f ? true : false;
+                LineActive = baselinerenderer.activeInHierarchy;
+                
+
+               
+                if (InGameUI.instance.Connected)
+                {
+                    GameManager.KeepNetworkActive();
+                }
+                if (Input.GetKeyDown(KeyCode.H))
+                {
+                    HideGUI = !HideGUI;
+                    foreach(Transform t in Camobjs)
+                    {
+                        t.gameObject.SetActive(!HideGUI);
+                    }
+                    baselinerenderer.SetActive(!HideGUI);
+                    smoothlinerenderer.SetActive(!HideGUI);
+                }
+
+
+
+                // in Edit mode stuff
                 if (!PlayEditToggle)
                 {
+                    ResetLineSegments();
+                    CalculateCamAverageTimespanAndDistance();
+                    ShowBaseLine();
+                    ShowSmoothLine();
+
                     PlayerFreeCam();
                     AddCamMarker();
                     TriggerScrollEditMode();
                 }
 
-                if (InGameUI.instance.Connected)
-                {
-                    GameManager.KeepNetworkActive();
-                }
-
-                if (Input.GetKeyDown(KeyCode.H))
-                {
-                    HideGUI = !HideGUI;
-                }
-
-
-                // in Play mode
+                // in Play mode stuff
                 if (PlayEditToggle)
                 {
                     if (!PlayThrough)
                     {
                     TriggerScrollPlayMode();
+                    CamMoveToFollower(false);
                     }
                     else
                     {
@@ -1759,11 +1604,12 @@ namespace FrostyP_Game_Manager
             }
             else
             {
+                // replay closed, continue taking in data
 
                 try
                 {
 
-                    if (ReplayWatch.ElapsedMilliseconds > 16f)
+                    if (Recording_watch.ElapsedMilliseconds > 16f)
                     {
 
                         // Keep 30 seconds of my footage
@@ -1802,10 +1648,10 @@ namespace FrostyP_Game_Manager
                             Currentrotations[33] = LocalPlayer.instance.Riders_Transforms[33].localEulerAngles;
 
 
-                            ReplayPosition newreplaymarker = new ReplayPosition();
+                            ReplayMark newreplaymarker = new ReplayMark();
                             newreplaymarker.Positions = new Vector3[32];
                             newreplaymarker.Rotations = new Vector3[34];
-                            newreplaymarker.Timspanfromlast = (float)ReplayWatch.Elapsed.TotalSeconds;
+                            newreplaymarker.Time_span_seconds = (float)Recording_watch.Elapsed.TotalSeconds;
                             Array.Copy(Currentpositions, newreplaymarker.Positions, Currentpositions.Length);
                             Array.Copy(Currentrotations, newreplaymarker.Rotations, Currentrotations.Length);
                             MyPlayerPositions.Add(newreplaymarker);
@@ -1851,7 +1697,7 @@ namespace FrostyP_Game_Manager
                                             rot[i] = player.Riders_Transforms[i].localEulerAngles;
                                         }
 
-                                        player.ReplayPositions.Add(new IncomingTransformUpdate(pos, rot, (float)ReplayWatch.Elapsed.TotalSeconds));
+                                        player.ReplayPositions.Add(new IncomingTransformUpdate(pos, rot, (float)Recording_watch.Elapsed.TotalSeconds));
 
 
                                     }
@@ -1862,8 +1708,8 @@ namespace FrostyP_Game_Manager
                             }
                         }
 
-                        ReplayWatch.Reset();
-                        ReplayWatch.Start();
+                        Recording_watch.Reset();
+                        Recording_watch.Start();
 
                     }
 
@@ -1877,7 +1723,7 @@ namespace FrostyP_Game_Manager
         }
         void FixedUpdate()
         {
-          
+         
         }
         void Awake()
         {
@@ -1908,13 +1754,41 @@ namespace FrostyP_Game_Manager
             CamMarkerstyle = OnStyle;
 
 
-            SlowMoLabels = new Dictionary<ReplayPosition.SlowMoStyle,string>
+            SlowMoLabels = new List<string>
             {
-                {ReplayPosition.SlowMoStyle.Linear,"Linear" },
-                {ReplayPosition.SlowMoStyle.SlowIn,"Slow Start" },
-                {ReplayPosition.SlowMoStyle.Slowout, "Slow End" },
+                {"Linear"},
+                {"Slow start"},
+                {"Slow end"},
 
             };
+
+            baselinerenderer = new GameObject();
+            DontDestroyOnLoad(baselinerenderer);
+            baseline = baselinerenderer.AddComponent<LineRenderer>();
+            baseline.material = new Material(Shader.Find("Sprites/Default"));
+            baseline.widthMultiplier = 0.2f;
+            baseline.material.color = Color.green;
+            // create pool of line segments
+            List<GameObject> children = new List<GameObject>();
+            for (int i = 0; i < 10; i++)
+            {
+                GameObject child = new GameObject();
+                DontDestroyOnLoad(child);
+                LineRenderer rend = child.AddComponent<LineRenderer>();
+                rend.material = new Material(Shader.Find("Sprites/Default"));
+                rend.widthMultiplier = 0.2f;
+                child.transform.parent = baselinerenderer.transform;
+                children.Add(child);
+            }
+            baselinechildren = children;
+            smoothlinerenderer = new GameObject();
+            DontDestroyOnLoad(smoothlinerenderer);
+            smoothline = smoothlinerenderer.AddComponent<LineRenderer>();
+            smoothline.material = new Material(Shader.Find("Sprites/Default"));
+            smoothline.material.color = new Color(0.4f,0.1f,0.8f,0.85f); // purple line shows interpolated points
+            smoothline.widthMultiplier = 0.125f;
+
+
 
         }
         void Start()
@@ -1925,11 +1799,13 @@ namespace FrostyP_Game_Manager
             BottomPanelStyle.fontStyle = FontStyle.Bold;
 
 
-            ReplayCam = Instantiate(Camera.main.gameObject) as GameObject;
+            ReplayCam = GameObject.Instantiate(Camera.main.gameObject) as GameObject;
             ReplayCam.SetActive(false);
             DontDestroyOnLoad(ReplayCam);
 
-            ReplayWatch.Start();
+            Recording_watch.Start();
+            StartCoroutine(LateLoad());
+            DontDestroyOnLoad(FollowObject);
 
         }
         void OnGUI()
@@ -1949,8 +1825,7 @@ namespace FrostyP_Game_Manager
                     {
                         CameraSettings.instance.Show();
                     }
-
-
+                   
                 }
 
             }
@@ -1958,12 +1833,34 @@ namespace FrostyP_Game_Manager
         }
 
 
+        IEnumerator LateLoad()
+        {
+            while(GameManager.SLRcam == null)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+            FollowObject = Instantiate(GameManager.SLRcam);
+            while (FollowObject == null)
+            {
+                Debug.Log("Waiting for replay followobject");
+                yield return new WaitForEndOfFrame();
+            }
+            FollowObject.transform.localScale = new Vector3(100, 100, 100);
+            Camobjs = FollowObject.GetComponentsInChildren<Transform>();
+            foreach (Transform t in Camobjs)
+            {
+                t.localEulerAngles = new Vector3(0, 180, 0);
+                t.localScale = new Vector3(20, 20, 20);
+            }
+            Debug.Log("Done follow object");
+        }
+
     }
 
     /// <summary>
     /// Useable for storing every pos and rot of the rider and bmx in a packet, or for a camera marker with referenceframe etc
     /// </summary>
-    public class ReplayPosition
+    public class ReplayMark
     {
         public Vector3[] Positions;
         public Vector3[] Rotations;
@@ -1972,23 +1869,36 @@ namespace FrostyP_Game_Manager
         public float Aperture;
         public Vector3 CamPos;
         public Quaternion CamRot;
+        /// <summary>
+        /// position of this replayposition in the Myplayerpositions list
+        /// </summary>
         public int ReferenceFrame;
-        public float Timspanfromlast;
+        /// <summary>
+        /// Timespan in seconds since last Replayposition was captured
+        /// </summary>
+        public float Time_span_seconds;
         public float Speedatmarker;
-        public int SpeedFramein;
-        public int SpeedFrameout;
-        public SlowMoStyle StyleIn;
-        public SlowMoStyle StyleOut;
+        /// <summary>
+        /// how many frames behind marker frame to start speed change
+        /// </summary>
+        public int Speed_change_start_frame;
+        /// <summary>
+        /// how many frames after marker frame to end speed change
+        /// </summary>
+        public int Speed_change_end_frame;
+        public SlowMoStyle StyleIn = SlowMoStyle.Linear;
+        public SlowMoStyle StyleOut = SlowMoStyle.Linear;
         public bool AlterSpeed;
+        public float cliptimestamp;
 
 
 
 
         public enum SlowMoStyle
         {
-          Linear = 1,
-          SlowIn = 2,
-          Slowout = 3,
+          Linear = 0,
+          SlowIn = 1,
+          Slowout = 2,
 
         }
 

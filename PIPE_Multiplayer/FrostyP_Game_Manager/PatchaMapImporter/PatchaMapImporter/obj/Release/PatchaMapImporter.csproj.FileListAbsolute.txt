@@ -215,3 +215,10 @@ E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImport
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.dll
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.pdb
 E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.csproj.CopyComplete
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\PIPE_Multiplayer.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\obj\Release\PatchaMapImporter.csproj.AssemblyReference.cache
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\FrostyP_Game_Manager.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\Valve.dll
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\PIPE_Multiplayer.pdb
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\PIPE_Multiplayer.dll.config
+E:\GITHUB\Pipe_Multiplayer\PIPE_Multiplayer\FrostyP_Game_Manager\PatchaMapImporter\PatchaMapImporter\bin\Release\FrostyP_Game_Manager.pdb
