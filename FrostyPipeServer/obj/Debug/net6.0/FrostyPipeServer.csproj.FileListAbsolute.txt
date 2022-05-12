@@ -1,0 +1,132 @@
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.GeneratedMSBuildEditorConfig.editorconfig
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.AssemblyInfoInputs.cache
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.AssemblyInfo.cs
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.CoreCompileInputs.cache
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.MvcApplicationPartsAssemblyInfo.cache
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.RazorAssemblyInfo.cache
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.RazorAssemblyInfo.cs
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\appsettings.Development.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\appsettings.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Config\Banprofiles.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Config\Banwords.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.staticwebassets.runtime.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.exe
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.deps.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.runtimeconfig.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\ref\FrostyPipeServer.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.pdb
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Newtonsoft.Json.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Assembly-CSharp.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\UnityEngine.CoreModule.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\staticwebassets.build.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\staticwebassets.development.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\scopedcss\bundle\FrostyPipeServer.styles.css
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\scopedcss\projectbundle\FrostyPipeServer.bundle.scp.css
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.CopyComplete
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\ref\FrostyPipeServer.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.pdb
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.genruntimeconfig.cache
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\Config\ServerConfig.json
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\libcrypto-1_1-x64.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\libGameNetworkingSockets.so
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\libprotobuf.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\libprotobuf.so
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\Assembly-CSharp.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\BikeWorkshopMenu.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\GameNetworkingSockets.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\libcrypto.so
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\DLLs\UnityEngine.CoreModule.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\RiptideNetworking.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\bin\Debug\net6.0\RiptideNetworking.pdb
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.AssemblyReference.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.GeneratedMSBuildEditorConfig.editorconfig
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.AssemblyInfoInputs.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.AssemblyInfo.cs
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.CoreCompileInputs.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.MvcApplicationPartsAssemblyInfo.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.RazorAssemblyInfo.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.RazorAssemblyInfo.cs
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\ref\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.pdb
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\appsettings.Development.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\appsettings.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Config\Banprofiles.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Config\Banwords.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.staticwebassets.runtime.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.exe
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\DLLs\Assembly-CSharp.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\DLLs\BikeWorkshopMenu.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\DLLs\UnityEngine.CoreModule.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.deps.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.runtimeconfig.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\ref\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.pdb
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Newtonsoft.Json.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Assembly-CSharp.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\RiptideNetworking.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\UnityEngine.CoreModule.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\RiptideNetworking.pdb
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\staticwebassets.build.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\staticwebassets.development.json
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\scopedcss\bundle\FrostyPipeServer.styles.css
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\scopedcss\projectbundle\FrostyPipeServer.bundle.scp.css
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.CopyComplete
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.genruntimeconfig.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.AssemblyReference.cache
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.Certificate.dll
+F:\Pipe_Multiplayer\PIPE_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\appsettings.Development.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\appsettings.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Config\Banwords.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.staticwebassets.runtime.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.exe
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\DLLs\Assembly-CSharp.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\DLLs\BikeWorkshopMenu.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\DLLs\UnityEngine.CoreModule.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.deps.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.runtimeconfig.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\ref\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\FrostyPipeServer.pdb
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.Certificate.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Newtonsoft.Json.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Assembly-CSharp.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\RiptideNetworking.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\UnityEngine.CoreModule.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\RiptideNetworking.pdb
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.AssemblyReference.cache
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.GeneratedMSBuildEditorConfig.editorconfig
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.AssemblyInfoInputs.cache
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.AssemblyInfo.cs
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.CoreCompileInputs.cache
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.MvcApplicationPartsAssemblyInfo.cache
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.RazorAssemblyInfo.cache
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.RazorAssemblyInfo.cs
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\staticwebassets.build.json
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\staticwebassets.development.json
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\scopedcss\bundle\FrostyPipeServer.styles.css
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\scopedcss\projectbundle\FrostyPipeServer.bundle.scp.css
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.csproj.CopyComplete
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\ref\FrostyPipeServer.dll
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.pdb
+F:\Pipe_Multiplayer\FrostyPipeServer\obj\Debug\net6.0\FrostyPipeServer.genruntimeconfig.cache
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Config\PlayerBans.json
+F:\Pipe_Multiplayer\FrostyPipeServer\bin\Debug\net6.0\Config\ServerConfig.json

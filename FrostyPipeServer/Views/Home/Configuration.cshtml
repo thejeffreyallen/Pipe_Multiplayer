@@ -1,0 +1,62 @@
+﻿
+@{
+    ViewData["Title"] = "Configuration";
+}
+<link rel="stylesheet" href="/css/Configuration.css">
+
+<nav class="navbar">
+    <button class="Navbutton" onclick="ApplyConfigChanges()">Apply Changes</button>
+    <button class="Navbutton" onclick="SendReloadConfig()">Reload</button>
+    
+</nav>
+<h5 class="pagetitle">Server Configuration Options</h5>
+
+<h1 id="infotext">Editable settings found here originate in Serverfolder/Config/ServerConfig.json</h1>
+<h1 id="infotext">To reset configuration to default, start the server with no ServerConfig.json file present</h1>
+ 
+<h5 class="servername">Servername: <var id="Servername" contenteditable="true">0</var></h5>
+
+     <div class="configvalues">
+     <h5 class="setting">Maxplayers: <var class="Editvalue" id="mplayers" contenteditable="true">0</var></h5>
+     <h5 class="setting">Dynamic tick rate: <input type="checkbox" id="DynamicTick" /></h5>
+      <h5 class="setting">Dynamic Tick Multiplier: <var class="Editvalue" id="DynamicTickMultiplier" contenteditable="true">0</var></h5>
+     <h5 class="setting">TickRate Max: <var class="Editvalue" id="trMax" contenteditable="true">0</var></h5>
+     <h5 class="setting">TickRate Min: <var class="Editvalue" id="trMin" contenteditable="true">0</var></h5>
+     <h5 class="setting">Standby Tickrate: <var class="Editvalue" id="StandbyTick" contenteditable="true">0</var></h5>
+     <h5 class="setting">Port: <var class="Editvalue" id="port" contenteditable="true">0</var></h5>
+     <h5 class="setting">Portal address: <var class="Editvalue" id="portal" contenteditable="true">none</var></h5>
+     <h5 class="setting">AdminPassword: <var class="Editvalue" id="adpass" contenteditable="true">0</var></h5>
+      <h5 class="setting">Post to Hub timeout: <var class="Editvalue" id="HubPostTimeout" contenteditable="true">0</var> mins</h5>
+     <h5 class="setting">POST Address <var class="Editvalue" id="POST" contenteditable="true">0</var></h5>
+     <h5 class="setting">PUT Address: <var class="Editvalue" id="PUT" contenteditable="true">0</var></h5>
+     <h5 class="setting">Key for API: <var class="Editvalue" id="KEY" contenteditable="true">0</var></h5>
+     <h5 class="setting">Supported Garage Version: <var class="Editvalue" id="GarageVersion" contenteditable="true">none</var></h5>
+     <h5 class="setting">Message Max Payload: <var class="Editvalue" id="MessageMaxPayload" contenteditable="true">0</var></h5>
+     <h5 class="setting">Message MTU: <var class="Editvalue" id="MessageMTU" contenteditable="true">0</var></h5>
+     <h5 class="setting">publicise: <input type="checkbox" id="public" /></h5>
+     </div>
+     <div class="configvalues">
+     <h5 class="datastream">Ram used: <var class="streamvalue" id="ramused">0</var>MegaBytes</h5>
+     <h5 class="datastream">TickRate actual: <var class="streamvalue" id="trnow">0</var>Frames per second</h5>
+     <h5 class="datastream">players: <var class="streamvalue" id="players">0</var></h5>
+     <h5 class="datastream">process time - receive thread: <var class="streamvalue" id="lastlooprec">0</var>milliseconds</h5>
+     <h5 class="datastream">timeout - receive thread: <var class="streamvalue" id="lastlooprectimeout">0</var>milliseconds</h5>
+     <h5 class="datastream">process time - send thread:<var class="streamvalue" id="lastloopsen">0</var>milliseconds</h5>
+     <h5 class="datastream">timeout - send thread: <var class="streamvalue" id="lastloopsentimeout">0</var>milliseconds</h5>
+     <h5 class="datastream">CPU process time: <var class="streamvalue" id="cpuused">0</var>milliseconds</h5>
+     <h5 class="datastream">Average ping: <var class="streamvalue" id="avping">0</var>milliseconds</h5>
+     <h5 class="datastream">out bytes per sec: <var class="streamvalue" id="bytesout">0</var> KB</h5>
+     <h5 class="datastream">in bytes per sec: <var class="streamvalue" id="bytesin">0</var> KB</h5>
+     <h5 class="datastream">Pending Reliable: <var class="streamvalue" id="pendingrel">0</var></h5>
+     <h5 class="datastream">Active Fragments: <var class="streamvalue" id="Fragments">0</var></h5>
+     </div>
+
+
+
+
+  <script src="~/js/Config.js" asp-append-version="true"></script>
+  <script>
+      GetServerConfig();
+      GetServerStats();
+  </script>
+

@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostyP_Game_Manager", "FrostyP_Game_Manager.csproj", "{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10295198-A959-4D15-9D56-61BA7AD83A2F} = {10295198-A959-4D15-9D56-61BA7AD83A2F}
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71} = {1731FEDE-A577-4E9E-9C21-C1E15915CE71}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatchaMapImporter", "PatchaMapImporter\PatchaMapImporter\PatchaMapImporter.csproj", "{1731FEDE-A577-4E9E-9C21-C1E15915CE71}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RiptideNetworking", "..\RiptideNetworking\RiptideNetworking\RiptideNetworking\RiptideNetworking.csproj", "{10295198-A959-4D15-9D56-61BA7AD83A2F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Debug|x86.Build.0 = Debug|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Release|x86.ActiveCfg = Release|Any CPU
+		{E27CB2DA-788E-4E8C-8B7E-C08FC030ED2E}.Release|x86.Build.0 = Release|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Debug|x86.Build.0 = Debug|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Release|x86.ActiveCfg = Release|Any CPU
+		{1731FEDE-A577-4E9E-9C21-C1E15915CE71}.Release|x86.Build.0 = Release|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Debug|x86.Build.0 = Debug|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Release|x86.ActiveCfg = Release|Any CPU
+		{10295198-A959-4D15-9D56-61BA7AD83A2F}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5EC9D36A-8754-4AE5-8824-449A83D0255D}
+	EndGlobalSection
+EndGlobal

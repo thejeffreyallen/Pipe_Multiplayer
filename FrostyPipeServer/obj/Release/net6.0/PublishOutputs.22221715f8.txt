@@ -1,0 +1,17 @@
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\FrostyPipeServer.exe
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\appsettings.Development.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\appsettings.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Config\Banprofiles.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Config\Banwords.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Config\ServerConfig.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\FrostyPipeServer.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\FrostyPipeServer.deps.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\FrostyPipeServer.runtimeconfig.json
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\FrostyPipeServer.pdb
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Microsoft.AspNetCore.JsonPatch.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Newtonsoft.Json.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Newtonsoft.Json.Bson.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Assembly-CSharp.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\UnityEngine.CoreModule.dll
+E:\FrostySync\Code Projects\FrostyPipeServer\obj\Release\net6.0\PubTmp\Out\Valve.dll

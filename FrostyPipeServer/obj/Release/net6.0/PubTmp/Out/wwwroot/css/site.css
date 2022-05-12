@@ -1,0 +1,188 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+    background-color: black;
+    color: white;
+}
+.navbar{
+    background-color:black;
+    color: white;
+}
+.Navbutton {
+    color: white;
+    background-color:black;
+    text-align: center;
+    font-size: 14px;
+    padding:0px;
+    margin-right:0px;
+    margin-left:0px;
+}
+    .Navbutton:hover {
+        color: white;
+        background-color: green;
+        text-align: center;
+        font-size: 14px;
+    }
+.nav-link{
+    color:white;
+}
+/* Provide sufficient contrast against white background */
+a {
+}
+
+.pagetitle{
+    text-align:center;
+    color:white;
+    font:bold 22px arial;
+}
+.display-4{
+    color:green;
+}
+.adminpanelvalue{
+    background-color:red;
+    border:1rem;
+    color:white;
+    border-block-color:green;
+    align-content:center;
+    text-align:center;
+    margin-left:10rem;
+    margin-right:10rem;
+}
+
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #000000;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+    background-color: #000;
+    color: white
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+#infotext{
+    color:white;
+    text-align:center;
+    font-size:14px;
+    border-top:10px;
+}
+
+
+.boxleft {    background-color: #f1f1f1;
+    display: inline-block;
+    margin-right: 2rem;
+    margin-top: 2rem;
+    color: black;
+}
+.boxright {
+    display: inline-block;
+    margin-top: 2rem;
+    color: black;
+}
+.collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}
+
+    /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+    .active, .collapsible:hover {
+        background-color: #ccc;
+    }
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    color: black;
+}
+
+
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555;
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+        /* Fade in tooltip */
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+        /* Tooltip arrow */
+        .tooltip .tooltiptext::after {
+            content: "";
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    } 
+
+

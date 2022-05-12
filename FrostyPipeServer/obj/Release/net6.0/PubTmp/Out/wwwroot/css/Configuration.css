@@ -1,0 +1,52 @@
+﻿body {
+
+}
+.servername{
+    background-color:green;
+    color:white;
+}
+.configvalues{
+    background-color:black;
+    border:2px solid green;
+    float:left;
+    margin-right:0.5rem;
+}
+.datastream {
+    color: white;
+    text-align: left;
+    font-size: 14px;
+    vertical-align: top;
+    font-weight: bold;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    margin-right: 1rem;
+}
+
+.setting {
+    color: white;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 1rem;
+    margin-top: 1rem;
+}
+
+.Editvalue {
+    color: grey;
+    background-color: black;
+    text-align: center;
+    font-size: 12px;
+    margin-left: 1rem;
+    margin-right:1rem;
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+    border: 2px solid green;
+}
+.streamvalue {
+    border: 2px solid red;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+}

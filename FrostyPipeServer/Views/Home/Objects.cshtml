@@ -1,0 +1,25 @@
+﻿@model PlayersModel
+@{
+    ViewData["Title"] = "Objects";
+}
+
+<h1 class="pagetitle">Live Objects</h1>
+<div>
+@foreach(FrostyPipeServer.ServerFiles.Player pl in Model.Players)
+{
+  <button type="button" class="collapsible">@pl.Username</button>
+  <div class="content">
+    @foreach(FrostyPipeServer.ServerFiles.NetGameObject obj in pl.PlayerObjects)
+    {
+        <h5>Name: @obj.NameofObject</h5>
+        <h5>Directory: @obj.Directory</h5>
+        <h5>Assetbundle: @obj.NameofAssetBundle</h5>
+        <h5>Filename: @obj.NameOfFile</h5>
+        <h5>Object ID: @obj.ObjectID</h5>
+        <h5>Phyiscs: @obj.IsPhysics</h5>
+        <h5>Votes to remove: @obj.Votestoremove</h5>
+    }
+
+  </div>  
+}
+</div>

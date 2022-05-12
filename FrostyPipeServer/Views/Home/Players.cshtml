@@ -1,0 +1,38 @@
+﻿@model PlayersModel
+@{
+    ViewData["Title"] = "Players";
+}
+
+<h1 class="pagetitle">Live Player Management</h1>
+<div>
+@for(var i =0;i<Model.Players.Count;i++)
+{
+        
+        <button type="button" class="collapsible">@Model.Players[i].Username</button>
+    <div class="content">
+
+         <div class="boxleft">
+        <h5>Riptide ID:@Model.Players[i].Uniqueid</h5>
+        <h5>Rider Model:@Model.Players[i].Ridermodel</h5>
+        <h5>@Model.Players[i].PlayerObjects.Count Custom objects spawned</h5>
+        <h5>Riding at: @Model.Players[i].MapName</h5>
+        <h5>Round trip time: @Model.Players[i].connection.RTT </h5>
+        <h5>Network FPS: @Model.Players[i].FPS </h5>
+        <h5>IP: @Model.Players[i].IP</h5>
+        </div>
+        <div class="boxright">
+        <button id="@Model.Players[i].Uniqueid" type="button" class="banbutton" onclick="BanriderSend(this.id)">Ban rider</button>
+        <h5 contenteditable="true" id="@Model.Players[i].Uniqueid bantime">1</h5><h5> Mins to ban</h5>
+        </div>
+
+        <button type="button" class="collapsible" id="@Model.Players[i].Uniqueid" onclick="GetGarageSetup(this.id)">Garage Setup</button>
+        <div class="content" id="garagedata @Model.Players[i].Uniqueid">
+            
+        </div>
+       
+    </div>  
+}
+</div>
+
+<script src="/js/Players.js"></script>
+
